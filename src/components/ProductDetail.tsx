@@ -1,13 +1,25 @@
-import React, { useState } from "react";
-import { Product, CartItem } from "../types";
-import { ChevronLeft, Shield, Sparkles, Check, ArrowRight, CornerDownRight } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Product, CartItem, PageId } from "../types";
+import { ChevronLeft, Shield, Sparkles, ArrowRight, CornerDownRight, X } from "lucide-react";
 
 interface ProductDetailProps {
   product: Product;
-  addToCart: (product: Product, buyType: "original" | "print") => void;
-  setCurrentPage: (page: "home" | "portraits" | "shop" | "about" | "contact" | "product-detail" | "success") => void;
+  addToCart: (
+    product: Product, 
+    buyType: "original" | "print", 
+    quantityToAdd?: number,
+    shippingMethod?: string,
+    shippingPrice?: number
+  ) => void;
+  setCurrentPage: (page: PageId) => void;
   cart: CartItem[];
   setIsCartOpen: (isOpen: boolean) => void;
+  onPurchaseSuccess?: (order: {
+    orderNumber: string;
+    productTitle: string;
+    purchaseType: "original" | "print";
+    price: number;
+  }) => void;
 }
 
 export default function ProductDetail({
@@ -15,37 +27,62 @@ export default function ProductDetail({
   addToCart,
   setCurrentPage,
   cart,
-  setIsCartOpen
+  setIsCartOpen,
+  onPurchaseSuccess
 }: ProductDetailProps) {
   const [selectedType, setSelectedType] = useState<"original" | "print">(
     product.isOriginalAvailable ? "original" : "print"
   );
   const [activeThumbnail, setActiveThumbnail] = useState<"front" | "frame" | "detail">("front");
-  const [addedSuccess, setAddedSuccess] = useState(false);
 
-  // Decorative text or zoom indicators
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setMousePos({ x, y });
-  };
+  const deliveryOptions = selectedType === "original" 
+    ? [
+        { id: "free_courier", name: "Ubezpieczona przesyłka kurierska", price: 0 }
+      ]
+    : [
+        { id: "inpost", name: "InPost Paczkomat 24/7", price: 15 },
+        { id: "orlen", name: "Orlen Paczka", price: 10 },
+        { id: "courier", name: "Kurier DPD / InPost", price: 20 }
+      ];
+
+  const [selectedDelivery, setSelectedDelivery] = useState(deliveryOptions[0].id);
+
+  useEffect(() => {
+    setSelectedDelivery(selectedType === "original" ? "free_courier" : "inpost");
+  }, [selectedType]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsLightboxOpen(false);
+      }
+    };
+    if (isLightboxOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isLightboxOpen]);
 
   const currentPrice = selectedType === "original" ? product.originalPrice : (product.printPrice || 20);
 
   const handleKupTeraz = () => {
-    // Standard direct checkout opening drawer securely
-    addToCart(product, selectedType);
-    setIsCartOpen(true);
-  };
-
-  const handleAddToCart = () => {
-    addToCart(product, selectedType);
-    setAddedSuccess(true);
-    setTimeout(() => setAddedSuccess(false), 2000);
+    if (onPurchaseSuccess) {
+      const orderNum = "HK-" + Math.floor(10000 + Math.random() * 90000);
+      onPurchaseSuccess({
+        orderNumber: orderNum,
+        productTitle: product.title,
+        purchaseType: selectedType,
+        price: currentPrice
+      });
+    } else {
+      setCurrentPage("success-purchase");
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Extra thumbnails to represent different contexts for editorial minimalism
@@ -58,11 +95,11 @@ export default function ProductDetail({
   const currentThumbnailUrl = thumbnails[activeThumbnail] || product.imageUrl;
 
   return (
-    <div className="animate-fadeIn py-16 px-6 max-w-[1600px] mx-auto space-y-16">
+    <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 max-w-[1600px] mx-auto space-y-16">
       {/* Back to Gallery Path Link */}
       <button
         onClick={() => setCurrentPage("shop")}
-        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-off-black hover:text-lime-accent active:text-magenta-accent transition-all duration-300 cursor-pointer"
+        className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-off-black hover:text-magenta-accent active:text-magenta-accent transition-all duration-300 cursor-pointer"
       >
         <ChevronLeft className="w-4 h-4" />
         Cofnij do galerii prac
@@ -70,28 +107,22 @@ export default function ProductDetail({
 
       {/* Main Container Dual-Column Layout (50/50 split) */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-        {/* Left Column: Media & Thumbnails Context (7/12 width) */}
-        <div className="lg:col-span-7 space-y-6">
+        {/* Left Column: Media & Thumbnails Context (50% width) */}
+        <div className="lg:col-span-6 space-y-6">
           <div 
-            className="aspect-[3/4] relative overflow-hidden rounded-[32px] border border-gray-100 bg-gray-50/50 cursor-zoom-in"
-            onMouseMove={handleMouseMove}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            className="aspect-[3/4] relative overflow-hidden rounded-[32px] border border-gray-100 bg-gray-50/50 cursor-zoom-in group/img"
+            onClick={() => setIsLightboxOpen(true)}
           >
             <img
               src={currentThumbnailUrl}
               alt={`${product.title} w ujęciu ${activeThumbnail}`}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover transition-transform duration-100 ease-out select-none"
-              style={{
-                transform: isHovered ? "scale(1.5)" : "scale(1)",
-                transformOrigin: `${mousePos.x}% ${mousePos.y}%`
-              }}
+              className="w-full h-full object-cover transition-transform duration-500 ease-out select-none group-hover/img:scale-102"
             />
             
             {/* Visual Guide Overlay */}
-            <div className="absolute top-4 right-4 bg-off-black/85 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-mono tracking-wider z-10 pointer-events-none">
-              {isHovered ? "PRZECIĄGNIJ ABY PRZYBLIŻYĆ DETAL" : "HOVER ABY ZOBACZYĆ FAKTURĘ"}
+            <div className="absolute top-4 right-4 bg-off-black/85 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-mono tracking-wider z-10 pointer-events-none opacity-0 group-hover/img:opacity-100 transition-opacity duration-300">
+              KLIKNIJ ABY POWIĘKSZYĆ
             </div>
             
             {activeThumbnail === "detail" && (
@@ -145,8 +176,8 @@ export default function ProductDetail({
           </div>
         </div>
 
-        {/* Right Column: Title, Parameters Selector and wide Purchase Controls (5/12 width) */}
-        <div className="lg:col-span-5 space-y-8 font-sans">
+        {/* Right Column: Title, Parameters Selector and wide Purchase Controls (50% width) */}
+        <div className="lg:col-span-6 space-y-8 font-sans">
           <div className="space-y-4">
             <span className="font-mono text-xs uppercase tracking-widest text-gray-400 font-bold block">
               Dostępne w Pracowni Artystycznej • {product.year}
@@ -158,9 +189,11 @@ export default function ProductDetail({
               <span className="text-3xl font-bold font-mono text-[#E0115F]">
                 {currentPrice} zł
               </span>
-              <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">
-                Zawiera bezpłatną dostawę
-              </span>
+              {selectedType === "original" && (
+                <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">
+                  Zawiera bezpłatną dostawę
+                </span>
+              )}
             </div>
           </div>
 
@@ -178,7 +211,7 @@ export default function ProductDetail({
             <div className="space-y-2">
               {product.isOriginalAvailable ? (
                 <label
-                  onClick={() => setSelectedType("original")}
+                  onClick={() => { setSelectedType("original"); setQuantity(1); }}
                   className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
                     selectedType === "original"
                       ? "border-magenta-accent bg-gray-50/40 font-medium"
@@ -215,7 +248,7 @@ export default function ProductDetail({
 
               {product.printPrice && (
                 <label
-                  onClick={() => setSelectedType("print")}
+                  onClick={() => { setSelectedType("print"); setQuantity(1); }}
                   className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
                     selectedType === "print"
                       ? "border-magenta-accent bg-gray-50/40 font-medium"
@@ -242,7 +275,64 @@ export default function ProductDetail({
           </div>
 
           {/* Primary Purchase Triggers: Direct Stripe and Cart Insertion */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-6 pt-2">
+            {selectedType === "print" && (
+              <div className="flex items-center gap-4 text-xs font-sans">
+                <span className="font-semibold text-gray-500 uppercase tracking-wider">Ilość:</span>
+                <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-50 hover:text-magenta-accent active:bg-gray-100 transition-colors font-bold cursor-pointer text-xs"
+                  >
+                    -
+                  </button>
+                  <span className="w-8 text-center font-mono font-bold text-gray-900 text-xs">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-gray-50 hover:text-magenta-accent active:bg-gray-100 transition-colors font-bold cursor-pointer text-xs"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Delivery Selection */}
+            <div className="space-y-2.5">
+              <span className="font-semibold text-gray-500 uppercase tracking-wider text-xs block">Opcja dostawy:</span>
+              <div className="space-y-2">
+                {deliveryOptions.map((opt) => (
+                  <label
+                    key={opt.id}
+                    onClick={() => setSelectedDelivery(opt.id)}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all text-xs ${
+                      selectedDelivery === opt.id
+                        ? "border-magenta-accent bg-gray-50/40 font-medium"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="delivery"
+                        checked={selectedDelivery === opt.id}
+                        readOnly
+                        className="text-gray-900 focus:ring-gray-900 w-3.5 h-3.5"
+                      />
+                      <span className="text-gray-800">{opt.name}</span>
+                    </div>
+                    <span className="font-mono font-bold text-gray-900 shrink-0 ml-2">
+                      {opt.price === 0 ? "Bezpłatnie" : `${opt.price} zł`}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
             <button
               onClick={handleKupTeraz}
               className="button button--full"
@@ -253,45 +343,10 @@ export default function ProductDetail({
                 <div></div>
               </div>
               <div className="button__text">
-                Kup Teraz przez Stripe
+                Kup teraz
                 <ArrowRight className="w-4 h-4" />
               </div>
             </button>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                onClick={handleAddToCart}
-                className="button button--full"
-              >
-                <div className="button__blobs">
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                </div>
-                <div className="button__text">
-                  Dodaj do koszyka
-                </div>
-              </button>
-              <button
-                onClick={() => setCurrentPage("contact")}
-                className="button button--full"
-              >
-                <div className="button__blobs">
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                </div>
-                <div className="button__text">
-                  Skonsultuj zakup
-                </div>
-              </button>
-            </div>
-
-            {addedSuccess && (
-              <div className="p-3 bg-green-50 text-green-800 rounded-xl text-xs font-medium border border-green-150 flex items-center justify-center gap-2 animate-fadeIn">
-                <Check className="w-4 h-4 text-green-600" />
-                Pomyślnie dodano do Twojego koszyka!
-              </div>
-            )}
           </div>
 
           {/* Real technical parameters listed as raw prose/text to maintain the minimal aesthetic */}
@@ -322,26 +377,39 @@ export default function ProductDetail({
         </div>
       </section>
 
-      {/* Narrative Deep Background Story for Emotional Engagement (SEO keywords heavy) */}
-      <section className="border-t border-gray-100 pt-16 max-w-4xl space-y-6">
-        <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block">
-          Tło artystyczne & Opis historii
-        </span>
-        <h2 className="font-display text-3xl text-gray-900 tracking-tight">
-          Opowieść za pociągnięciem pędzla: „{product.title}”
-        </h2>
-        <div className="font-sans text-base text-gray-700 space-y-4 leading-relaxed">
-          <p>
-            Każda kreska i plama barwna na tej karcie papieru bawełnianego niesie za sobą długie godziny uważnego milczenia w Pracowni Artystycznej hellokostek. Praca powiązana jest z moim szerszym cyklem artystycznym eksplorującym wewnętrzną geometrię człowieka, wyobcowanie oraz spokojną, codzienną kontemplację własnych stanów psychicznych.
-          </p>
-          <p>
-            Wybierając oryginalną wersję tej kompozycji, stajesz się jedynym właścicielem materialnego śladu nastroju artysty utrwalonego przy świetle wschodzącego słońca nad Łodzią. Z kolei zamawiając certyfikowaną reprodukcję, zyskujesz rygorystycznie odwzorowane przejścia tonalne i chropowatość fakturową papieru, która niemal do złudzenia imituje oryginalne dzieło.
-          </p>
-          <p>
-            Dołączony certyfikat autentyczności będzie dowodem wsparcia niezależnego rzemiosła artystycznego. Praca ta najlepiej komponuje się w ramie dębowej z szerokim białym passe-partout, chroniącym papier i nadającym całości głębokiego, muzealnego charakteru.
-          </p>
+      {/* Lightbox Modal */}
+      {isLightboxOpen && (
+        <div 
+          className="fixed inset-0 bg-off-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 cursor-zoom-out animate-fadeIn"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <style>{`
+            @keyframes scaleIn {
+              from { transform: scale(0.95); opacity: 0; }
+              to { transform: scale(1); opacity: 1; }
+            }
+            .animate-scaleIn {
+              animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+          `}</style>
+          
+          <button 
+            className="absolute top-6 right-6 text-white hover:text-magenta-accent transition-colors p-2 cursor-pointer z-51"
+            onClick={() => setIsLightboxOpen(false)}
+            aria-label="Zamknij"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          
+          <img
+            src={currentThumbnailUrl}
+            alt={product.title}
+            referrerPolicy="no-referrer"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl select-none animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
-      </section>
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@
   --color-off-black: #181716;
   --color-lime-accent: #C4F013;
   --color-magenta-accent: #E0115F;
+  --breakpoint-3xl: 100rem;
   
   /* Fluid typography scale (rem values at 320px viewport to 1440px viewport) */
   --text-xs: clamp(0.75rem, 0.05vw + 0.7375rem, 0.8125rem);      /* 12px -> 13px */
@@ -108,7 +109,7 @@ html, body {
 .button:hover {
   color: #181716; /* Clean off-black for clear contrast on Lime background */
   background-color: #C4F013; /* Transitions to Lime to cover corners perfectly */
-  transition: background-color 300ms ease 200ms, color 300ms ease;
+  transition: background-color 500ms ease 500ms, color 400ms ease 100ms;
 }
 
 .button__text {
@@ -145,8 +146,8 @@ html, body {
   height: 100%;
   border-radius: 100%;
   position: absolute;
-  transform: scale(1.4) translateY(125%) translateZ(0);
-  transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1.4) translateY(120%) translateZ(0);
+  transition: all 800ms cubic-bezier(0.1, 0.8, 0.15, 1);
 }
 
 .button__blobs div:nth-child(1) {
@@ -155,12 +156,12 @@ html, body {
 
 .button__blobs div:nth-child(2) {
   left: 30%;
-  transition-delay: 50ms;
+  transition-delay: 100ms;
 }
 
 .button__blobs div:nth-child(3) {
   left: 66%;
-  transition-delay: 20ms;
+  transition-delay: 50ms;
 }
 
 .button:hover .button__blobs div {
@@ -171,13 +172,21 @@ html, body {
 .button--hero-white {
   background-color: #ffffff !important;
   color: #E0115F !important;
-  box-shadow: 0 10px 25px rgba(224, 17, 95, 0.18) !important;
-  border: 1px solid rgba(224, 17, 95, 0.15) !important;
+  box-shadow: 0 4px 14px rgba(224, 17, 95, 0.08) !important;
+  border: none !important;
 }
 
 .button--secondary:hover,
 .button--hero-white:hover {
   color: #181716 !important;
   background-color: #C4F013 !important;
+  border: none !important;
 }
+
+.button--nav {
+  height: 46px !important;
+  min-width: 200px !important;
+  padding: 0 26px !important;
+}
+
 

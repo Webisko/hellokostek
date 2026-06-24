@@ -33,17 +33,17 @@ export default function Shop({ addToCart, cart, onSelectProduct, setCurrentPage 
   });
 
   return (
-    <div className="animate-fadeIn py-16 px-6 max-w-[1600px] mx-auto space-y-16 font-sans">
+    <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 max-w-[1600px] mx-auto space-y-16 font-sans">
       {/* Page Title & SEO Introductory block */}
-      <header className="border-b border-gray-100 pb-12 max-w-4xl space-y-4">
+      <header className="pb-12 max-w-none space-y-4">
         <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block">
-          Curated Art Archive • Sprzedaż Oryginałów i Wydruków
+          SELEKCJA DZIEŁ SZTUKI • ORYGINAŁY I LIMITOWANE WYDRUKI
         </span>
-        <h1 className="font-display text-6xl text-gray-900 tracking-tight font-normal">
-          Dzieła Kameralne
+        <h1 className="font-display text-4xl sm:text-6xl text-gray-900 tracking-tight font-normal">
+          Galeria Dzieł Oryginalnych
         </h1>
-        <p className="text-gray-600 text-base sm:text-lg max-w-2xl leading-relaxed">
-          Zbiór autentycznych akwareli oraz rysunków ołówkiem z mojej Pracowni Artystycznej w Łodzi. Każda kompozycja powstała ręcznie z zachowaniem najsurowszych reguł klasycznego warsztatu. Wybierz oryginalne dzieło lub certyfikowany wydruk kolekcjonerski sygnujący limitowaną edycję.
+        <p className="text-gray-600 text-base sm:text-lg max-w-4xl leading-relaxed">
+          Zbiór autentycznych obrazów olejnych, akwareli oraz rysunków ołówkiem powstałych w mojej pracowni. Każda kompozycja to fizyczne, gotowe dzieło stworzone z zachowaniem klasycznego warsztatu. Wybierz unikatowy oryginał, który zdefiniuje Twoje wnętrze, lub certyfikowany wydruk kolekcjonerski z limitowanej edycji.
         </p>
       </header>
 

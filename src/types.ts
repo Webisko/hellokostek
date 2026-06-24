@@ -1,4 +1,12 @@
-export type PageId = "home" | "portraits" | "shop" | "about" | "contact" | "product-detail" | "success";
+export type PageId = "home" | "shop" | "about" | "contact" | "product-detail" | "success-purchase" | "success-contact" | "privacy" | "terms" | "gallery";
+
+export interface GalleryArtwork {
+  id: string;
+  title: string;
+  year: string;
+  imageUrl: string;
+  originalUrl?: string;
+}
 
 export interface Product {
   id: string;
@@ -23,6 +31,8 @@ export interface CartItem {
   price: number;
   quantity: number;
   optionsSummary?: string;
+  shippingMethod?: string;
+  shippingPrice?: number;
 }
 
 export interface PortraitCustomConfig {
@@ -33,3 +43,12 @@ export interface PortraitCustomConfig {
   uploadedPhotoUrl?: string;
   price: number;
 }
+
+export interface Testimonial {
+  id: number;
+  stars: number;
+  text: string;
+  author: string;
+  meta: string;
+}
+

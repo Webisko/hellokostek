@@ -33,7 +33,7 @@ export default function Checkout({
   if (!isOpen) return null;
 
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  const shippingFee = subtotal > 0 ? 0 : 0; // free standard domestic delivery as promised
+  const shippingFee = cart.reduce((max, item) => Math.max(max, item.shippingPrice || 0), 0);
   const grandTotal = subtotal + shippingFee;
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
@@ -142,8 +142,12 @@ export default function Checkout({
                   <span className="font-mono">{subtotal} zł</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Wysyłka (kurier krajowy)</span>
-                  <span className="font-sans text-green-700 font-semibold uppercase text-xs">Bezpłatna</span>
+                  <span>Wysyłka</span>
+                  {shippingFee === 0 ? (
+                    <span className="font-sans text-green-700 font-semibold uppercase text-xs">Bezpłatna</span>
+                  ) : (
+                    <span className="font-mono">{shippingFee} zł</span>
+                  )}
                 </div>
                 <div className="flex justify-between border-t border-stone-100 pt-2 text-off-black font-semibold">
                   <span>Do zapłaty:</span>

@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import { PageId, CartItem, Product } from "./types";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
-import PortraitsOffer from "./components/PortraitsOffer";
 import Shop from "./components/Shop";
 import AboutMe from "./components/AboutMe";
 import Contact from "./components/Contact";
 import Checkout from "./components/Checkout";
 import ProductDetail from "./components/ProductDetail";
 import Success from "./components/Success";
-import { Heart, Mail, Info, ArrowRight, ShieldCheck, Sparkles, X, ShoppingBag, Instagram, Facebook } from "lucide-react";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import Terms from "./components/Terms";
+import Gallery from "./components/Gallery";
+import { Heart, Mail, Info, ArrowRight, ShieldCheck, Sparkles, X, ShoppingBag, Instagram, Facebook, ArrowUp } from "lucide-react";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<PageId>("home");
@@ -17,6 +19,34 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [showCookies, setShowCookies] = useState(true);
+  const [initialContactSubject, setInitialContactSubject] = useState<string>("");
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [lastOrder, setLastOrder] = useState<{
+    orderNumber: string;
+    productTitle: string;
+    purchaseType: "original" | "print";
+    price: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (currentPage !== "contact") {
+      setInitialContactSubject("");
+    }
+  }, [currentPage]);
+
+  const handleNavigateToContact = (subject: string) => {
+    setInitialContactSubject(subject);
+    setCurrentPage("contact");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Load cart from localStorage upon component mounting
   useEffect(() => {
@@ -42,7 +72,7 @@ export default function App() {
     localStorage.setItem("hellokostek_cart", JSON.stringify(newCart));
   };
 
-  const addToCart = (product: Product, buyType: "original" | "print") => {
+  const addToCart = (product: Product, buyType: "original" | "print", quantityToAdd: number = 1) => {
     const cartId = `${product.id}-${buyType}`;
     const price = buyType === "original" ? product.originalPrice : (product.printPrice || 0);
     
@@ -52,7 +82,7 @@ export default function App() {
       if (buyType === "original") return;
       
       const updated = cart.map((item) =>
-        item.cartId === cartId ? { ...item, quantity: item.quantity + 1 } : item
+        item.cartId === cartId ? { ...item, quantity: item.quantity + quantityToAdd } : item
       );
       saveCartToStorage(updated);
     } else {
@@ -63,7 +93,7 @@ export default function App() {
         category: product.category,
         purchaseType: buyType,
         price,
-        quantity: 1,
+        quantity: quantityToAdd,
       };
       saveCartToStorage([...cart, newItem]);
     }
@@ -115,8 +145,13 @@ export default function App() {
             }} 
           />
         );
-      case "portraits":
-        return <PortraitsOffer />;
+      case "gallery":
+        return (
+          <Gallery 
+            setCurrentPage={setCurrentPage} 
+            handleNavigateToContact={handleNavigateToContact} 
+          />
+        );
       case "shop":
         return (
           <Shop 
@@ -131,9 +166,18 @@ export default function App() {
           />
         );
       case "about":
-        return <AboutMe />;
+        return (
+          <AboutMe 
+            setCurrentPage={setCurrentPage}
+            onSelectProduct={(product) => {
+              setSelectedProduct(product);
+              setCurrentPage("product-detail");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+        );
       case "contact":
-        return <Contact />;
+        return <Contact initialSubject={initialContactSubject} setCurrentPage={setCurrentPage} />;
       case "product-detail":
         return selectedProduct ? (
           <ProductDetail
@@ -142,6 +186,10 @@ export default function App() {
             cart={cart}
             setCurrentPage={setCurrentPage}
             setIsCartOpen={setIsCartOpen}
+            onPurchaseSuccess={(order) => {
+              setLastOrder(order);
+              setCurrentPage("success-purchase");
+            }}
           />
         ) : (
           <Shop 
@@ -155,13 +203,26 @@ export default function App() {
             }}
           />
         );
-      case "success":
+      case "success-purchase":
         return (
           <Success 
+            mode="purchase"
             setCurrentPage={setCurrentPage} 
             clearCart={clearCart} 
+            orderDetails={lastOrder}
           />
         );
+      case "success-contact":
+        return (
+          <Success 
+            mode="contact"
+            setCurrentPage={setCurrentPage} 
+          />
+        );
+      case "privacy":
+        return <PrivacyPolicy onNavigateToContact={handleNavigateToContact} />;
+      case "terms":
+        return <Terms onNavigateToContact={handleNavigateToContact} />;
       default:
         return (
           <Home 
@@ -175,16 +236,20 @@ export default function App() {
     }
   };
 
+  const isSuccessPage = currentPage === "success-purchase" || currentPage === "success-contact";
+
   return (
     <div className="min-h-screen bg-white text-off-black selection:bg-lime-accent selection:text-off-black flex flex-col justify-between">
       
       {/* Centered Navigation */}
-      <Navbar
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        cart={cart}
-        setIsCartOpen={setIsCartOpen}
-      />
+      {!isSuccessPage && (
+        <Navbar
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          cart={cart}
+          setIsCartOpen={setIsCartOpen}
+        />
+      )}
 
       {/* Main content body */}
       <main className="flex-grow">
@@ -192,155 +257,168 @@ export default function App() {
       </main>
 
       {/* FOOTER - Minimal, elegant and respectful */}
-      <footer className="bg-neutral-50 border-t border-neutral-200 pb-16 pt-20 px-6">
-        <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-12">
-          {/* Column 1 - Brand Summary */}
-          <div className="md:col-span-4 space-y-6">
-            <div className="w-full max-w-[420px] h-28 md:h-36 overflow-hidden flex items-center justify-start py-1">
-              <img
-                src="https://hellokostek.pl/wp-content/uploads/2021/05/logo-animation-30fps-v-2.gif"
-                alt="hellokostek"
-                referrerPolicy="no-referrer"
-                className="max-w-full max-h-full object-contain mix-blend-multiply"
-              />
+      {!isSuccessPage && (
+        <footer className="bg-neutral-50 border-t border-neutral-200 pb-16 pt-20">
+          <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 md:grid-cols-12 gap-12">
+            {/* Column 1 - Brand Summary */}
+            <div className="md:col-span-5 space-y-2">
+              <div className="w-full max-w-[560px] h-44 md:h-64 overflow-hidden flex items-center justify-start py-1">
+                <img
+                  src="https://hellokostek.pl/wp-content/uploads/2021/05/logo-animation-30fps-v-2.gif"
+                  alt="hellokostek"
+                  referrerPolicy="no-referrer"
+                  className="max-w-full max-h-full object-contain mix-blend-multiply"
+                />
+              </div>
+              <p className="font-sans text-xs sm:text-sm text-stone-500 max-w-md leading-relaxed">
+                Pracownia Artystyczna <strong className="font-bold">hellokostek</strong> to miejsce, gdzie tradycyjne malarstwo olejne, rysunek i sztuka tworzona na podstawie zdjęć łączą się w harmonijną całość. Tworzę z myślą o tych, którzy cenią ciepło, miłość i rodzinne pamiątki.
+              </p>
             </div>
-            <p className="font-sans text-xs sm:text-sm text-stone-500 max-w-sm leading-relaxed">
-              Pracownia Artystyczna <strong className="font-bold">hellokostek</strong> to miejsce, gdzie tradycyjne malarstwo olejne, rysunek i sztuka tworzona na podstawie zdjęć łączą się w harmonijną całość. Tworzę z myślą o tych, którzy cenią ciepło, miłość i rodzinne pamiątki.
-            </p>
-          </div>
 
-          {/* Column 2 - Core Offers paths */}
-          <div className="md:col-span-3 space-y-4 font-sans text-xs sm:text-sm">
-            <span className="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Oferta</span>
-            <ul className="space-y-2 text-stone-600">
-              <li>
-                <button 
-                  onClick={() => { setCurrentPage("portraits"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
-                  className="hover:text-magenta-accent transition-colors cursor-pointer text-left"
-                >
-                  Portrety ze zdjęcia na zamówienie
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => { setCurrentPage("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
-                  className="hover:text-magenta-accent transition-colors cursor-pointer text-left"
-                >
-                  Sklep z gotowymi dziełami
-                </button>
-              </li>
-            </ul>
-          </div>
+            {/* Column 2 - Oferta & Odkryj (Stacked) */}
+            <div className="md:col-span-3 space-y-10 font-sans text-xs sm:text-sm">
+              {/* Oferta */}
+              <div className="space-y-4">
+                <span className="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Oferta</span>
+                <ul className="space-y-2 text-stone-600">
+                  <li>
+                    <button 
+                      onClick={() => { setCurrentPage("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+                      className="hover:text-magenta-accent transition-colors cursor-pointer text-left"
+                    >
+                      Portrety ze zdjęcia na zamówienie
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={() => { setCurrentPage("shop"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+                      className="hover:text-magenta-accent transition-colors cursor-pointer text-left"
+                    >
+                      Sklep z gotowymi dziełami
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={() => { setCurrentPage("gallery"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+                      className="hover:text-magenta-accent transition-colors cursor-pointer text-left"
+                    >
+                      Galeria portretów
+                    </button>
+                  </li>
+                </ul>
+              </div>
 
-          {/* Column 3 - Navigation shortcuts */}
-          <div className="md:col-span-2 space-y-4 font-sans text-xs sm:text-sm">
-            <span className="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Odkryj</span>
-            <ul className="space-y-2 text-stone-600">
-              <li>
-                <button 
-                  onClick={() => { setCurrentPage("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
-                  className="hover:text-lime-accent transition-colors cursor-pointer text-left"
-                >
-                  O mnie
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => { setCurrentPage("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
-                  className="hover:text-lime-accent transition-colors cursor-pointer text-left"
-                >
-                  Kontakt
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4 - Direct contact block details */}
-          <div className="md:col-span-3 space-y-4 font-sans text-xs sm:text-sm">
-            <span className="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Kontakt</span>
-            <p className="text-stone-600 leading-normal">
-              Masz pytania? Chcesz skonsultować kompozycję?<br />
-              <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-off-black hover:text-lime-accent transition-colors block mt-2">
-                kontakt@hellokostek.pl
-              </a>
-              <a href="tel:+48662707153" className="font-bold text-off-black hover:text-lime-accent transition-colors block mt-1">
-                tel. 662 707 153
-              </a>
-            </p>
-            <div className="flex gap-3 pt-1">
-              <a
-                href="https://www.instagram.com/hellokostek/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-magenta-accent hover:text-white transition-all duration-300"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.facebook.com/hellokostek/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#1877F2] hover:text-white transition-all duration-300"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
+              {/* Odkryj */}
+              <div className="space-y-4">
+                <span className="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Odkryj</span>
+                <ul className="space-y-2 text-stone-600">
+                  <li>
+                    <button 
+                      onClick={() => { setCurrentPage("about"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+                      className="hover:text-magenta-accent transition-colors cursor-pointer text-left"
+                    >
+                      O mnie
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={() => { setCurrentPage("contact"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+                      className="hover:text-magenta-accent transition-colors cursor-pointer text-left"
+                    >
+                      Kontakt
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div className="text-xs font-mono text-stone-400 mt-2 space-y-1">
-              <div className="font-bold text-xs uppercase tracking-wider text-stone-400">hellokostek Maciej Kosteczka</div>
-              <div className="flex gap-2 font-bold">
-                <span>NIP: 625-236-36-56</span> • <span>REGON: 527158196</span>
+
+            {/* Column 3 - Direct contact block details */}
+            <div className="md:col-span-4 space-y-4 font-sans text-xs sm:text-sm">
+              <span className="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Kontakt</span>
+              <p className="text-stone-600 leading-normal">
+                Masz pytania? Chcesz skonsultować kompozycję?<br />
+                <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-off-black hover:text-magenta-accent transition-colors block mt-2">
+                  kontakt@hellokostek.pl
+                </a>
+                <a href="tel:+48662707153" className="font-bold text-off-black hover:text-magenta-accent transition-colors block mt-1">
+                  tel. 662 707 153
+                </a>
+              </p>
+              <div className="flex gap-3 pt-1">
+                <a
+                  href="https://www.instagram.com/hellokostek/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-magenta-accent hover:text-white transition-all duration-300"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://www.facebook.com/hellokostek/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#1877F2] hover:text-white transition-all duration-300"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+              </div>
+              <div className="text-xs font-mono text-stone-400 mt-8 pt-4 border-t border-stone-200/40 space-y-1">
+                <div className="font-bold text-xs uppercase tracking-wider text-stone-400">hellokostek Maciej Kosteczka</div>
+                <div className="flex gap-2 font-bold">
+                  <span>NIP: 625-236-36-56</span> • <span>REGON: 527158196</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom Rights Bar */}
-        <div className="max-w-[1600px] mx-auto border-t border-stone-150 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400 font-sans text-center md:text-left">
-          {/* Left: Realization */}
-          <div className="order-3 md:order-1">
-            <span>Realizacja: <a href="https://webisko.pl/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-lime-accent transition-colors text-stone-500">Webisko.pl</a></span>
+          {/* Bottom Rights Bar */}
+          <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 border-t border-stone-150 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400 font-sans text-center md:text-left">
+            {/* Left: Realization */}
+            <div className="order-3 md:order-1">
+              <span>Realizacja: <a href="https://webisko.pl/" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-magenta-accent transition-colors text-stone-500">Webisko.pl</a></span>
+            </div>
+
+            {/* Middle: Copyright */}
+            <div className="order-1 md:order-2">
+              <p>© {new Date().getFullYear()} hellokostek.pl. Wszelkie prawa zastrzeżone. Rękodzieło i malarstwo artystyczne.</p>
+            </div>
+
+            {/* Right: Formal Links */}
+            <div className="order-2 md:order-3 flex gap-4">
+              <button 
+                onClick={() => { setCurrentPage("privacy"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+                className="hover:text-magenta-accent transition-colors cursor-pointer"
+              >
+                Polityka prywatności i plików cookies
+              </button>
+              <span>•</span>
+              <button 
+                onClick={() => { setCurrentPage("terms"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+                className="hover:text-magenta-accent transition-colors cursor-pointer"
+              >
+                Regulamin sklepu
+              </button>
+            </div>
           </div>
+        </footer>
+      )}
 
-          {/* Middle: Copyright */}
-          <div className="order-1 md:order-2">
-            <p>© {new Date().getFullYear()} hellokostek.pl. Wszelkie prawa zastrzeżone. Rękodzieło i malarstwo artystyczne.</p>
-          </div>
+      {/* Floating Cart Badge disabled per user request */}
 
-          {/* Right: Formal Links */}
-          <div className="order-2 md:order-3 flex gap-4">
-            <a href="https://hellokostek.pl/polityka-prywatnosci/" target="_blank" rel="noopener noreferrer" className="hover:text-lime-accent transition-colors">Polityka prywatności</a>
-            <span>•</span>
-            <a href="#" className="hover:text-lime-accent transition-colors">Regulamin sklepu</a>
-          </div>
-        </div>
-      </footer>
-
-      {/* Floating Cart Badge (Only shown if cart possesses items, out of the clean navbar) */}
-      {cart.reduce((total, item) => total + item.quantity, 0) > 0 && (
+      {/* Subtle Back to Top Button */}
+      {!isSuccessPage && showScrollTop && (
         <button
-          onClick={() => setIsCartOpen(true)}
-          className="fixed bottom-6 right-6 bg-magenta-accent text-white p-4 rounded-full shadow-2xl hover:bg-lime-accent hover:text-off-black hover:scale-105 active:scale-95 transition-all duration-300 z-40 group flex items-center justify-center cursor-pointer border border-magenta-accent/20"
-          aria-label="Koszyk"
-          id="floating-cart-btn"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-6 right-6 bg-white/90 backdrop-blur-md text-stone-600 border border-stone-200 p-3.5 rounded-full shadow-lg hover:border-magenta-accent hover:text-magenta-accent hover:scale-105 active:scale-95 transition-all duration-300 z-40 flex items-center justify-center cursor-pointer"
+          aria-label="Cofnij do góry"
         >
-          <ShoppingBag className="w-5 h-5" />
-          <span className="absolute -top-1.5 -right-1.5 bg-off-black text-white text-xs font-mono font-bold w-5 h-5 rounded-full flex items-center justify-center border border-white">
-            {cart.reduce((total, item) => total + item.quantity, 0)}
-          </span>
+          <ArrowUp className="w-5 h-5" />
         </button>
       )}
 
-      {/* Cart Drawer Sliding Component */}
-      <Checkout
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        removeFromCart={removeFromCart}
-        updateQuantity={updateQuantity}
-        clearCart={clearCart}
-      />
+      {/* Cart Drawer Sliding Component disabled per user request */}
 
       {/* COOKIE CONSENT AGREEMENT (Requested: custom button colors - Magenta or Lime) */}
       {showCookies && (
@@ -354,9 +432,12 @@ export default function App() {
           </div>
           
           <div className="flex justify-between items-center gap-3">
-            <a href="#" className="text-xs text-stone-400 hover:text-lime-accent hover:underline">
+            <button 
+              onClick={() => { setCurrentPage("privacy"); window.scrollTo({ top: 0, behavior: "smooth" }); }} 
+              className="text-xs text-stone-400 hover:text-magenta-accent hover:underline cursor-pointer text-left"
+            >
               Więcej w polityce prywatności
-            </a>
+            </button>
             <div className="flex gap-2">
               <button
                 onClick={acceptCookies}

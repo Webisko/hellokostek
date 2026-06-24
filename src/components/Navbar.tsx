@@ -63,13 +63,13 @@ export default function Navbar({
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-100 transition-all duration-500 ease-in-out">
-      <div className={`max-w-[1600px] mx-auto flex items-center justify-between px-6 transition-all duration-500 ease-in-out ${
-        isScrolled ? "py-1.5 md:py-2" : "py-3 md:py-5"
+    <nav className="sticky top-0 z-50 bg-white border-b border-neutral-100 transition-all duration-500 ease-in-out">
+      <div className={`max-w-[1600px] mx-auto flex items-center justify-between px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 transition-all duration-500 ease-in-out ${
+        isScrolled ? "py-0.5 md:py-1" : "py-1.5 md:py-2"
       }`}>
         
         {/* Left Side Navigation (Desktop) - Links */}
-        <div className="hidden md:flex items-center space-x-6 lg:space-x-10 w-5/12">
+        <div className="hidden md:flex items-center space-x-4 lg:space-x-6 w-5/12">
           <button
             onClick={() => {
               setCurrentPage("home");
@@ -82,6 +82,21 @@ export default function Navbar({
             Portrety
             <span className={`absolute bottom-0 left-0 w-full h-[1px] transition-transform duration-300 origin-left ${
               currentPage === "home" ? "bg-magenta-accent scale-x-100" : "bg-lime-accent scale-x-0 group-hover:scale-x-100"
+            }`} />
+          </button>
+          
+          <button
+            onClick={() => {
+              setCurrentPage("gallery");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`font-sans text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-lime-accent relative py-1 group ${
+              currentPage === "gallery" ? "text-magenta-accent font-semibold" : "text-off-black/60"
+            }`}
+          >
+            Galeria
+            <span className={`absolute bottom-0 left-0 w-full h-[1px] transition-transform duration-300 origin-left ${
+              currentPage === "gallery" ? "bg-magenta-accent scale-x-100" : "bg-lime-accent scale-x-0 group-hover:scale-x-100"
             }`} />
           </button>
           
@@ -143,8 +158,8 @@ export default function Navbar({
           >
             <div className={`flex items-center justify-center overflow-hidden transition-all duration-500 ease-in-out p-1 ${
               isScrolled 
-                ? "w-[140px] h-[42px] md:w-[180px] md:h-[54px]" 
-                : "w-[170px] h-[51px] md:w-[260px] md:h-[78px]"
+                ? "w-[150px] h-[45px] md:w-[210px] md:h-[63px]" 
+                : "w-[240px] h-[72px] md:w-[370px] md:h-[111px]"
             }`}>
               <img
                 src="https://hellokostek.pl/wp-content/uploads/2021/05/logo-animation-30fps-v-2.gif"
@@ -171,7 +186,7 @@ export default function Navbar({
                 if (formSection) formSection.scrollIntoView({ behavior: "smooth" });
               }
             }}
-            className={`button button--sm ${(currentPage === "home" && !isHeroScrolledPast) ? "button--secondary" : ""}`}
+            className={`button button--nav ${(currentPage === "home" && !isHeroScrolledPast) ? "button--secondary" : ""}`}
           >
             <div className="button__blobs">
               <div></div>
@@ -179,8 +194,8 @@ export default function Navbar({
               <div></div>
             </div>
             <div className="button__text">
-              Zamów projekt
-              <ArrowRight className="w-3.5 h-3.5" />
+              Zamów portret
+              <ArrowRight className="w-4 h-4" />
             </div>
           </button>
         </div>
@@ -211,6 +226,19 @@ export default function Navbar({
             }`}
           >
             Portrety
+          </button>
+          
+          <button
+            onClick={() => {
+              setCurrentPage("gallery");
+              setIsMobileMenuOpen(false);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`text-left text-xs uppercase tracking-widest font-sans py-2 border-l-2 pl-3 transition-colors ${
+              currentPage === "gallery" ? "border-[#E0115F] text-[#E0115F] font-semibold" : "border-transparent text-off-black/60"
+            }`}
+          >
+            Galeria
           </button>
           
           <button

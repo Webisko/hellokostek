@@ -1,4 +1,4 @@
-import { Product } from "./types";
+import { Product, Testimonial } from "./types";
 
 export const SHOP_PRODUCTS: Product[] = [
   // --- WATERCOLORS (300 PLN Original, 30 PLN Print) ---
@@ -156,3 +156,70 @@ export const PORTRAIT_PRICING = {
   extraPersonFee: 300, // Approximate reference for larger portraits to make the calculator fully interactive
   advanceRatio: 0.50, // 50% non-refundable deposit
 };
+
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    id: 1,
+    stars: 5,
+    text: "„Portret ślubny wyszedł niesamowicie. Kiedy rozpakowaliśmy przesyłkę, oboje mieliśmy łzy w oczach. Dbałość o szczegóły i faktura farby olejnej na płótnie robią spektakularne wrażenie na żywo.”",
+    author: "Anna K.",
+    meta: "Warszawa • Portret Ślubny Pary"
+  },
+  {
+    id: 2,
+    stars: 5,
+    text: "„Zamówiłem portret córki Marysi. Kontakt z Panem Maciejem był rewelacyjny na każdym etapie – od projektu cyfrowego po gotowy obraz. Odbiór osobisty w Łodzi był bardzo miłym akcentem. Polecam z całego serca.”",
+    author: "Piotr M.",
+    meta: "Łódź • Portret Marysi"
+  },
+  {
+    id: 3,
+    stars: 5,
+    text: "„Owalny portret Oliwii w salonie przykuwa uwagę każdego gościa. To nie jest zwykły wydruk ze zdjęcia, to prawdziwa sztuka z duszą. Gra światła na tym płótnie o różnych porach dnia jest zachwycająca.”",
+    author: "Karolina W.",
+    meta: "Kraków • Portret Oliwii"
+  },
+  {
+    id: 4,
+    stars: 5,
+    text: "„Portret Leona to był strzał w dziesiątkę jako prezent dla taty. Obraz wisi w gabinecie i robi piorunujące wrażenie na wszystkich. Tradycyjna technika olejna ma tę głębię, której brak współczesnym wydrukom.”",
+    author: "Michał T.",
+    meta: "Poznań • Portret Leona"
+  },
+  {
+    id: 5,
+    stars: 5,
+    text: "„Zamówiłem akwarelę do sypialni. Kolorystyka i nastrój tego rysunku są wręcz hipnotyzujące. Cały proces od wysyłki do dostarczenia paczki przebiegł sprawnie i bezpiecznie. Na pewno wrócę po kolejną pracę!”",
+    author: "Zofia S.",
+    meta: "Wrocław • Akwarela"
+  },
+  {
+    id: 6,
+    stars: 5,
+    text: "„Rysunek ołówkiem wysłany w tubie zabezpieczony idealnie. Precyzja cieniowania i realizm powalają. Bardzo sprawna wysyłka i profesjonalne podejście.”",
+    author: "Janusz B.",
+    meta: "Gdańsk • Rysunek Ołówkiem"
+  },
+  {
+    id: 7,
+    stars: 5,
+    text: "„Malowany portret dla rodziców na jubileusz okazał się najpiękniejszym prezentem. Rodzice byli wzruszeni, a obraz wisi w najważniejszym miejscu w domu.”",
+    author: "Małgorzata D.",
+    meta: "Katowice • Portret Ślubny Pary"
+  },
+  {
+    id: 8,
+    stars: 5,
+    text: "„Klasa sama w sobie. Tradycyjny warsztat malarski czuć od pierwszego spojrzenia na płótno. Szczerze polecam każdemu, kto ceni autentyczne rzemiosło.”",
+    author: "Tomasz R.",
+    meta: "Lublin • Portret Leona"
+  },
+  {
+    id: 9,
+    stars: 5,
+    text: "„Kupiłem gotową akwarelę do pokoju gościnnego. Kolory są jeszcze piękniejsze na żywo niż na zdjęciach. Bardzo szybka dostawa, obraz był solidnie spakowany.”",
+    author: "Agnieszka K.",
+    meta: "Szczecin • Akwarela"
+  }
+];
+
