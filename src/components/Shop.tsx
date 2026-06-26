@@ -148,7 +148,7 @@ export default function Shop() {
           </p>
         </div>
         <a
-          href={`${basePath}/`}
+          href={`${basePath}/#kontakt-sekcja`}
           className="button shrink-0 text-center"
         >
           <div className="button__blobs">
