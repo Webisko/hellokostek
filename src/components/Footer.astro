@@ -16,7 +16,7 @@ const currentYear = new Date().getFullYear();
         />
       </div>
       <p class="font-sans text-xs sm:text-sm text-stone-500 max-w-md leading-relaxed">
-        Pracownia Artystyczna <strong class="font-bold">hellokostek</strong> to miejsce, gdzie tradycyjne malarstwo olejne, rysunek i sztuka tworzona na podstawie zdjęć łączą się w harmonijną całość. Tworzę z myślą o tych, którzy cenią ciepło, miłość i rodzinne pamiątki.
+        Pracownia Artystyczna <strong class="font-bold">hellokostek</strong> to miejsce, gdzie tworzę z myślą o tych, którzy cenią ciepło, miłość i rodzinne pamiątki.
       </p>
     </div>
 
@@ -39,7 +39,7 @@ const currentYear = new Date().getFullYear();
               href={`${basePath}/sklep`} 
               class="hover:text-magenta-accent transition-colors cursor-pointer text-left block"
             >
-              Sklep z gotowymi dziełami
+              Sklep
             </a>
           </li>
           <li>
@@ -47,7 +47,7 @@ const currentYear = new Date().getFullYear();
               href={`${basePath}/galeria`} 
               class="hover:text-magenta-accent transition-colors cursor-pointer text-left block"
             >
-              Galeria portretów
+              Galeria
             </a>
           </li>
         </ul>
@@ -81,32 +81,49 @@ const currentYear = new Date().getFullYear();
     <div class="md:col-span-4 space-y-4 font-sans text-xs sm:text-sm">
       <span class="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Kontakt</span>
       <p class="text-stone-600 leading-normal">
-        Masz pytania? Chcesz skonsultować kompozycję?<br />
-        <a href="mailto:kontakt@hellokostek.pl" class="font-bold text-off-black hover:text-magenta-accent transition-colors block mt-2">
+        <a href="mailto:kontakt@hellokostek.pl" class="font-bold text-off-black hover:text-magenta-accent transition-colors block">
           kontakt@hellokostek.pl
         </a>
         <a href="tel:+48662707153" class="font-bold text-off-black hover:text-magenta-accent transition-colors block mt-1">
           tel. 662 707 153
         </a>
       </p>
-      <div class="flex gap-3 pt-1">
+      <div class="flex flex-wrap gap-3 pt-1">
         <a
           href="https://www.instagram.com/hellokostek/"
           target="_blank"
           rel="noopener noreferrer"
-          class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-magenta-accent hover:text-white transition-all duration-300"
+          class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-magenta-accent hover:text-white transition-all duration-300"
           aria-label="Instagram"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.51"></line></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.51"></line></svg>
         </a>
         <a
           href="https://www.facebook.com/hellokostek/"
           target="_blank"
           rel="noopener noreferrer"
-          class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#1877F2] hover:text-white transition-all duration-300"
+          class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#1877F2] hover:text-white transition-all duration-300"
           aria-label="Facebook"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+        </a>
+        <a
+          href="https://www.tiktok.com/@hellokostek"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-black hover:text-white transition-all duration-300"
+          aria-label="TikTok"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+        </a>
+        <a
+          href="https://www.youtube.com/@hellokostek"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#FF0000] hover:text-white transition-all duration-300"
+          aria-label="YouTube"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"></path><polygon points="9.7 15 14.5 12.3 9.7 9.7 9.7 15"></polygon></svg>
         </a>
       </div>
       <div class="text-xs font-mono text-stone-400 mt-8 pt-4 border-t border-stone-200/40 space-y-1">
@@ -127,7 +144,7 @@ const currentYear = new Date().getFullYear();
 
     <!-- Middle: Copyright -->
     <div class="order-1 md:order-2">
-      <p>© {currentYear} hellokostek.pl. Wszelkie prawa zastrzeżone. Rękodzieło i malarstwo artystyczne.</p>
+      <p>© {currentYear} hellokostek.pl. Wszelkie prawa zastrzeżone. malarstwo olejne i rysunek</p>
     </div>
 
     <!-- Right: Formal Links -->

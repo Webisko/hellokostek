@@ -105,13 +105,13 @@ export default function Terms() {
             </div>
             <div className="space-y-6 text-sm sm:text-base">
               <div className="space-y-2">
-                <h3 className="font-sans font-bold text-gray-950 text-base">1. Zamówienia na Produkty Gotowe:</h3>
+                <h3 className="font-display font-bold text-gray-950 text-base">1. Zamówienia na Produkty Gotowe:</h3>
                 <p>
                   Klient składa zamówienie poprzez dodanie wybranego obrazu do koszyka, wypełnienie formularza dostawy i kliknięcie przycisku finalizującego zakup. Umowa sprzedaży zostaje zawarta z chwilą otrzymania przez Klienta wiadomości e-mail potwierdzającej przyjęcie zamówienia do realizacji przez Sprzedawcę.
                 </p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-sans font-bold text-gray-950 text-base">2. Zamówienia na Produkty na Zamówienie (Indywidualne):</h3>
+                <h3 className="font-display font-bold text-gray-950 text-base">2. Zamówienia na Produkty na Zamówienie (Indywidualne):</h3>
                 <p>
                   Proces rozpoczyna się od kontaktu Klienta ze Sprzedawcą (za pomocą formularza lub e-maila) w celu przedstawienia wizji i wytycznych do obrazu. Sprzedawca dokonuje indywidualnej wyceny oraz określa szacowany termin realizacji dzieła.
                 </p>
@@ -414,7 +414,7 @@ export default function Terms() {
           </div>
 
           <div className="border-t border-gray-200/60 pt-6 space-y-4">
-            <h4 className="font-sans font-bold text-gray-900 text-sm">Pytania do regulaminu?</h4>
+            <h4 className="font-display font-bold text-gray-900 text-sm">Pytania do regulaminu?</h4>
             <p className="text-xs text-gray-500 leading-relaxed">
               Mój regulamin ma na celu jasne zabezpieczenie zarówno Twoich praw, jak i integralności rękodzieła.
             </p>

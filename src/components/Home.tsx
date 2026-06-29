@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import ProductSlider from "./ProductSlider";
 import Testimonials from "./Testimonials";
@@ -8,7 +8,7 @@ import {
   Send,
   X
 } from "lucide-react";
-import heroObraz from "../assets/hero.webp";
+import heroObraz from "../assets/portret_franka.webp";
 import portretLeona from "../assets/portret_Leona.webp";
 import portretMarysi from "../assets/portret_Marysi.webp";
 import portretOliwii from "../assets/portret_Oliwii.webp";
@@ -48,7 +48,7 @@ const portfolioItems = [
   },
   {
     src: portretMarysiUrl,
-    alt: "Portret śpiącego niemowlęcia",
+    alt: "Portret ś spiącego niemowlęcia",
     title: "Portret Śpiącego Niemowlęcia",
     format: "Płótno prostokątne • 30×40 cm",
     technique: "Klasyczna technika olejna na płótnie",
@@ -74,18 +74,11 @@ export default function Home() {
     setIsMounted(true);
   }, []);
 
-  // Lightbox state
+  // Lightbox state (will be preserved for compatibility, but disabled from the main grid clicks)
   const [lightbox, setLightbox] = useState({
     isOpen: false,
     currentIndex: 0
   });
-
-  const openLightbox = (index: number) => {
-    setLightbox({
-      isOpen: true,
-      currentIndex: index
-    });
-  };
 
   const closeLightbox = () => {
     setLightbox({
@@ -134,11 +127,7 @@ export default function Home() {
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailForm.shape) {
-      alert("Proszę wybrać kształt podobrazia.");
-      return;
-    }
-    if (!emailForm.size) {
-      alert("Proszę wybrać rozmiar portretu.");
+      alert("Proszę wybrać podobrazie.");
       return;
     }
     setIsSubmitting(true);
@@ -155,26 +144,22 @@ export default function Home() {
   const basePath = "/hellokostek";
 
   return (
-    <div className="bg-white min-h-screen text-gray-900 selection:bg-lime-accent selection:text-gray-900 animate-fadeIn">
+    <div className="bg-white min-h-screen text-gray-900 animate-fadeIn">
       {/* 1. HERO SECTION: 50/50 ASYMMETRIC SPLIT */}
       <section className="pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-12 md:pb-20 lg:pb-16 xl:pb-14 2xl:pb-24">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-center">
           {/* Left: Massive Serif text + CTA */}
           <div className="lg:col-span-7 2xl:col-span-6 space-y-8 font-sans">
-            <div className="inline-flex items-center gap-3">
-              <span className="h-[1px] w-8 bg-gray-900" />
-              <span className="font-mono text-xs tracking-widest uppercase text-gray-400 font-bold">
+            <div className="block">
+              <span className="font-mono text-xs tracking-widest uppercase text-gray-400 font-bold block">
                 PRACOWNIA ARTYSTYCZNA • KOSTEK MACIEJ KOSTECZKA
               </span>
             </div>
-            <h1 className="font-display text-6xl sm:text-8xl lg:text-[96px] xl:text-[112px] 2xl:text-[128px] leading-[0.90] tracking-tighter text-gray-950 font-normal">
-              Twój <br className="hidden sm:inline" />
-              <span className="font-display italic font-light text-[#E0115F]">ulubiony kadr</span> <br className="hidden sm:inline" />
-              uwieczniony <br className="hidden sm:inline" />
-              na płótnie
+            <h1 className="font-display text-6xl sm:text-[90px] lg:text-[104px] xl:text-[120px] 2xl:text-[136px] leading-[0.90] tracking-tighter text-gray-950 font-normal">
+              Człowiek dla człowieka – <span className="text-[#E0115F]">sztuka prawdziwa</span> bez AI
             </h1>
-            <p className="font-sans text-gray-700 text-base sm:text-lg leading-relaxed max-w-xl">
-              Ręcznie malowane, klasyczne portrety olejne na krosnach sosnowych ze zdjęcia. Przenieś wyjątkowe chwile w ponadczasowy wymiar szlachetnego rzemiosła.
+            <p className="font-sans text-gray-700 text-lg leading-relaxed max-w-xl font-normal">
+              Malarstwo olejne
             </p>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
               <a
@@ -186,7 +171,7 @@ export default function Home() {
                   <div></div>
                   <div></div>
                 </div>
-                <div className="button__text">
+                <div className="button__text font-bold">
                   Zamów swój portret
                   <ArrowRight className="w-4 h-4" />
                 </div>
@@ -195,12 +180,12 @@ export default function Home() {
           </div>
           {/* Right: Premium oil portrait presentation */}
           <div className="lg:col-span-5 2xl:col-span-6 flex flex-col justify-center">
-            <div className="relative w-full 2xl:max-w-[85%] lg:ml-auto overflow-hidden rounded-[32px] border border-gray-100 shadow-sm bg-gray-55">
+            <div className="relative w-full aspect-square overflow-hidden rounded-[32px] border border-gray-100 shadow-sm bg-gray-55">
               <img
                 src={heroObrazUrl}
                 alt="Portret olejny namalowany ze zdjęcia"
                 referrerPolicy="no-referrer"
-                className="w-full h-auto block"
+                className="w-full h-full aspect-square object-cover block"
               />
             </div>
           </div>
@@ -210,135 +195,65 @@ export default function Home() {
       {/* 2. PORTFOLIO GRID: ART-GALLERY STYLE ASYMMETRIC GRID WITH TRANSITIONS */}
       <section className="bg-white border-y border-gray-100 py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-16">
-          <header className="space-y-3 max-w-2xl">
-            <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">PORTFOLIO PRAC</span>
-            <h2 className="font-display text-5xl text-gray-950 font-normal">
-              Realizacje portretowe <br className="hidden sm:inline" /> z mojej pracowni
+          <header className="space-y-3 max-w-2xl mx-auto text-center">
+            <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">PORTFOLIO</span>
+            <h2 className="font-display text-4xl sm:text-5xl text-gray-950 font-normal">
+              Portrety z mojej pracowni
             </h2>
-            <p className="font-sans text-gray-600 text-base leading-relaxed">
-              Przekonaj się o precyzji mojego pędzla. Każda z poniższych prac powstała metodą tradycyjną na podstawie fotografii powierzonych mi przez klientów.
+            <p className="font-sans text-gray-600 text-base leading-relaxed max-w-[480px] mx-auto">
+              Dotychczasowe zamówienia.
             </p>
           </header>
 
-          {/* Asymmetric gallery grid using two columns for robust layout and custom button placement */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 md:gap-x-20 items-start">
-            {/* Left Column */}
-            <div className="space-y-32 md:space-y-40">
-              {/* Gallery Item 1 */}
-              <div className="space-y-4 group md:max-w-[90%]">
-                <div
-                  onClick={() => openLightbox(0)}
-                  className="aspect-[4/5] rounded-[24px] overflow-hidden bg-gray-100 border border-gray-100 relative cursor-zoom-in"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+            {portfolioItems.map((item, idx) => (
+              <div key={idx} className="space-y-6 group">
+                <div 
+                  className={`aspect-[3/4] overflow-hidden bg-gray-100 border border-gray-100 relative ${item.isOval ? "rounded-[50%]" : "rounded-[24px]"}`}
+                  style={{ borderRadius: item.isOval ? "50%" : undefined }}
                 >
                   <img
-                    src={portretLeonaUrl}
-                    alt="Portret kobiety"
+                    src={item.src}
+                    alt={item.alt}
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
+                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
                   />
                 </div>
-                <div className="flex justify-between items-baseline px-1">
-                  <h3 className="font-display text-lg text-gray-900 group-hover:text-[#E0115F] transition-colors font-medium">Portret Kobiety</h3>
-                  <span className="font-mono text-xs text-gray-500">Płótno prostokątne • 30×40 cm</span>
+                <div className="text-center pt-2">
+                  <span className="font-mono text-sm sm:text-base text-gray-500 block">{item.format}</span>
                 </div>
               </div>
-
-              {/* Centered button "zobacz galerię portretów" in the gap */}
-              <div className="py-4 flex justify-center md:justify-start">
-                <a
-                  href={`${basePath}/galeria`}
-                  className="button button--secondary text-center"
-                >
-                  <div className="button__blobs">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                  </div>
-                  <div className="button__text">
-                    Zobacz galerię portretów
-                    <ArrowRight className="w-4 h-4 ml-1.5" />
-                  </div>
-                </a>
-              </div>
-
-              {/* Gallery Item 3 */}
-              <div className="space-y-4 group md:max-w-[85%]">
-                <div
-                  onClick={() => openLightbox(2)}
-                  className="aspect-[4/5] rounded-[24px] overflow-hidden bg-gray-100 border border-gray-100 relative cursor-zoom-in"
-                >
-                  <img
-                    src={portretSlubnyParyUrl}
-                    alt="Portret trzech dziewczynek"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:rotate-1"
-                  />
-                </div>
-                <div className="flex justify-between items-baseline px-1">
-                  <h3 className="font-display text-lg text-gray-900 group-hover:text-[#E0115F] transition-colors font-medium">Portret Trzech Dziewczynek</h3>
-                  <span className="font-mono text-xs text-gray-500">Płótno prostokątne • 40×50 cm</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column (shifted down to preserve asymmetry) */}
-            <div className="space-y-32 md:space-y-40 md:pt-36">
-              {/* Gallery Item 2 */}
-              <div className="space-y-4 group md:max-w-[85%] md:ml-auto">
-                <div
-                  onClick={() => openLightbox(1)}
-                  className="aspect-[3/4] bg-gray-50 border border-gray-100 overflow-hidden relative flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_32px_rgba(224,17,95,0.04)] hover:border-[#E0115F]/20 transition-all duration-500 ease-in-out cursor-zoom-in"
-                  style={{ borderRadius: "50%" }}
-                >
-                  <img
-                    src={portretOliwiiUrl}
-                    alt="Portret psa Tequili"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:-rotate-1"
-                    style={{ borderRadius: "50%" }}
-                  />
-                </div>
-                <div className="flex justify-between items-baseline px-1">
-                  <h3 className="font-display text-lg text-gray-900 group-hover:text-[#E0115F] transition-colors font-medium">Portret psa Tequili</h3>
-                  <span className="font-mono text-xs text-gray-500">Płótno owalne • 30×40 cm</span>
-                </div>
-              </div>
-
-              {/* Gallery Item 4 */}
-              <div className="space-y-4 group md:max-w-[85%] md:ml-auto">
-                <div
-                  onClick={() => openLightbox(3)}
-                  className="aspect-[4/5] rounded-[24px] overflow-hidden bg-gray-100 border border-gray-100 relative cursor-zoom-in"
-                >
-                  <img
-                    src={portretMarysiUrl}
-                    alt="Portret śpiącego niemowlęcia"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:-rotate-1"
-                  />
-                </div>
-                <div className="flex justify-between items-baseline px-1">
-                  <h3 className="font-display text-lg text-gray-900 group-hover:text-[#E0115F] transition-colors font-medium">Portret Śpiącego Niemowlęcia</h3>
-                  <span className="font-mono text-xs text-gray-500">Płótno prostokątne • 30×40 cm</span>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Asymmetric CTA button at the bottom of the grid, pushed down and right to match layout flow */}
-          <div className="flex justify-end pt-12 md:pt-16 pr-6 md:pr-24 lg:pr-36">
+          {/* Action buttons under the grid */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-12 md:pt-16">
             <a
               href="#kontakt-sekcja"
-              className="button text-center"
+              className="button w-full sm:w-auto text-center cursor-pointer"
             >
               <div className="button__blobs">
                 <div></div>
                 <div></div>
                 <div></div>
               </div>
-              <div className="button__text">
+              <div className="button__text font-bold">
                 Zamów swój portret
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 ml-1.5" />
+              </div>
+            </a>
+            <a
+              href={`${basePath}/galeria`}
+              className="button button--secondary w-full sm:w-auto text-center cursor-pointer"
+            >
+              <div className="button__blobs">
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+              <div className="button__text font-bold">
+                Zobacz galerię portretów
+                <ArrowRight className="w-4 h-4 ml-1.5" />
               </div>
             </a>
           </div>
@@ -351,7 +266,7 @@ export default function Home() {
       {/* 3. PROCESS TIMELINE: SYMMETRICAL, HORIZONTAL 4-STEP AXIS */}
       <section id="jak-zamowic-sekcja" className="py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32 scroll-mt-20">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0">
-          <header className="space-y-3 max-w-2xl mb-20 text-center mx-auto">
+          <header className="space-y-3 max-w-2xl mb-20 mx-auto text-center">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">ETAPY WSPÓŁPRACY</span>
             <h2 className="font-display text-5xl text-gray-950 font-normal">Przejrzyste zasady, pewny efekt</h2>
             <p className="font-sans text-gray-700 text-base leading-relaxed">
@@ -359,51 +274,43 @@ export default function Home() {
             </p>
           </header>
 
-          {/* Horizontal Process Axis timeline with interactive custom hollow dots and transitions */}
+          {/* Horizontal Process Axis timeline aligned left */}
           <div className="relative pt-8 border-t border-gray-150">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
               {/* Step 1 */}
-              <div className="space-y-4 relative flex flex-col items-center text-center group">
+              <div className="space-y-3 relative flex flex-col items-center text-center group">
                 <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
-                <div className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 01</span>
-                  <h3 className="font-display text-lg sm:text-xl text-gray-900">Konsultacja i kadr</h3>
-                </div>
-                <p className="font-sans text-sm text-gray-600 leading-relaxed">
-                  Przesyłasz jedno lub więcej zdjęć pożądanej osoby/zwierzęcia drogą e-mailową lub za pomocą formularza na dole strony.
+                <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 01</span>
+                <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Chcę coś takiego!</h3>
+                <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
+                  Przesyłasz jedno lub więcej zdjęć e-mailem lub za pomocą formularza na dole strony.
                 </p>
               </div>
               {/* Step 2 */}
-              <div className="space-y-4 relative flex flex-col items-center text-center group">
+              <div className="space-y-3 relative flex flex-col items-center text-center group">
                 <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
-                <div className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 02</span>
-                  <h3 className="font-display text-lg sm:text-xl text-gray-900">Projekt cyfrowy</h3>
-                </div>
-                <p className="font-sans text-sm text-gray-600 leading-relaxed">
-                  Układam kolaż pozycjonowania i tła. Ty decydujesz o poprawkach – daję Ci do dyspozycji darmowe tury zmian przed malowaniem.
+                <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 02</span>
+                <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Sprawdź to!</h3>
+                <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
+                  Komponuję obraz w programie graficznym, wysyłam do Ciebie i decydujesz o poprawkach do projektu jeszcze przed malowaniem.
                 </p>
               </div>
               {/* Step 3 */}
-              <div className="space-y-4 relative flex flex-col items-center text-center group">
+              <div className="space-y-3 relative flex flex-col items-center text-center group">
                 <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
-                <div className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 03</span>
-                  <h3 className="font-display text-lg sm:text-xl text-gray-900">Wpłata zadatku</h3>
-                </div>
-                <p className="font-sans text-sm text-gray-600 leading-relaxed">
-                  Dopiero po pełnej akceptacji cyfrowego projektu wpłacasz 50% zadatku. W tym momencie naciągam unikalne płótno i rozpoczynam pracę.
+                <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 03</span>
+                <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Do roboty!</h3>
+                <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
+                  Dopiero po pełnej akceptacji cyfrowego projektu wpłacasz 50% zadatku. W tym momencie rozpoczynam pracę na płótnie.
                 </p>
               </div>
               {/* Step 4 */}
-              <div className="space-y-4 relative flex flex-col items-center text-center group">
+              <div className="space-y-3 relative flex flex-col items-center text-center group">
                 <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
-                <div className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 04</span>
-                  <h3 className="font-display text-lg sm:text-xl text-gray-900">Ukończenie i odbiór</h3>
-                </div>
-                <p className="font-sans text-sm text-gray-600 leading-relaxed">
-                  Po 3-4 tygodniach przesyłam zdjęcia gotowego obrazu. Po akceptacji dopłacasz drugą połowę, a ja wysyłam ubezpieczoną paczkę kurierem.
+                <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 04</span>
+                <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Gimme, Gimme!</h3>
+                <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
+                  Po 3-4 tygodniach przesyłam zdjęcia gotowego obrazu. Coś do zmiany? Masz trzy bezpłatne poprawki! Po akceptacji dopłacasz drugą połowę, a ja wysyłam ubezpieczoną paczkę kurierem.
                 </p>
               </div>
             </div>
@@ -414,15 +321,15 @@ export default function Home() {
       {/* 4. PRICING: TWO BORDERLESS, CLEAN COLUMNS */}
       <section className="bg-stone-50 border-y border-gray-100 py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-24">
-          <header className="text-center max-w-4xl mx-auto space-y-3">
+          <header className="max-w-4xl space-y-3 mx-auto text-center">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">PROSTE WARUNKI</span>
             <h2 className="font-display text-5xl text-gray-950 font-normal">Cennik portretów ze zdjęcia</h2>
-            <p className="font-sans text-gray-600 text-base leading-relaxed max-w-md mx-auto">
-              Dwa unikalne, harmonijne formaty standardowe. Podane ceny są wyjściowe dla ujęć jednoosobowych.
+            <p className="font-sans text-gray-600 text-base leading-relaxed max-w-[620px] mx-auto">
+              Dwa standardowe formaty podobrazi malarskich. Podane kwoty to ceny wyjściowe dla portretowania jednej osoby.
             </p>
           </header>
           <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-20 lg:gap-24 max-w-4xl mx-auto items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 lg:gap-24 max-w-4xl mx-auto items-stretch">
               {/* Format 1: Rectangle */}
               <div className="flex flex-col justify-between space-y-8 py-4">
                 <div className="space-y-6 text-center">
@@ -431,57 +338,52 @@ export default function Home() {
                     <span className="text-sm font-mono text-gray-500 z-10 font-bold uppercase tracking-widest leading-none">3:4</span>
                     <span className="text-xs font-mono text-gray-400 z-10 mt-2 tracking-wide uppercase leading-none">Prostokąt</span>
                   </div>
-                  <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block">Format Klasyczny</span>
-                  <div className="space-y-1">
-                    <h3 className="font-display text-3.5xl text-gray-900 font-normal">Płótno Prostokątne</h3>
-                    <div className="font-display text-2xl text-gray-500 font-normal">
-                      30<span className="font-sans text-sm text-gray-400 mx-0.5 lowercase font-normal">x</span>40 cm*
+                  <div className="space-y-1.5">
+                    <h3 className="font-mono text-lg sm:text-xl font-normal text-[#E0115F]">Płótno prostokątne</h3>
+                    <div className="font-mono text-sm sm:text-base text-gray-500 font-normal">
+                      30x40 cm*
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 leading-relaxed font-sans max-w-md mx-auto">
-                    Ponadczasowy kształt, doskonale odnajdujący się w większości tradycyjnych wnętrz i dobrze reagujący na klasyczne oświetlenie w ramie.
-                  </p>
                 </div>
                 <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
-                  <span className="text-xs font-mono text-gray-400">CENA STARTOWA:</span>
-                  <span className="font-mono text-3xl font-bold text-gray-900">od 800 zł</span>
+                  <span className="text-sm font-mono text-gray-400">CENA STARTOWA:</span>
+                  <span className="font-mono text-3xl font-bold text-gray-900">od 800 zł**</span>
                 </div>
               </div>
               {/* Format 2: Oval */}
               <div className="flex flex-col justify-between space-y-8 py-4">
                 <div className="space-y-6 text-center">
                   <div
-                    className="w-48 aspect-[3/4] mx-auto bg-white border border-gray-150 shadow-[0_8px_24px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center transition-all duration-500 hover:scale-[1.03] hover:border-[#E0115F]/40 hover:shadow-[0_12px_32px_rgba(224,17,95,0.05)] mb-8 select-none relative group"
+                    className="w-48 aspect-[3/4] mx-auto bg-white border border-gray-150 shadow-[0_8px_24px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center transition-all duration-500 hover:scale-[1.03] hover:border-[#E0115F]/40 hover:shadow-[0_12px_32px_rgba(224,17,95,0.05)] mb-8 select-none relative group rounded-[50%] overflow-hidden"
                     style={{ borderRadius: "50%" }}
                   >
                     <div
-                      className="absolute inset-2 border border-dashed border-gray-100 group-hover:border-[#E0115F]/20 transition-colors"
+                      className="absolute inset-2 border border-dashed border-gray-100 group-hover:border-[#E0115F]/20 transition-colors rounded-[50%]"
                       style={{ borderRadius: "50%" }}
                     />
                     <span className="text-sm font-mono text-gray-500 z-10 font-bold uppercase tracking-widest leading-none">3:4</span>
                     <span className="text-xs font-mono text-gray-400 z-10 mt-2 tracking-wide uppercase leading-none">Owal</span>
                   </div>
-                  <span className="font-mono text-xs uppercase tracking-widest text-gray-400 font-bold block">Format Unikalny</span>
-                  <div className="space-y-1">
-                    <h3 className="font-display text-3.5xl text-gray-900 font-normal">Płótno Owalne</h3>
-                    <div className="font-display text-2xl text-gray-500 font-normal">
-                      30<span className="font-sans text-sm text-gray-400 mx-0.5 lowercase font-normal">x</span>40 cm*
+                  <div className="space-y-1.5">
+                    <h3 className="font-mono text-lg sm:text-xl font-normal text-[#E0115F]">Płótno owalne</h3>
+                    <div className="font-mono text-sm sm:text-base text-gray-500 font-normal">
+                      30x40 cm*
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 leading-relaxed font-sans max-w-md mx-auto">
-                    Subtelny, unikalny i nastrojowy sznyt. Owalna linia tła idealnie wybiórczo skupia uwagę obserwatora bezpośrednio na twarzy portretowanego.
-                  </p>
                 </div>
                 <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
-                  <span className="text-xs font-mono text-gray-400">CENA STARTOWA:</span>
-                  <span className="font-mono text-3xl font-bold text-[#E0115F]">od 800 zł</span>
+                  <span className="text-sm font-mono text-gray-400">CENA STARTOWA:</span>
+                  <span className="font-mono text-3xl font-bold text-gray-900">od 800 zł**</span>
                 </div>
               </div>
             </div>
             {/* Centered italicized informational subtext note with generous limits */}
-            <div className="max-w-2xl mx-auto text-center">
-              <p className="font-sans text-sm italic text-gray-600 leading-relaxed">
-                * Podane formaty są wymiarami podstawowymi. Na specjalne życzenie maluję również wielkie płótna w formatach takich jak 40x55 cm, 50x70 cm oraz w dowolnym formacie niestandardowym.
+            <div className="max-w-2xl mx-auto text-center space-y-2">
+              <p className="font-sans text-sm italic text-gray-650 leading-relaxed">
+                * Na specjalne życzenie maluję również na płótnach o innych wymiarach.
+              </p>
+              <p className="font-sans text-sm italic text-gray-650 leading-relaxed">
+                ** Cena zależna od wielkości płótna i ilości portretowanych postaci.
               </p>
             </div>
           </div>
@@ -492,10 +394,10 @@ export default function Home() {
       <section id="kontakt-sekcja" className="border-y border-gray-100 bg-stone-50 py-32 md:py-40 scroll-mt-20">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           <div className="lg:col-span-5 space-y-8 font-sans">
-            <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">POROZMAWIAJMY O TWOIM PORTRECIE</span>
-            <h2 className="font-display text-5xl text-gray-950 leading-[1.1] font-normal">Stwórzmy razem coś wyjątkowego</h2>
+            <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">Porozmawiajmy o portrecie dla Ciebie</span>
+            <h2 className="font-display text-5xl text-gray-950 leading-[1.1] font-normal">Stwórzmy coś wyjątkowego razem</h2>
             <p className="text-gray-600 text-base leading-relaxed">
-              Prześlij swoje zdjęcia i opisz pomysł. Bez żadnych zobowiązań przyjrzę się Twoim kadrom i podpowiem, jak najlepiej zaaranżować tło, światło oraz kompozycję, aby portret na płótnie lub papierze zyskał prawdziwie malarski, szlachetny charakter.
+              Prześlij swoje zdjęcia i opisz pomysł. Bez żadnych zobowiązań się temu przyjrzę i podpowiem jak najlepiej zaaranżować kompozycję oraz tło, aby portret Ci się spodobał!
             </p>
           </div>
           <div className="lg:col-span-7 bg-white rounded-3xl border border-off-black p-6 sm:p-10 space-y-6">
@@ -503,7 +405,7 @@ export default function Home() {
             <form onSubmit={handleContactSubmit} className="space-y-6 font-sans">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Imię i Nazwisko *</label>
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Imię *</label>
                   <input
                     type="text"
                     name="name"
@@ -515,7 +417,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Twój Adres E-mail *</label>
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">adres e-mail *</label>
                   <input
                     type="email"
                     name="email"
@@ -527,101 +429,59 @@ export default function Home() {
                   />
                 </div>
               </div>
+              
               <div className="space-y-1">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Kształt podobrazia *</label>
-                <div className="flex gap-3">
-                  <label className={`flex-1 flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.shape === "rectangle" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Podobrazie *</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
+                    emailForm.shape === "rectangle" && emailForm.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
                   }`}>
                     <input
                       type="radio"
-                      name="shape"
-                      value="rectangle"
-                      checked={emailForm.shape === "rectangle"}
-                      onChange={(e) => setEmailForm({...emailForm, shape: e.target.value})}
+                      name="podobrazie"
+                      value="prostokat_30x40"
+                      checked={emailForm.shape === "rectangle" && emailForm.size === "30x40"}
+                      onChange={() => setEmailForm({...emailForm, shape: "rectangle", size: "30x40"})}
                       className="sr-only"
                     />
-                    Prostokątne
+                    Prostokątne 30x40
                   </label>
-                  <label className={`flex-1 flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.shape === "oval" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                  <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
+                    emailForm.shape === "oval" && emailForm.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
                   }`}>
                     <input
                       type="radio"
-                      name="shape"
-                      value="oval"
-                      checked={emailForm.shape === "oval"}
-                      onChange={(e) => setEmailForm({...emailForm, shape: e.target.value})}
+                      name="podobrazie"
+                      value="owalne_30x40"
+                      checked={emailForm.shape === "oval" && emailForm.size === "30x40"}
+                      onChange={() => setEmailForm({...emailForm, shape: "oval", size: "30x40"})}
                       className="sr-only"
                     />
-                    Owalne
+                    Owalne 30x40
+                  </label>
+                  <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
+                    emailForm.shape === "other" && emailForm.size === "other" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                  }`}>
+                    <input
+                      type="radio"
+                      name="podobrazie"
+                      value="inne"
+                      checked={emailForm.shape === "other" && emailForm.size === "other"}
+                      onChange={() => setEmailForm({...emailForm, shape: "other", size: "other"})}
+                      className="sr-only"
+                    />
+                    Inne
                   </label>
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Wybierz wstępny rozmiar *</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="size"
-                      value="30x40"
-                      checked={emailForm.size === "30x40"}
-                      onChange={(e) => setEmailForm({...emailForm, size: e.target.value})}
-                      className="sr-only"
-                    />
-                    Standardowy (30 x 40 cm)
-                  </label>
-                  <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.size === "40x55" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="size"
-                      value="40x55"
-                      checked={emailForm.size === "40x55"}
-                      onChange={(e) => setEmailForm({...emailForm, size: e.target.value})}
-                      className="sr-only"
-                    />
-                    Średni (40 x 55 cm)
-                  </label>
-                  <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.size === "50x70" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="size"
-                      value="50x70"
-                      checked={emailForm.size === "50x70"}
-                      onChange={(e) => setEmailForm({...emailForm, size: e.target.value})}
-                      className="sr-only"
-                    />
-                    Wielki (50 x 70 cm)
-                  </label>
-                  <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.size === "custom" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
-                  }`}>
-                    <input
-                      type="radio"
-                      name="size"
-                      value="custom"
-                      checked={emailForm.size === "custom"}
-                      onChange={(e) => setEmailForm({...emailForm, size: e.target.value})}
-                      className="sr-only"
-                    />
-                    Niestandardowy (własny format)
-                  </label>
-                </div>
-              </div>
+
               <div className="space-y-1">
                 <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Opisz swoją wizję lub przeznaczenie obrazu *</label>
                 <textarea
                   name="message"
                   required
                   rows={4}
-                  placeholder="Napisz dla kogo powstaje obraz, czy to pamiątka rodzinna, prezent na rocznicę i czy masz już wybrane ujęcia zdjęciowe..."
+                  placeholder="Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
                   value={emailForm.message}
                   onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
                   className="w-full p-3 bg-gray-50 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all resize-none leading-relaxed"
@@ -681,7 +541,7 @@ export default function Home() {
                   </div>
                 </button>
                 <p className="text-xs text-gray-550 font-sans text-center mt-4 leading-relaxed font-normal">
-                  Wiadomość zostanie przesłana bezpośrednio do mojej Pracowni Artystycznej. Odpowiedź wraz z propozycją kompozycji otrzymasz na podany adres e-mail.
+                  Wiadomość zostanie przesłana bezpośrednio do mojej asystentki – rudej kotki o imieniu Aurea, która miauknięciem informuje o nowych wiadomościach z formularza. Odpowiedź ode mnie wraz z propozycją kompozycji otrzymasz z odbiciem łapki na podany adres e-mail.
                 </p>
               </div>
             </form>
@@ -691,12 +551,20 @@ export default function Home() {
 
       <ProductSlider />
 
-      {/* Lightbox Modal */}
       {isMounted && lightbox.isOpen && createPortal(
         <div
           className="fixed inset-0 w-screen h-screen z-50 flex flex-col md:flex-row bg-neutral-950 text-white transition-opacity duration-300 overflow-hidden"
           onClick={closeLightbox}
         >
+          {/* Global Close Button (Float top right, highly accessible) */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 md:top-6 md:right-6 text-neutral-400 hover:text-white bg-black/40 backdrop-blur-md hover:bg-white/10 p-2.5 rounded-full transition-all duration-300 cursor-pointer z-56 border-none"
+            aria-label="Zamknij podgląd"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           {/* Main Image Area (Left/Center) */}
           <div
             className="flex-grow flex items-center justify-center p-6 md:p-12 relative h-[60vh] md:h-screen bg-black"
@@ -732,14 +600,6 @@ export default function Home() {
             className="w-full md:w-[380px] lg:w-[420px] shrink-0 bg-neutral-900 border-t md:border-t-0 md:border-l border-white/10 p-6 md:p-10 flex flex-col justify-between h-[40vh] md:h-screen relative z-55 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button top right of sidebar on desktop */}
-            <button
-              onClick={closeLightbox}
-              className="absolute top-6 right-6 text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 p-2.5 rounded-full transition-all duration-300 cursor-pointer"
-              aria-label="Zamknij podgląd"
-            >
-              <X className="w-5 h-5" />
-            </button>
             {/* Details Section */}
             <div className="space-y-6 pt-6 md:pt-10 font-sans">
               <div className="flex justify-between items-baseline text-xs text-neutral-400 font-mono">

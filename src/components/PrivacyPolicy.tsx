@@ -82,7 +82,7 @@ export default function PrivacyPolicy() {
             <div className="space-y-6 mt-4">
               {/* Purpose 1 */}
               <div className="space-y-2">
-                <h3 className="font-sans font-bold text-gray-950 text-base">1. Sprzedaż gotowych prac malarskich</h3>
+                <h3 className="font-display font-bold text-gray-950 text-base">1. Sprzedaż gotowych prac malarskich</h3>
                 <ul className="list-disc pl-6 space-y-1 text-gray-650">
                   <li><strong>Cel:</strong> Realizacja zamówienia złożonego w sklepie internetowym, w tym pakowanie, zabezpieczenie przesyłki, wysyłka kurierska lub do punktu odbioru oraz informowanie o statusie dostawy.</li>
                   <li><strong>Podstawa prawna:</strong> Art. 6 ust. 1 lit. b RODO (przetwarzanie niezbędne do wykonania umowy sprzedaży).</li>
@@ -92,7 +92,7 @@ export default function PrivacyPolicy() {
 
               {/* Purpose 2 */}
               <div className="space-y-2">
-                <h3 className="font-sans font-bold text-gray-950 text-base">2. Realizacja prac malarskich na zamówienie (indywidualne projekty artystyczne)</h3>
+                <h3 className="font-display font-bold text-gray-950 text-base">2. Realizacja prac malarskich na zamówienie (indywidualne projekty artystyczne)</h3>
                 <ul className="list-disc pl-6 space-y-1 text-gray-650">
                   <li><strong>Cel:</strong> Przyjęcie specyfikacji zamówienia, przetwarzanie wytycznych, kontakt w celu uzgodnienia kompozycji, wymiarów, kolorystyki, przesyłanie etapów prac do akceptacji oraz ostateczna realizacja i dostawa spersonalizowanego dzieła sztuki.</li>
                   <li><strong>Podstawa prawna:</strong> Art. 6 ust. 1 lit. b RODO (podjęcie działań na żądanie osoby, której dane dotyczą, przed zawarciem umowy oraz wykonanie umowy o dzieło).</li>
@@ -102,7 +102,7 @@ export default function PrivacyPolicy() {
 
               {/* Purpose 3 */}
               <div className="space-y-2">
-                <h3 className="font-sans font-bold text-gray-950 text-base">3. Obsługa formularza kontaktowego i zapytań o wycenę obrazów</h3>
+                <h3 className="font-display font-bold text-gray-950 text-base">3. Obsługa formularza kontaktowego i zapytań o wycenę obrazów</h3>
                 <ul className="list-disc pl-6 space-y-1 text-gray-650">
                   <li><strong>Cel:</strong> Odpowiedzi na zapytania ofertowe, wycenę prac indywidualnych, konsultacje artystyczne drogą mailową lub telefoniczną.</li>
                   <li><strong>Podstawa prawna:</strong> Art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes Administratora polegający na sprawnej komunikacji z potencjalnymi klientami i oferowaniu swoich usług).</li>
@@ -112,7 +112,7 @@ export default function PrivacyPolicy() {
 
               {/* Purpose 4 */}
               <div className="space-y-2">
-                <h3 className="font-sans font-bold text-gray-950 text-base">4. Obowiązki finansowo-księgowe</h3>
+                <h3 className="font-display font-bold text-gray-950 text-base">4. Obowiązki finansowo-księgowe</h3>
                 <ul className="list-disc pl-6 space-y-1 text-gray-650">
                   <li><strong>Cel:</strong> Wystawianie faktur, rachunków, prowadzenie ksiąg rachunkowych oraz dokumentacji podatkowej związanej ze sprzedażą dzieł sztuki.</li>
                   <li><strong>Podstawa prawna:</strong> Art. 6 ust. 1 lit. c RODO w związku z przepisami prawa podatkowego i ustawy o rachunkowości.</li>
@@ -122,7 +122,7 @@ export default function PrivacyPolicy() {
 
               {/* Purpose 5 */}
               <div className="space-y-2">
-                <h3 className="font-sans font-bold text-gray-950 text-base">5. Dochodzenie roszczeń i ochrona praw autorskich</h3>
+                <h3 className="font-display font-bold text-gray-950 text-base">5. Dochodzenie roszczeń i ochrona praw autorskich</h3>
                 <ul className="list-disc pl-6 space-y-1 text-gray-650">
                   <li><strong>Cel:</strong> Ustalenie, dochodzenie lub obrona przed roszczeniami prawnymi (np. spory transportowe, opóźnienia w płatnościach) oraz ochrona osobistych i majątkowych praw autorskich do stworzonych dzieł malarskich.</li>
                   <li><strong>Podstawa prawna:</strong> Art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes polegający na ochronie praw majątkowych i wizerunku marki).</li>
@@ -347,7 +347,7 @@ export default function PrivacyPolicy() {
           </div>
 
           <div className="border-t border-gray-200/60 pt-6 space-y-4">
-            <h4 className="font-sans font-bold text-gray-900 text-sm">Masz pytania dotyczące prywatności?</h4>
+            <h4 className="font-display font-bold text-gray-900 text-sm">Masz pytania dotyczące prywatności?</h4>
             <p className="text-xs text-gray-500 leading-relaxed">
               Jeśli chcesz zrealizować swoje prawa RODO lub masz jakiekolwiek wątpliwości, skontaktuj się ze mną bezpośrednio.
             </p>

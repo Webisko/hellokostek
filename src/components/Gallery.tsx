@@ -4,18 +4,23 @@ import { GALLERY_ARTWORKS } from "../data/gallery";
 import { 
   X, 
   ArrowLeft, 
-  ArrowRight, 
-  Search, 
-  Mail
+  ArrowRight
 } from "lucide-react";
 
 const getSrc = (img: any): string => (img && typeof img === 'object' && 'src' in img ? img.src : img);
 
 type FilterType = "all" | "2024" | "2023" | "2022" | "older";
 
+const techniqueLabels: Record<string, string> = {
+  olej: "Olej",
+  akryl: "Akryl",
+  akwarela: "Akwarela",
+  rysunek: "Rysunek"
+};
+
 export default function Gallery() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTechnique, setActiveTechnique] = useState<"all" | "olej" | "akwarela" | "akryl">("all");
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -43,14 +48,8 @@ export default function Gallery() {
     if (activeFilter === "2022" && artwork.year !== "2022") return false;
     if (activeFilter === "older" && ["2024", "2023", "2022"].includes(artwork.year)) return false;
 
-    // 2. Search query filter
-    if (searchQuery.trim() !== "") {
-      const query = searchQuery.toLowerCase();
-      return (
-        artwork.title.toLowerCase().includes(query) ||
-        artwork.year.includes(query)
-      );
-    }
+    // 2. Technique filter
+    if (activeTechnique !== "all" && artwork.technique !== activeTechnique) return false;
 
     return true;
   });
@@ -105,25 +104,50 @@ export default function Gallery() {
       {/* Header section (Serif design) */}
       <header className="pb-12 max-w-4xl space-y-4">
         <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block">
-          PORTFOLIO ZLECEŃ • GALERIA PORTRETÓW ZE ZDJĘCIA
+          portfolio
         </span>
         <h1 className="font-display text-5xl md:text-6xl text-gray-900 tracking-tight font-normal">
           Malarstwo Portretowe
         </h1>
-        <p className="text-gray-600 text-base sm:text-lg max-w-2xl leading-relaxed">
-          Kolekcja obrazów olejnych stworzonych ręcznie na płótnie bawełnianym na podstawie fotografii powierzonych mi przez klientów. Każda praca to oddzielna historia, emocje i unikalna pamiątka pokoleniowa. Zobacz przekrój moich realizacji na przestrzeni lat.
+        <p className="text-gray-600 text-base sm:text-lg max-w-3xl leading-relaxed">
+          Prawdziwe malarstwo przetrwa setki lat, a zdjęcie w rolce aparatu Twojego iPhona zniknie za chwilę przy kolejnej zmianie telefonu. Zamień cyfrowe wspomnienia w trwałe, ręcznie malowane dzieło sztuki.
         </p>
       </header>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between border-b border-gray-150 pb-6">
-        {/* Filter categories */}
+      {/* Filter Rail (Aesthetic and Responsive) */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-gray-150 pb-6">
+        {/* Technique filters (Left) */}
         <div className="flex flex-wrap items-center gap-3">
           {[
+            { id: "all", label: "Wszystkie techniki" },
+            { id: "olej", label: "Olej" },
+            { id: "akwarela", label: "Akwarela" },
+            { id: "akryl", label: "Akryl" }
+          ].map((tech) => (
+            <button
+              key={tech.id}
+              onClick={() => {
+                setActiveTechnique(tech.id as any);
+                setSelectedImageIndex(null);
+              }}
+              className={`px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wider transition-all uppercase cursor-pointer ${
+                activeTechnique === tech.id
+                  ? "bg-gray-950 text-white shadow-sm"
+                  : "bg-gray-55 text-gray-600 border border-transparent hover:border-gray-200 hover:bg-white"
+              }`}
+            >
+              {tech.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Year filters (Right) */}
+        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+          {[
             { id: "all", label: "Wszystkie lata" },
-            { id: "2024", label: "2024 rok" },
-            { id: "2023", label: "2023 rok" },
-            { id: "2022", label: "2022 rok" },
+            { id: "2024", label: "2024" },
+            { id: "2023", label: "2023" },
+            { id: "2022", label: "2022" },
             { id: "older", label: "Starsze prace" }
           ].map((filter) => (
             <button
@@ -135,27 +159,12 @@ export default function Gallery() {
               className={`px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wider transition-all uppercase cursor-pointer ${
                 activeFilter === filter.id
                   ? "bg-gray-950 text-white shadow-sm"
-                  : "bg-gray-50 text-gray-600 border border-transparent hover:border-gray-200 hover:bg-white"
+                  : "bg-gray-55 text-gray-600 border border-transparent hover:border-gray-200 hover:bg-white"
               }`}
             >
               {filter.label}
             </button>
           ))}
-        </div>
-
-        {/* Search Input */}
-        <div className="relative w-full md:w-80">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setSelectedImageIndex(null);
-            }}
-            placeholder="Szukaj portretu..."
-            className="w-full py-3 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-lime-accent focus:ring-1 focus:ring-lime-accent transition-all outline-none"
-          />
-          <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400" />
         </div>
       </div>
 
@@ -165,37 +174,32 @@ export default function Gallery() {
           Brak realizacji spełniających kryteria. Spróbuj zmienić parametry filtrów.
         </div>
       ) : (
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-16 pt-6 [column-fill:_balance]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-6">
           {filteredArtworks.map((artwork, index) => (
             <article
               key={artwork.id}
               onClick={() => setSelectedImageIndex(index)}
-              className="break-inside-avoid mb-16 group flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-500 bg-white border border-gray-50 hover:border-gray-200 p-4 rounded-[28px] hover:shadow-lg"
+              className="group flex flex-col justify-between cursor-pointer transition-all duration-500 bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] hover:shadow-lg"
             >
               {/* Image Container */}
-              <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 w-full">
+              <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 w-full aspect-square">
                 <img
                   src={getSrc(artwork.imageUrl)}
                   alt={artwork.title}
                   loading="lazy"
                   referrerPolicy="no-referrer"
-                  className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                  className="w-full h-full object-cover block transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
                 
+                {/* Technique Label overlay (Left top) */}
+                <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-gray-905 text-xs font-mono font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest border border-gray-100 shadow-xs z-10">
+                  {techniqueLabels[artwork.technique] || artwork.technique}
+                </span>
+
                 {/* Year Label overlay */}
-                <span className="absolute bottom-4 right-4 bg-gray-950/80 backdrop-blur-md text-white text-xs font-mono px-3 py-1.5 rounded-lg font-medium tracking-widest uppercase border border-white/10">
+                <span className="absolute bottom-4 right-4 bg-gray-950 text-white text-xs font-mono px-3 py-1.5 rounded-lg font-medium tracking-widest uppercase z-10">
                   {artwork.year}
                 </span>
-              </div>
-
-              {/* Title & details block */}
-              <div className="px-1 py-1">
-                <h3 className="font-display text-lg text-gray-900 group-hover:text-[#E0115F] transition-colors leading-snug font-medium">
-                  {artwork.title}
-                </h3>
-                <p className="text-xs text-gray-400 font-mono mt-1 uppercase tracking-wider">
-                  Malarstwo olejne na płótnie
-                </p>
               </div>
             </article>
           ))}
@@ -208,6 +212,15 @@ export default function Gallery() {
           className="fixed inset-0 w-screen h-screen z-50 flex flex-col md:flex-row bg-neutral-950 text-white transition-opacity duration-300 overflow-hidden"
           onClick={handleCloseLightbox}
         >
+          {/* Global Close Button (Float top right, highly accessible) */}
+          <button
+            onClick={handleCloseLightbox}
+            className="absolute top-4 right-4 md:top-6 md:right-6 text-neutral-400 hover:text-white bg-black/40 backdrop-blur-md hover:bg-white/10 p-2.5 rounded-full transition-all duration-300 cursor-pointer z-56 border-none"
+            aria-label="Zamknij podgląd"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           {/* Main Image Area (Left/Center) */}
           <div 
             className="flex-grow flex items-center justify-center p-6 md:p-12 relative h-[60vh] md:h-screen bg-black"
@@ -244,14 +257,6 @@ export default function Gallery() {
             className="w-full md:w-[380px] lg:w-[420px] shrink-0 bg-neutral-900 border-t md:border-t-0 md:border-l border-white/10 p-6 md:p-10 flex flex-col justify-between h-[40vh] md:h-screen relative z-55 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button top right of sidebar on desktop */}
-            <button 
-              onClick={handleCloseLightbox}
-              className="absolute top-6 right-6 text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 p-2.5 rounded-full transition-all duration-300 cursor-pointer"
-              aria-label="Zamknij podgląd"
-            >
-              <X className="w-5 h-5" />
-            </button>
 
             {/* Details Section */}
             <div className="space-y-6 pt-6 md:pt-10 font-sans">
@@ -265,10 +270,37 @@ export default function Gallery() {
               </h2>
 
               <div className="space-y-2.5 text-xs text-neutral-400 leading-relaxed">
-                <p>• Tradycyjna technika olejna na płótnie bawełnianym</p>
-                <p>• Naciąg na krosna sosnowe</p>
-                <p>• Zabezpieczony werniksem końcowym</p>
-                <p>• Wykonany ręcznie na zamówienie ze zdjęcia</p>
+                {currentArtwork.technique === "olej" && (
+                  <>
+                    <p>• Tradycyjna technika olejna na płótnie bawełnianym</p>
+                    <p>• Naciąg na krosna sosnowe</p>
+                    <p>• Zabezpieczony werniksem końcowym</p>
+                    <p>• Wykonany ręcznie na zamówienie ze zdjęcia</p>
+                  </>
+                )}
+                {currentArtwork.technique === "akryl" && (
+                  <>
+                    <p>• Malarstwo akrylowe na płótnie</p>
+                    <p>• Naciąg na krosna sosnowe</p>
+                    <p>• Zabezpieczony werniksem końcowym</p>
+                    <p>• Wykonany ręcznie</p>
+                  </>
+                )}
+                {currentArtwork.technique === "rysunek" && (
+                  <>
+                    <p>• Tradycyjny rysunek na papierze</p>
+                    <p>• Wykonany ołówkiem lub suchym pastelem</p>
+                    <p>• Utrwalony fiksatywą ochronną</p>
+                    <p>• Wykonany ręcznie</p>
+                  </>
+                )}
+                {currentArtwork.technique === "akwarela" && (
+                  <>
+                    <p>• Akwarela na wysokiej jakości papierze bawełnianym</p>
+                    <p>• Unikalne, płynne przejścia barwne</p>
+                    <p>• Wykonany ręcznie</p>
+                  </>
+                )}
               </div>
             </div>
 
@@ -298,10 +330,10 @@ export default function Gallery() {
       <section className="bg-stone-50 rounded-[32px] p-8 sm:p-12 border border-neutral-100 flex flex-col md:flex-row items-center justify-between gap-8 mt-24">
         <div className="space-y-2 text-center md:text-left max-w-2xl">
           <h2 className="font-display text-3xl text-gray-900 font-normal">
-            Podoba Ci się mój warsztat malarski?
+            Podoba Ci się?
           </h2>
-          <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
-            Możesz zamówić ręcznie malowany tradycyjny portret olejny z własnego zdjęcia. Zobacz ofertę i dostępne opcje personalizacji.
+          <p className="text-stone-600 text-sm sm:text-base leading-relaxed max-w-[530px]">
+            Możesz zamówić ręcznie malowany portret olejny z własnego zdjęcia. Zobacz ofertę i dostępne opcje personalizacji.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 shrink-0 w-full sm:w-auto">

@@ -6,6 +6,7 @@ export interface GalleryArtwork {
   year: string;
   imageUrl: string;
   originalUrl?: string;
+  technique: "olej" | "akwarela" | "akryl" | "rysunek";
 }
 
 export interface Product {
@@ -50,4 +51,5 @@ export interface Testimonial {
   text: string;
   author: string;
   meta: string;
+  emoji?: string;
 }

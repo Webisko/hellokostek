@@ -3,18 +3,11 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SHOP_PRODUCTS } from "../data";
 
 export default function ProductSlider() {
-  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
   const [prodIndex, setProdIndex] = useState(SHOP_PRODUCTS.length);
   const [prodTransitionEnabled, setProdTransitionEnabled] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const itemsPerPage = windowWidth >= 1024 ? 4 : windowWidth >= 640 ? 2 : 1;
+  const itemsPerPage = 1;
 
   useEffect(() => {
     if (!prodTransitionEnabled) {
@@ -38,13 +31,13 @@ export default function ProductSlider() {
 
   const nextSlide = useCallback(() => {
     if (!prodTransitionEnabled) return;
-    setProdIndex((prev) => prev + itemsPerPage);
-  }, [itemsPerPage, prodTransitionEnabled]);
+    setProdIndex((prev) => prev + 1);
+  }, [prodTransitionEnabled]);
 
   const prevSlide = useCallback(() => {
     if (!prodTransitionEnabled) return;
-    setProdIndex((prev) => prev - itemsPerPage);
-  }, [itemsPerPage, prodTransitionEnabled]);
+    setProdIndex((prev) => prev - 1);
+  }, [prodTransitionEnabled]);
 
   useEffect(() => {
     if (isPaused) return;
@@ -60,37 +53,41 @@ export default function ProductSlider() {
   return (
     <section className="py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="max-w-3xl space-y-4">
-            <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">KOLEKCJA MOICH DZIEŁ</span>
-            <h2 className="font-display text-4xl sm:text-5xl text-gray-950 font-normal leading-[1.1]">
-              Oryginalne dzieła z duszą <br className="hidden sm:inline" /> i charakterem
+        <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+          <div className="space-y-4 w-full max-w-3xl">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block">
+              Prace autorskie
+            </span>
+            <h2 className="font-display text-4xl sm:text-5xl text-gray-900 tracking-tight font-normal md:whitespace-nowrap">
+              Nie tylko portrety olejne
             </h2>
-            <p className="font-sans text-gray-600 text-base leading-relaxed">
-              Nie szukasz portretu na zamówienie? Przejrzyj moje oryginalne akwarele o chłodnych tonach oraz precyzyjne rysunki ołówkiem gotowe do wysyłki od zaraz.
+            <p className="font-sans text-gray-600 text-base leading-relaxed max-w-[530px] mx-auto">
+              Zajrzyj do sklepu internetowego hellokostek, gdzie oryginalne, rysowane ołówkiem i malowane akwarelą dzieła kupisz od ręki.
             </p>
           </div>
-          <div className="flex gap-3 shrink-0 self-start md:self-end pb-1">
-            <button
-              onClick={prevSlide}
-              aria-label="Poprzednie produkty"
-              className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={nextSlide}
-              aria-label="Następne produkty"
-              className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
-            >
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
+        </div>
+
+        {/* Navigation Arrows - placed close to the slider, far from the header */}
+        <div className="flex gap-3 justify-center mt-10 mb-10">
+          <button
+            onClick={prevSlide}
+            aria-label="Poprzednie produkty"
+            className="w-12 h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={nextSlide}
+            aria-label="Następne produkty"
+            className="w-12 h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Interactive gallery slider - full section width */}
         <div 
-          className="relative w-full pt-4 group/slider"
+          className="relative w-full pt-0 group/slider"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onFocus={() => setIsPaused(true)}
@@ -106,19 +103,21 @@ export default function ProductSlider() {
               {extendedProducts.map((p, idx) => (
                 <div 
                   key={`${p.id}-${idx}`}
-                  className="shrink-0 px-3 md:px-4"
+                  className="shrink-0 px-3 md:px-4 animate-fadeIn"
                   style={{ width: `${100 / itemsPerPage}%` }}
                 >
                   <a 
                     href={`${basePath}/sklep/${p.id}`}
-                    className="group cursor-pointer overflow-hidden rounded-[24px] border border-gray-150 hover:border-lime-accent bg-gray-50 aspect-[3/4] relative shadow-sm hover:shadow-md transition-all duration-300 block"
+                    className="group cursor-pointer relative flex items-center justify-center mx-auto h-[420px] sm:h-[540px] md:h-[700px] lg:h-[840px] w-fit bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] transition-all duration-500 hover:shadow-lg"
                   >
-                    <img
-                      src={p.imageUrl}
-                      alt={p.title}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
+                    <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 h-full w-fit">
+                      <img
+                        src={p.imageUrl}
+                        alt={p.title}
+                        referrerPolicy="no-referrer"
+                        className="h-full w-auto block transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                      />
+                    </div>
                   </a>
                 </div>
               ))}
@@ -129,7 +128,7 @@ export default function ProductSlider() {
         <div className="pt-8 text-center">
           <a
             href={`${basePath}/sklep`}
-            className="button button--secondary"
+            className="button"
           >
             <div className="button__blobs">
               <div></div>

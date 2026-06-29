@@ -35,3 +35,9 @@ user_actions.py
 
 # Image backups
 backup_images/
+
+# Screenshot and audit tools
+take_screenshots.js
+take_screenshots.cjs
+audit_screenshots/
+dev-error.log

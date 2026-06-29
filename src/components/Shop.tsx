@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { SHOP_PRODUCTS } from "../data";
-import { Search, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function Shop() {
   const [activeCategory, setActiveCategory] = useState<"all" | "watercolor" | "drawing" | "prints">("all");
-  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredProducts = SHOP_PRODUCTS.filter((product) => {
     // Category filter logic
@@ -12,15 +11,6 @@ export default function Shop() {
     if (activeCategory === "drawing" && product.category !== "drawing") return false;
     if (activeCategory === "prints" && !product.printPrice) return false;
 
-    // Search query logic
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      return (
-        product.title.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query) ||
-        product.year.includes(query)
-      );
-    }
     return true;
   });
 
@@ -63,24 +53,12 @@ export default function Shop() {
             </button>
           ))}
         </div>
-
-        {/* Input Field */}
-        <div className="relative w-full md:w-80">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Szukaj według nazwy lub roku..."
-            className="w-full py-3 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-800 placeholder:text-gray-400 focus:bg-white focus:border-lime-accent focus:ring-1 focus:ring-lime-accent transition-all outline-none"
-          />
-          <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-400" />
-        </div>
       </div>
 
       {/* Asymmetric Elegant Art Grid of Products */}
       {filteredProducts.length === 0 ? (
         <div className="text-center py-24 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-500 text-sm">
-          Brak prac odzwierciedlających aktualne filtry wyszukiwania. Spróbuj zresetować parametry wyszukiwania.
+          Brak prac w wybranej kategorii.
         </div>
       ) : (
         <div className="columns-1 md:columns-2 lg:columns-3 gap-16 pt-6 [column-fill:_balance]">
@@ -89,7 +67,7 @@ export default function Shop() {
               <a
                 key={product.id}
                 href={`${basePath}/sklep/${product.id}`}
-                className="break-inside-avoid mb-16 group flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-500 bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] hover:shadow-lg block"
+                className="break-inside-avoid mb-8 md:mb-16 group flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-500 bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] hover:shadow-lg block"
               >
                 {/* Image Wrapper */}
                 <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 w-full">

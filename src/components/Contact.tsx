@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Mail, Send, MessageSquare, Check, MapPin, Instagram, Facebook, ChevronDown } from "lucide-react";
+import { Mail, Send, MessageSquare, Check, MapPin, Instagram, Facebook, ChevronDown, Youtube } from "lucide-react";
+
+const TiktokIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -52,7 +58,7 @@ export default function Contact() {
       case "portrait_commission":
         return {
           label: "Opisz swoją wizję lub przeznaczenie obrazu *",
-          placeholder: "Napisz dla kogo powstaje obraz, czy to pamiątka rodzinna, prezent na rocznicę i czy masz już wybrane ujęcia zdjęciowe..."
+          placeholder: "Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
         };
       case "shop_delivery":
         return {
@@ -75,11 +81,7 @@ export default function Contact() {
     }
     if (formData.subject === "portrait_commission") {
       if (!formData.shape) {
-        alert("Proszę wybrać kształt podobrazia.");
-        return;
-      }
-      if (!formData.size) {
-        alert("Proszę wybrać rozmiar portretu.");
+        alert("Proszę wybrać podobrazie.");
         return;
       }
     }
@@ -159,6 +161,24 @@ export default function Contact() {
                   >
                     <Facebook className="w-4 h-4 text-[#1877F2]" />
                     <span>Facebook</span>
+                  </a>
+                  <a
+                    href="https://www.tiktok.com/@hellokostek"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
+                  >
+                    <TiktokIcon className="w-4 h-4 text-black" />
+                    <span>TikTok</span>
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@hellokostek"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
+                  >
+                    <Youtube className="w-4 h-4 text-[#FF0000]" />
+                    <span>YouTube</span>
                   </a>
                 </div>
                 <span className="text-gray-500 block text-sm mt-2">Zobacz, jak powstają moje prace, i śledź moją codzienność na żywo.</span>
@@ -253,91 +273,46 @@ export default function Contact() {
             {formData.subject === "portrait_commission" && (
               <div className="animate-scaleIn space-y-6">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Kształt podobrazia *</label>
-                  <div className="flex gap-3">
-                    <label className={`flex-1 flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.shape === "rectangle" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
-                    }`}>
-                      <input
-                        type="radio"
-                        name="shape"
-                        value="rectangle"
-                        checked={formData.shape === "rectangle"}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      Prostokątne
-                    </label>
-                    <label className={`flex-1 flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.shape === "oval" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
-                    }`}>
-                      <input
-                        type="radio"
-                        name="shape"
-                        value="oval"
-                        checked={formData.shape === "oval"}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      Owalne
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Wybierz wstępny rozmiar *</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Podobrazie *</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                      formData.shape === "rectangle" && formData.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
                     }`}>
                       <input
                         type="radio"
-                        name="size"
-                        value="30x40"
-                        checked={formData.size === "30x40"}
-                        onChange={handleInputChange}
+                        name="podobrazie"
+                        value="prostokat_30x40"
+                        checked={formData.shape === "rectangle" && formData.size === "30x40"}
+                        onChange={() => setFormData({...formData, shape: "rectangle", size: "30x40"})}
                         className="sr-only"
                       />
-                      Standardowy (30 x 40 cm)
+                      Prostokątne 30x40
                     </label>
                     <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.size === "40x55" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                      formData.shape === "oval" && formData.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
                     }`}>
                       <input
                         type="radio"
-                        name="size"
-                        value="40x55"
-                        checked={formData.size === "40x55"}
-                        onChange={handleInputChange}
+                        name="podobrazie"
+                        value="owalne_30x40"
+                        checked={formData.shape === "oval" && formData.size === "30x40"}
+                        onChange={() => setFormData({...formData, shape: "oval", size: "30x40"})}
                         className="sr-only"
                       />
-                      Średni (40 x 55 cm)
+                      Owalne 30x40
                     </label>
                     <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.size === "50x70" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                      formData.shape === "other" && formData.size === "other" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
                     }`}>
                       <input
                         type="radio"
-                        name="size"
-                        value="50x70"
-                        checked={formData.size === "50x70"}
-                        onChange={handleInputChange}
+                        name="podobrazie"
+                        value="inne"
+                        checked={formData.shape === "other" && formData.size === "other"}
+                        onChange={() => setFormData({...formData, shape: "other", size: "other"})}
                         className="sr-only"
                       />
-                      Wielki (50 x 70 cm)
-                    </label>
-                    <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.size === "custom" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
-                    }`}>
-                      <input
-                        type="radio"
-                        name="size"
-                        value="custom"
-                        checked={formData.size === "custom"}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      Niestandardowy (własny format)
+                      Inne
                     </label>
                   </div>
                 </div>
@@ -405,7 +380,7 @@ export default function Contact() {
                 </div>
               </button>
               <p className="text-xs text-gray-550 font-sans text-center mt-4 leading-relaxed">
-                Wiadomość zostanie przesłana bezpośrednio do mojej Pracowni Artystycznej. Odpowiedź wraz z propozycją kompozycji otrzymasz na podany adres e-mail.
+                Wiadomość zostanie przesłana bezpośrednio do mojej asystentki – rudej kotki o imieniu Aurea, która miauknięciem informuje o nowych wiadomościach z formularza. Odpowiedź ode mnie wraz z propozycją kompozycji otrzymasz z odbiciem łapki na podany adres e-mail.
               </p>
             </div>
           </form>

@@ -59,35 +59,37 @@ export default function Testimonials() {
   return (
     <section className="bg-stone-50 border-y border-gray-100 py-24">
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="max-w-2xl space-y-3">
+        <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+          <div className="space-y-3 w-full max-w-3xl mx-auto">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">REKOMENDACJE</span>
-            <h2 className="font-display text-5xl text-gray-950 font-normal">Opinie moich klientów</h2>
+            <h2 className="font-display text-5xl text-gray-950 font-normal md:whitespace-nowrap">Opinie moich klientów</h2>
             <p className="font-sans text-gray-600 text-base leading-relaxed">
-              Poznaj historie osób, dla których miałem przyjemność uwiecznić najważniejsze chwile na tradycyjnym płótnie malarskim.
+              Poznaj historie osób, dla których miałem przyjemność namalować obraz.
             </p>
           </div>
-          <div className="flex gap-3 shrink-0 self-start md:self-end pb-1">
-            <button
-              onClick={prevReviewsSlide}
-              aria-label="Poprzednie opinie"
-              className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={nextReviewsSlide}
-              aria-label="Następne opinie"
-              className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
-            >
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
+        </div>
+
+        {/* Navigation Arrows - placed close to the reviews, far from the header */}
+        <div className="flex gap-3 justify-center mt-10 mb-10">
+          <button
+            onClick={prevReviewsSlide}
+            aria-label="Poprzednie opinie"
+            className="w-12 h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={nextReviewsSlide}
+            aria-label="Następne opinie"
+            className="w-12 h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 border border-gray-200 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E0115F] cursor-pointer"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Testimonials Slider */}
         <div 
-          className="relative w-full pt-4 group/reviews-slider"
+          className="relative w-full pt-0 group/reviews-slider"
           onMouseEnter={() => setIsReviewsPaused(true)}
           onMouseLeave={() => setIsReviewsPaused(false)}
           onFocus={() => setIsReviewsPaused(true)}
@@ -107,10 +109,8 @@ export default function Testimonials() {
                 >
                   <div className="bg-white border border-gray-150 rounded-3xl p-8 space-y-6 shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(224,17,95,0.02)] transition-all duration-300 flex flex-col justify-between w-full min-h-[220px]">
                     <div className="space-y-4">
-                      <div className="flex gap-1 text-[#E0115F]">
-                        {[...Array(t.stars)].map((_, i) => (
-                          <span key={i} className="text-sm">★</span>
-                        ))}
+                      <div className="text-2xl">
+                        {t.emoji}
                       </div>
                       <p className="font-sans text-gray-700 italic leading-relaxed text-sm sm:text-base">
                         {t.text}
