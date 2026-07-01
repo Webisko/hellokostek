@@ -329,7 +329,7 @@ export default function Contact() {
                 id="contact-message"
                 name="message"
                 required
-                rows={4}
+                rows={6}
                 value={formData.message}
                 onChange={handleInputChange}
                 placeholder={getMessageFieldDetails().placeholder}

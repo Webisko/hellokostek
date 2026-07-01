@@ -147,7 +147,7 @@ export default function Home() {
     <div className="bg-white min-h-screen text-gray-900 animate-fadeIn">
       {/* 1. HERO SECTION: 50/50 ASYMMETRIC SPLIT */}
       <section className="pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-12 md:pb-20 lg:pb-16 xl:pb-14 2xl:pb-24">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-center">
+        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 xl:gap-20 items-center">
           {/* Left: Massive Serif text + CTA */}
           <div className="lg:col-span-7 2xl:col-span-6 space-y-8 font-sans">
             <div className="block">
@@ -155,7 +155,7 @@ export default function Home() {
                 PRACOWNIA ARTYSTYCZNA • KOSTEK MACIEJ KOSTECZKA
               </span>
             </div>
-            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-[96px] xl:text-[110px] 2xl:text-[120px] leading-[0.95] tracking-tighter text-gray-950 font-normal">
+            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[110px] 2xl:text-[120px] leading-[0.95] tracking-tighter text-gray-950 font-normal">
               Człowiek dla człowieka – <span className="text-[#E0115F]">sztuka prawdziwa</span> bez AI
             </h1>
             <p className="font-sans text-gray-700 text-lg leading-relaxed max-w-xl font-normal">
@@ -227,7 +227,7 @@ export default function Home() {
           </div>
 
           {/* Action buttons under the grid */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-12 md:pt-16">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 pt-12 md:pt-16 w-full max-w-md mx-auto sm:max-w-none">
             <a
               href="#kontakt-sekcja"
               className="button w-full sm:w-auto text-center cursor-pointer"
@@ -275,11 +275,12 @@ export default function Home() {
           </header>
 
           {/* Horizontal Process Axis timeline aligned left */}
-          <div className="relative pt-8 border-t border-gray-150">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
+          <div className="relative pt-2 md:pt-8 border-t-0 md:border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-6 lg:gap-12 xl:gap-16">
               {/* Step 1 */}
-              <div className="space-y-3 relative flex flex-col items-center text-center group">
-                <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
+              <div className="space-y-3 relative flex flex-col items-start text-left pl-8 md:pl-0 md:items-center md:text-center group">
+                <div className="absolute left-[7.5px] top-4 bottom-[-52px] w-[1px] bg-gray-200 md:hidden" />
+                <div className="absolute left-0 top-0 md:-top-8 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
                 <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 01</span>
                 <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Chcę coś takiego!</h3>
                 <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
@@ -287,8 +288,9 @@ export default function Home() {
                 </p>
               </div>
               {/* Step 2 */}
-              <div className="space-y-3 relative flex flex-col items-center text-center group">
-                <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
+              <div className="space-y-3 relative flex flex-col items-start text-left pl-8 md:pl-0 md:items-center md:text-center group">
+                <div className="absolute left-[7.5px] top-4 bottom-[-52px] w-[1px] bg-gray-200 md:hidden" />
+                <div className="absolute left-0 top-0 md:-top-8 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
                 <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 02</span>
                 <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Sprawdź to!</h3>
                 <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
@@ -296,8 +298,9 @@ export default function Home() {
                 </p>
               </div>
               {/* Step 3 */}
-              <div className="space-y-3 relative flex flex-col items-center text-center group">
-                <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
+              <div className="space-y-3 relative flex flex-col items-start text-left pl-8 md:pl-0 md:items-center md:text-center group">
+                <div className="absolute left-[7.5px] top-4 bottom-[-52px] w-[1px] bg-gray-200 md:hidden" />
+                <div className="absolute left-0 top-0 md:-top-8 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
                 <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 03</span>
                 <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Do roboty!</h3>
                 <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
@@ -305,8 +308,9 @@ export default function Home() {
                 </p>
               </div>
               {/* Step 4 */}
-              <div className="space-y-3 relative flex flex-col items-center text-center group">
-                <div className="absolute -top-8 -translate-y-1/2 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
+              <div className="space-y-3 relative flex flex-col items-start text-left pl-8 md:pl-0 md:items-center md:text-center group">
+                <div className="absolute left-[7.5px] top-4 bottom-0 w-[1px] bg-gray-200 md:hidden" />
+                <div className="absolute left-0 top-0 md:-top-8 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-4 h-4 rounded-full border-2 border-gray-400 bg-white z-10 group-hover:scale-155 group-hover:bg-[#C4F013] group-hover:border-[#C4F013] transition-all duration-300" />
                 <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold block">Krok 04</span>
                 <h3 className="font-display text-xl sm:text-2xl text-gray-900 font-normal">Gimme, Gimme!</h3>
                 <p className="font-sans text-sm sm:text-base text-gray-600 leading-relaxed max-w-[300px]">
@@ -329,7 +333,7 @@ export default function Home() {
             </p>
           </header>
           <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 lg:gap-24 max-w-4xl mx-auto items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-6 lg:gap-16 xl:gap-24 max-w-4xl mx-auto items-stretch">
               {/* Format 1: Rectangle */}
               <div className="flex flex-col justify-between space-y-8 py-4">
                 <div className="space-y-6 text-center">
@@ -345,7 +349,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
+                <div className="flex justify-center gap-3 md:gap-2 lg:gap-4 items-baseline pt-4 border-t border-gray-100">
                   <span className="text-sm font-mono text-gray-400">CENA STARTOWA:</span>
                   <span className="font-mono text-3xl font-bold text-gray-900">od 800 zł**</span>
                 </div>
@@ -371,7 +375,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between items-baseline pt-4 border-t border-gray-100">
+                <div className="flex justify-center gap-3 md:gap-2 lg:gap-4 items-baseline pt-4 border-t border-gray-100">
                   <span className="text-sm font-mono text-gray-400">CENA STARTOWA:</span>
                   <span className="font-mono text-3xl font-bold text-gray-900">od 800 zł**</span>
                 </div>
@@ -391,16 +395,16 @@ export default function Home() {
       </section>
 
       {/* 6. CONTACT SECTION: FORM */}
-      <section id="kontakt-sekcja" className="border-y border-gray-100 bg-stone-50 py-32 md:py-40 scroll-mt-20">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-          <div className="lg:col-span-5 space-y-8 font-sans">
+      <section id="kontakt-sekcja" className="border-y border-gray-100 bg-stone-50 py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32 scroll-mt-20">
+        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 xl:grid-cols-12 gap-16 items-start">
+          <div className="xl:col-span-5 space-y-8 font-sans text-center xl:text-left">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">Porozmawiajmy o portrecie dla Ciebie</span>
             <h2 className="font-display text-5xl text-gray-950 leading-[1.1] font-normal">Stwórzmy coś wyjątkowego razem</h2>
-            <p className="text-gray-600 text-base leading-relaxed">
+            <p className="text-gray-600 text-base leading-relaxed max-w-xl mx-auto xl:mx-0">
               Prześlij swoje zdjęcia i opisz pomysł. Bez żadnych zobowiązań się temu przyjrzę i podpowiem jak najlepiej zaaranżować kompozycję oraz tło, aby portret Ci się spodobał!
             </p>
           </div>
-          <div className="lg:col-span-7 bg-white rounded-3xl border border-off-black p-6 sm:p-10 space-y-6">
+          <div className="xl:col-span-7 bg-white rounded-3xl border border-off-black p-6 sm:p-10 space-y-6">
             <h3 className="font-display text-2xl text-gray-900 border-b border-gray-100 pb-4">Zamów wycenę Twojego portretu</h3>
             <form onSubmit={handleContactSubmit} className="space-y-6 font-sans">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -483,7 +487,7 @@ export default function Home() {
                   id="home-contact-message"
                   name="message"
                   required
-                  rows={4}
+                  rows={6}
                   placeholder="Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
                   value={emailForm.message}
                   onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}

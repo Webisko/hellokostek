@@ -115,6 +115,13 @@ html, body {
   border-radius: 10px !important;
 }
 
+@media (max-width: 767px) {
+  .button:not(.button--nav) {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+}
+
 .button:not(:disabled):hover {
   color: #181716; /* Clean off-black for clear contrast on Lime background */
   background-color: #C4F013; /* Transitions to Lime to cover corners perfectly */

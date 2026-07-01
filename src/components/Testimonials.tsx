@@ -1,25 +1,56 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { TESTIMONIALS } from "../data";
 
 export default function Testimonials() {
-  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
-  const [reviewsIndex, setReviewsIndex] = useState(TESTIMONIALS.length);
+  const [windowWidth, setWindowWidth] = useState(1200);
+  const [reviewsIndex, setReviewsIndex] = useState(TESTIMONIALS.length * 2);
   const [reviewsTransitionEnabled, setReviewsTransitionEnabled] = useState(true);
   const [isReviewsPaused, setIsReviewsPaused] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const [draggedDistance, setDraggedDistance] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleDragStart = (clientX: number) => {
+    if (isTransitioning) return;
+    setDragStart(clientX);
+    setDraggedDistance(0);
+  };
+
+  const handleDragMove = (clientX: number) => {
+    if (dragStart === null) return;
+    const distance = dragStart - clientX;
+    setDraggedDistance(distance);
+  };
+
+  const handleDragEnd = () => {
+    if (dragStart === null) return;
+    if (draggedDistance > 50) {
+      nextReviewsSlide();
+    } else if (draggedDistance < -50) {
+      prevReviewsSlide();
+    }
+    setDragStart(null);
+    setDraggedDistance(0);
+  };
 
   useEffect(() => {
+    setWindowWidth(window.innerWidth);
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const reviewsPerPage = windowWidth >= 1024 ? 3 : windowWidth >= 640 ? 2 : 1;
+  const reviewsPerPage = windowWidth >= 1280 ? 3 : windowWidth >= 768 ? 2 : 1;
 
   useEffect(() => {
     if (!reviewsTransitionEnabled) {
       const raf = requestAnimationFrame(() => {
         setReviewsTransitionEnabled(true);
+        setIsTransitioning(false);
       });
       return () => cancelAnimationFrame(raf);
     }
@@ -27,24 +58,34 @@ export default function Testimonials() {
 
   const handleReviewsTransitionEnd = () => {
     const N = TESTIMONIALS.length;
-    if (reviewsIndex >= 2 * N) {
+    let didWrap = false;
+
+    if (reviewsIndex >= 3 * N) {
       setReviewsTransitionEnabled(false);
-      setReviewsIndex(reviewsIndex - N);
+      setReviewsIndex(reviewsIndex - 2 * N);
+      didWrap = true;
     } else if (reviewsIndex < N) {
       setReviewsTransitionEnabled(false);
-      setReviewsIndex(reviewsIndex + N);
+      setReviewsIndex(reviewsIndex + 2 * N);
+      didWrap = true;
+    }
+
+    if (!didWrap) {
+      setIsTransitioning(false);
     }
   };
 
   const nextReviewsSlide = useCallback(() => {
-    if (!reviewsTransitionEnabled) return;
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setReviewsIndex((prev) => prev + reviewsPerPage);
-  }, [reviewsPerPage, reviewsTransitionEnabled]);
+  }, [reviewsPerPage, isTransitioning]);
 
   const prevReviewsSlide = useCallback(() => {
-    if (!reviewsTransitionEnabled) return;
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setReviewsIndex((prev) => prev - reviewsPerPage);
-  }, [reviewsPerPage, reviewsTransitionEnabled]);
+  }, [reviewsPerPage, isTransitioning]);
 
   useEffect(() => {
     if (isReviewsPaused) return;
@@ -54,7 +95,16 @@ export default function Testimonials() {
     return () => clearInterval(timer);
   }, [isReviewsPaused, nextReviewsSlide]);
 
-  const extendedTestimonials = [...TESTIMONIALS, ...TESTIMONIALS, ...TESTIMONIALS];
+  const extendedTestimonials = [
+    ...TESTIMONIALS,
+    ...TESTIMONIALS,
+    ...TESTIMONIALS,
+    ...TESTIMONIALS,
+  ];
+
+  const containerWidth = containerRef.current ? containerRef.current.clientWidth : 1;
+  const dragPercent = dragStart !== null ? (draggedDistance / containerWidth) * 100 : 0;
+  const finalTranslate = (reviewsIndex * (100 / reviewsPerPage)) + dragPercent;
 
   return (
     <section className="bg-stone-50 border-y border-gray-100 py-24">
@@ -91,14 +141,32 @@ export default function Testimonials() {
         <div 
           className="relative w-full pt-0 group/reviews-slider"
           onMouseEnter={() => setIsReviewsPaused(true)}
-          onMouseLeave={() => setIsReviewsPaused(false)}
+          onMouseLeave={() => {
+            setIsReviewsPaused(false);
+            handleDragEnd();
+          }}
           onFocus={() => setIsReviewsPaused(true)}
           onBlur={() => setIsReviewsPaused(false)}
         >
-          <div className="overflow-hidden w-full py-4 px-2 -my-4 -mx-2">
+          <div 
+            ref={containerRef}
+            className={`overflow-hidden w-full py-4 px-2 -my-4 -mx-2 select-none ${dragStart !== null ? "cursor-grabbing" : "cursor-grab"}`}
+            onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+            onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+            onTouchEnd={handleDragEnd}
+            onMouseDown={(e) => handleDragStart(e.clientX)}
+            onMouseMove={(e) => handleDragMove(e.clientX)}
+            onMouseUp={handleDragEnd}
+          >
             <div 
-              className={`flex -mx-3 md:-mx-4 ${reviewsTransitionEnabled ? "transition-transform duration-500 ease-in-out" : "transition-none"}`}
-              style={{ transform: `translateX(-${reviewsIndex * (100 / reviewsPerPage)}%)` }}
+              className={`flex -mx-3 md:-mx-4 ${
+                dragStart !== null 
+                  ? "transition-none" 
+                  : reviewsTransitionEnabled 
+                    ? "transition-transform duration-500 ease-in-out" 
+                    : "transition-none"
+              }`}
+              style={{ transform: `translateX(-${finalTranslate}%)` }}
               onTransitionEnd={handleReviewsTransitionEnd}
             >
               {extendedTestimonials.map((t, idx) => (
@@ -107,12 +175,12 @@ export default function Testimonials() {
                   className="shrink-0 px-3 md:px-4 flex"
                   style={{ width: `${100 / reviewsPerPage}%` }}
                 >
-                  <div className="bg-white border border-gray-150 rounded-3xl p-8 space-y-6 shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(224,17,95,0.02)] transition-all duration-300 flex flex-col justify-between w-full min-h-[220px]">
+                  <div className="bg-white border border-gray-150 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(224,17,95,0.02)] transition-all duration-300 flex flex-col justify-between w-full min-h-0 sm:min-h-[220px]">
                     <div className="space-y-4">
                       <div className="text-2xl">
                         {t.emoji}
                       </div>
-                      <p className="font-sans text-gray-700 italic leading-relaxed text-sm sm:text-base">
+                      <p className="font-sans text-gray-700 italic leading-relaxed text-base sm:text-lg">
                         {t.text}
                       </p>
                     </div>

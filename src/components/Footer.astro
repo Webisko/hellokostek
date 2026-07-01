@@ -6,8 +6,8 @@ const currentYear = new Date().getFullYear();
 <footer class="bg-neutral-50 border-t border-neutral-200 pb-16 pt-20">
   <div class="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 md:grid-cols-12 gap-12">
     <!-- Column 1 - Brand Summary -->
-    <div class="md:col-span-5 space-y-2">
-      <div class="w-full max-w-[560px] h-44 md:h-64 overflow-hidden flex items-center justify-start py-1">
+    <div class="md:col-span-5 space-y-2 text-center md:text-left flex flex-col items-center md:items-start">
+      <div class="w-full max-w-[560px] h-44 md:h-64 overflow-hidden flex items-center justify-center md:justify-start py-1">
         <img
           src="https://hellokostek.pl/wp-content/uploads/2021/05/logo-animation-30fps-v-2.gif"
           alt="hellokostek"
@@ -21,7 +21,7 @@ const currentYear = new Date().getFullYear();
     </div>
 
     <!-- Column 2 - Oferta & Odkryj (Stacked) -->
-    <div class="md:col-span-3 space-y-10 font-sans text-xs sm:text-sm">
+    <div class="md:col-span-3 space-y-10 font-sans text-xs sm:text-sm text-center md:text-left">
       <!-- Oferta -->
       <div class="space-y-4">
         <span class="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Oferta</span>
@@ -29,7 +29,7 @@ const currentYear = new Date().getFullYear();
           <li>
             <a 
               href={`${basePath}/`} 
-              class="hover:text-magenta-accent transition-colors cursor-pointer text-left block"
+              class="hover:text-magenta-accent transition-colors cursor-pointer text-center md:text-left block"
             >
               Portrety ze zdjęcia na zamówienie
             </a>
@@ -37,7 +37,7 @@ const currentYear = new Date().getFullYear();
           <li>
             <a 
               href={`${basePath}/sklep`} 
-              class="hover:text-magenta-accent transition-colors cursor-pointer text-left block"
+              class="hover:text-magenta-accent transition-colors cursor-pointer text-center md:text-left block"
             >
               Sklep
             </a>
@@ -45,7 +45,7 @@ const currentYear = new Date().getFullYear();
           <li>
             <a 
               href={`${basePath}/galeria`} 
-              class="hover:text-magenta-accent transition-colors cursor-pointer text-left block"
+              class="hover:text-magenta-accent transition-colors cursor-pointer text-center md:text-left block"
             >
               Galeria
             </a>
@@ -60,7 +60,7 @@ const currentYear = new Date().getFullYear();
           <li>
             <a 
               href={`${basePath}/o-mnie`} 
-              class="hover:text-magenta-accent transition-colors cursor-pointer text-left block"
+              class="hover:text-magenta-accent transition-colors cursor-pointer text-center md:text-left block"
             >
               O mnie
             </a>
@@ -68,7 +68,7 @@ const currentYear = new Date().getFullYear();
           <li>
             <a 
               href={`${basePath}/kontakt`} 
-              class="hover:text-magenta-accent transition-colors cursor-pointer text-left block"
+              class="hover:text-magenta-accent transition-colors cursor-pointer text-center md:text-left block"
             >
               Kontakt
             </a>
@@ -78,7 +78,7 @@ const currentYear = new Date().getFullYear();
     </div>
 
     <!-- Column 3 - Direct contact block details -->
-    <div class="md:col-span-4 space-y-4 font-sans text-xs sm:text-sm">
+    <div class="md:col-span-4 space-y-4 font-sans text-xs sm:text-sm text-center md:text-left flex flex-col items-center md:items-start">
       <span class="font-mono text-xs uppercase text-stone-400 tracking-wider block font-bold">Kontakt</span>
       <p class="text-stone-600 leading-normal">
         <a href="mailto:kontakt@hellokostek.pl" class="font-bold text-off-black hover:text-magenta-accent transition-colors block">
@@ -88,7 +88,7 @@ const currentYear = new Date().getFullYear();
           tel. 662 707 153
         </a>
       </p>
-      <div class="flex flex-wrap gap-3 pt-1">
+      <div class="flex flex-row justify-center gap-3 pt-1 sm:grid sm:grid-cols-2 sm:w-fit sm:mx-auto md:mx-0 lg:flex lg:flex-row lg:w-auto lg:justify-start lg:gap-3">
         <a
           href="https://www.instagram.com/hellokostek/"
           target="_blank"
@@ -126,10 +126,10 @@ const currentYear = new Date().getFullYear();
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"></path><polygon points="9.7 15 14.5 12.3 9.7 9.7 9.7 15"></polygon></svg>
         </a>
       </div>
-      <div class="text-xs font-mono text-stone-400 mt-8 pt-4 border-t border-stone-200/40 space-y-1">
+      <div class="text-xs font-mono text-stone-400 mt-8 pt-4 border-t border-stone-200/40 space-y-1 w-full">
         <div class="font-bold text-xs uppercase tracking-wider text-stone-400">hellokostek Maciej Kosteczka</div>
-        <div class="flex gap-2 font-bold">
-          <span>NIP: 625-236-36-56</span> • <span>REGON: 527158196</span>
+        <div class="flex justify-center md:justify-start gap-2 font-bold">
+          <span>NIP: 625-236-36-56</span>
         </div>
       </div>
     </div>

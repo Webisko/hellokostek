@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SHOP_PRODUCTS } from "../data";
 
@@ -6,6 +6,41 @@ export default function ProductSlider() {
   const [prodIndex, setProdIndex] = useState(SHOP_PRODUCTS.length);
   const [prodTransitionEnabled, setProdTransitionEnabled] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
+
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const [draggedDistance, setDraggedDistance] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleDragStart = (clientX: number) => {
+    setDragStart(clientX);
+    setDraggedDistance(0);
+    setIsDragging(false);
+  };
+
+  const handleDragMove = (clientX: number) => {
+    if (dragStart === null) return;
+    const distance = dragStart - clientX;
+    setDraggedDistance(distance);
+    if (Math.abs(distance) > 10) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (dragStart === null) return;
+    if (draggedDistance > 50) {
+      nextSlide();
+    } else if (draggedDistance < -50) {
+      prevSlide();
+    }
+    setDragStart(null);
+    setDraggedDistance(0);
+    setTimeout(() => {
+      setIsDragging(false);
+    }, 50);
+  };
 
   const itemsPerPage = 1;
 
@@ -50,6 +85,10 @@ export default function ProductSlider() {
   const extendedProducts = [...SHOP_PRODUCTS, ...SHOP_PRODUCTS, ...SHOP_PRODUCTS];
   const basePath = "/hellokostek";
 
+  const containerWidth = containerRef.current ? containerRef.current.clientWidth : 1;
+  const dragPercent = dragStart !== null ? (draggedDistance / containerWidth) * 100 : 0;
+  const finalTranslate = (prodIndex * (100 / itemsPerPage)) + dragPercent;
+
   return (
     <section className="py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
       <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-12">
@@ -89,15 +128,33 @@ export default function ProductSlider() {
         <div 
           className="relative w-full pt-0 group/slider"
           onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+          onMouseLeave={() => {
+            setIsPaused(false);
+            handleDragEnd();
+          }}
           onFocus={() => setIsPaused(true)}
           onBlur={() => setIsPaused(false)}
         >
           {/* Slider Viewport */}
-          <div className="overflow-hidden w-full py-4 -my-4">
+          <div 
+            ref={containerRef}
+            className={`overflow-hidden w-full py-4 -my-4 select-none ${dragStart !== null ? "cursor-grabbing" : "cursor-grab"}`}
+            onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+            onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+            onTouchEnd={handleDragEnd}
+            onMouseDown={(e) => handleDragStart(e.clientX)}
+            onMouseMove={(e) => handleDragMove(e.clientX)}
+            onMouseUp={handleDragEnd}
+          >
             <div 
-              className={`flex -mx-3 md:-mx-4 ${prodTransitionEnabled ? "transition-transform duration-500 ease-in-out" : "transition-none"}`}
-              style={{ transform: `translateX(-${prodIndex * (100 / itemsPerPage)}%)` }}
+              className={`flex -mx-3 md:-mx-4 ${
+                dragStart !== null 
+                  ? "transition-none" 
+                  : prodTransitionEnabled 
+                    ? "transition-transform duration-500 ease-in-out" 
+                    : "transition-none"
+              }`}
+              style={{ transform: `translateX(-${finalTranslate}%)` }}
               onTransitionEnd={handleProdTransitionEnd}
             >
               {extendedProducts.map((p, idx) => (
@@ -108,13 +165,20 @@ export default function ProductSlider() {
                 >
                   <a 
                     href={`${basePath}/sklep/${p.id}`}
-                    className="group cursor-pointer relative flex items-center justify-center mx-auto h-[280px] sm:h-[500px] md:h-[650px] lg:h-[800px] w-fit max-w-full bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] transition-all duration-500 hover:shadow-lg block"
+                    onDragStart={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      if (isDragging) {
+                        e.preventDefault();
+                      }
+                    }}
+                    className="group cursor-pointer relative flex items-center justify-center mx-auto h-[280px] sm:h-[400px] md:h-[450px] lg:h-[550px] xl:h-[680px] w-fit max-w-full bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] transition-all duration-500 hover:shadow-lg block"
                   >
                     <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 h-full w-fit max-w-full flex items-center justify-center">
                       <img
                         src={p.imageUrl}
                         alt={p.title}
                         referrerPolicy="no-referrer"
+                        draggable="false"
                         className="h-full max-h-full w-auto max-w-full block object-contain transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                       />
                     </div>
