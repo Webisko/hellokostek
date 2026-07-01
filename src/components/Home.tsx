@@ -149,7 +149,7 @@ export default function Home() {
       <section className="pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-12 md:pb-20 lg:pb-16 xl:pb-14 2xl:pb-24">
         <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 xl:gap-20 items-center">
           {/* Left: Massive Serif text + CTA */}
-          <div className="lg:col-span-7 2xl:col-span-6 space-y-8 font-sans">
+          <div className="lg:col-span-7 2xl:col-span-6 space-y-8 font-sans text-center lg:text-left flex flex-col items-center lg:items-start">
             <div className="block">
               <span className="font-mono text-[10px] sm:text-xs tracking-wider sm:tracking-widest uppercase text-gray-400 font-bold block">
                 PRACOWNIA ARTYSTYCZNA • KOSTEK MACIEJ KOSTECZKA
@@ -158,10 +158,10 @@ export default function Home() {
             <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[110px] 2xl:text-[120px] leading-[0.95] tracking-tighter text-gray-950 font-normal">
               Człowiek dla człowieka – <span className="text-[#E0115F]">sztuka prawdziwa</span> bez AI
             </h1>
-            <p className="font-sans text-gray-700 text-lg leading-relaxed max-w-xl font-normal">
+            <p className="font-sans text-gray-700 text-lg leading-relaxed max-w-xl font-normal mx-auto lg:mx-0">
               Malarstwo olejne
             </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4 w-full">
               <a
                 href="#kontakt-sekcja"
                 className="button text-center"

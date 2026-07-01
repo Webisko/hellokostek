@@ -47,10 +47,10 @@ export default function Navbar({ currentPath }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-neutral-100 transition-all duration-500 ease-in-out">
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 transition-all duration-500 ease-in-out py-3 lg:py-0">
+      <div className="max-w-[1600px] mx-auto flex items-center justify-between pl-0 pr-6 sm:px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 transition-all duration-500 ease-in-out py-3 lg:py-0 relative">
         
-        {/* Left Side (Desktop: Links, Mobile/Tablet: Hamburger) */}
-        <div className="w-5/12 flex items-center justify-start">
+        {/* Left Side (Desktop: Links, Tablet: Hamburger, Mobile: Hidden) */}
+        <div className="!hidden sm:!flex sm:absolute sm:left-6 sm:top-1/2 sm:-translate-y-1/2 sm:items-center sm:justify-start sm:z-10 xl:relative xl:left-auto xl:top-auto xl:translate-y-0 xl:w-5/12">
           {/* Desktop Links */}
           <div className="hidden xl:flex items-center space-x-4 xl:space-x-6">
             <a
@@ -114,8 +114,8 @@ export default function Navbar({ currentPath }: NavbarProps) {
             </a>
           </div>
           
-          {/* Mobile/Tablet Hamburger */}
-          <div className="xl:hidden flex items-center">
+          {/* Tablet Hamburger */}
+          <div className="hidden sm:flex xl:hidden items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 sm:p-2 md:p-2.5 text-off-black bg-stone-100 hover:bg-stone-200 transition-colors rounded-full"
@@ -130,17 +130,17 @@ export default function Navbar({ currentPath }: NavbarProps) {
           </div>
         </div>
 
-        {/* Centered Logo (Daniel Arthury inspired) - Magnified and animated */}
-        <div className="flex justify-center items-center flex-grow xl:flex-none xl:w-2/12 text-center">
+        {/* Logo (Left-aligned on mobile, centered on tablet/desktop) */}
+        <div className="flex justify-start sm:justify-center items-center flex-grow sm:flex-none xl:w-2/12 text-left sm:text-center mx-0 sm:mx-auto">
           <a
             href={`${basePath}/`}
-            className="flex flex-col items-center group focus:outline-none"
+            className="flex flex-col items-start sm:items-center group focus:outline-none"
             aria-label="Strona główna hellokostek"
           >
-            <div className={`flex items-center justify-center overflow-hidden transition-all duration-500 ease-in-out ${
+            <div className={`flex items-center justify-start sm:justify-center overflow-hidden transition-all duration-500 ease-in-out ${
               isScrolled 
-                ? "w-[120px] h-[36px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]" 
-                : "w-[160px] h-[48px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
+                ? "w-[130px] h-[39px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]" 
+                : "w-[240px] h-[72px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
             }`}>
               <img
                 src={`${basePath}/images/logo-animation-30fps-v-2.gif`}
@@ -148,16 +148,16 @@ export default function Navbar({ currentPath }: NavbarProps) {
                 width={600}
                 height={180}
                 referrerPolicy="no-referrer"
-                className="max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-500"
+                className="max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-500 -ml-[15%] sm:ml-0"
               />
             </div>
           </a>
         </div>
 
-        {/* Right Side (Desktop: Full CTA, Mobile/Tablet: Responsive CTA) */}
-        <div className="w-5/12 flex items-center justify-end">
-          {/* Desktop CTA */}
-          <div className="hidden xl:flex items-center justify-end">
+        {/* Right Side (Desktop/Tablet: CTA, Mobile: Hamburger) */}
+        <div className="flex items-center justify-end sm:absolute sm:right-6 sm:top-1/2 sm:-translate-y-1/2 sm:z-10 xl:relative xl:right-auto xl:top-auto xl:translate-y-0 xl:w-5/12">
+          {/* Desktop/Tablet CTA */}
+          <div className="hidden sm:flex items-center justify-end">
             <a
               href={isHome ? "#kontakt-sekcja" : `${basePath}/#kontakt-sekcja`}
               className={`button button--nav ${(isHome && !isHeroScrolledPast) ? "button--secondary" : ""}`}
@@ -174,23 +174,19 @@ export default function Navbar({ currentPath }: NavbarProps) {
             </a>
           </div>
           
-          {/* Mobile/Tablet Responsive CTA */}
-          <div className="xl:hidden flex items-center justify-end">
-            <a
-              href={isHome ? "#kontakt-sekcja" : `${basePath}/#kontakt-sekcja`}
-              className={`button button--nav button--sm sm:button--nav ${(isHome && !isHeroScrolledPast) ? "button--secondary" : ""} !min-w-0 !h-[36px] sm:!h-[42px] !px-3 sm:!px-6`}
+          {/* Mobile Hamburger */}
+          <div className="sm:hidden flex items-center">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-off-black bg-stone-100 hover:bg-stone-200 transition-colors rounded-full"
+              aria-label="Główne Menu"
             >
-              <div className="button__blobs">
-                <div></div>
-                <div></div>
-                <div></div>
-              </div>
-              <div className="button__text !text-[10px] sm:!text-[11px] !gap-1">
-                <span className="hidden sm:inline">Zamów portret</span>
-                <span className="sm:hidden">Zamów</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </a>
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -205,8 +201,8 @@ export default function Navbar({ currentPath }: NavbarProps) {
       >
         <a
           href={`${basePath}/`}
-          className={`text-left text-xs uppercase tracking-widest font-mono py-2 border-l-2 pl-3 transition-colors ${
-            isHome ? "border-[#E0115F] text-[#E0115F] font-semibold" : "border-transparent text-off-black/60"
+          className={`text-center text-xs uppercase tracking-widest font-mono py-2 transition-colors ${
+            isHome ? "text-[#E0115F] font-semibold" : "text-off-black/60"
           }`}
         >
           hellokostek
@@ -214,8 +210,8 @@ export default function Navbar({ currentPath }: NavbarProps) {
         
         <a
           href={`${basePath}/galeria`}
-          className={`text-left text-xs uppercase tracking-widest font-mono py-2 border-l-2 pl-3 transition-colors ${
-            isGallery ? "border-[#E0115F] text-[#E0115F] font-semibold" : "border-transparent text-off-black/60"
+          className={`text-center text-xs uppercase tracking-widest font-mono py-2 transition-colors ${
+            isGallery ? "text-[#E0115F] font-semibold" : "text-off-black/60"
           }`}
         >
           Galeria
@@ -223,8 +219,8 @@ export default function Navbar({ currentPath }: NavbarProps) {
         
         <a
           href={`${basePath}/sklep`}
-          className={`text-left text-xs uppercase tracking-widest font-mono py-2 border-l-2 pl-3 transition-colors ${
-            isShop ? "border-[#E0115F] text-[#E0115F] font-semibold" : "border-transparent text-off-black/60"
+          className={`text-center text-xs uppercase tracking-widest font-mono py-2 transition-colors ${
+            isShop ? "text-[#E0115F] font-semibold" : "text-off-black/60"
           }`}
         >
           Sklep
@@ -232,8 +228,8 @@ export default function Navbar({ currentPath }: NavbarProps) {
 
         <a
           href={`${basePath}/o-mnie`}
-          className={`text-left text-xs uppercase tracking-widest font-mono py-2 border-l-2 pl-3 transition-colors ${
-            isAbout ? "border-[#E0115F] text-[#E0115F] font-semibold" : "border-transparent text-off-black/60"
+          className={`text-center text-xs uppercase tracking-widest font-mono py-2 transition-colors ${
+            isAbout ? "text-[#E0115F] font-semibold" : "text-off-black/60"
           }`}
         >
           O mnie
@@ -241,12 +237,29 @@ export default function Navbar({ currentPath }: NavbarProps) {
 
         <a
           href={`${basePath}/kontakt`}
-          className={`text-left text-xs uppercase tracking-widest font-mono py-2 border-l-2 pl-3 transition-colors ${
-            isContact ? "border-[#E0115F] text-[#E0115F] font-semibold" : "border-transparent text-off-black/60"
+          className={`text-center text-xs uppercase tracking-widest font-mono py-2 transition-colors ${
+            isContact ? "text-[#E0115F] font-semibold" : "text-off-black/60"
           }`}
         >
           Kontakt
         </a>
+        <div className="pt-4 pb-2 sm:hidden flex justify-center">
+          <a
+            href={isHome ? "#kontakt-sekcja" : `${basePath}/#kontakt-sekcja`}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="button button--sm text-center"
+          >
+            <div className="button__blobs">
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
+            <div className="button__text font-bold">
+              Zamów portret
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </a>
+        </div>
       </div>
     </nav>
   );
