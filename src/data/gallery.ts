@@ -193,5 +193,77 @@ export const GALLERY_ARTWORKS: GalleryArtwork[] = [
     imageUrl: "/hellokostek/images/10-513W13R2-edited.webp",
     originalUrl: "/hellokostek/images/10-513W13R2.webp",
     technique: "akryl"
+  },
+  {
+    id: "gallery-33",
+    title: "Owalny portret psa",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20250418_154931.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20250418_154931.webp",
+    technique: "olej"
+  },
+  {
+    id: "gallery-34",
+    title: "Portret kota",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20251124_231952.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20251124_231952.webp",
+    technique: "olej"
+  },
+  {
+    id: "gallery-35",
+    title: "Portret z trzema psami",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20251212_003229.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20251212_003229.webp",
+    technique: "olej"
+  },
+  {
+    id: "gallery-36",
+    title: "Portret rodzeństwa",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20260427_182645.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20260427_182645.webp",
+    technique: "olej"
+  },
+  {
+    id: "gallery-37",
+    title: "Szkic parku z fontanną",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20260527_010704.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20260527_010704.webp",
+    technique: "rysunek"
+  },
+  {
+    id: "gallery-38",
+    title: "Studium leżącej postaci",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20260607_192928.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20260607_192928.webp",
+    technique: "rysunek"
+  },
+  {
+    id: "gallery-39",
+    title: "Szkic portretu kobiety",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20260609_230909.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20260609_230909.webp",
+    technique: "rysunek"
+  },
+  {
+    id: "gallery-40",
+    title: "Owalny portret kobiety",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_20260620_200043.webp",
+    originalUrl: "/hellokostek/images/gallery_new_20260620_200043.webp",
+    technique: "olej"
+  },
+  {
+    id: "gallery-41",
+    title: "Oprawiony portret z trzema psami",
+    year: "2026",
+    imageUrl: "/hellokostek/images/gallery_new_whatsapp_image_2026_02_23_at_17.15.06.webp",
+    originalUrl: "/hellokostek/images/gallery_new_whatsapp_image_2026_02_23_at_17.15.06.webp",
+    technique: "olej"
   }
 ];

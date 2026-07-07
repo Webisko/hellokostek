@@ -135,14 +135,14 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const basePath = "/hellokostek";
 
   return (
-    <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 max-w-[1600px] mx-auto space-y-8 xl:space-y-16">
+    <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
       {/* Back to Gallery Path Link */}
       <a
         href={`${basePath}/sklep`}
         className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-off-black hover:text-magenta-accent transition-all duration-300"
       >
         <ChevronLeft className="w-4 h-4" />
-        Cofnij do galerii prac
+        Cofnij do sklepu
       </a>
 
       {/* Main Container Dual-Column Layout (50/50 split) */}

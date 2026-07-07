@@ -16,6 +16,7 @@ const { product } = Astro.props;
 <Layout 
   title={`${product.title} | Sklep | hellokostek`}
   description={product.description}
+  image={product.imageUrl}
 >
   <ProductDetail product={product} client:load />
 </Layout>

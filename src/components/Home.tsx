@@ -147,7 +147,7 @@ export default function Home() {
     <div className="bg-white min-h-screen text-gray-900 animate-fadeIn">
       {/* 1. HERO SECTION: 50/50 ASYMMETRIC SPLIT */}
       <section className="pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-12 md:pb-20 lg:pb-16 xl:pb-14 2xl:pb-24">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 xl:gap-20 items-center">
+        <div className="content-container grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 xl:gap-20 items-center">
           {/* Left: Massive Serif text + CTA */}
           <div className="lg:col-span-7 2xl:col-span-6 space-y-8 font-sans text-center lg:text-left flex flex-col items-center lg:items-start">
             <div className="block">
@@ -194,7 +194,7 @@ export default function Home() {
 
       {/* 2. PORTFOLIO GRID: ART-GALLERY STYLE ASYMMETRIC GRID WITH TRANSITIONS */}
       <section className="bg-white border-y border-gray-100 py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-16">
+        <div className="content-container space-y-16">
           <header className="space-y-3 max-w-2xl mx-auto text-center">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">PORTFOLIO</span>
             <h2 className="font-display text-4xl sm:text-5xl text-gray-950 font-normal">
@@ -265,7 +265,7 @@ export default function Home() {
 
       {/* 3. PROCESS TIMELINE: SYMMETRICAL, HORIZONTAL 4-STEP AXIS */}
       <section id="jak-zamowic-sekcja" className="py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32 scroll-mt-20">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0">
+        <div className="content-container">
           <header className="space-y-3 max-w-2xl mb-20 mx-auto text-center">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">ETAPY WSPÓŁPRACY</span>
             <h2 className="font-display text-5xl text-gray-950 font-normal">Przejrzyste zasady, pewny efekt</h2>
@@ -324,7 +324,7 @@ export default function Home() {
 
       {/* 4. PRICING: TWO BORDERLESS, CLEAN COLUMNS */}
       <section className="bg-stone-50 border-y border-gray-100 py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-24">
+        <div className="content-container space-y-24">
           <header className="max-w-4xl space-y-3 mx-auto text-center">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">PROSTE WARUNKI</span>
             <h2 className="font-display text-5xl text-gray-950 font-normal">Cennik portretów ze zdjęcia</h2>
@@ -396,7 +396,7 @@ export default function Home() {
 
       {/* 6. CONTACT SECTION: FORM */}
       <section id="kontakt-sekcja" className="border-y border-gray-100 bg-stone-50 py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32 scroll-mt-20">
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 xl:grid-cols-12 gap-16 items-start">
+        <div className="content-container grid grid-cols-1 xl:grid-cols-12 gap-16 items-start">
           <div className="xl:col-span-5 space-y-8 font-sans text-center xl:text-left">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">Porozmawiajmy o portrecie dla Ciebie</span>
             <h2 className="font-display text-5xl text-gray-950 leading-[1.1] font-normal">Stwórzmy coś wyjątkowego razem</h2>
@@ -415,7 +415,7 @@ export default function Home() {
                     id="home-contact-name"
                     name="name"
                     required
-                    placeholder="np. Anna Kowalska"
+                    placeholder="np. Anna"
                     value={emailForm.name}
                     onChange={(e) => setEmailForm({...emailForm, name: e.target.value})}
                     className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"
@@ -428,7 +428,7 @@ export default function Home() {
                     id="home-contact-email"
                     name="email"
                     required
-                    placeholder="np. anna.kowalska@gmail.com"
+                    placeholder="np. anna@gmail.com"
                     value={emailForm.email}
                     onChange={(e) => setEmailForm({...emailForm, email: e.target.value})}
                     className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"

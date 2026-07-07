@@ -47,7 +47,7 @@ export default function Navbar({ currentPath }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-neutral-100 transition-all duration-500 ease-in-out">
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between pl-0 pr-6 sm:px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 transition-all duration-500 ease-in-out py-3 lg:py-0 relative">
+      <div className="navbar-container flex items-center justify-between transition-all duration-500 ease-in-out py-3 lg:py-0 relative">
         
         {/* Left Side (Desktop: Links, Tablet: Hamburger, Mobile: Hidden) */}
         <div className="!hidden sm:!flex sm:absolute sm:left-6 md:left-12 lg:left-16 sm:top-1/2 sm:-translate-y-1/2 sm:items-center sm:justify-start sm:z-10 xl:relative xl:left-auto xl:top-auto xl:translate-y-0 xl:w-5/12">

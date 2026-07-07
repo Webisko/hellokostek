@@ -93,7 +93,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 max-w-[1600px] mx-auto space-y-24">
+    <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-24">
       <header className="border-b border-gray-100 pb-12 w-full">
         <div className="max-w-4xl">
           <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-4">
@@ -194,7 +194,7 @@ export default function Contact() {
           <form onSubmit={handleSubmit} className="space-y-6 font-sans">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-1">
-                <label htmlFor="contact-name" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Imię i Nazwisko *</label>
+                <label htmlFor="contact-name" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Imię *</label>
                 <input
                   type="text"
                   id="contact-name"
@@ -202,7 +202,7 @@ export default function Contact() {
                   required
                   value={formData.name}
                   onChange={handleInputChange}
-                  placeholder="np. Anna Kowalska"
+                  placeholder="np. Anna"
                   className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"
                 />
               </div>
@@ -216,7 +216,7 @@ export default function Contact() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="np. anna.kowalska@gmail.com"
+                  placeholder="np. anna@gmail.com"
                   className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"
                 />
               </div>

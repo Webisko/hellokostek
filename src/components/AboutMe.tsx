@@ -7,7 +7,7 @@ export default function AboutMe() {
   return (
     <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 space-y-16 md:space-y-24 lg:space-y-20 xl:space-y-16 2xl:space-y-24">
       {/* Asymmetric Section 1: Biography vs Workspace Photography */}
-      <section className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <section className="content-container grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
         {/* Left Column: Storytelling Text (Asymmetric span) */}
         <div className="lg:col-span-7">
           {/* Editorial Magazine Hero Header */}
@@ -55,7 +55,7 @@ export default function AboutMe() {
       </section>
 
       {/* bottom CTA card */}
-      <section className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 mt-20">
+      <section className="content-container mt-20">
         <div className="bg-stone-50 rounded-[32px] p-8 sm:p-12 border border-neutral-100 flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="space-y-2 text-center lg:text-left max-w-2xl">
             <h2 className="font-display text-3xl text-gray-900 font-normal">

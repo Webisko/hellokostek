@@ -161,73 +161,57 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
     stars: 5,
-    text: "„Portret ślubny wyszedł niesamowicie. Kiedy rozpakowaliśmy przesyłkę, oboje mieliśmy łzy w oczach. Dbałość o szczegóły i faktura farby olejnej na płótnie robią spektakularne wrażenie na żywo.”",
-    author: "Anna K.",
-    meta: "Warszawa • Portret Ślubny Pary",
-    emoji: "💖"
+    text: "„Hej! Mama jest zachwycona! Co się patrzy to się uśmiecha. Roześmiała się jak zobaczyła i powiedziała, że idealnie odwzorowane!”",
+    author: "Kasia",
+    meta: "Portret z trzema psami",
+    emoji: "🐶"
   },
   {
     id: 2,
     stars: 5,
-    text: "„Zamówiłem portret córki Marysi. Kontakt z Panem Maciejem był rewelacyjny na każdym etapie – od projektu cyfrowego po gotowy obraz. Odbiór osobisty w Łodzi był bardzo miłym akcentem. Polecam z całego serca.”",
-    author: "Piotr M.",
-    meta: "Łódź • Portret Marysi",
-    emoji: "😊"
+    text: "„Gdy wręczyłem prezent to złożyłem życzenia od ciebie Tata bardzo Cię pozdrawia i jest 🙂 wzruszony prezentem. Bardzo lubi Twoją twórczość Jesteś gość ! Tak powiedział. 🙂”",
+    author: "Kamil",
+    meta: "Portret taty",
+    emoji: "🙂"
   },
   {
     id: 3,
     stars: 5,
-    text: "„Owalny portret Oliwii w salonie przykuwa uwagę każdego gościa. To nie jest zwykły wydruk ze zdjęcia, to prawdziwa sztuka z duszą. Gra światła na tym płótnie o różnych porach dnia jest zachwycająca.”",
-    author: "Karolina W.",
-    meta: "Kraków • Portret Oliwii",
-    emoji: "✨"
+    text: "„Kubeczki zamówione dla siostrzeńców rok temu nadal świetnie się myją, wzory nie znikają, a siostrzeńcy uwielbiają spersonalizowane kubki ze swoimi ulubionymi bohaterami Dodatkowo, ❤ wszystkie wytwory szydełkowe jakie wychodzą spod rąk Maćka są zawsze świetnej jakości, solidnie wykonane i przede wszystkim przytulaśne. Obrazy najchętniej powiesiłabym u siebie na ścianie. Generalnie polecam tego Pana, to bardzo solidna firma!”",
+    author: "Wiola",
+    meta: "O różnych produktach hellokostek",
+    emoji: "❤️"
   },
   {
     id: 4,
     stars: 5,
-    text: "„Portret Leona to był strzał w dziesiątkę jako prezent dla taty. Obraz wisi w gabinecie i robi piorunujące wrażenie na wszystkich. Tradycyjna technika olejna ma tę głębię, której brak współczesnym wydrukom.”",
-    author: "Michał T.",
-    meta: "Poznań • Portret Leona",
-    emoji: "👍"
+    text: "„Hej, cieszę się, że zamówiłam u Ciebie ten portret, wszedł bardzo ładnie. I sprawił dużo radości rodzinie, do której trafił. Miałam Ci przysłać zdjęcie, jak wygląda oprawiony, ale jednak zrezygnowałam z oprawy - dobrze się prezentuje bez ramy.”",
+    author: "Maria",
+    meta: "Portret dzieci",
+    emoji: "🖼️"
   },
   {
     id: 5,
     stars: 5,
-    text: "„Zamówiłem akwarelę do sypialni. Kolorystyka i nastrój tego rysunku są wręcz hipnotyzujące. Cały proces od wysyłki do dostarczenia paczki przebiegł sprawnie i bezpiecznie. Na pewno wrócę po kolejną pracę!”",
-    author: "Zofia S.",
-    meta: "Wrocław • Akwarela",
+    text: "„Super jest Przepięknie . 🥰 😍😍”",
+    author: "Lucia",
+    meta: "Portret córek",
     emoji: "🥰"
   },
   {
     id: 6,
     stars: 5,
-    text: "„Rysunek ołówkiem wysłany w tubie zabezpieczony idealnie. Precyzja cieniowania i realizm powalają. Bardzo sprawna wysyłka i profesjonalne podejście.”",
-    author: "Janusz B.",
-    meta: "Gdańsk • Rysunek Ołówkiem",
-    emoji: "👌"
+    text: "„Jaki Ty zdolny jesteś!!!!”",
+    author: "Dorota",
+    meta: "Opinia ogólna",
+    emoji: "✨"
   },
   {
     id: 7,
     stars: 5,
-    text: "„Malowany portret dla rodziców na jubileusz okazał się najpięknisem prezentem. Rodzice byli wzruszeni, a obraz wisi w najważniejszym miejscu w domu.”",
-    author: "Małgorzata D.",
-    meta: "Katowice • Portret Ślubny Pary",
-    emoji: "❤️"
-  },
-  {
-    id: 8,
-    stars: 5,
-    text: "„Klasa sama w sobie. Tradycyjny warsztat malarski czuć od pierwszego spojrzenia na płótno. Szczerze polecam każdemu, kto ceni autentyczne rzemiosło.”",
-    author: "Tomasz R.",
-    meta: "Lublin • Portret Leona",
-    emoji: "👏"
-  },
-  {
-    id: 9,
-    stars: 5,
-    text: "„Kupiłem gotową akwarelę do pokoju gościnnego. Kolory są jeszcze piękniejsze na żywo niż na zdjęciach. Bardzo szybka dostawa, obraz był solidnie spakowany.”",
-    author: "Agnieszka K.",
-    meta: "Szczecin • Akwarela",
+    text: "„cześć, bardzo podobał mi się rysunek. Chętnie bym kupił dwa obrazy. Masz talent! Pozdrawiam. ”",
+    author: "Krzysiek",
+    meta: "O rysunkach",
     emoji: "🎨"
   }
 ];

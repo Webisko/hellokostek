@@ -91,7 +91,7 @@ export default function ProductSlider() {
 
   return (
     <section className="py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-12">
+      <div className="content-container space-y-12">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
           <div className="space-y-4 w-full max-w-3xl">
             <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block">

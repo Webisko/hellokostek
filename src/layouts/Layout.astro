@@ -9,15 +9,22 @@ interface Props {
   title?: string;
   description?: string;
   hideHeaderFooter?: boolean;
+  image?: string;
 }
 
 const { 
   title = "hellokostek | Pracownia Artystyczna Maciej Kosteczka", 
-  description = "Ręcznie malowane portrety olejne, rysunki i akwarele na zamówienie ze zdjęcia. Stwórz unikalną pamiątkę rodzną.", 
-  hideHeaderFooter = false 
+  description = "Ręcznie malowane portrety olejne, rysunki i akwarele na zamówienie ze zdjęcia. Stwórz unikalną pamiątkę rodzinną.", 
+  hideHeaderFooter = false,
+  image = "/images/o_mnie_nowe.webp"
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
+
+// Resolve the full URL for Open Graph image
+const ogImageUrl = image.startsWith('http') 
+  ? image 
+  : new URL(image.startsWith('/hellokostek') ? image : `/hellokostek${image}`, Astro.url.origin).toString();
 ---
 
 <!doctype html>
@@ -25,6 +32,12 @@ const currentPath = Astro.url.pathname;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Google Fonts Preconnect and loading optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+
     <link rel="icon" type="image/png" sizes="32x32" href="/hellokostek/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/hellokostek/favicon-192x192.png" />
     <link rel="apple-touch-icon" href="/hellokostek/apple-touch-icon.png" />
@@ -40,14 +53,14 @@ const currentPath = Astro.url.pathname;
     <meta property="og:url" content={Astro.url.href} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL('/hellokostek/images/o_mnie_nowe.webp', Astro.url.origin).toString()} />
+    <meta property="og:image" content={ogImageUrl} />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={Astro.url.href} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={new URL('/hellokostek/images/o_mnie_nowe.webp', Astro.url.origin).toString()} />
+    <meta property="twitter:image" content={ogImageUrl} />
 
     <!-- Dynamic page ID representation for debugging/styling purposes if needed -->
     <meta name="page-path" content={currentPath} />

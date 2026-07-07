@@ -2,6 +2,118 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { TESTIMONIALS } from "../data";
 
+interface TestimonialCardProps {
+  testimonial: typeof TESTIMONIALS[0];
+  reviewsPerPage: number;
+}
+
+function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [visualExpanded, setVisualExpanded] = useState(false);
+  
+  const [expandedTextHeight, setExpandedTextHeight] = useState(0);
+  const [collapsedTextHeight, setCollapsedTextHeight] = useState(0);
+
+  const textContainerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const shouldTruncate = testimonial.text.length > 150;
+
+  // Mierzymy złożoną wysokość początkową kontenera tekstu na starcie i przy zmianie szerokości okna
+  useEffect(() => {
+    if (contentRef.current && !isExpanded && !isTransitioning) {
+      setCollapsedTextHeight(contentRef.current.clientHeight);
+    }
+  }, [reviewsPerPage, isExpanded, isTransitioning]);
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!contentRef.current || !textContainerRef.current) return;
+
+    if (!isExpanded) {
+      // Pobieramy pełną wysokość tekstu przy zdjętej klasie line-clamp z tekstu
+      contentRef.current.classList.remove('line-clamp-4');
+      const scrollH = contentRef.current.scrollHeight;
+      contentRef.current.classList.add('line-clamp-4');
+      setExpandedTextHeight(scrollH);
+    }
+    
+    setIsTransitioning(true);
+    setIsExpanded(!isExpanded);
+  };
+
+  useEffect(() => {
+    if (isTransitioning) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+        setVisualExpanded(isExpanded);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isExpanded, isTransitioning]);
+
+  // Wysokość kontenera tekstu dla animacji transition
+  const textHeightStyle = isExpanded
+    ? `${expandedTextHeight}px`
+    : (collapsedTextHeight > 0 ? `${collapsedTextHeight}px` : undefined);
+
+  // Klasa dla tekstu (line-clamp-4 jest nakładane wyłącznie w spoczynku złożonym)
+  const textClass = shouldTruncate
+    ? ((!isTransitioning && !isExpanded) ? "line-clamp-4 overflow-hidden" : "")
+    : "";
+
+  return (
+    <div 
+      className={`bg-white border border-gray-150 rounded-3xl p-6 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(224,17,95,0.02)] flex flex-col justify-between w-full overflow-hidden h-auto ${
+        isTransitioning || isExpanded ? "" : "h-[25em] sm:h-[26em] lg:h-[24.5em]"
+      }`}
+    >
+      <div className="space-y-4 mb-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="text-2xl mb-4">
+            {testimonial.emoji}
+          </div>
+          
+          {/* Animowany kontener tekstu */}
+          <div 
+            ref={textContainerRef}
+            style={textHeightStyle ? { height: textHeightStyle } : {}}
+            className="relative transition-[height] duration-500 ease-in-out overflow-hidden mb-4"
+          >
+            <div 
+              ref={contentRef}
+              className={textClass}
+            >
+              <p className="font-sans text-gray-700 italic leading-relaxed text-base sm:text-lg">
+                {testimonial.text}
+              </p>
+            </div>
+          </div>
+
+          {/* Przycisk leżący pod tekstem */}
+          {shouldTruncate && (
+            <div className="pt-2">
+              <button
+                onClick={handleToggle}
+                className="text-xs font-mono font-bold uppercase tracking-widest text-[#E0115F] hover:text-[#C4F013] transition-colors focus:outline-none cursor-pointer"
+              >
+                {visualExpanded ? "Zwiń ▲" : "Rozwiń ▼"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="pt-6 border-t border-gray-100 mt-4">
+        <div>
+          <h4 className="font-mono text-xs uppercase tracking-wider text-gray-900 font-bold">{testimonial.author}</h4>
+          <p className="text-xs font-mono text-gray-400 uppercase tracking-widest mt-1">{testimonial.meta}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Testimonials() {
   const [windowWidth, setWindowWidth] = useState(1200);
   const [reviewsIndex, setReviewsIndex] = useState(TESTIMONIALS.length * 2);
@@ -108,7 +220,7 @@ export default function Testimonials() {
 
   return (
     <section className="bg-stone-50 border-y border-gray-100 py-24">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 space-y-12">
+      <div className="content-container space-y-12">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
           <div className="space-y-3 w-full max-w-3xl mx-auto">
             <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">REKOMENDACJE</span>
@@ -150,7 +262,7 @@ export default function Testimonials() {
         >
           <div 
             ref={containerRef}
-            className={`overflow-hidden w-full py-4 px-2 -my-4 -mx-2 select-none ${dragStart !== null ? "cursor-grabbing" : "cursor-grab"}`}
+            className={`overflow-hidden w-full py-4 px-[4px] -my-4 -mx-[4px] select-none ${dragStart !== null ? "cursor-grabbing" : "cursor-grab"}`}
             onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
             onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
             onTouchEnd={handleDragEnd}
@@ -172,25 +284,13 @@ export default function Testimonials() {
               {extendedTestimonials.map((t, idx) => (
                 <div 
                   key={`${t.id}-${idx}`}
-                  className="shrink-0 px-3 md:px-4 flex"
+                  className="shrink-0 px-3 md:px-4 flex items-start"
                   style={{ width: `${100 / reviewsPerPage}%` }}
                 >
-                  <div className="bg-white border border-gray-150 rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_4px_20px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(224,17,95,0.02)] transition-all duration-300 flex flex-col justify-between w-full min-h-0 sm:min-h-[220px]">
-                    <div className="space-y-4">
-                      <div className="text-2xl">
-                        {t.emoji}
-                      </div>
-                      <p className="font-sans text-gray-700 italic leading-relaxed text-base sm:text-lg">
-                        {t.text}
-                      </p>
-                    </div>
-                    <div className="pt-6 border-t border-gray-100">
-                      <div>
-                        <h4 className="font-mono text-xs uppercase tracking-wider text-gray-900 font-bold">{t.author}</h4>
-                        <p className="text-xs font-mono text-gray-400 uppercase tracking-widest mt-1">{t.meta}</p>
-                      </div>
-                    </div>
-                  </div>
+                  <TestimonialCard 
+                    testimonial={t} 
+                    reviewsPerPage={reviewsPerPage} 
+                  />
                 </div>
               ))}
             </div>

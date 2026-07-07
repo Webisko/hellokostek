@@ -68,7 +68,7 @@ export default function PrivacyPolicy() {
   }, []);
   
   return (
-    <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 px-6 md:px-12 lg:px-16 xl:px-20 2xl:px-6 3xl:px-0 max-w-[1600px] mx-auto space-y-8 xl:space-y-16">
+    <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
       {/* Editorial Header */}
       <header className="border-b border-gray-100 pb-12 max-w-4xl">
         <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-4">
