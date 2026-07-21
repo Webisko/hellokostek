@@ -19,6 +19,8 @@ export default function Contact() {
 
   const [files, setFiles] = useState<File[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check URL query parameters for initial subject on mount
@@ -73,7 +75,7 @@ export default function Contact() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.subject) {
       setIsDropdownOpen(true);
@@ -85,10 +87,48 @@ export default function Contact() {
         return;
       }
     }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const body = new FormData();
+    body.append("name", formData.name);
+    body.append("email", formData.email);
+    body.append("phone", "");
     
-    // Redirect to success contact page
-    if (typeof window !== "undefined") {
-      window.location.href = "/hellokostek/sukces-kontakt";
+    const subjectLabel = subjects.find(s => s.value === formData.subject)?.label || formData.subject;
+    body.append("subject", subjectLabel);
+    body.append("message", formData.message);
+    
+    if (formData.shape) body.append("shape", formData.shape);
+    if (formData.size) body.append("size", formData.size);
+
+    files.forEach((file) => {
+      body.append("files[]", file);
+    });
+
+    try {
+      const res = await fetch(`${apiBase}/inquiries`, {
+        method: "POST",
+        body: body
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        const errors = data.errors || {};
+        const firstErr = Object.values(errors)[0];
+        const errText = Array.isArray(firstErr) ? firstErr[0] : (data.message || "Błąd wysyłania zapytania.");
+        throw new Error(errText);
+      }
+
+      setIsSubmitting(false);
+      if (typeof window !== "undefined") {
+        window.location.href = "/hellokostek/sukces-kontakt";
+      }
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMessage(err.message || "Nie udało się wysłać zapytania. Spróbuj ponownie.");
     }
   };
 
@@ -367,10 +407,17 @@ export default function Contact() {
               </div>
             )}
 
-            <div className="pt-4">
+            <div className="pt-4 space-y-4">
+              {errorMessage && (
+                <div className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
+                  {errorMessage}
+                </div>
+              )}
+              
               <button
                 type="submit"
-                className="button button--full"
+                disabled={isSubmitting}
+                className="button button--full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="button__blobs">
                   <div></div>
@@ -378,8 +425,16 @@ export default function Contact() {
                   <div></div>
                 </div>
                 <div className="button__text">
-                  <Send className="w-4 h-4" />
-                  Wyślij zapytanie
+                  {isSubmitting ? (
+                    <>
+                      <span className="animate-pulse">Wysyłanie...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Wyślij zapytanie
+                    </>
+                  )}
                 </div>
               </button>
               <p className="text-xs text-gray-550 font-sans text-center mt-4 leading-relaxed">

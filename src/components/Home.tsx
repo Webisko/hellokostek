@@ -67,6 +67,7 @@ export default function Home() {
   });
   const [emailFiles, setEmailFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -124,142 +125,61 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightbox.isOpen]);
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailForm.shape) {
       alert("Proszę wybrać podobrazie.");
       return;
     }
+    
     setIsSubmitting(true);
-    setTimeout(() => {
+    setErrorMessage("");
+
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const body = new FormData();
+    body.append("name", emailForm.name);
+    body.append("email", emailForm.email);
+    body.append("phone", "");
+    body.append("subject", "Chcę zlecić ręcznie malowany portret ze zdjęcia (Strona Główna)");
+    body.append("message", emailForm.message || "Brak wiadomości");
+    
+    if (emailForm.shape) body.append("shape", emailForm.shape);
+    if (emailForm.size) body.append("size", emailForm.size);
+
+    emailFiles.forEach((file) => {
+      body.append("files[]", file);
+    });
+
+    try {
+      const res = await fetch(`${apiBase}/inquiries`, {
+        method: "POST",
+        body: body
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        const errors = data.errors || {};
+        const firstErr = Object.values(errors)[0];
+        const errText = Array.isArray(firstErr) ? firstErr[0] : (data.message || "Błąd wysyłania zapytania.");
+        throw new Error(errText);
+      }
+
       setIsSubmitting(false);
       setEmailForm({ name: "", email: "", subject: "portrait_commission", message: "", shape: "", size: "" });
       setEmailFiles([]);
       if (typeof window !== "undefined") {
         window.location.href = "/hellokostek/sukces-kontakt";
       }
-    }, 1000);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMessage(err.message || "Nie udało się wysłać zapytania. Spróbuj ponownie.");
+    }
   };
 
-  const basePath = "/hellokostek";
+  const basePath = "";
 
   return (
     <div className="bg-white min-h-screen text-gray-900 animate-fadeIn">
-      {/* 1. HERO SECTION: 50/50 ASYMMETRIC SPLIT */}
-      <section className="pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-12 md:pb-20 lg:pb-16 xl:pb-14 2xl:pb-24">
-        <div className="content-container grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 xl:gap-20 items-center">
-          {/* Left: Massive Serif text + CTA */}
-          <div className="lg:col-span-7 2xl:col-span-6 space-y-8 font-sans text-center lg:text-left flex flex-col items-center lg:items-start">
-            <div className="block">
-              <span className="font-mono text-[10px] sm:text-xs tracking-wider sm:tracking-widest uppercase text-gray-400 font-bold block">
-                PRACOWNIA ARTYSTYCZNA • KOSTEK MACIEJ KOSTECZKA
-              </span>
-            </div>
-            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[110px] 2xl:text-[120px] leading-[0.95] tracking-tighter text-gray-950 font-normal">
-              Człowiek dla człowieka – <span className="text-[#E0115F]">sztuka prawdziwa</span> bez AI
-            </h1>
-            <p className="font-sans text-gray-700 text-lg leading-relaxed max-w-xl font-normal mx-auto lg:mx-0">
-              Malarstwo olejne
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4 w-full">
-              <a
-                href="#kontakt-sekcja"
-                className="button text-center"
-              >
-                <div className="button__blobs">
-                  <div></div>
-                  <div></div>
-                  <div></div>
-                </div>
-                <div className="button__text font-bold">
-                  Zamów swój portret
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </a>
-            </div>
-          </div>
-          {/* Right: Premium oil portrait presentation */}
-          <div className="lg:col-span-5 2xl:col-span-6 flex flex-col justify-center">
-            <div className="relative w-full aspect-square overflow-hidden rounded-[32px] border border-gray-100 shadow-sm bg-gray-55">
-              <img
-                src={heroObrazUrl}
-                alt="Portret olejny namalowany ze zdjęcia"
-                referrerPolicy="no-referrer"
-                className="w-full h-full aspect-square object-cover block"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. PORTFOLIO GRID: ART-GALLERY STYLE ASYMMETRIC GRID WITH TRANSITIONS */}
-      <section className="bg-white border-y border-gray-100 py-20 md:py-28 lg:py-24 xl:py-20 2xl:py-32">
-        <div className="content-container space-y-16">
-          <header className="space-y-3 max-w-2xl mx-auto text-center">
-            <span className="font-mono text-xs text-[#E0115F] uppercase tracking-widest block font-bold">PORTFOLIO</span>
-            <h2 className="font-display text-4xl sm:text-5xl text-gray-950 font-normal">
-              Portrety z mojej pracowni
-            </h2>
-            <p className="font-sans text-gray-600 text-base leading-relaxed max-w-[480px] mx-auto">
-              Dotychczasowe zamówienia.
-            </p>
-          </header>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
-            {portfolioItems.map((item, idx) => (
-              <div key={idx} className="space-y-6 group">
-                <div 
-                  className={`aspect-[3/4] overflow-hidden bg-gray-100 border border-gray-100 relative ${item.isOval ? "rounded-[50%]" : "rounded-[24px]"}`}
-                  style={{ borderRadius: item.isOval ? "50%" : undefined }}
-                >
-                  <img
-                    src={item.src}
-                    alt={item.alt}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-                <div className="text-center pt-2">
-                  <span className="font-mono text-sm sm:text-base text-gray-500 block">{item.format}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Action buttons under the grid */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 pt-12 md:pt-16 w-full max-w-md mx-auto sm:max-w-none">
-            <a
-              href="#kontakt-sekcja"
-              className="button w-full sm:w-auto text-center cursor-pointer"
-            >
-              <div className="button__blobs">
-                <div></div>
-                <div></div>
-                <div></div>
-              </div>
-              <div className="button__text font-bold">
-                Zamów swój portret
-                <ArrowRight className="w-4 h-4 ml-1.5" />
-              </div>
-            </a>
-            <a
-              href={`${basePath}/galeria`}
-              className="button button--secondary w-full sm:w-auto text-center cursor-pointer"
-            >
-              <div className="button__blobs">
-                <div></div>
-                <div></div>
-                <div></div>
-              </div>
-              <div className="button__text font-bold">
-                Zobacz galerię portretów
-                <ArrowRight className="w-4 h-4 ml-1.5" />
-              </div>
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* 2.5 TESTIMONIALS SECTION */}
       <Testimonials />
 
@@ -525,11 +445,17 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="pt-4">
+              <div className="pt-4 space-y-4">
+                {errorMessage && (
+                  <div className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
+                    {errorMessage}
+                  </div>
+                )}
+                
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="button button--full cursor-pointer"
+                  className="button button--full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="button__blobs">
                     <div></div>
@@ -538,7 +464,7 @@ export default function Home() {
                   </div>
                   <div className="button__text">
                     {isSubmitting ? (
-                      <span>Generowanie wiadomości...</span>
+                      <span className="animate-pulse">Wysyłanie...</span>
                     ) : (
                       <>
                         <span>Wyślij zapytanie</span>

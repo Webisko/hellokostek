@@ -1,8 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import PortfolioGrid from '../components/PortfolioGrid.astro';
 import Home from '../components/Home';
 ---
 
 <Layout title="hellokostek | Portrety ze zdjęcia Łódź | Malarstwo i Rysunek">
-  <Home client:load />
+  <Hero />
+  <PortfolioGrid />
+  <Home client:visible />
 </Layout>

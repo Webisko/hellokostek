@@ -1,4 +1,28 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hellokostek.pl/hellokostek/sitemap-index.xml
+# Allow AI Search & Crawling Agents
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+Sitemap: https://hellokostek.pl/sitemap-index.xml
+# llms-txt: https://hellokostek.pl/llms.txt
+# llms-full-txt: https://hellokostek.pl/llms-full.txt

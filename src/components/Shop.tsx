@@ -1,15 +1,64 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { SHOP_PRODUCTS } from "../data";
+import type { Product } from "../types";
 import { ArrowRight, X, SlidersHorizontal } from "lucide-react";
 
+function mapProduct(apiProduct: any): Product {
+  const originalVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-OR'));
+  const printVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-PR'));
+
+  let category: 'watercolor' | 'drawing' = 'watercolor';
+  if (apiProduct.categories && apiProduct.categories.length > 0) {
+    const catSlug = apiProduct.categories[0].slug;
+    if (catSlug === 'watercolor' || catSlug === 'drawing') {
+      category = catSlug;
+    }
+  }
+
+  const imageUrl = apiProduct.featured_image_url || '/images/placeholder.png';
+
+  return {
+    id: apiProduct.slug,
+    title: apiProduct.name?.pl || apiProduct.name || "",
+    year: apiProduct.metadata?.year || "2022",
+    category,
+    originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProduct.regular_price_amount / 100),
+    printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
+    isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+    imageUrl,
+    description: apiProduct.description?.pl || apiProduct.description || "",
+    originalVariantId: originalVariant?.id,
+    printVariantId: printVariant?.id,
+  };
+}
+
 export default function Shop() {
+  const [products, setProducts] = useState<Product[]>(SHOP_PRODUCTS);
   const [activeCategory, setActiveCategory] = useState<"all" | "watercolor" | "drawing" | "prints">("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    
+    // Fetch products dynamically from backend API
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/catalog`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API response error");
+        return res.json();
+      })
+      .then((data) => {
+        const payload = data.data || data;
+        if (Array.isArray(payload)) {
+          const mapped = payload.map(mapProduct);
+          setProducts(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not fetch products from API, falling back to static data:", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -23,7 +72,7 @@ export default function Shop() {
     };
   }, [isFilterDrawerOpen]);
 
-  const filteredProducts = SHOP_PRODUCTS.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     // Category filter logic
     if (activeCategory === "watercolor" && product.category !== "watercolor") return false;
     if (activeCategory === "drawing" && product.category !== "drawing") return false;
@@ -32,7 +81,7 @@ export default function Shop() {
     return true;
   });
 
-  const basePath = "/hellokostek";
+  const basePath = "";
 
   return (
     <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 md:space-y-12 xl:space-y-16 font-sans">

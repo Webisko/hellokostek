@@ -7,6 +7,7 @@ interface ProductDetailProps {
 }
 
 export default function ProductDetail({ product }: ProductDetailProps) {
+  const [currentProduct, setCurrentProduct] = useState<Product>(product);
   const [selectedType, setSelectedType] = useState<"original" | "print">(
     product.isOriginalAvailable ? "original" : "print"
   );
@@ -34,7 +35,51 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const [cardCvv, setCardCvv] = useState("");
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount_amount: number; message: string } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setIsApplyingCoupon(true);
+    setCouponError(null);
+    try {
+      const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+      const subtotal = currentPrice * quantity;
+      const res = await fetch(`${apiBase}/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ code: couponInput.trim(), subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        throw new Error(data.message || "Kod rabatowy nie jest prawidłowy.");
+      }
+      setAppliedCoupon({
+        code: data.code,
+        discount_amount: data.discount_amount,
+        message: data.message,
+      });
+      setCouponError(null);
+    } catch (err: any) {
+      setCouponError(err.message || "Nie udało się zastosować kuponu.");
+      setAppliedCoupon(null);
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+  };
+
+  // Block body scroll when checkout or lightbox is open
   useEffect(() => {
     if (isCheckoutOpen || isLightboxOpen) {
       document.body.style.overflow = "hidden";
@@ -48,6 +93,55 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       document.documentElement.style.overflow = "";
     };
   }, [isCheckoutOpen, isLightboxOpen]);
+
+  // Fetch fresh product details from API on mount
+  useEffect(() => {
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/catalog/products/${product.id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API response error");
+        return res.json();
+      })
+      .then((data) => {
+        const apiProd = data.data || data;
+        if (apiProd) {
+          const originalVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-OR'));
+          const printVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-PR'));
+          
+          let category: 'watercolor' | 'drawing' = 'watercolor';
+          if (apiProd.categories && apiProd.categories.length > 0) {
+            const catSlug = apiProd.categories[0].slug;
+            if (catSlug === 'watercolor' || catSlug === 'drawing') {
+              category = catSlug;
+            }
+          }
+
+          const imageUrl = apiProd.featured_image_url || '/images/placeholder.png';
+
+          setCurrentProduct({
+            id: apiProd.slug,
+            title: apiProd.name?.pl || apiProd.name || product.title,
+            year: apiProd.metadata?.year || product.year,
+            category,
+            originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProd.regular_price_amount / 100),
+            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
+            isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+            imageUrl,
+            description: apiProd.description?.pl || apiProd.description || product.description,
+            originalVariantId: originalVariant?.id,
+            printVariantId: printVariant?.id,
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not fetch product details from API, using static data fallback:", err);
+      });
+  }, [product]);
+
+  // Update selected variant type if original availability updates
+  useEffect(() => {
+    setSelectedType(currentProduct.isOriginalAvailable ? "original" : "print");
+  }, [currentProduct.isOriginalAvailable]);
 
   const deliveryOptions = selectedType === "original" 
     ? [
@@ -82,7 +176,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     };
   }, [isLightboxOpen, isCheckoutOpen]);
 
-  const currentPrice = selectedType === "original" ? product.originalPrice : (product.printPrice || 20);
+  const currentPrice = selectedType === "original" ? currentProduct.originalPrice : (currentProduct.printPrice || 20);
 
   const isPointDelivery = selectedDelivery === "inpost" || selectedDelivery === "orlen";
 
@@ -116,23 +210,111 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     if (!isKrok2Valid()) return;
     
     setIsSubmitting(true);
+    setErrorMessage("");
+
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
     
-    // Simulate transaction authorization process for a premium look
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-    
-    setIsSubmitting(false);
-    setIsCheckoutOpen(false);
-    
-    const orderNum = "HK-" + Math.floor(10000 + Math.random() * 90000);
-    const deliveryOpt = deliveryOptions.find(opt => opt.id === selectedDelivery) || deliveryOptions[0];
-    
-    // Redirect to the success page with query parameters representing the purchase
-    if (typeof window !== "undefined") {
-      window.location.href = `${basePath}/sukces-zakup?orderNumber=${orderNum}&productTitle=${encodeURIComponent(product.title)}&purchaseType=${selectedType}&price=${currentPrice}&shippingMethod=${encodeURIComponent(deliveryOpt.name)}&shippingPrice=${deliveryOpt.price}`;
+    const variantId = selectedType === "original" 
+      ? currentProduct.originalVariantId 
+      : currentProduct.printVariantId;
+
+    let shippingMethodCode = "courier";
+    if (selectedDelivery === "free_courier") shippingMethodCode = "courier";
+    else if (selectedDelivery === "inpost") shippingMethodCode = "inpost";
+    else if (selectedDelivery === "orlen") shippingMethodCode = "orlen";
+    else if (selectedDelivery === "courier") shippingMethodCode = "courier";
+
+    let paymentMethodCode = "przelewy24";
+    if (paymentMethod === "blik") paymentMethodCode = "przelewy24";
+    else if (paymentMethod === "card") paymentMethodCode = "stripe";
+    else if (paymentMethod === "transfer") paymentMethodCode = "bank_transfer";
+
+    const nameParts = fullName.trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "Kowalski";
+
+    const payload = {
+      items: [
+        {
+          slug: currentProduct.id,
+          quantity: quantity,
+          variant_id: variantId,
+          product_variant_id: variantId,
+        }
+      ],
+      payment_method: paymentMethodCode,
+      shipping_method_code: shippingMethodCode,
+      coupon_code: appliedCoupon ? appliedCoupon.code : undefined,
+      terms_accepted: true,
+      customer: {
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone,
+        terms_accepted: true,
+      },
+      shipping_address: isPointDelivery ? undefined : {
+        first_name: firstName,
+        last_name: lastName,
+        street: streetAddress,
+        city: city,
+        postal_code: postalCode,
+        country_code: "PL"
+      },
+      billing_address: isPointDelivery ? undefined : {
+        first_name: firstName,
+        last_name: lastName,
+        street: streetAddress,
+        city: city,
+        postal_code: postalCode,
+        country_code: "PL"
+      },
+      delivery_point: isPointDelivery ? {
+        id: paczkomatCode,
+        name: selectedDelivery === "inpost" ? "Paczkomat InPost" : "Orlen Paczka",
+        address: "Punkt Odbioru",
+        postal_code: "",
+        city: ""
+      } : undefined,
+    };
+
+    try {
+      const res = await fetch(`${apiBase}/checkout/place`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        const errors = data.errors || {};
+        const firstErr = Object.values(errors)[0];
+        const errText = Array.isArray(firstErr) ? firstErr[0] : (data.message || "Wystąpił błąd podczas składania zamówienia.");
+        throw new Error(errText);
+      }
+
+      const orderData = data.data?.order || data.order;
+      const paymentData = data.data?.payment || data.payment;
+
+      setIsSubmitting(false);
+      setIsCheckoutOpen(false);
+
+      if (paymentData && paymentData.payment_url) {
+        window.location.href = paymentData.payment_url;
+      } else {
+        const deliveryOpt = deliveryOptions.find(opt => opt.id === selectedDelivery) || deliveryOptions[0];
+        window.location.href = `${basePath}/sukces-zakup?orderNumber=${orderData.number}&productTitle=${encodeURIComponent(currentProduct.title)}&purchaseType=${selectedType}&price=${currentPrice}&shippingMethod=${encodeURIComponent(deliveryOpt.name)}&shippingPrice=${deliveryOpt.price}&isTransfer=${paymentMethodCode === 'bank_transfer'}`;
+      }
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMessage(err.message || "Połączenie z serwerem płatności nie powiodło się. Spróbuj ponownie.");
     }
   };
 
-  const basePath = "/hellokostek";
+  const basePath = "";
 
   return (
     <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
@@ -154,8 +336,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             onClick={() => setIsLightboxOpen(true)}
           >
             <img
-              src={product.imageUrl}
-              alt={product.title}
+              src={currentProduct.imageUrl}
+              alt={currentProduct.title}
               referrerPolicy="no-referrer"
               className="w-full h-auto block select-none"
             />
@@ -176,10 +358,10 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         <div className="xl:col-span-5 space-y-8 font-sans">
           <div className="space-y-4">
             <span className="font-mono text-xs uppercase tracking-widest text-gray-400 font-bold block">
-              Dostępne w Pracowni Artystycznej • {product.year}
+              Dostępne w Pracowni Artystycznej • {currentProduct.year}
             </span>
             <h1 className="font-display text-4.5xl leading-tight text-gray-950 font-normal">
-              {product.title}
+              {currentProduct.title}
             </h1>
             <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 items-start">
               <span className="text-3xl font-bold font-mono text-[#E0115F]">
@@ -195,7 +377,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
           <div className="border-t border-gray-100 pt-6 space-y-3">
             <p className="text-gray-600 text-base leading-relaxed">
-              {product.description}
+              {currentProduct.description}
             </p>
           </div>
 
@@ -216,7 +398,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               Wybierz Wariant Pracy
             </span>
             <div className="space-y-2">
-              {product.isOriginalAvailable ? (
+              {currentProduct.isOriginalAvailable ? (
                 <label
                   onClick={() => { setSelectedType("original"); setQuantity(1); }}
                   className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
@@ -226,7 +408,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   }`}
                 >
                   <div>
-                    <span className="font-semibold block text-gray-900 text-base">Oryginał ręcznie malowany • {product.originalPrice} zł</span>
+                    <span className="font-semibold block text-gray-900 text-base">Oryginał ręcznie malowany • {currentProduct.originalPrice} zł</span>
                     <span className="text-sm text-gray-500 block mt-0.5">Autentyczne dzieło, tylko 1 sztuka</span>
                   </div>
                   <span className="bg-[#E0115F] text-white text-xs font-mono px-2.5 py-1 rounded font-bold uppercase tracking-wider shrink-0 self-start sm:self-auto">Dostępny</span>
@@ -241,7 +423,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 </div>
               )}
 
-              {product.printPrice && (
+              {currentProduct.printPrice && (
                 <label
                   onClick={() => { setSelectedType("print"); setQuantity(1); }}
                   className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
@@ -251,7 +433,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   }`}
                 >
                   <div>
-                    <span className="font-semibold block text-gray-900 text-base">Wydruk kolekcjonerski • {product.printPrice} zł</span>
+                    <span className="font-semibold block text-gray-900 text-base">Wydruk kolekcjonerski • {currentProduct.printPrice} zł</span>
                     <span className="text-sm text-gray-500 block mt-0.5">Sygnowana reprodukcja fakturowa na papierze archiwalnym</span>
                   </div>
                   <span className="bg-[#E0115F] text-white text-xs font-mono px-2.5 py-1 rounded font-bold uppercase tracking-wider shrink-0 self-start sm:self-auto">Dostępny</span>
@@ -312,7 +494,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <div className="border-b border-gray-50 pb-2.5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4">
               <span className="font-semibold text-gray-900 sm:col-span-4">Nośnik bazowy</span>
               <span className="sm:col-span-8 mt-0.5 sm:mt-0">
-                {product.category === "watercolor" 
+                {currentProduct.category === "watercolor" 
                   ? "Gruby papier bawełniany Arches 300g/m²" 
                   : "Wysokiej jakości papier graficzny Canson 220g/m²"}
               </span>
@@ -356,7 +538,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <div>
               <h3 className="font-display text-xl text-gray-950 font-semibold">Zamówienie</h3>
               <p className="text-sm text-gray-500 font-mono mt-0.5 truncate max-w-[320px]">
-                {product.title} ({selectedType === "original" ? "Oryginał" : `Wydruk x${quantity}`})
+                {currentProduct.title} ({selectedType === "original" ? "Oryginał" : `Wydruk x${quantity}`})
               </p>
             </div>
             <button 
@@ -529,10 +711,40 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                             : `${deliveryOptions.find(opt => opt.id === selectedDelivery)?.price} zł`)}
                       </span>
                     </div>
+                    {/* Coupon Input Section */}
+                    <div className="pt-2 border-t border-gray-200/60 mt-2">
+                      <label className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1.5">Kod rabatowy</label>
+                      {appliedCoupon ? (
+                        <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-mono">
+                          <span className="text-emerald-800 font-bold">Kupon: {appliedCoupon.code} (-{appliedCoupon.discount_amount} zł)</span>
+                          <button type="button" onClick={handleRemoveCoupon} className="text-red-600 hover:underline cursor-pointer font-sans text-xs font-bold">Usuń</button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={couponInput}
+                            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                            placeholder="Kod rabatowy"
+                            className="flex-1 px-3 py-2 rounded-xl border border-gray-200 focus:border-[#E0115F] outline-none text-xs font-mono uppercase bg-white"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleApplyCoupon}
+                            disabled={isApplyingCoupon || !couponInput.trim()}
+                            className="px-3.5 py-2 bg-gray-900 hover:bg-[#E0115F] text-white font-mono text-xs rounded-xl transition-colors disabled:opacity-50 cursor-pointer"
+                          >
+                            {isApplyingCoupon ? "..." : "Zastosuj"}
+                          </button>
+                        </div>
+                      )}
+                      {couponError && <p className="text-xs text-red-500 mt-1 font-sans">{couponError}</p>}
+                    </div>
+
                     <div className="flex justify-between border-t border-gray-200/60 pt-3 text-base text-gray-950 font-bold">
                       <span>Razem:</span>
                       <span className="text-magenta-accent font-bold text-lg">
-                        {currentPrice * quantity + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł
+                        {Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0) + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0))} zł
                       </span>
                     </div>
                   </div>
@@ -682,6 +894,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             
             {/* Footer (Sticky) */}
             <div className="p-6 border-t border-gray-100 bg-gray-55 space-y-3">
+              {errorMessage && (
+                <div className="p-3 mb-2 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
+                  {errorMessage}
+                </div>
+              )}
               {checkoutStep === 1 ? (
                 <button
                   type="submit"
@@ -761,8 +978,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           </button>
           
           <img
-            src={product.imageUrl}
-            alt={product.title}
+            src={currentProduct.imageUrl}
+            alt={currentProduct.title}
             referrerPolicy="no-referrer"
             className="w-full xl:w-auto max-w-[98vw] md:max-w-[96vw] lg:max-w-[95vw] xl:max-w-[85vw] max-h-[95vh] md:max-h-[93vh] lg:max-h-[92vh] xl:max-h-[90vh] object-contain rounded-lg shadow-2xl select-none animate-scaleIn"
             onClick={(e) => e.stopPropagation()}

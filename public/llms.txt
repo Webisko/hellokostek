@@ -1,0 +1,17 @@
+# Pracownia Artystyczna Kostek — Maciej Kosteczka
+
+> Pracownia artystyczna specjalizująca się w ręcznie malowanych portretach ze zdjęcia na zamówienie (olej na płótnie, rysunek, akwarela) oraz sprzedaży autorskich dzieł sztuki.
+
+## Główne sekcje i oferta
+
+- [Strona Główna Pracowni](https://hellokostek.pl/): Prezentacja pracowni, konfigurator portretów na zamówienie ze zdjęcia oraz opinie klientów.
+- [Galeria Zrealizowanych Portretów](https://hellokostek.pl/galeria): Przegląd dotychczas wykonanych portretów olejnych, rysunków i akwareli.
+- [Sklep z Obrazami](https://hellokostek.pl/sklep): Oryginalne, ręcznie malowane akwarele oraz rysunki ołówkiem dostępne do kupienia online od ręki.
+- [O Artyście](https://hellokostek.pl/o-mnie): Biografia i filozofia twórcza malarza Macieja Kosteczki.
+- [Zamawianie i Wycena Portretu](https://hellokostek.pl/kontakt): Formularz kontaktowy i darmowa wycena indywidualnego portretu ze zdjęcia.
+- [Pełna Dokumentacja LLM](https://hellokostek.pl/llms-full.txt): Pełna specyfikacja oferty i cennik dla modeli językowych i agentów AI.
+
+## Szczegółowa specyfikacja usług
+
+- [Regulamin Zamówień](https://hellokostek.pl/regulamin): Zasady realizacji zamówień, warunki płatności i dostawy.
+- [Polityka Prywatności](https://hellokostek.pl/polityka-prywatnosci): Zasady przetwarzania danych osobowych i plików cookies.

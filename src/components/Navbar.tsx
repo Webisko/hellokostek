@@ -10,6 +10,8 @@ export default function Navbar({ currentPath }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHeroScrolledPast, setIsHeroScrolledPast] = useState(false);
 
+  const [logoSrc, setLogoSrc] = useState("/images/logo-static.webp");
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -31,13 +33,27 @@ export default function Navbar({ currentPath }: NavbarProps) {
       }
     };
 
+    // Swap static logo to animated logo on user interaction (hover/touch/scroll)
+    const triggerAnimation = () => {
+      setLogoSrc("/images/logo-animation.webp");
+    };
+
+    window.addEventListener("mouseenter", triggerAnimation, { once: true });
+    window.addEventListener("touchstart", triggerAnimation, { once: true });
+    window.addEventListener("scroll", triggerAnimation, { once: true });
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mouseenter", triggerAnimation);
+      window.removeEventListener("touchstart", triggerAnimation);
+      window.removeEventListener("scroll", triggerAnimation);
+    };
   }, []);
 
   // Normalizing current path for comparison (handling trailing slashes and base path)
   const normPath = currentPath.endsWith('/') && currentPath.length > 1 ? currentPath.slice(0, -1) : currentPath;
-  const basePath = "/hellokostek";
+  const basePath = "";
 
   const isHome = normPath === basePath || normPath === `${basePath}/` || normPath === '/' || normPath === '';
   const isGallery = normPath === `${basePath}/galeria` || normPath === '/galeria';
@@ -143,11 +159,14 @@ export default function Navbar({ currentPath }: NavbarProps) {
                 : "w-[240px] h-[72px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
             }`}>
               <img
-                src={`${basePath}/images/logo-animation-30fps-v-2.gif`}
+                src={logoSrc}
                 alt="hellokostek logo"
                 width={600}
                 height={180}
                 referrerPolicy="no-referrer"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
                 className="max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-500 -ml-[15%] sm:ml-0"
               />
             </div>

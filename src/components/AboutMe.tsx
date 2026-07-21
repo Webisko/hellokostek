@@ -1,9 +1,10 @@
+import React from "react";
 import { ArrowRight } from "lucide-react";
 
-const maciejImg = "/hellokostek/images/o_mnie_nowe.webp";
+const maciejImg = "/images/o_mnie_nowe.webp";
 
 export default function AboutMe() {
-  const basePath = "/hellokostek";
+  const basePath = "";
   return (
     <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 space-y-16 md:space-y-24 lg:space-y-20 xl:space-y-16 2xl:space-y-24">
       {/* Asymmetric Section 1: Biography vs Workspace Photography */}

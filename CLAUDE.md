@@ -20,3 +20,13 @@ Consult these guides before working on related tasks:
 - [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
 - [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
 - [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+
+## Production Server Credentials (LH.pl)
+
+- **Host:** `serwer69908.lh.pl` (FTP Port: 21, SSH Port: 22)
+- **User:** `serwer69908`
+- **Password:** `VXd|^@^!Oe%!r+^0`
+- **Subdomain Path:** `/public_html/admin.hellokostek.pl/`
+- **Public Directory:** `/public_html/admin.hellokostek.pl/public/`
+- **Storefront Directory:** `/public_html/hellokostek.pl/`
+

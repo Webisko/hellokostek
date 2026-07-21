@@ -1,8 +1,39 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { SHOP_PRODUCTS } from "../data";
+import type { Product } from "../types";
+
+function mapProduct(apiProduct: any): Product {
+  const originalVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-OR'));
+  const printVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-PR'));
+
+  let category: 'watercolor' | 'drawing' = 'watercolor';
+  if (apiProduct.categories && apiProduct.categories.length > 0) {
+    const catSlug = apiProduct.categories[0].slug;
+    if (catSlug === 'watercolor' || catSlug === 'drawing') {
+      category = catSlug;
+    }
+  }
+
+  const imageUrl = apiProduct.featured_image_url || '/images/placeholder.png';
+
+  return {
+    id: apiProduct.slug,
+    title: apiProduct.name?.pl || apiProduct.name || "",
+    year: apiProduct.metadata?.year || "2022",
+    category,
+    originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProduct.regular_price_amount / 100),
+    printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
+    isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+    imageUrl,
+    description: apiProduct.description?.pl || apiProduct.description || "",
+    originalVariantId: originalVariant?.id,
+    printVariantId: printVariant?.id,
+  };
+}
 
 export default function ProductSlider() {
+  const [products, setProducts] = useState<Product[]>(SHOP_PRODUCTS);
   const [prodIndex, setProdIndex] = useState(SHOP_PRODUCTS.length);
   const [prodTransitionEnabled, setProdTransitionEnabled] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
@@ -10,6 +41,27 @@ export default function ProductSlider() {
   const [dragStart, setDragStart] = useState<number | null>(null);
   const [draggedDistance, setDraggedDistance] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    // Fetch products dynamically from backend API
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/catalog`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API response error");
+        return res.json();
+      })
+      .then((data) => {
+        const payload = data.data || data;
+        if (Array.isArray(payload)) {
+          const mapped = payload.map(mapProduct);
+          setProducts(mapped);
+          setProdIndex(mapped.length); // Reset index to the dynamic length
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not fetch products for slider from API, falling back to static data:", err);
+      });
+  }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -54,7 +106,7 @@ export default function ProductSlider() {
   }, [prodTransitionEnabled]);
 
   const handleProdTransitionEnd = () => {
-    const N = SHOP_PRODUCTS.length;
+    const N = products.length;
     if (prodIndex >= 2 * N) {
       setProdTransitionEnabled(false);
       setProdIndex(prodIndex - N);
@@ -82,8 +134,8 @@ export default function ProductSlider() {
     return () => clearInterval(timer);
   }, [isPaused, nextSlide]);
 
-  const extendedProducts = [...SHOP_PRODUCTS, ...SHOP_PRODUCTS, ...SHOP_PRODUCTS];
-  const basePath = "/hellokostek";
+  const extendedProducts = [...products, ...products, ...products];
+  const basePath = "";
 
   const containerWidth = containerRef.current ? containerRef.current.clientWidth : 1;
   const dragPercent = dragStart !== null ? (draggedDistance / containerWidth) * 100 : 0;
@@ -179,6 +231,10 @@ export default function ProductSlider() {
                         alt={p.title}
                         referrerPolicy="no-referrer"
                         draggable="false"
+                        loading="lazy"
+                        decoding="async"
+                        width={600}
+                        height={600}
                         className="h-full max-h-full w-auto max-w-full block object-contain transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                       />
                     </div>

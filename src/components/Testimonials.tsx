@@ -2,8 +2,17 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { TESTIMONIALS } from "../data";
 
+interface TestimonialItem {
+  id: number | string;
+  stars: number;
+  text: string;
+  author: string;
+  meta: string;
+  emoji?: string;
+}
+
 interface TestimonialCardProps {
-  testimonial: typeof TESTIMONIALS[0];
+  testimonial: TestimonialItem;
   reviewsPerPage: number;
 }
 
@@ -20,7 +29,6 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
 
   const shouldTruncate = testimonial.text.length > 150;
 
-  // Mierzymy złożoną wysokość początkową kontenera tekstu na starcie i przy zmianie szerokości okna
   useEffect(() => {
     if (contentRef.current && !isExpanded && !isTransitioning) {
       setCollapsedTextHeight(contentRef.current.clientHeight);
@@ -32,7 +40,6 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
     if (!contentRef.current || !textContainerRef.current) return;
 
     if (!isExpanded) {
-      // Pobieramy pełną wysokość tekstu przy zdjętej klasie line-clamp z tekstu
       contentRef.current.classList.remove('line-clamp-4');
       const scrollH = contentRef.current.scrollHeight;
       contentRef.current.classList.add('line-clamp-4');
@@ -53,12 +60,10 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
     }
   }, [isExpanded, isTransitioning]);
 
-  // Wysokość kontenera tekstu dla animacji transition
   const textHeightStyle = isExpanded
     ? `${expandedTextHeight}px`
     : (collapsedTextHeight > 0 ? `${collapsedTextHeight}px` : undefined);
 
-  // Klasa dla tekstu (line-clamp-4 jest nakładane wyłącznie w spoczynku złożonym)
   const textClass = shouldTruncate
     ? ((!isTransitioning && !isExpanded) ? "line-clamp-4 overflow-hidden" : "")
     : "";
@@ -72,10 +77,9 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
       <div className="space-y-4 mb-4 flex-1 flex flex-col justify-between">
         <div>
           <div className="text-2xl mb-4">
-            {testimonial.emoji}
+            {testimonial.emoji || "✨"}
           </div>
           
-          {/* Animowany kontener tekstu */}
           <div 
             ref={textContainerRef}
             style={textHeightStyle ? { height: textHeightStyle } : {}}
@@ -91,7 +95,6 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
             </div>
           </div>
 
-          {/* Przycisk leżący pod tekstem */}
           {shouldTruncate && (
             <div className="pt-2">
               <button
@@ -106,7 +109,7 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
       </div>
       <div className="pt-6 border-t border-gray-100 mt-4">
         <div>
-          <h4 className="font-mono text-xs uppercase tracking-wider text-gray-900 font-bold">{testimonial.author}</h4>
+          <h3 className="font-mono text-xs uppercase tracking-wider text-gray-900 font-bold">{testimonial.author}</h3>
           <p className="text-xs font-mono text-gray-400 uppercase tracking-widest mt-1">{testimonial.meta}</p>
         </div>
       </div>
@@ -115,6 +118,7 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
 }
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>(TESTIMONIALS);
   const [windowWidth, setWindowWidth] = useState(1200);
   const [reviewsIndex, setReviewsIndex] = useState(TESTIMONIALS.length * 2);
   const [reviewsTransitionEnabled, setReviewsTransitionEnabled] = useState(true);
@@ -125,6 +129,25 @@ export default function Testimonials() {
   const [draggedDistance, setDraggedDistance] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/reviews/site`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API response error");
+        return res.json();
+      })
+      .then((payload) => {
+        const items = payload.data || payload;
+        if (Array.isArray(items) && items.length > 0) {
+          setTestimonials(items);
+          setReviewsIndex(items.length * 2);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not fetch reviews from API, using static fallback:", err);
+      });
+  }, []);
 
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
@@ -169,7 +192,8 @@ export default function Testimonials() {
   }, [reviewsTransitionEnabled]);
 
   const handleReviewsTransitionEnd = () => {
-    const N = TESTIMONIALS.length;
+    const N = testimonials.length;
+    if (N === 0) return;
     let didWrap = false;
 
     if (reviewsIndex >= 3 * N) {
@@ -208,10 +232,10 @@ export default function Testimonials() {
   }, [isReviewsPaused, nextReviewsSlide]);
 
   const extendedTestimonials = [
-    ...TESTIMONIALS,
-    ...TESTIMONIALS,
-    ...TESTIMONIALS,
-    ...TESTIMONIALS,
+    ...testimonials,
+    ...testimonials,
+    ...testimonials,
+    ...testimonials,
   ];
 
   const containerWidth = containerRef.current ? containerRef.current.clientWidth : 1;

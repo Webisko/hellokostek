@@ -10,7 +10,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Wiecej-o-obiekcie-2-2022-edited-768x768.webp",
+    imageUrl: "/images/Wiecej-o-obiekcie-2-2022-edited-768x768.webp",
     description: "Subtelna akwarela z cyklu badającego formę i relacje przestrzenne. Delikatne rozmycia i głębokie tony budują melancholijny, intymny nastrój idealny do sypialni lub salonu wypoczynkowego."
   },
   {
@@ -21,7 +21,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Wiecej-o-obiekcie-7-2022-scaled.webp",
+    imageUrl: "/images/Wiecej-o-obiekcie-7-2022-scaled.webp",
     description: "Poruszająca kompozycja akwarelowa na grubym papierze bawełnianym. Harmoniczne zestrojenie chłodnych barw z delikatną nutą ciepła emanuje spokojem i wyciszeniem."
   },
   {
@@ -32,7 +32,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Wiecej-o-obiekcie-8.webp",
+    imageUrl: "/images/Wiecej-o-obiekcie-8.webp",
     description: "Kameralna praca z przewagą organicznych, miękkich kształtów. Urzekający detal, który przyciąga wzrok i zaprasza do codziennej, cichej kontemplacji."
   },
   {
@@ -43,7 +43,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Wiecej-o-obiekcie-9-2022-scaled.webp",
+    imageUrl: "/images/Wiecej-o-obiekcie-9-2022-scaled.webp",
     description: "Zmysłowe, płynne przejścia akwarelowe. Praca o silnym ładunku emocjonalnym, zbalansowana lekkim tłem, która doskonale komponuje się z nowoczesnymi oraz klasycznymi wnętrzami."
   },
   {
@@ -54,7 +54,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: false, // Only print as requested: "Dostępne są wydruki powyższych akwareli - 30 zł plus koszt wysyłki plus ta praca..."
-    imageUrl: "/hellokostek/images/Wiecej-o-obiekcie-13-2022-scaled.webp",
+    imageUrl: "/images/Wiecej-o-obiekcie-13-2022-scaled.webp",
     description: "Wyrafinowana kompozycja akwarelowa, dostępna wyłącznie w postaci wysokiej jakości wydruku artystycznego na luksusowym papierze archiwalnym."
   },
 
@@ -67,7 +67,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/2086036_1b.webp",
+    imageUrl: "/images/2086036_1b.webp",
     description: "Ekspresyjny rysunek ołówkiem rejestrujący dynamikę ludzkiego ciała, grę cieni i ruch. Nowoczesna kreska, która wnosi do wnętrza powiew energii."
   },
   {
@@ -78,7 +78,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Codziennosc-2022.webp",
+    imageUrl: "/images/Codziennosc-2022.webp",
     description: "Kameralne studium chłodnej, melancholijnej codzienności. Wyjątkowo intymna kompozycja, skłaniająca do odnalezienia piękna w najprostszych, ulotnych momentach."
   },
   {
@@ -89,7 +89,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Nie-wytrzymam-2022.webp",
+    imageUrl: "/images/Nie-wytrzymam-2022.webp",
     description: "Poruszające personifikowanie nagromadzonych emocji za pomocą wyrazistej kreski graficznej. Głębokie kontrasty ucieleśniają wewnętrzną odporność i siłę."
   },
   {
@@ -100,7 +100,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Lek-2022-1.webp",
+    imageUrl: "/images/Lek-2022-1.webp",
     description: "Delikatny, pełen czułości i zniuansowania rysunek poruszający intymny temat lęku jako części ludzkiego doświadczenia. Uniwersalna, piękna praca kolekcjonerska."
   },
   {
@@ -111,7 +111,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Obiekt-wyodrebniony-10-2022.webp",
+    imageUrl: "/images/Obiekt-wyodrebniony-10-2022.webp",
     description: "Minimalistyczny, surowy w formie rysunek ołówkiem skupiający się na pojedynczej bryle i cieniu. Wybitna lekcja czystej proporcji i przestrzeni."
   },
   {
@@ -122,7 +122,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/To-dziwne-uczucie-2022.webp",
+    imageUrl: "/images/To-dziwne-uczucie-2022.webp",
     description: "Złożony i zmysłowy rysunek, który dotyka nieuchwytnych stanów emocjonalnych. Każde pociągnięcie ołówka buduje głęboką strukturę psychologiczną postaci."
   },
   {
@@ -133,7 +133,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Ucieczka-2022.webp",
+    imageUrl: "/images/Ucieczka-2022.webp",
     description: "Dynamiczny, metaforyczny rysunek ukazujący pragnienie wolności i przestrzeni. Niezwykła lekkość kompozycji idealnie ożywi minimalistyczne wnętrze."
   },
   {
@@ -144,7 +144,7 @@ export const SHOP_PRODUCTS: Product[] = [
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
-    imageUrl: "/hellokostek/images/Strach-2022.webp",
+    imageUrl: "/images/Strach-2022.webp",
     description: "Sztuka zmagań sformułowana w nienagannym rzemiośle ołówka. Oparta na delikatnych cieniach praca, która potrafi oczarować głębią wyrazu."
   }
 ];

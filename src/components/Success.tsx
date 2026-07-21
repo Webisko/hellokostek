@@ -26,7 +26,7 @@ export default function Success({ mode, orderDetails }: SuccessProps) {
     }
   }, [isPurchase]);
 
-  const basePath = "/hellokostek";
+  const basePath = "";
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">

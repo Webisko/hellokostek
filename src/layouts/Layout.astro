@@ -10,13 +10,15 @@ interface Props {
   description?: string;
   hideHeaderFooter?: boolean;
   image?: string;
+  enableCookieBanner?: boolean;
 }
 
 const { 
   title = "hellokostek | Pracownia Artystyczna Maciej Kosteczka", 
   description = "Ręcznie malowane portrety olejne, rysunki i akwarele na zamówienie ze zdjęcia. Stwórz unikalną pamiątkę rodzinną.", 
   hideHeaderFooter = false,
-  image = "/images/o_mnie_nowe.webp"
+  image = "/images/o_mnie_nowe.webp",
+  enableCookieBanner = import.meta.env.PUBLIC_ENABLE_COOKIE_BANNER === 'true'
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
@@ -24,29 +26,36 @@ const currentPath = Astro.url.pathname;
 // Resolve the full URL for Open Graph image
 const ogImageUrl = image.startsWith('http') 
   ? image 
-  : new URL(image.startsWith('/hellokostek') ? image : `/hellokostek${image}`, Astro.url.origin).toString();
+  : new URL(image.startsWith('/') ? image : `/${image}`, Astro.url.origin).toString();
+
+const siteOrigin = Astro.site ? Astro.site.origin : 'https://hellokostek.pl';
+const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
 ---
 
 <!doctype html>
-<html lang="pl">
+<html lang="pl" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="canonical" href={canonicalURL} />
     
-    <!-- Google Fonts Preconnect and loading optimization -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+    <!-- AI Crawling & Agentic Search Link -->
+    <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLM Summary" />
+    <link rel="alternate" type="text/markdown" href="/llms-full.txt" title="Full LLM Documentation" />
 
-    <link rel="icon" type="image/png" sizes="32x32" href="/hellokostek/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/hellokostek/favicon-192x192.png" />
-    <link rel="apple-touch-icon" href="/hellokostek/apple-touch-icon.png" />
-    <link rel="icon" href="/hellokostek/favicon.ico" />
+    <!-- Preload Critical Assets -->
+    <link rel="preload" as="image" href="/images/logo-static.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/portret_franka_mobile.webp" type="image/webp" fetchpriority="high" media="(max-width: 639px)" />
+    
+
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
-    
-    <link rel="canonical" href={Astro.url.href} />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -64,12 +73,65 @@ const ogImageUrl = image.startsWith('http')
 
     <!-- Dynamic page ID representation for debugging/styling purposes if needed -->
     <meta name="page-path" content={currentPath} />
+
+    <!-- Structured Data JSON-LD Schema.org for AI Search & Crawlers -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "LocalBusiness",
+          "@id": `${siteOrigin}/#organization`,
+          "name": "Pracownia Artystyczna Kostek - Maciej Kosteczka",
+          "url": siteOrigin,
+          "logo": new URL("/images/o_mnie_nowe.webp", siteOrigin).toString(),
+          "image": ogImageUrl,
+          "description": description,
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Łódź",
+            "addressRegion": "Łódzkie",
+            "addressCountry": "PL"
+          },
+          "priceRange": "$$"
+        },
+        {
+          "@type": "Person",
+          "@id": `${siteOrigin}/#author`,
+          "name": "Maciej Kosteczka",
+          "jobTitle": "Artysta Malarz i Rysownik",
+          "description": "Malarz specjalizujący się w ręcznie malowanych portretach olejnych, rysunkach i akwarelach ze zdjęcia na zamówienie.",
+          "url": new URL("/o-mnie", siteOrigin).toString(),
+          "image": ogImageUrl
+        },
+        {
+          "@type": "WebSite",
+          "@id": `${siteOrigin}/#website`,
+          "url": siteOrigin,
+          "name": title,
+          "publisher": {
+            "@id": `${siteOrigin}/#organization`
+          },
+          "inLanguage": "pl-PL"
+        },
+        {
+          "@type": "Service",
+          "@id": `${siteOrigin}/#service`,
+          "name": "Ręcznie malowane portrety ze zdjęcia na zamówienie",
+          "serviceType": "Malarstwo i Rysunek Portretowy",
+          "provider": {
+            "@id": `${siteOrigin}/#organization`
+          },
+          "description": "Portret olejny ze zdjęcia na płótnie prostokątnym lub owalnym. Tradycyjna technika malarska bez użycia AI.",
+          "areaServed": "PL"
+        }
+      ]
+    })} />
   </head>
   <body class="min-h-screen bg-white text-off-black flex flex-col justify-between">
     
     <!-- Centered Navigation -->
     {!hideHeaderFooter && (
-      <Navbar currentPath={currentPath} client:load />
+      <Navbar currentPath={currentPath} client:idle />
     )}
 
     <!-- Main content body -->
@@ -82,15 +144,13 @@ const ogImageUrl = image.startsWith('http')
       <Footer />
     )}
 
-    <!-- Subtle Back to Top Button -->
     {!hideHeaderFooter && (
       <BackToTop />
     )}
 
-    <!-- COOKIE CONSENT AGREEMENT -->
-    <CookieConsent />
+    <!-- COOKIE CONSENT BANNER (Toggleable via enableCookieBanner prop or PUBLIC_ENABLE_COOKIE_BANNER env) -->
+    {enableCookieBanner && <CookieConsent />}
 
-    <!-- SVG Goo Filters -->
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style={{ display: "none" }}>
       <defs>
         <filter id="goo">

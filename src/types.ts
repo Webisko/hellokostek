@@ -21,6 +21,8 @@ export interface Product {
   originalPageUrl?: string;
   description: string;
   isPopular?: boolean;
+  originalVariantId?: number;
+  printVariantId?: number;
 }
 
 export interface CartItem {

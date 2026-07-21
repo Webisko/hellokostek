@@ -1,5 +1,5 @@
 ---
-const basePath = "/hellokostek";
+const basePath = "";
 const currentYear = new Date().getFullYear();
 ---
 
@@ -9,9 +9,14 @@ const currentYear = new Date().getFullYear();
     <div class="md:col-span-5 space-y-2 text-center md:text-left flex flex-col items-center md:items-start">
       <div class="w-full max-w-[560px] h-44 md:h-64 overflow-hidden flex items-center justify-center md:justify-start py-1">
         <img
-          src={`${basePath}/images/logo-animation-30fps-v-2.gif`}
+          id="footer-logo"
+          src={`${basePath}/images/logo-static.webp`}
           alt="hellokostek"
           referrerpolicy="no-referrer"
+          loading="lazy"
+          decoding="async"
+          width={600}
+          height={180}
           class="max-w-full max-h-full object-contain mix-blend-multiply"
         />
       </div>
@@ -165,3 +170,15 @@ const currentYear = new Date().getFullYear();
     </div>
   </div>
 </footer>
+
+<script>
+  const triggerFooterAnim = () => {
+    const footerLogo = document.getElementById('footer-logo') as HTMLImageElement | null;
+    if (footerLogo) {
+      footerLogo.src = '/images/logo-animation.webp';
+    }
+  };
+  window.addEventListener('touchstart', triggerFooterAnim, { once: true });
+  window.addEventListener('mousemove', triggerFooterAnim, { once: true });
+  window.addEventListener('scroll', triggerFooterAnim, { once: true });
+</script>

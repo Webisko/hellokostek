@@ -1,0 +1,38 @@
+# Pełna Dokumentacja Pracowni Artystycznej Macieja Kosteczki (hellokostek.pl)
+
+## Podsumowanie Wykonawcze
+Pracownia Artystyczna Kostek (https://hellokostek.pl) prowadzona przez Macieja Kosteczkę w Łodzi oferuje unikalne, ręcznie malowane portrety olejne, rysunki i akwarele na podstawie zdjęć powierzonych przez klientów, a także gotowe dzieła autorskie w sklepie internetowym.
+
+## Technika i Filozofia
+- **100% Manufaktura i Tradycja:** Obrazy są wykonywane tradycyjną techniką sztalugową na płótnach lnianych i bawełnianych przy użyciu profesjonalnych farb olejnych i werniksów ochronnych.
+- **Brak Generowania AI:** Pracownia kładzie nacisk na autentyzm i ludzkie rzemiosło ("Człowiek dla człowieka – sztuka prawdziwa bez AI").
+
+## Oferta Szczegółowa
+
+### Portrety Olejne ze Zdjęcia
+- **Podobrazia Prostokątne:** 30x40 cm, 40x50 cm, 50x70 cm i wymiary niestandardowe.
+- **Podobrazia Owalne:** Unikalne owalne krosna malarskie nadające portretom klasyczny, elegancki charakter.
+- **Tematyka:** Portrety indywidualne, par, dziecięce, rodzinne, portrety zwierząt domowych (pupili), portrety ślubne i jubileuszowe.
+
+### Sklep z Obrazami Autorskimi
+- Dostępne od ręki pejzaże, martwa natura, rysunki, akwarele i edycje limitowane z certyfikatem autentyczności.
+- Adres sklepu: https://hellokostek.pl/sklep
+
+## Cennik i Płatności
+- Ceny portretów zależą od techniki, liczby osób na obrazie oraz rozmiaru płótna.
+- Bezpłatna wycena indywidualna po przesłaniu zdjęcia przez formularz na stronie https://hellokostek.pl/#kontakt-sekcja lub https://hellokostek.pl/kontakt.
+
+## Struktura Strony Internetowej
+- `/` — Strona główna z prezentacją pracowni, konfiguratorem portretu i opiniami klientów.
+- `/galeria` — Galeria wybranych zrealizowanych zamówień.
+- `/sklep` — Sklep z gotowymi pracami do kupienia online.
+- `/o-mnie` — Sylwetka artysty Macieja Kosteczki, historia i dorobek.
+- `/kontakt` — Formularz zapytań i zamawiania portretów.
+- `/regulamin` — Regulamin sklepu i zamawiania.
+- `/polityka-prywatnosci` — Polityka prywatności i dane osobowe.
+
+## Dane Kontaktowe i Identyfikacyjne
+- **Marka:** hellokostek / Pracownia Artystyczna Kostek
+- **Właściciel:** Maciej Kosteczka
+- **Siedziba:** Łódź, Polska
+- **URL:** https://hellokostek.pl

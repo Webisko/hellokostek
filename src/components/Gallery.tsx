@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { GALLERY_ARTWORKS } from "../data/gallery";
+import type { GalleryArtwork } from "../types";
 import { 
   X, 
   ArrowLeft, 
@@ -19,7 +20,19 @@ const techniqueLabels: Record<string, string> = {
   rysunek: "Rysunek"
 };
 
+function mapGalleryArtwork(item: any): GalleryArtwork {
+  return {
+    id: String(item.id),
+    title: item.title?.pl || item.title || "",
+    year: item.year || "2022",
+    imageUrl: item.image_url || '/images/placeholder.png',
+    originalUrl: item.original_url || undefined,
+    technique: item.technique || "akwarela",
+  };
+}
+
 export default function Gallery() {
+  const [artworks, setArtworks] = useState<GalleryArtwork[]>(GALLERY_ARTWORKS);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [activeTechnique, setActiveTechnique] = useState<"all" | "olej" | "akwarela" | "akryl">("all");
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
@@ -28,6 +41,24 @@ export default function Gallery() {
 
   useEffect(() => {
     setIsMounted(true);
+
+    // Fetch gallery artworks from API
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/gallery`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API response error");
+        return res.json();
+      })
+      .then((data) => {
+        const payload = data.data || data;
+        if (Array.isArray(payload)) {
+          const mapped = payload.map(mapGalleryArtwork);
+          setArtworks(mapped);
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not fetch gallery from API, falling back to static data:", err);
+      });
   }, []);
 
   // Block body scroll when lightbox or filter drawer is open
@@ -43,7 +74,7 @@ export default function Gallery() {
   }, [selectedImageIndex, isFilterDrawerOpen]);
 
   // Filter logic
-  const filteredArtworks = GALLERY_ARTWORKS.filter((artwork) => {
+  const filteredArtworks = artworks.filter((artwork) => {
     // 1. Year filter
     if (activeFilter === "2024" && artwork.year !== "2024") return false;
     if (activeFilter === "2023" && artwork.year !== "2023") return false;
@@ -98,7 +129,7 @@ export default function Gallery() {
 
   // Currently viewing artwork in lightbox
   const currentArtwork = selectedImageIndex !== null ? filteredArtworks[selectedImageIndex] : null;
-  const basePath = "/hellokostek";
+  const basePath = "";
 
   return (
     <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 md:space-y-12 xl:space-y-16 font-sans">
