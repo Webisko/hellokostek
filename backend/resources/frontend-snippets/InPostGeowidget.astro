@@ -1,0 +1,217 @@
+---
+/**
+ * InPostGeowidget.astro
+ * 
+ * Reference frontend widget for InPost Geowidget v4.
+ * Integrates with the headless checkout API by sending selected delivery point.
+ */
+interface Props {
+  onPointSelectedEventName?: string; // Default: 'inpost-point-selected'
+}
+
+const { onPointSelectedEventName = 'inpost-point-selected' } = Astro.props;
+---
+
+<div class="inpost-widget-container">
+  <link rel="stylesheet" href="https://geowidget.easypack24.net/css/easypack24.css" />
+  
+  <div class="widget-header">
+    <img src="https://inpost.pl/sites/default/files/logo_inpost.png" alt="InPost Logo" class="inpost-logo" />
+    <span class="widget-title">Wybierz swój Paczkomat</span>
+  </div>
+
+  <!-- Selection summary -->
+  <div id="inpost-selected-info" class="selected-info hidden">
+    <div class="info-card">
+      <span class="info-label">Wybrany punkt:</span>
+      <strong id="inpost-point-name">-</strong>
+      <span id="inpost-point-address" class="info-address">-</span>
+    </div>
+  </div>
+
+  <!-- Trigger button to show/hide the map -->
+  <button type="button" id="inpost-map-trigger" class="btn-map-trigger">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon-map">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+    </svg>
+    Wybierz na mapie
+  </button>
+
+  <!-- Map Wrapper -->
+  <div id="inpost-map-wrapper" class="map-wrapper hidden">
+    <div id="easypack-map"></div>
+  </div>
+</div>
+
+<script src="https://geowidget.easypack24.net/js/sdk-for-javascript.js" is:inline></script>
+
+<script define:vars={{ onPointSelectedEventName }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const triggerBtn = document.getElementById('inpost-map-trigger');
+    const mapWrapper = document.getElementById('inpost-map-wrapper');
+    const infoContainer = document.getElementById('inpost-selected-info');
+    const pointNameEl = document.getElementById('inpost-point-name');
+    const pointAddressEl = document.getElementById('inpost-point-address');
+    
+    let isInitialized = false;
+
+    // Check if easyPack SDK is loaded
+    if (typeof easyPack === 'undefined') {
+      console.error('InPost easyPack SDK is not loaded. Make sure the script URL is reachable.');
+      return;
+    }
+
+    triggerBtn.addEventListener('click', () => {
+      mapWrapper.classList.toggle('hidden');
+      
+      if (!isInitialized) {
+        easyPack.init({
+          instance: 'pl',
+          mapType: 'osm',
+          searchType: 'osm',
+          points: {
+            types: ['paczkomat']
+          }
+        });
+        
+        easyPack.mapWidget('easypack-map', (point) => {
+          // Handle selection
+          pointNameEl.textContent = point.name;
+          pointAddressEl.textContent = `${point.address.line1}, ${point.address.line2}`;
+          infoContainer.classList.remove('hidden');
+          mapWrapper.classList.add('hidden'); // auto-collapse map on select
+
+          // Format details to match API structure expected by Checkout API:
+          // 'delivery_point' => ['id', 'name', 'address', 'postal_code', 'city']
+          const eventData = {
+            id: point.name,
+            name: `Paczkomat InPost ${point.name}`,
+            address: point.address.line1,
+            postal_code: point.address_details?.post_code || '',
+            city: point.address_details?.city || '',
+          };
+
+          // Dispatch event to parent form/framework
+          const customEvent = new CustomEvent(onPointSelectedEventName, {
+            bubbles: true,
+            detail: eventData
+          });
+          document.dispatchEvent(customEvent);
+        });
+
+        isInitialized = true;
+      }
+    });
+  });
+</script>
+
+<style>
+  .inpost-widget-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
+    color: #f3f4f6;
+  }
+
+  .widget-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .inpost-logo {
+    height: 28px;
+    object-fit: contain;
+  }
+
+  .widget-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .btn-map-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffcc00;
+    color: #111827;
+    font-weight: 600;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  .btn-map-trigger:hover {
+    background: #e6b800;
+  }
+
+  .btn-map-trigger:active {
+    transform: scale(0.98);
+  }
+
+  .icon-map {
+    width: 20px;
+    height: 20px;
+  }
+
+  .selected-info {
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .info-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #ffcc00;
+    padding: 12px;
+    border-radius: 4px 8px 8px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .info-address {
+    font-size: 0.875rem;
+    color: #d1d5db;
+  }
+
+  .map-wrapper {
+    margin-top: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    height: 450px;
+    animation: slideDown 0.3s ease;
+  }
+
+  #easypack-map {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideDown {
+    from { height: 0; opacity: 0; }
+    to { height: 450px; opacity: 1; }
+  }
+</style>

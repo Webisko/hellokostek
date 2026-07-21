@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">./app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:DY5cbAgBoAs5tzyt+ZY4zunIjA79XR0ykG23+DbFChs="/>
+        <env name="APP_DEBUG" value="true"/>
+        <env name="APP_LOCALE" value="pl"/>
+        <env name="APP_FALLBACK_LOCALE" value="pl"/>
+        <!-- Use in-memory SQLite for fast isolated tests. -->
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <!-- Disable non-essential services during tests. -->
+        <env name="CACHE_STORE" value="array"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="BROADCAST_CONNECTION" value="log"/>
+        <!-- Keep integrations disabled in tests by default. -->
+        <env name="PRZELEWY24_ENABLED" value="false"/>
+        <env name="STRIPE_ENABLED" value="false"/>
+        <env name="ANALYTICS_ENABLED" value="false"/>
+        <env name="FRONTEND_URL" value="http://localhost:3000"/>
+    </php>
+</phpunit>

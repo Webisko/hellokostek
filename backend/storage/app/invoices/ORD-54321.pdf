@@ -1,0 +1,65 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1298 >>
+stream
+BT /F2 22 Tf 50 750 Td (FAKTURA VAT) Tj ET
+BT /F2 12 Tf 50 725 Td (Numer: ORD-54321) Tj ET
+BT /F1 10 Tf 400 725 Td (Data wystawienia: 2026-07-21) Tj ET
+1.5 w 50 710 m 550 710 l S
+BT /F2 12 Tf 50 680 Td (Sprzedawca:) Tj ET
+BT /F1 10 Tf 50 660 Td (Curandera Backend Local) Tj ET
+BT /F1 10 Tf 50 645 Td (Ulica Przykladowa 12) Tj ET
+BT /F1 10 Tf 50 630 Td (00-001 Warszawa) Tj ET
+BT /F1 10 Tf 50 615 Td (Email: hello@example.com) Tj ET
+BT /F2 12 Tf 350 680 Td (Nabywca:) Tj ET
+BT /F1 10 Tf 350 660 Td (Jan Kowalski) Tj ET
+BT /F1 10 Tf 350 630 Td (Email: test@example.com) Tj ET
+1 w 50 580 m 550 580 l S
+BT /F2 10 Tf 55 570 Td (Nazwa produktu) Tj ET
+BT /F2 10 Tf 280 570 Td (Ilosc) Tj ET
+BT /F2 10 Tf 330 570 Td (Cena brutto) Tj ET
+BT /F2 10 Tf 410 570 Td (VAT) Tj ET
+BT /F2 10 Tf 480 570 Td (Suma brutto) Tj ET
+1 w 50 560 m 550 560 l S
+1 w 50 550 m 550 550 l S
+BT /F2 10 Tf 350 530 Td (Suma netto:) Tj ET
+BT /F1 10 Tf 480 530 Td (150.00 PLN) Tj ET
+BT /F2 10 Tf 350 515 Td (Kwota VAT:) Tj ET
+BT /F1 10 Tf 480 515 Td (0.00 PLN) Tj ET
+BT /F2 10 Tf 350 500 Td (Wysylka:) Tj ET
+BT /F1 10 Tf 480 500 Td (0.00 PLN) Tj ET
+1.5 w 350 490 m 550 490 l S
+BT /F2 11 Tf 300 480 Td (RAZEM DO ZAPLATY:) Tj ET
+BT /F2 11 Tf 480 480 Td (150.00 PLN) Tj ET
+BT /F2 10 Tf 50 440 Td (Zaplacono przelewem elektronicznym.) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000001600 00000 n 
+0000001670 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+1745
+%%EOF

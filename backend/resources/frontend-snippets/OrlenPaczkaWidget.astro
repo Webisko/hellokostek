@@ -1,0 +1,236 @@
+---
+/**
+ * OrlenPaczkaWidget.astro
+ * 
+ * Reference frontend widget for ORLEN Paczka (Paczka w Ruchu).
+ * Integrates with the headless checkout API by sending selected delivery point.
+ */
+interface Props {
+  onPointSelectedEventName?: string; // Default: 'orlen-point-selected'
+  widgetToken?: string;              // Default: sandbox/test token or empty to configure
+}
+
+const { 
+  onPointSelectedEventName = 'orlen-point-selected',
+  widgetToken = 'YOUR_ORLEN_PACZKA_MAP_TOKEN' // Contact your manager to get domain-tied token
+} = Astro.props;
+---
+
+<div class="orlen-widget-container">
+  <div class="widget-header">
+    <img src="https://www.orlenpaczka.pl/wp-content/themes/orlenpaczka/assets/images/logo.svg" alt="ORLEN Paczka Logo" class="orlen-logo" />
+    <span class="widget-title">Wybierz punkt odbioru / automat</span>
+  </div>
+
+  <!-- Selection summary -->
+  <div id="orlen-selected-info" class="selected-info hidden">
+    <div class="info-card">
+      <span class="info-label">Wybrany punkt ORLEN Paczka:</span>
+      <strong id="orlen-point-name">-</strong>
+      <span id="orlen-point-address" class="info-address">-</span>
+    </div>
+  </div>
+
+  <!-- Trigger button to show/hide the map -->
+  <button type="button" id="orlen-map-trigger" class="btn-map-trigger">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="icon-map">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+    </svg>
+    Wyszukaj na mapie ORLEN Paczka
+  </button>
+
+  <!-- Map Container Wrapper -->
+  <div id="orlen-map-wrapper" class="map-wrapper hidden">
+    <!-- 
+      Depending on ORLEN Paczka integration setup, the map can be rendered inside 
+      this div by their SDK, or loaded as an iframe (pointing to e.g. https://smx.orlenpaczka.pl/widget/)
+    -->
+    <div id="orlenpaczka-map-target"></div>
+  </div>
+</div>
+
+<!-- ORLEN Paczka SDK widget script -->
+<script src="https://smx.orlenpaczka.pl/widget/orlenpaczka-widget.js" is:inline></script>
+
+<script define:vars={{ onPointSelectedEventName, widgetToken }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const triggerBtn = document.getElementById('orlen-map-trigger');
+    const mapWrapper = document.getElementById('orlen-map-wrapper');
+    const infoContainer = document.getElementById('orlen-selected-info');
+    const pointNameEl = document.getElementById('orlen-point-name');
+    const pointAddressEl = document.getElementById('orlen-point-address');
+    
+    let isInitialized = false;
+
+    // Handle selection and event dispatch
+    function handlePointSelected(point) {
+      // Expected structure of 'point' from SDK:
+      // { id: "XX-123456-78-90", name: "Punkt X", address: "Sienkiewicza 10", city: "Warszawa", postcode: "00-001" }
+
+      pointNameEl.textContent = point.id || point.name;
+      pointAddressEl.textContent = `${point.address}, ${point.postcode} ${point.city}`;
+      infoContainer.classList.remove('hidden');
+      mapWrapper.classList.add('hidden'); // collapse map on select
+
+      // Format details to match API structure expected by Checkout API:
+      // 'delivery_point' => ['id', 'name', 'address', 'postal_code', 'city']
+      const eventData = {
+        id: point.id || point.name, // Usually the point code is required for label generation
+        name: point.name || `Punkt ORLEN Paczka ${point.id}`,
+        address: point.address,
+        postal_code: point.postcode,
+        city: point.city
+      };
+
+      const customEvent = new CustomEvent(onPointSelectedEventName, {
+        bubbles: true,
+        detail: eventData
+      });
+      document.dispatchEvent(customEvent);
+    }
+
+    triggerBtn.addEventListener('click', () => {
+      mapWrapper.classList.toggle('hidden');
+      
+      if (!isInitialized) {
+        // Initialize ORLEN Paczka Widget if SDK is loaded
+        if (typeof OrlenPaczkaWidget !== 'undefined') {
+          new OrlenPaczkaWidget({
+            target: 'orlenpaczka-map-target',
+            token: widgetToken,
+            onSelect: (point) => {
+              handlePointSelected(point);
+            }
+          });
+          isInitialized = true;
+        } else {
+          // Fallback option: iframe postMessage communication if loaded as iframe
+          console.warn('OrlenPaczkaWidget SDK not found on window. Listening for postMessage fallback.');
+          
+          // Render mock/iframe fallback if necessary, or just wait for postMessage
+          window.addEventListener('message', (event) => {
+            // Validate origin to ensure it's from ORLEN Paczka domain
+            if (event.origin.includes('orlenpaczka.pl') || event.origin.includes('paczkawruchu.pl')) {
+              if (event.data && event.data.type === 'point-selected') {
+                handlePointSelected(event.data.point);
+              }
+            }
+          });
+          isInitialized = true;
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  .orlen-widget-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
+    color: #f3f4f6;
+  }
+
+  .widget-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .orlen-logo {
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .widget-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .btn-map-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #e30613; /* Orlen Red */
+    color: #ffffff;
+    font-weight: 600;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  .btn-map-trigger:hover {
+    background: #b8050f;
+  }
+
+  .btn-map-trigger:active {
+    transform: scale(0.98);
+  }
+
+  .icon-map {
+    width: 20px;
+    height: 20px;
+  }
+
+  .selected-info {
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .info-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #e30613;
+    padding: 12px;
+    border-radius: 4px 8px 8px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .info-address {
+    font-size: 0.875rem;
+    color: #d1d5db;
+  }
+
+  .map-wrapper {
+    margin-top: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    height: 480px;
+    animation: slideDown 0.3s ease;
+  }
+
+  #orlenpaczka-map-target {
+    width: 100%;
+    height: 100%;
+    background: #1f2937;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideDown {
+    from { height: 0; opacity: 0; }
+    to { height: 480px; opacity: 1; }
+  }
+</style>

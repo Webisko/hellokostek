@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Filament\Resources\ContentPages\Pages;
+
+use App\Filament\Resources\ContentPages\ContentPageResource;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Resources\Pages\EditRecord;
+
+class EditContentPage extends EditRecord
+{
+    protected static string $resource = ContentPageResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewAction::make(),
+            DeleteAction::make(),
+        ];
+    }
+}

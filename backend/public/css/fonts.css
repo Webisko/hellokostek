@@ -1,0 +1,75 @@
+﻿/* ==========================================================================
+   Instrument Sans - Self-Hosted
+   ========================================================================== */
+
+/* Regular (400) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-regular.woff2') format('woff2');
+}
+
+/* Italic (400) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-italic.woff2') format('woff2');
+}
+
+/* Medium (500) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-500.woff2') format('woff2');
+}
+
+/* Medium Italic (500) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-500italic.woff2') format('woff2');
+}
+
+/* SemiBold (600) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-600.woff2') format('woff2');
+}
+
+/* SemiBold Italic (600) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-600italic.woff2') format('woff2');
+}
+
+/* Bold (700) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-700.woff2') format('woff2');
+}
+
+/* Bold Italic (700) */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/instrument-sans/instrument-sans-v4-700italic.woff2') format('woff2');
+}

@@ -1,0 +1,28 @@
+---
+// PayPoWidget.astro
+// Example usage: <PayPoWidget priceAmount={product.price_amount} currency={product.currency} />
+interface Props {
+  priceAmount: number; // in grosze/cents
+  currency?: string;
+}
+
+const { priceAmount, currency = 'PLN' } = Astro.props;
+const formattedPrice = (priceAmount / 100).toFixed(2);
+---
+
+<div class="paypo-widget-container flex items-center gap-3 p-3 bg-gradient-to-r from-green-50/50 to-emerald-50/20 border border-emerald-100/50 rounded-xl max-w-sm mt-3 text-left">
+  <div class="flex-shrink-0 flex items-center justify-center bg-white rounded-lg px-2.5 py-1 border border-emerald-200/40 shadow-sm font-semibold tracking-tight text-emerald-600 text-sm">
+    Pay<span class="text-black">Po</span>
+  </div>
+  
+  <div class="text-xs text-gray-600 leading-snug">
+    <div>Kup teraz, zapłać za 30 dni</div>
+    <div class="text-[10px] text-gray-400">lub rozłóż płatność na dogodne raty</div>
+  </div>
+</div>
+
+<style>
+  .paypo-widget-container {
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+</style>
