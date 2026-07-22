@@ -18,7 +18,7 @@ class ProductCategoryInfolist
                         TextEntry::make('name')
                             ->label('Nazwa'),
                         TextEntry::make('slug')
-                            ->label('Slug'),
+                            ->label('Adres URL (slug)'),
                         TextEntry::make('sort_order')
                             ->label('Kolejnosc'),
                         TextEntry::make('is_active')

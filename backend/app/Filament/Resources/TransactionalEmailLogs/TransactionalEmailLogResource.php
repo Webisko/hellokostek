@@ -29,7 +29,7 @@ class TransactionalEmailLogResource extends Resource
 
     protected static ?string $navigationLabel = 'Maile transakcyjne';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'System & Ustawienia';
+    protected static \UnitEnum|string|null $navigationGroup = 'System & ustawienia';
 
     protected static ?int $navigationSort = 4;
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { GALLERY_ARTWORKS } from "../data/gallery";
 import type { GalleryArtwork } from "../types";
@@ -13,28 +13,27 @@ const getSrc = (img: any): string => (img && typeof img === 'object' && 'src' in
 
 type FilterType = "all" | "2024" | "2023" | "2022" | "older";
 
-const techniqueLabels: Record<string, string> = {
-  olej: "Olej",
-  akryl: "Akryl",
-  akwarela: "Akwarela",
-  rysunek: "Rysunek"
-};
-
 function mapGalleryArtwork(item: any): GalleryArtwork {
+  const catName = typeof item.category === 'object' && item.category !== null 
+    ? (item.category.pl || item.category.en || Object.values(item.category)[0]) 
+    : (item.category || "");
+  const catSlug = item.category_slug || (typeof catName === 'string' ? catName.toLowerCase() : "");
+
   return {
     id: String(item.id),
     title: item.title?.pl || item.title || "",
     year: item.year || "2022",
     imageUrl: item.image_url || '/images/placeholder.png',
     originalUrl: item.original_url || undefined,
-    technique: item.technique || "akwarela",
+    category: catName,
+    categorySlug: catSlug,
   };
 }
 
 export default function Gallery() {
   const [artworks, setArtworks] = useState<GalleryArtwork[]>(GALLERY_ARTWORKS);
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
-  const [activeTechnique, setActiveTechnique] = useState<"all" | "olej" | "akwarela" | "akryl">("all");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -51,8 +50,9 @@ export default function Gallery() {
       })
       .then((data) => {
         const payload = data.data || data;
-        if (Array.isArray(payload)) {
-          const mapped = payload.map(mapGalleryArtwork);
+        const items = Array.isArray(payload) ? payload : (payload.items || []);
+        if (Array.isArray(items) && items.length > 0) {
+          const mapped = items.map(mapGalleryArtwork);
           setArtworks(mapped);
         }
       })
@@ -60,6 +60,23 @@ export default function Gallery() {
         console.warn("Could not fetch gallery from API, falling back to static data:", err);
       });
   }, []);
+
+  // Compute category filter list dynamically from artworks
+  const categoryFilters = useMemo(() => {
+    const map = new Map<string, string>();
+    artworks.forEach((art) => {
+      if (art.categorySlug && art.category) {
+        map.set(art.categorySlug.toLowerCase(), art.category);
+      } else if (art.category) {
+        map.set(art.category.toLowerCase(), art.category);
+      }
+    });
+    const list = [{ id: "all", label: "Wszystkie kategorie" }];
+    map.forEach((name, slug) => {
+      list.push({ id: slug, label: name });
+    });
+    return list;
+  }, [artworks]);
 
   // Block body scroll when lightbox or filter drawer is open
   useEffect(() => {
@@ -81,8 +98,11 @@ export default function Gallery() {
     if (activeFilter === "2022" && artwork.year !== "2022") return false;
     if (activeFilter === "older" && ["2024", "2023", "2022"].includes(artwork.year)) return false;
 
-    // 2. Technique filter
-    if (activeTechnique !== "all" && artwork.technique !== activeTechnique) return false;
+    // 2. Category filter
+    if (activeCategory !== "all") {
+      const slug = artwork.categorySlug || artwork.category?.toLowerCase();
+      if (slug !== activeCategory) return false;
+    }
 
     return true;
   });
@@ -155,18 +175,18 @@ export default function Gallery() {
         >
           <SlidersHorizontal className="w-4 h-4 text-[#E0115F]" />
           Filtruj prace
-          {(activeTechnique !== "all" || activeFilter !== "all") && (
+          {(activeCategory !== "all" || activeFilter !== "all") && (
             <span className="ml-1 px-1.5 py-0.5 rounded-full bg-[#E0115F] text-white text-[10px] font-bold">
-              {[activeTechnique !== "all" ? 1 : 0, activeFilter !== "all" ? 1 : 0].reduce((a, b) => a + b, 0)}
+              {[activeCategory !== "all" ? 1 : 0, activeFilter !== "all" ? 1 : 0].reduce((a, b) => a + b, 0)}
             </span>
           )}
         </button>
 
         {/* Active filters clear */}
-        {(activeTechnique !== "all" || activeFilter !== "all") && (
+        {(activeCategory !== "all" || activeFilter !== "all") && (
           <button
             onClick={() => {
-              setActiveTechnique("all");
+              setActiveCategory("all");
               setActiveFilter("all");
             }}
             className="pointer-events-auto text-xs text-gray-700 hover:text-[#E0115F] font-semibold transition-colors cursor-pointer bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm"
@@ -181,27 +201,22 @@ export default function Gallery() {
 
       {/* Desktop Filter Rail (Static, desktop only) */}
       <div className="hidden xl:flex xl:flex-row items-center justify-between gap-6 border-b border-gray-150 pb-6">
-        {/* Technique filters (Left) */}
+        {/* Category filters (Left) */}
         <div className="flex flex-wrap items-center justify-start gap-3 w-auto">
-          {[
-            { id: "all", label: "Wszystkie techniki" },
-            { id: "olej", label: "Olej" },
-            { id: "akwarela", label: "Akwarela" },
-            { id: "akryl", label: "Akryl" }
-          ].map((tech) => (
+          {categoryFilters.map((cat) => (
             <button
-              key={tech.id}
+              key={cat.id}
               onClick={() => {
-                setActiveTechnique(tech.id as any);
+                setActiveCategory(cat.id);
                 setSelectedImageIndex(null);
               }}
               className={`px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wider transition-all uppercase cursor-pointer whitespace-nowrap ${
-                activeTechnique === tech.id
+                activeCategory === cat.id
                   ? "bg-gray-950 text-white shadow-sm"
                   : "bg-gray-55 text-gray-600 border border-transparent hover:border-gray-200 hover:bg-white"
               }`}
             >
-              {tech.label}
+              {cat.label}
             </button>
           ))}
         </div>
@@ -256,10 +271,12 @@ export default function Gallery() {
                   className="w-full h-full object-cover block transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
                 
-                {/* Technique Label overlay (Left top) */}
-                <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-gray-905 text-xs font-mono font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest border border-gray-100 shadow-xs z-10">
-                  {techniqueLabels[artwork.technique] || artwork.technique}
-                </span>
+                {/* Category Label overlay (Left top) */}
+                {artwork.category && (
+                  <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-gray-905 text-xs font-mono font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest border border-gray-100 shadow-xs z-10">
+                    {artwork.category}
+                  </span>
+                )}
 
                 {/* Year Label overlay */}
                 <span className="absolute bottom-4 right-4 bg-gray-950 text-white text-xs font-mono px-3 py-1.5 rounded-lg font-medium tracking-widest uppercase z-10">
@@ -299,7 +316,7 @@ export default function Gallery() {
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none"
             />
 
-            {/* Navigation buttons overlaid on the image area (matching slider styling) */}
+            {/* Navigation buttons overlaid on the image area */}
             <button
               onClick={handlePrevImage}
               className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none z-55 cursor-pointer border-none"
@@ -335,15 +352,15 @@ export default function Gallery() {
               </h2>
 
               <div className="space-y-2.5 text-xs text-neutral-400 leading-relaxed">
-                {currentArtwork.technique === "olej" && (
+                {(currentArtwork.categorySlug === "olej" || currentArtwork.category?.toLowerCase() === "olej") && (
                   <>
-                    <p>• Tradycyjna technika olejna na płótnie bawełnianym</p>
+                    <p>• Tradycyjne malarstwo olejne na płótnie bawełnianym</p>
                     <p>• Naciąg na krosna sosnowe</p>
                     <p>• Zabezpieczony werniksem końcowym</p>
                     <p>• Wykonany ręcznie na zamówienie ze zdjęcia</p>
                   </>
                 )}
-                {currentArtwork.technique === "akryl" && (
+                {(currentArtwork.categorySlug === "akryl" || currentArtwork.category?.toLowerCase() === "akryl") && (
                   <>
                     <p>• Malarstwo akrylowe na płótnie</p>
                     <p>• Naciąg na krosna sosnowe</p>
@@ -351,7 +368,7 @@ export default function Gallery() {
                     <p>• Wykonany ręcznie</p>
                   </>
                 )}
-                {currentArtwork.technique === "rysunek" && (
+                {(currentArtwork.categorySlug === "rysunek" || currentArtwork.category?.toLowerCase() === "rysunek") && (
                   <>
                     <p>• Tradycyjny rysunek na papierze</p>
                     <p>• Wykonany ołówkiem lub suchym pastelem</p>
@@ -359,12 +376,15 @@ export default function Gallery() {
                     <p>• Wykonany ręcznie</p>
                   </>
                 )}
-                {currentArtwork.technique === "akwarela" && (
+                {(currentArtwork.categorySlug === "akwarela" || currentArtwork.category?.toLowerCase() === "akwarela") && (
                   <>
                     <p>• Akwarela na wysokiej jakości papierze bawełnianym</p>
                     <p>• Unikalne, płynne przejścia barwne</p>
                     <p>• Wykonany ręcznie</p>
                   </>
+                )}
+                {currentArtwork.category && !["olej", "akryl", "rysunek", "akwarela"].includes(currentArtwork.categorySlug || currentArtwork.category?.toLowerCase() || "") && (
+                  <p>• Kategoria: {currentArtwork.category}</p>
                 )}
               </div>
             </div>
@@ -421,30 +441,25 @@ export default function Gallery() {
 
               {/* Content (Scrollable) */}
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
-                {/* Technique filter group */}
+                {/* Category filter group */}
                 <div className="space-y-4">
-                  <h3 className="text-xs font-mono uppercase tracking-widest text-[#E0115F] font-bold">Technika</h3>
+                  <h3 className="text-xs font-mono uppercase tracking-widest text-[#E0115F] font-bold">Kategoria</h3>
                   <div className="flex flex-col gap-2">
-                    {[
-                      { id: "all", label: "Wszystkie techniki" },
-                      { id: "olej", label: "Olej" },
-                      { id: "akwarela", label: "Akwarela" },
-                      { id: "akryl", label: "Akryl" }
-                    ].map((tech) => (
+                    {categoryFilters.map((cat) => (
                       <button
-                        key={tech.id}
+                        key={cat.id}
                         onClick={() => {
-                          setActiveTechnique(tech.id as any);
+                          setActiveCategory(cat.id);
                           setSelectedImageIndex(null);
                         }}
                         className={`w-full text-left px-4 py-3.5 rounded-xl text-xs font-semibold tracking-wider transition-all uppercase cursor-pointer flex justify-between items-center ${
-                          activeTechnique === tech.id
+                          activeCategory === cat.id
                             ? "bg-gray-950 text-white"
                             : "bg-gray-55 text-gray-600 border border-transparent hover:border-gray-200 hover:bg-white"
                         }`}
                       >
-                        {tech.label}
-                        {activeTechnique === tech.id && <span className="w-1.5 h-1.5 rounded-full bg-[#C4F013]" />}
+                        {cat.label}
+                        {activeCategory === cat.id && <span className="w-1.5 h-1.5 rounded-full bg-[#C4F013]" />}
                       </button>
                     ))}
                   </div>
@@ -483,10 +498,10 @@ export default function Gallery() {
 
               {/* Footer */}
               <div className="px-6 py-5 border-t border-gray-100 bg-gray-50 flex gap-4">
-                {(activeTechnique !== "all" || activeFilter !== "all") && (
+                {(activeCategory !== "all" || activeFilter !== "all") && (
                   <button
                     onClick={() => {
-                      setActiveTechnique("all");
+                      setActiveCategory("all");
                       setActiveFilter("all");
                       setSelectedImageIndex(null);
                     }}

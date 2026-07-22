@@ -16,6 +16,10 @@ class HelloKostekSeeder extends Seeder
 {
     public function run(): void
     {
+        // Czyszczenie starych angielskich kategorii i produktów
+        ProductCategory::query()->whereIn('slug', ['watercolor', 'drawing'])->delete();
+        Product::query()->where('slug', 'like', 'drawing-%')->orWhere('slug', 'like', 'watercolor-%')->delete();
+
         // 0. ADMIN USER
         $admin = \App\Models\User::query()->where('email', 'admin@hellokostek.pl')->firstOrNew();
         $admin->forceFill([
@@ -50,13 +54,13 @@ class HelloKostekSeeder extends Seeder
                 'sort_order' => 20,
             ],
             [
-                'slug' => 'watercolor',
+                'slug' => 'akwarela',
                 'name' => ['pl' => 'Akwarela', 'en' => 'Watercolor'],
                 'description' => ['pl' => 'Subtelne i zmysłowe akwarele na papierze bawełnianym.', 'en' => 'Subtle and sensual watercolors on cotton paper.'],
                 'sort_order' => 30,
             ],
             [
-                'slug' => 'drawing',
+                'slug' => 'rysunek',
                 'name' => ['pl' => 'Rysunek', 'en' => 'Drawing'],
                 'description' => ['pl' => 'Precyzyjne i dynamiczne rysunki wykonane ołówkiem.', 'en' => 'Precise and dynamic graphite drawings.'],
                 'sort_order' => 40,
@@ -82,10 +86,10 @@ class HelloKostekSeeder extends Seeder
         $productsData = [
             // --- WATERCOLORS ---
             [
-                'id' => 'watercolor-2-2022',
+                'id' => 'akwarela-2-2022',
                 'title' => 'Obiekt II',
                 'year' => '2022',
-                'category' => 'watercolor',
+                'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
@@ -93,10 +97,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Subtelna akwarela z cyklu badającego formę i relacje przestrzenne. Delikatne rozmycia i głębokie tony budują melancholijny, intymny nastrój idealny do sypialni lub salonu wypoczynkowego.'
             ],
             [
-                'id' => 'watercolor-7-2022',
+                'id' => 'akwarela-7-2022',
                 'title' => 'Obiekt VII',
                 'year' => '2022',
-                'category' => 'watercolor',
+                'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
@@ -104,10 +108,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Poruszająca kompozycja akwarelowa na grubym papierze bawełnianym. Harmoniczne zestrojenie chłodnych barw z delikatną nutą ciepła emanuje spokojem i wyciszeniem.'
             ],
             [
-                'id' => 'watercolor-8-2022',
+                'id' => 'akwarela-8-2022',
                 'title' => 'Obiekt VIII',
                 'year' => '2022',
-                'category' => 'watercolor',
+                'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
@@ -115,10 +119,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Kameralna praca z przewagą organicznych, miękkich kształtów. Urzekający detal, który przyciąga wzrok i zaprasza do codziennej, cichej kontemplacji.'
             ],
             [
-                'id' => 'watercolor-9-2022',
+                'id' => 'akwarela-9-2022',
                 'title' => 'Obiekt IX',
                 'year' => '2022',
-                'category' => 'watercolor',
+                'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
@@ -126,10 +130,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Zmysłowe, płynne przejścia akwarelowe. Praca o silnym ładunku emocjonalnym, zbalansowana lekkim tłem, która doskonale komponuje się z nowoczesnymi oraz klasycznymi wnętrzami.'
             ],
             [
-                'id' => 'watercolor-13-2022',
+                'id' => 'akwarela-13-2022',
                 'title' => 'Obiekt XIII (Sygnowany)',
                 'year' => '2022',
-                'category' => 'watercolor',
+                'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => false,
@@ -138,10 +142,10 @@ class HelloKostekSeeder extends Seeder
             ],
             // --- DRAWINGS ---
             [
-                'id' => 'drawing-run-2024',
+                'id' => 'postaci-w-biegu-2024',
                 'title' => 'Postaci w biegu',
                 'year' => '2024',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -149,10 +153,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Ekspresyjny rysunek ołówkiem rejestrujący dynamikę ludzkiego ciała, grę cieni i ruch. Nowoczesna kreska, która wnosi do wnętrza powiew energii.'
             ],
             [
-                'id' => 'drawing-daily-2022',
+                'id' => 'codziennosc-2022',
                 'title' => 'Codzienność',
                 'year' => '2022',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -160,10 +164,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Kameralne studium chłodnej, melancholijnej codzienności. Wyjątkowo intymna kompozycja, skłaniająca do odnalezienia piękna w najprostszych, ulotnych momentach.'
             ],
             [
-                'id' => 'drawing-cant-stand-2022',
+                'id' => 'nie-wytrzymam-2022',
                 'title' => 'Nie wytrzymam',
                 'year' => '2022',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -171,10 +175,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Poruszające personifikowanie nagromadzonych emocji za pomocą wyrazistej kreski graficznej. Głębokie kontrasty ucieleśniają wewnętrzną odporność i siłę.'
             ],
             [
-                'id' => 'drawing-anxiety-2022',
+                'id' => 'lek-2022',
                 'title' => 'Lęk',
                 'year' => '2022',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -182,10 +186,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Delikatny, pełen czułości i zniuansowania rysunek poruszający intymny temat lęku jako części ludzkiego doświadczenia. Uniwersalna, piękna praca kolekcjonerska.'
             ],
             [
-                'id' => 'drawing-isolated-10-2022',
+                'id' => 'obiekt-wyodrebniony-10-2022',
                 'title' => 'Obiekt wyodrębniony #10',
                 'year' => '2022',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -193,10 +197,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Minimalistyczny, surowy w formie rysunek ołówkiem skupiający się na pojedynczej bryle i cieniu. Wybitna lekcja czystej proporcji i przestrzeni.'
             ],
             [
-                'id' => 'drawing-weird-feeling-2022',
+                'id' => 'to-dziwne-uczucie-2022',
                 'title' => 'To dziwne uczucie',
                 'year' => '2022',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -204,10 +208,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Złożony i zmysłowy rysunek, który dotyka nieuchwytnych stanów emocjonalnych. Każde pociągnięcie ołówka buduje głęboką strukturę psychologiczną postaci.'
             ],
             [
-                'id' => 'drawing-escape-2022',
+                'id' => 'ucieczka-2022',
                 'title' => 'Ucieczka',
                 'year' => '2022',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -215,10 +219,10 @@ class HelloKostekSeeder extends Seeder
                 'description' => 'Dynamiczny, metaforyczny rysunek ukazujący pragnienie wolności i przestrzeni. Niezwykła lekkość kompozycji idealnie ożywi minimalistyczne wnętrze.'
             ],
             [
-                'id' => 'drawing-fear-2022',
+                'id' => 'strach-2022',
                 'title' => 'Strach',
                 'year' => '2022',
-                'category' => 'drawing',
+                'category' => 'rysunek',
                 'originalPrice' => 200,
                 'printPrice' => 20,
                 'isOriginalAvailable' => true,
@@ -344,8 +348,8 @@ class HelloKostekSeeder extends Seeder
         $techniqueCategoryMap = [
             'olej' => $categories['olej']->id ?? null,
             'akryl' => $categories['akryl']->id ?? null,
-            'akwarela' => $categories['watercolor']->id ?? null,
-            'rysunek' => $categories['drawing']->id ?? null,
+            'akwarela' => $categories['akwarela']->id ?? $categories['watercolor']->id ?? null,
+            'rysunek' => $categories['rysunek']->id ?? $categories['drawing']->id ?? null,
         ];
 
         foreach ($galleryData as $sortOrder => $art) {
@@ -356,12 +360,246 @@ class HelloKostekSeeder extends Seeder
                 [
                     'category_id' => $catId,
                     'title' => ['pl' => $art['title'], 'en' => ''],
-                    'technique' => ['pl' => $art['technique'], 'en' => ''],
+                    'technique' => $art['technique'],
                     'year' => $art['year'],
                     'image_path' => $art['imageUrl'],
                     'original_url' => $art['originalUrl'],
                     'is_active' => true,
                     'sort_order' => $sortOrder * 10,
+                ]
+            );
+        }
+
+        // 4. OPINIE KLIENCKIE (ProductReview dla strony głównej)
+        $testimonials = [
+            [
+                'stars' => 5,
+                'text' => '„Hej! Mama jest zachwycona! Co się patrzy to się uśmiecha. Roześmiała się jak zobaczyła i powiedziała, że idealnie odwzorowane!”',
+                'author' => 'Kasia',
+                'meta' => 'Portret z trzema psami',
+                'emoji' => '🐶',
+            ],
+            [
+                'stars' => 5,
+                'text' => '„Gdy wręczyłem prezent to złożyłem życzenia od ciebie Tata bardzo Cię pozdrawia i jest 🙂 wzruszony prezentem. Bardzo lubi Twoją twórczość Jesteś gość ! Tak powiedział. 🙂”',
+                'author' => 'Kamil',
+                'meta' => 'Portret taty',
+                'emoji' => '🙂',
+            ],
+            [
+                'stars' => 5,
+                'text' => '„Kubeczki zamówione dla siostrzeńców rok temu nadal świetnie się myją, wzory nie znikają, a siostrzeńcy uwielbiają spersonalizowane kubki ze swoimi ulubionymi bohaterami Dodatkowo, ❤ wszystkie wytwory szydełkowe jakie wychodzą spod rąk Maćka są zawsze świetnej jakości, solidnie wykonane i przede wszystkim przytulaśne. Obrazy najchętniej powiesiłabym u siebie na ścianie. Generalnie polecam tego Pana, to bardzo solidna firma!”',
+                'author' => 'Wiola',
+                'meta' => 'O różnych produktach hellokostek',
+                'emoji' => '❤️',
+            ],
+            [
+                'stars' => 5,
+                'text' => '„Hej, cieszę się, że zamówiłam u Ciebie ten portret, wszedł bardzo ładnie. I sprawił dużo radości rodzinie, do której trafił. Miałam Ci przysłać zdjęcie, jak wygląda oprawiony, ale jednak zrezygnowałam z oprawy - dobrze się prezentuje bez ramy.”',
+                'author' => 'Maria',
+                'meta' => 'Portret dzieci',
+                'emoji' => '🖼️',
+            ],
+            [
+                'stars' => 5,
+                'text' => '„Super jest Przepięknie . 🥰 😍😍”',
+                'author' => 'Lucia',
+                'meta' => 'Portret córek',
+                'emoji' => '🥰',
+            ],
+            [
+                'stars' => 5,
+                'text' => '„Jaki Ty zdolny jesteś!!!!”',
+                'author' => 'Dorota',
+                'meta' => 'Opinia ogólna',
+                'emoji' => '✨',
+            ],
+            [
+                'stars' => 5,
+                'text' => '„cześć, bardzo podobał mi się rysunek. Chętnie bym kupił dwa obrazy. Masz talent! Pozdrawiam. ”',
+                'author' => 'Krzysiek',
+                'meta' => 'O rysunkach',
+                'emoji' => '🎨',
+            ],
+        ];
+
+        foreach ($testimonials as $t) {
+            \App\Models\ProductReview::query()->updateOrCreate(
+                ['customer_name' => $t['author'], 'comment' => $t['text']],
+                [
+                    'customer_email' => strtolower(Str::slug($t['author'])) . '@klient.hellokostek.pl',
+                    'rating' => $t['stars'],
+                    'meta' => $t['meta'],
+                    'emoji' => $t['emoji'],
+                    'status' => 'publiczny',
+                    'is_approved' => true,
+                    'is_verified_purchase' => true,
+                ]
+            );
+        }
+
+        // 5. STRONY TREŚCI (ContentPage - Regulamin i Polityka Prywatności)
+        \App\Models\ContentPage::query()->updateOrCreate(
+            ['slug' => 'regulamin'],
+            [
+                'title' => ['pl' => 'Regulamin Sklepu'],
+                'excerpt' => ['pl' => 'Zasady korzystania ze sklepu Hello Kostek, składania zamówień oraz prawa konsumenta.'],
+                'template' => 'legal',
+                'seo_title' => 'Regulamin Sklepu | Hello Kostek',
+                'seo_description' => 'Oficjalny regulamin sklepu internetowego Hello Kostek. Zasady sprzedaży obrazów i dzieł sztuki.',
+                'is_active' => true,
+                'published_at' => now(),
+                'metadata' => [
+                    'sections' => [
+                        [
+                            'label' => '§ 1. Postanowienia ogólne',
+                            'id' => 'postanowienia-ogolne',
+                            'content' => '<p>Niniejszy Regulamin określa zasady korzystania ze sklepu internetowego Hello Kostek prowadzonego przez Macieja Kostka.</p><p>Sklep prowadzi sprzedaż autorskich dzieł sztuki, obrazów olejnych, akrylowych, akwareli, rysunków oraz spersonalizowanych rękodzieł.</p>'
+                        ],
+                        [
+                            'label' => '§ 2. Definicje przedmiotów',
+                            'id' => 'definicje',
+                            'content' => '<p>Oryginał – unikatowe dzieło sztuki wykonane własnoręcznie przez artystę.</p><p>Reprodukcja (Wydruk) – wysokiej jakości wydruk cyfrowy na papierze artystycznym archiwalnym.</p>'
+                        ],
+                        [
+                            'label' => '§ 3. Składanie zamówień',
+                            'id' => 'skladanie-zamowien',
+                            'content' => '<p>Zamówienia można składać całą dobę poprzez formularz zamówienia w sklepie internetowym.</p>'
+                        ],
+                        [
+                            'label' => '§ 4. Ceny i płatności',
+                            'id' => 'ceny-i-platnosci',
+                            'content' => '<p>Ceny podane w Sklepie są cenami brutto wyrażonymi w złotych polskich (PLN).</p><p>Dostępne metody płatności: BLIK, szybkie przelewy Przelewy24, karty płatnicze Stripe oraz tradycyjny przelew bankowy.</p>'
+                        ],
+                        [
+                            'label' => '§ 5. Dostawa i wysyłka',
+                            'id' => 'dostawa',
+                            'content' => '<p>Wysyłka realizowana jest na terenie Polski za pośrednictwem Paczkomatów InPost oraz kuriera.</p>'
+                        ],
+                        [
+                            'label' => '§ 6. Prawo do zwrotu',
+                            'id' => 'zwroty-i-odstapienie',
+                            'content' => '<p>Konsument ma prawo odstąpić od umowy w terminie 14 dni bez podania przyczyny.</p><p>Prawo do zwrotu nie dotyczy produktów wykonanych na indywidualne zamówienie (np. spersonalizowane portrety na zamówienie).</p>'
+                        ],
+                        [
+                            'label' => '§ 7. Reklamacje',
+                            'id' => 'reklamacje',
+                            'content' => '<p>W przypadku stwierdzenia wady towaru kupujący ma prawo złożyć reklamację drogą mailową na kontakt@hellokostek.pl.</p>'
+                        ],
+                        [
+                            'label' => '§ 8. Prawa autorskie',
+                            'id' => 'prawa-autorskie',
+                            'content' => '<p>Wszystkie prezentowane prace i dzieła sztuki są chronione prawem autorskim. Zakup oryginału lub reprodukcji nie oznacza przeniesienia autorskich praw majątkowych ani prawa do dalszego powielania.</p>'
+                        ],
+                        [
+                            'label' => '§ 9. Rozpatrywanie sporów',
+                            'id' => 'pozasadowe-rozwiazywanie-sporow',
+                            'content' => '<p>Kupujący będący konsumentem ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń.</p>'
+                        ],
+                        [
+                            'label' => '§ 10. Postanowienia końcowe',
+                            'id' => 'postanowienia-koncowe',
+                            'content' => '<p>Regulamin wchodzi w życie z dniem publikacji na stronie sklepu. Artysta zastrzega sobie prawo do zmiany regulaminu z zachowaniem praw nabytych kupujących.</p>'
+                        ]
+                    ]
+                ]
+            ]
+        );
+
+        \App\Models\ContentPage::query()->updateOrCreate(
+            ['slug' => 'polityka-prywatnosci'],
+            [
+                'title' => ['pl' => 'Polityka Prywatności i Cookies'],
+                'excerpt' => ['pl' => 'Zasady przetwarzania danych osobowych (RODO) oraz wykorzystywania plików cookies.'],
+                'template' => 'legal',
+                'seo_title' => 'Polityka Prywatności | Hello Kostek',
+                'seo_description' => 'Informacje o przetwarzaniu danych osobowych (RODO) oraz polityce plików cookies sklepu Hello Kostek.',
+                'is_active' => true,
+                'published_at' => now(),
+                'metadata' => [
+                    'sections' => [
+                        [
+                            'label' => '§ 1. Postanowienia ogólne',
+                            'id' => 'postanowienia-ogolne',
+                            'content' => '<p>Administratorem danych osobowych jest Maciej Kostek prowadzący działalność pod marką Hello Kostek.</p>'
+                        ],
+                        [
+                            'label' => '§ 2. Cele i podstawy prawne',
+                            'id' => 'cele-i-podstawy-przetwarzania',
+                            'content' => '<p>Dane osobowe przetwarzane są w celu realizacji zamówień, obsługi zapytań kontaktowych oraz spełnienia obowiązków podatkowo-księgowych.</p>'
+                        ],
+                        [
+                            'label' => '§ 3. Odbiorcy danych',
+                            'id' => 'odbiorcy-danych',
+                            'content' => '<p>Odbiorcami danych są podmioty świadczące usługi dostawy (InPost), bramki płatności (Przelewy24, Stripe) oraz dostawcy usług IT.</p>'
+                        ],
+                        [
+                            'label' => '§ 4. Twoje prawa (RODO)',
+                            'id' => 'prawa-uzytkownikow',
+                            'content' => '<p>Każda osoba ma prawo do dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz wniesienia sprzeciwu.</p>'
+                        ],
+                        [
+                            'label' => '§ 5. Pliki cookies',
+                            'id' => 'pliki-cookies',
+                            'content' => '<p>Strona wykorzystuje pliki cookies w celu zapewnienia prawidłowego działania koszyka i sesji oraz w celach analitycznych.</p>'
+                        ],
+                        [
+                            'label' => '§ 6. Dyrektywa Omnibus',
+                            'id' => 'profilowanie-i-omnibus',
+                            'content' => '<p>Ceny prezentowane w sklepie spełniają wymogi dyrektywy Omnibus. Nie stosujemy automatycznego profilowania cen na podstawie historii przeglądania.</p>'
+                        ],
+                        [
+                            'label' => '§ 7. Postanowienia końcowe',
+                            'id' => 'postanowienia-koncowe',
+                            'content' => '<p>W sprawach nieuregulowanych polityką stosuje się przepisy RODO i polskiego prawa o ochronie danych osobowych.</p>'
+                        ]
+                    ]
+                ]
+            ]
+        );
+
+        // 6. CZĘSTO ZADAWANE PYTANIA (FAQ)
+        $faqItems = [
+            [
+                'question' => 'Jak zamawiać obraz na indywidualne zamówienie lub portret ze zdjęcia?',
+                'answer' => '<p>Wystarczy wypełnić <strong>formularz kontaktowy</strong> na stronie lub wysłać wiadomość ze zdjęciem referencyjnym. Po ustaleniu wymiaru, techniki (olej, akryl, akwarela, rysunek) oraz kompozycji, przygotuję dla Ciebie wycenę i prześlę wstępne propozycje.</p>',
+                'group_name' => 'Zamówienia indywidualne',
+                'sort_order' => 10,
+            ],
+            [
+                'question' => 'Jak zabezpieczane są obrazy i rysunki podczas transportu?',
+                'answer' => '<p>Każde dzieło traktuję wyjątkowo! Obrazy na płótnie pakuję w narożniki ochronne, folię bąbelkową i grube kartony malarskie. Akwarele i rysunki zabezpieczam na płasko przekładkami bezkwasowymi i sztywną tekturą, dzięki czemu przesyłka dociera w nienaruszonym stanie.</p>',
+                'group_name' => 'Wysyłka i opakowanie',
+                'sort_order' => 20,
+            ],
+            [
+                'question' => 'Czy obrazy sprzedawane są z ramą?',
+                'answer' => '<p>Większość obrazów olejnych i akrylowych na płótnie posiada estetycznie zamalowane krawędzie i jest <strong>gotowa do powieszenia</strong> bez dodatkowej ramy. W opisach poszczególnych prac zawsze znajdziesz dokładną informację o oprawie.</p>',
+                'group_name' => 'Oprawa i prezentacja',
+                'sort_order' => 30,
+            ],
+            [
+                'question' => 'Jaki jest czas dostawy gotowych prac oraz zamówień dedykowanych?',
+                'answer' => '<p>Prace z gotowej kolekcji wysyłam zazwyczaj w ciągu <strong>24–48 godzin</strong>. Czas wykonania portretu na zamówienie wynosi zazwyczaj od 7 do 14 dni roboczych, w zależności od wybranej techniki i czasochłonności.</p>',
+                'group_name' => 'Czas realizacji',
+                'sort_order' => 40,
+            ],
+            [
+                'question' => 'Jak odpowiednio dbać o akwarele i obrazy olejne?',
+                'answer' => '<p>Prace wykonane w technice akwarelowej warto oprawić za szkłem (najlepiej z passe-partout) i unikać eksponowania ich na bezpośrednie promienie słoneczne. Obrazy olejne i akrylowe są zabezpieczone profesjonalnym werniksem – do ich pielęgnacji wystarczy sucha, miękka szmatka z mikrofibry.</p>',
+                'group_name' => 'Pielęgnacja',
+                'sort_order' => 50,
+            ],
+        ];
+
+        foreach ($faqItems as $item) {
+            \App\Models\FaqItem::query()->updateOrCreate(
+                ['question' => $item['question']],
+                [
+                    'answer' => $item['answer'],
+                    'group_name' => $item['group_name'],
+                    'sort_order' => $item['sort_order'],
+                    'is_active' => true,
                 ]
             );
         }

@@ -28,7 +28,7 @@ class ProductAttributesTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label('Adres URL (slug)')
                     ->color('gray')
                     ->searchable(),
                 TextColumn::make('value_type')

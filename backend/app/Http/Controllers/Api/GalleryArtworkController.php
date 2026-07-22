@@ -13,6 +13,7 @@ class GalleryArtworkController extends Controller
     public function __invoke(): JsonResponse
     {
         $items = GalleryArtwork::query()
+            ->with('category')
             ->active()
             ->orderBy('sort_order')
             ->orderBy('id')
@@ -23,7 +24,9 @@ class GalleryArtworkController extends Controller
                 'items' => $items->map(fn (GalleryArtwork $item): array => [
                     'id' => 'gallery-' . $item->id,
                     'title' => $item->title,
-                    'technique' => $item->technique,
+                    'category' => $item->category?->name,
+                    'category_slug' => $item->category?->slug,
+                    'category_id' => $item->category_id,
                     'year' => $item->year,
                     'image_url' => PublicMediaUrl::resolve($item->image_path),
                     'original_url' => $item->original_url

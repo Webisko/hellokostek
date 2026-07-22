@@ -7,11 +7,11 @@ function mapProduct(apiProduct: any): Product {
   const originalVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-OR'));
   const printVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-PR'));
 
-  let category: 'watercolor' | 'drawing' = 'watercolor';
+  let category: 'akwarela' | 'rysunek' = 'akwarela';
   if (apiProduct.categories && apiProduct.categories.length > 0) {
     const catSlug = apiProduct.categories[0].slug;
-    if (catSlug === 'watercolor' || catSlug === 'drawing') {
-      category = catSlug;
+    if (catSlug === 'akwarela' || catSlug === 'rysunek' || catSlug === 'watercolor' || catSlug === 'drawing') {
+      category = catSlug === 'watercolor' ? 'akwarela' : catSlug === 'drawing' ? 'rysunek' : catSlug;
     }
   }
 

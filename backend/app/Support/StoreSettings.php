@@ -52,12 +52,12 @@ class StoreSettings
 
     public function freeShippingThreshold(): int
     {
-        return (int) $this->model()->free_shipping_threshold;
+        return (int) ($this->model()->free_shipping_threshold ?? PHP_INT_MAX);
     }
 
     public function wholesaleMinimumRegularPriceMultiplier(): float
     {
-        return (float) $this->model()->wholesale_minimum_regular_price_multiplier;
+        return (float) ($this->model()->wholesale_minimum_regular_price_multiplier ?? 0.0);
     }
 
     public function allowGuestCheckout(): bool
@@ -67,7 +67,7 @@ class StoreSettings
 
     public function codOnlyMethod(): ?string
     {
-        return $this->model()->cod_only_method;
+        return $this->model()->cod_only_method ?? null;
     }
 
     public function shippingMethods(): array
@@ -419,15 +419,22 @@ class StoreSettings
         $groups = data_get($this->model()->metadata, 'navigation_groups');
         if (! is_array($groups) || empty($groups)) {
             return [
-                'Sprzedaż & Zapytania',
-                'Oferta & Galeria',
-                'System & Ustawienia',
+                'Sprzedaż & zapytania',
+                'Produkty & sklep',
+                'Strona & wygląd',
+                'Analityka & system',
             ];
         }
 
         return collect($groups)
             ->sortBy('sort_order')
             ->pluck('name')
+            ->map(fn ($name) => match ($name) {
+                'Sprzedaż & Zapytania' => 'Sprzedaż & zapytania',
+                'Oferta & galeria', 'Oferta & Galeria' => 'Produkty & sklep',
+                'System & ustawienia', 'System & Ustawienia' => 'Analityka & system',
+                default => $name,
+            })
             ->all();
     }
 
@@ -488,9 +495,9 @@ class StoreSettings
                 'media_responsive_widths' => '360,720,1200',
                 'admin_brand_name' => 'Hello Kostek CMS',
                 'navigation_groups' => [
-                    ['name' => 'Sprzedaż & Zapytania', 'label' => 'Sprzedaż & Zapytania', 'sort_order' => 10],
-                    ['name' => 'Oferta & Galeria', 'label' => 'Oferta & Galeria', 'sort_order' => 20],
-                    ['name' => 'System & Ustawienia', 'label' => 'System & Ustawienia', 'sort_order' => 30],
+                    ['name' => 'Sprzedaż & zapytania', 'label' => 'Sprzedaż & zapytania', 'sort_order' => 10],
+                    ['name' => 'Oferta & galeria', 'label' => 'Oferta & galeria', 'sort_order' => 20],
+                    ['name' => 'System & ustawienia', 'label' => 'System & ustawienia', 'sort_order' => 30],
                 ],
             ],
         ];
@@ -531,19 +538,36 @@ class StoreSettings
 
     public function resourceNavigationGroup(string $resource, ?string $default): ?string
     {
+        if ($resource === 'MediaResource') {
+            return 'Strona & wygląd';
+        }
         $config = $this->resourceNavigationConfig($resource);
         $groupKey = data_get($config, 'group', $default);
+        if ($groupKey) {
+            $groupKey = match ($groupKey) {
+                'Sprzedaż & Zapytania' => 'Sprzedaż & zapytania',
+                'Oferta & galeria', 'Oferta & Galeria' => 'Produkty & sklep',
+                'System & ustawienia', 'System & Ustawienia' => 'Analityka & system',
+                default => $groupKey,
+            };
+        }
         return $groupKey ? $this->navigationGroupLabel($groupKey) : null;
     }
 
     public function resourceNavigationSort(string $resource, ?int $default): ?int
     {
+        if ($resource === 'MediaResource') {
+            return 20;
+        }
         $config = $this->resourceNavigationConfig($resource);
         return data_get($config, 'sort_order') !== null ? (int) data_get($config, 'sort_order') : $default;
     }
 
     public function resourceNavigationVisible(string $resource, bool $default): bool
     {
+        if ($resource === 'MediaResource') {
+            return true;
+        }
         $config = $this->resourceNavigationConfig($resource);
         return data_get($config, 'visible') !== null ? (bool) data_get($config, 'visible') : $default;
     }
@@ -567,37 +591,40 @@ class StoreSettings
     public function defaultResourcesNavigation(): array
     {
         return [
-            // Sprzedaż & Zapytania
-            ['resource' => 'ContactInquiryResource', 'label' => 'Zapytania o portrety', 'group' => 'Sprzedaż & Zapytania', 'sort_order' => 10, 'visible' => true],
-            ['resource' => 'OrderResource', 'label' => 'Zamówienia', 'group' => 'Sprzedaż & Zapytania', 'sort_order' => 20, 'visible' => true],
-            ['resource' => 'InvoiceResource', 'label' => 'Faktury', 'group' => 'Sprzedaż & Zapytania', 'sort_order' => 30, 'visible' => true],
-            ['resource' => 'OrderReturnResource', 'label' => 'Zwroty', 'group' => 'Sprzedaż & Zapytania', 'sort_order' => 40, 'visible' => true],
-            ['resource' => 'CouponResource', 'label' => 'Kupony rabatowe', 'group' => 'Sprzedaż & Zapytania', 'sort_order' => 50, 'visible' => true],
+            // Sprzedaż & zapytania
+            ['resource' => 'OrderResource', 'label' => 'Zamówienia', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 10, 'visible' => true],
+            ['resource' => 'ContactInquiryResource', 'label' => 'Zapytania', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 20, 'visible' => true],
+            ['resource' => 'InvoiceResource', 'label' => 'Faktury', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 30, 'visible' => true],
+            ['resource' => 'OrderReturnResource', 'label' => 'Zwroty', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 40, 'visible' => true],
+            ['resource' => 'CouponResource', 'label' => 'Kupony rabatowe', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 50, 'visible' => true],
 
-            // Oferta & Galeria
-            ['resource' => 'ProductResource', 'label' => 'Produkty i Prace', 'group' => 'Oferta & Galeria', 'sort_order' => 10, 'visible' => true],
-            ['resource' => 'GalleryArtworkResource', 'label' => 'Galeria', 'group' => 'Oferta & Galeria', 'sort_order' => 20, 'visible' => true],
-            ['resource' => 'ProductCategoryResource', 'label' => 'Kategorie', 'group' => 'Oferta & Galeria', 'sort_order' => 30, 'visible' => true],
-            ['resource' => 'ContentPageResource', 'label' => 'Strony', 'group' => 'Oferta & Galeria', 'sort_order' => 40, 'visible' => true],
-            ['resource' => 'ProductReviewResource', 'label' => 'Opinie', 'group' => 'Oferta & Galeria', 'sort_order' => 50, 'visible' => true],
+            // Produkty & sklep
+            ['resource' => 'ProductResource', 'label' => 'Produkty', 'group' => 'Produkty & sklep', 'sort_order' => 10, 'visible' => true],
+            ['resource' => 'ProductCategoryResource', 'label' => 'Kategorie', 'group' => 'Produkty & sklep', 'sort_order' => 20, 'visible' => true],
+            ['resource' => 'ProductReviewResource', 'label' => 'Opinie', 'group' => 'Produkty & sklep', 'sort_order' => 30, 'visible' => true],
 
-            // System & Ustawienia
-            ['resource' => 'StoreSettingResource', 'label' => 'Ustawienia sklepu', 'group' => 'System & Ustawienia', 'sort_order' => 10, 'visible' => true],
-            ['resource' => 'UserResource', 'label' => 'Użytkownicy', 'group' => 'System & Ustawienia', 'sort_order' => 20, 'visible' => true],
+            // Strona & wygląd
+            ['resource' => 'GalleryArtworkResource', 'label' => 'Galeria', 'group' => 'Strona & wygląd', 'sort_order' => 10, 'visible' => true],
+            ['resource' => 'MediaResource', 'label' => 'Multimedia', 'group' => 'Strona & wygląd', 'sort_order' => 20, 'visible' => true],
+            ['resource' => 'ContentPageResource', 'label' => 'Strony', 'group' => 'Strona & wygląd', 'sort_order' => 30, 'visible' => true],
+
+            // Analityka & system
+            ['resource' => 'StoreSettingResource', 'label' => 'Ustawienia', 'group' => 'Analityka & system', 'sort_order' => 20, 'visible' => true],
+            ['resource' => 'UserResource', 'label' => 'Użytkownicy', 'group' => 'Analityka & system', 'sort_order' => 30, 'visible' => true],
 
             // Wyłączone z nawigacji
-            ['resource' => 'FaqItemResource', 'label' => 'FAQ', 'group' => 'Oferta & Galeria', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'CustomerResource', 'label' => 'Klienci', 'group' => 'Sprzedaż & Zapytania', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'ProductAttributeResource', 'label' => 'Atrybuty produktów', 'group' => 'Oferta & Galeria', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'BackInStockSubscriptionResource', 'label' => 'Powiadomienia o dostępności', 'group' => 'Oferta & Galeria', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'AbandonedCartResource', 'label' => 'Porzucone koszyki', 'group' => 'Sprzedaż & Zapytania', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'EmailTemplateResource', 'label' => 'Szablony wiadomości', 'group' => 'System & Ustawienia', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'AdminActivityLogResource', 'label' => 'Dziennik aktywności', 'group' => 'System & Ustawienia', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'IntegrationLogResource', 'label' => 'Dziennik integracji', 'group' => 'System & Ustawienia', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'TransactionalEmailLogResource', 'label' => 'Wysłane e-maile', 'group' => 'System & Ustawienia', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'CookieConsentResource', 'label' => 'Zgody na ciasteczka', 'group' => 'System & Ustawienia', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'RedirectRuleResource', 'label' => 'Przekierowania', 'group' => 'System & Ustawienia', 'sort_order' => 100, 'visible' => false],
-            ['resource' => 'FailedJobResource', 'label' => 'Nieudane zadania', 'group' => 'System & Ustawienia', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'FaqItemResource', 'label' => 'FAQ', 'group' => 'Strona & wygląd', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'CustomerResource', 'label' => 'Klienci', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'ProductAttributeResource', 'label' => 'Atrybuty produktów', 'group' => 'Produkty & sklep', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'BackInStockSubscriptionResource', 'label' => 'Powiadomienia o dostępności', 'group' => 'Produkty & sklep', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'AbandonedCartResource', 'label' => 'Porzucone koszyki', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'EmailTemplateResource', 'label' => 'Szablony wiadomości', 'group' => 'Analityka & system', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'AdminActivityLogResource', 'label' => 'Dziennik zmian', 'group' => 'Analityka & system', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'IntegrationLogResource', 'label' => 'Integracje i webhooki', 'group' => 'Analityka & system', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'TransactionalEmailLogResource', 'label' => 'Wysłane e-maile', 'group' => 'Analityka & system', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'CookieConsentResource', 'label' => 'Zgody na cookies', 'group' => 'Analityka & system', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'RedirectRuleResource', 'label' => 'Przekierowania', 'group' => 'Analityka & system', 'sort_order' => 100, 'visible' => false],
+            ['resource' => 'FailedJobResource', 'label' => 'Nieudane zadania', 'group' => 'Analityka & system', 'sort_order' => 100, 'visible' => false],
         ];
     }
 }

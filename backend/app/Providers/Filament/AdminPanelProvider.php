@@ -75,6 +75,9 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->navigationGroups(app(\App\Support\StoreSettings::class)->navigationGroups())
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->resources([
+                \App\Filament\Resources\MediaResource\MediaResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 StoreDashboard::class,

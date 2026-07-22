@@ -14,8 +14,18 @@ class EditCoupon extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            $this->getSaveFormAction()
+                ->label('Zapisz')
+                ->icon('heroicon-o-check'),
+            $this->getCancelFormAction()
+                ->label('Anuluj'),
             ViewAction::make(),
             DeleteAction::make(),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 }

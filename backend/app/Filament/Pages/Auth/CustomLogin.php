@@ -14,7 +14,7 @@ class CustomLogin extends BaseLogin
 
         if (app()->environment('local')) {
             $this->form->fill([
-                'email' => 'admin@genericshop.local',
+                'email' => 'admin@hellokostek.pl',
                 'password' => 'Admin1234!',
                 'remember' => true,
             ]);

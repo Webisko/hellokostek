@@ -33,9 +33,9 @@ class FaqItemResource extends Resource
 
     protected static ?string $slug = 'faq';
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & Galeria';
+    protected static \UnitEnum|string|null $navigationGroup = 'Strony & wygląd';
 
     protected static ?int $navigationSort = 3;
 

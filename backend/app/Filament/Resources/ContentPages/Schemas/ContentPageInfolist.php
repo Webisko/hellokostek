@@ -16,7 +16,7 @@ class ContentPageInfolist
                 ->columns(3)
                 ->schema([
                     TextEntry::make('title')->label('Tytul'),
-                    TextEntry::make('slug')->label('Slug'),
+                    TextEntry::make('slug')->label('Adres URL (slug)'),
                     TextEntry::make('template')->label('Szablon'),
                     TextEntry::make('is_active')
                         ->label('Aktywna')

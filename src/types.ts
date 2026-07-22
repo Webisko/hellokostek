@@ -6,16 +6,17 @@ export interface GalleryArtwork {
   year: string;
   imageUrl: string;
   originalUrl?: string;
-  technique: "olej" | "akwarela" | "akryl" | "rysunek";
+  category?: string;
+  categorySlug?: string;
 }
 
 export interface Product {
   id: string;
   title: string;
   year: string;
-  category: "watercolor" | "drawing" | "custom_portrait";
+  category: "akwarela" | "rysunek" | "custom_portrait";
   originalPrice: number;
-  printPrice?: number; // 30 PLN for watercolor prints, 20 PLN for drawing prints
+  printPrice?: number; // 30 PLN dla akwareli, 20 PLN dla rysunków
   isOriginalAvailable: boolean;
   imageUrl: string;
   originalPageUrl?: string;
@@ -29,7 +30,7 @@ export interface CartItem {
   cartId: string;
   productId: string;
   title: string;
-  category: "watercolor" | "drawing" | "custom_portrait";
+  category: "akwarela" | "rysunek" | "custom_portrait";
   purchaseType: "original" | "print";
   price: number;
   quantity: number;

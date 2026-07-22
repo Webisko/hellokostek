@@ -56,20 +56,11 @@ class GalleryArtworkForm
                                         ->label('Tytuł')
                                         ->required()
                                         ->maxLength(255),
-                                    TextInput::make('technique.pl')
-                                        ->label('Technika')
-                                        ->required()
-                                        ->placeholder('np. olej, akwarela, rysunek')
-                                        ->maxLength(255),
                                 ]),
                             Tabs\Tab::make('English')
                                 ->schema([
                                     TextInput::make('title.en')
                                         ->label('Title (EN)')
-                                        ->maxLength(255),
-                                    TextInput::make('technique.en')
-                                        ->label('Technique (EN)')
-                                        ->placeholder('np. oil, watercolor, drawing')
                                         ->maxLength(255),
                                 ]),
                         ])

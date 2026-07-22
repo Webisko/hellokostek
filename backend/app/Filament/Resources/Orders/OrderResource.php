@@ -32,8 +32,8 @@ class OrderResource extends Resource
     protected static ?string $modelLabel = 'zamówienie';
     protected static ?string $pluralModelLabel = 'zamówienia';
     protected static ?string $navigationLabel = 'Zamówienia';
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & Zapytania';
-    protected static ?int $navigationSort = 1;
+    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $recordTitleAttribute = 'number';
 

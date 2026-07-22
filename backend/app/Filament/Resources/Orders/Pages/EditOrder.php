@@ -16,8 +16,18 @@ class EditOrder extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            $this->getSaveFormAction()
+                ->label('Zapisz')
+                ->icon('heroicon-o-check'),
+            $this->getCancelFormAction()
+                ->label('Anuluj'),
             ViewAction::make(),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 
     protected function mutateFormDataBeforeSave(array $data): array

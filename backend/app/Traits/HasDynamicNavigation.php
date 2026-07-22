@@ -3,9 +3,20 @@
 namespace App\Traits;
 
 use App\Support\StoreSettings;
+use Illuminate\Support\Str;
 
 trait HasDynamicNavigation
 {
+    public static function getTitleCasePluralModelLabel(): string
+    {
+        return Str::ucfirst(static::getPluralModelLabel());
+    }
+
+    public static function getTitleCaseModelLabel(): string
+    {
+        return Str::ucfirst(static::getModelLabel());
+    }
+
     public static function getNavigationLabel(): string
     {
         $default = static::$navigationLabel ?? parent::getNavigationLabel();

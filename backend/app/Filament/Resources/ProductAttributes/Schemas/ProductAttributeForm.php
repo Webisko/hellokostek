@@ -34,7 +34,7 @@ class ProductAttributeForm
                                 $set('slug', Str::slug((string) $state));
                             }),
                         TextInput::make('slug')
-                            ->label('Slug')
+                            ->label('Adres URL (slug)')
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),

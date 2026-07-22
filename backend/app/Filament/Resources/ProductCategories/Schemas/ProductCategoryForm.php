@@ -24,7 +24,7 @@ class ProductCategoryForm
                     ->columns(2)
                     ->schema([
                         TextInput::make('slug')
-                            ->label('Slug')
+                            ->label('Adres URL (slug)')
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),

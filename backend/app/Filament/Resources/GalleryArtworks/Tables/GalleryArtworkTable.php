@@ -36,11 +36,6 @@ class GalleryArtworkTable
                     ->color('info')
                     ->sortable(),
 
-                TextColumn::make('technique')
-                    ->label('Technika')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('year')
                     ->label('Rok')
                     ->sortable(),

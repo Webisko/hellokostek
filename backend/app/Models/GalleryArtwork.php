@@ -11,7 +11,7 @@ class GalleryArtwork extends Model
 {
     use HasFactory, HasTranslations;
 
-    public array $translatable = ['title', 'technique'];
+    public array $translatable = ['title'];
 
     protected $fillable = [
         'category_id',

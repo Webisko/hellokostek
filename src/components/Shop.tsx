@@ -8,11 +8,11 @@ function mapProduct(apiProduct: any): Product {
   const originalVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-OR'));
   const printVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-PR'));
 
-  let category: 'watercolor' | 'drawing' = 'watercolor';
+  let category: 'akwarela' | 'rysunek' = 'akwarela';
   if (apiProduct.categories && apiProduct.categories.length > 0) {
     const catSlug = apiProduct.categories[0].slug;
-    if (catSlug === 'watercolor' || catSlug === 'drawing') {
-      category = catSlug;
+    if (catSlug === 'akwarela' || catSlug === 'rysunek' || catSlug === 'watercolor' || catSlug === 'drawing') {
+      category = catSlug === 'watercolor' ? 'akwarela' : catSlug === 'drawing' ? 'rysunek' : catSlug;
     }
   }
 
@@ -35,7 +35,7 @@ function mapProduct(apiProduct: any): Product {
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>(SHOP_PRODUCTS);
-  const [activeCategory, setActiveCategory] = useState<"all" | "watercolor" | "drawing" | "prints">("all");
+  const [activeCategory, setActiveCategory] = useState<"all" | "akwarela" | "rysunek" | "prints">("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -74,8 +74,8 @@ export default function Shop() {
 
   const filteredProducts = products.filter((product) => {
     // Category filter logic
-    if (activeCategory === "watercolor" && product.category !== "watercolor") return false;
-    if (activeCategory === "drawing" && product.category !== "drawing") return false;
+    if (activeCategory === "akwarela" && product.category !== "akwarela") return false;
+    if (activeCategory === "rysunek" && product.category !== "rysunek") return false;
     if (activeCategory === "prints" && !product.printPrice) return false;
 
     return true;
@@ -134,8 +134,8 @@ export default function Shop() {
         <div className="flex flex-wrap items-center justify-start gap-3 w-auto">
           {[
             { id: "all", label: "Wszystkie Archiwa" },
-            { id: "watercolor", label: "Oryginalne Akwarele (300 zł)" },
-            { id: "drawing", label: "Rysunki Ołówkiem (200 zł)" },
+            { id: "akwarela", label: "Oryginalne Akwarele (300 zł)" },
+            { id: "rysunek", label: "Rysunki Ołówkiem (200 zł)" },
             { id: "prints", label: "Wydruki Kolekcjonerskie (20-30 zł)" }
           ].map((cat) => (
             <button
@@ -178,7 +178,7 @@ export default function Shop() {
                   
                   {/* Category Stamp */}
                   <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-gray-905 text-xs font-mono font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest border border-gray-100 shadow-xs">
-                    {product.category === "watercolor" ? "Akwarela" : "Rysunek"}
+                    {product.category === "akwarela" ? "Akwarela" : "Rysunek"}
                   </span>
 
                   {/* Year Tag */}
@@ -194,7 +194,7 @@ export default function Shop() {
                       {product.title}
                     </h3>
                     <span className="font-mono text-sm text-[#E0115F] font-bold shrink-0">
-                      od {product.category === "watercolor" ? "30 zł" : "20 zł"}
+                      od {product.category === "akwarela" ? "30 zł" : "20 zł"}
                     </span>
                   </div>
                   
@@ -248,8 +248,8 @@ export default function Shop() {
                   <div className="flex flex-col gap-2">
                     {[
                       { id: "all", label: "Wszystkie Archiwa" },
-                      { id: "watercolor", label: "Oryginalne Akwarele (300 zł)" },
-                      { id: "drawing", label: "Rysunki Ołówkiem (200 zł)" },
+                      { id: "akwarela", label: "Oryginalne Akwarele (300 zł)" },
+                      { id: "rysunek", label: "Rysunki Ołówkiem (200 zł)" },
                       { id: "prints", label: "Wydruki Kolekcjonerskie (20-30 zł)" }
                     ].map((cat) => (
                       <button

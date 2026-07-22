@@ -25,11 +25,11 @@ class IntegrationLogResource extends Resource
 
     protected static ?string $modelLabel = 'log integracji';
 
-    protected static ?string $pluralModelLabel = 'logi integracji';
+    protected static ?string $pluralModelLabel = 'integracje i webhooki';
 
     protected static ?string $navigationLabel = 'Integracje i webhooki';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'System & Ustawienia';
+    protected static \UnitEnum|string|null $navigationGroup = 'System & ustawienia';
 
     protected static ?int $navigationSort = 3;
 

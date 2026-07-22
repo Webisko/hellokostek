@@ -33,7 +33,7 @@ class ListOrders extends ListRecords
             Action::make('exportOrders')
                 ->label('Eksport CSV')
                 ->icon('heroicon-o-arrow-down-tray')
-                ->color('info')
+                ->color('lime')
                 ->url(route('admin.exports.orders'), shouldOpenInNewTab: true),
         ];
     }

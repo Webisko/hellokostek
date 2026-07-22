@@ -32,9 +32,9 @@ class ProductReviewResource extends Resource
 
     protected static ?string $navigationLabel = 'Opinie o produktach';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & Galeria';
+    protected static \UnitEnum|string|null $navigationGroup = 'Produkty & sklep';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

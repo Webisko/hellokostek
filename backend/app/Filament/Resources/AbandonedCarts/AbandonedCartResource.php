@@ -27,7 +27,7 @@ class AbandonedCartResource extends Resource
 
     protected static ?string $navigationLabel = 'Porzucone koszyki';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & Zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
 
     protected static ?int $navigationSort = 4;
 

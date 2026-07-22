@@ -19,7 +19,7 @@ class ProductAttributeInfolist
                         TextEntry::make('name')
                             ->label('Nazwa'),
                         TextEntry::make('slug')
-                            ->label('Slug'),
+                            ->label('Adres URL (slug)'),
                         TextEntry::make('value_type')
                             ->label('Typ wartosci')
                             ->formatStateUsing(fn (?string $state): string => ProductAttributeResource::valueTypeOptions()[$state] ?? (string) $state),

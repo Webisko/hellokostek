@@ -3,10 +3,10 @@ import type { Product, Testimonial } from "./types";
 export const SHOP_PRODUCTS: Product[] = [
   // --- WATERCOLORS (300 PLN Original, 30 PLN Print) ---
   {
-    id: "watercolor-2-2022",
+    id: "akwarela-2-2022",
     title: "Obiekt II",
     year: "2022",
-    category: "watercolor",
+    category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
@@ -14,10 +14,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Subtelna akwarela z cyklu badającego formę i relacje przestrzenne. Delikatne rozmycia i głębokie tony budują melancholijny, intymny nastrój idealny do sypialni lub salonu wypoczynkowego."
   },
   {
-    id: "watercolor-7-2022",
+    id: "akwarela-7-2022",
     title: "Obiekt VII",
     year: "2022",
-    category: "watercolor",
+    category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
@@ -25,10 +25,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Poruszająca kompozycja akwarelowa na grubym papierze bawełnianym. Harmoniczne zestrojenie chłodnych barw z delikatną nutą ciepła emanuje spokojem i wyciszeniem."
   },
   {
-    id: "watercolor-8-2022",
+    id: "akwarela-8-2022",
     title: "Obiekt VIII",
     year: "2022",
-    category: "watercolor",
+    category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
@@ -36,10 +36,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Kameralna praca z przewagą organicznych, miękkich kształtów. Urzekający detal, który przyciąga wzrok i zaprasza do codziennej, cichej kontemplacji."
   },
   {
-    id: "watercolor-9-2022",
+    id: "akwarela-9-2022",
     title: "Obiekt IX",
     year: "2022",
-    category: "watercolor",
+    category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
@@ -47,10 +47,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Zmysłowe, płynne przejścia akwarelowe. Praca o silnym ładunku emocjonalnym, zbalansowana lekkim tłem, która doskonale komponuje się z nowoczesnymi oraz klasycznymi wnętrzami."
   },
   {
-    id: "watercolor-13-2022",
+    id: "akwarela-13-2022",
     title: "Obiekt XIII (Sygnowany)",
     year: "2022",
-    category: "watercolor",
+    category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: false, // Only print as requested: "Dostępne są wydruki powyższych akwareli - 30 zł plus koszt wysyłki plus ta praca..."
@@ -60,10 +60,10 @@ export const SHOP_PRODUCTS: Product[] = [
 
   // --- DRAWINGS (200 PLN Original, 20 PLN Print) ---
   {
-    id: "drawing-run-2024",
+    id: "postaci-w-biegu-2024",
     title: "Postaci w biegu",
     year: "2024",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
@@ -71,10 +71,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Ekspresyjny rysunek ołówkiem rejestrujący dynamikę ludzkiego ciała, grę cieni i ruch. Nowoczesna kreska, która wnosi do wnętrza powiew energii."
   },
   {
-    id: "drawing-daily-2022",
+    id: "codziennosc-2022",
     title: "Codzienność",
     year: "2022",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
@@ -82,10 +82,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Kameralne studium chłodnej, melancholijnej codzienności. Wyjątkowo intymna kompozycja, skłaniająca do odnalezienia piękna w najprostszych, ulotnych momentach."
   },
   {
-    id: "drawing-cant-stand-2022",
+    id: "nie-wytrzymam-2022",
     title: "Nie wytrzymam",
     year: "2022",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
@@ -93,10 +93,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Poruszające personifikowanie nagromadzonych emocji za pomocą wyrazistej kreski graficznej. Głębokie kontrasty ucieleśniają wewnętrzną odporność i siłę."
   },
   {
-    id: "drawing-anxiety-2022",
+    id: "lek-2022",
     title: "Lęk",
     year: "2022",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
@@ -104,10 +104,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Delikatny, pełen czułości i zniuansowania rysunek poruszający intymny temat lęku jako części ludzkiego doświadczenia. Uniwersalna, piękna praca kolekcjonerska."
   },
   {
-    id: "drawing-isolated-10-2022",
+    id: "obiekt-wyodrebniony-10-2022",
     title: "Obiekt wyodrębniony #10",
     year: "2022",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
@@ -115,10 +115,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Minimalistyczny, surowy w formie rysunek ołówkiem skupiający się na pojedynczej bryle i cieniu. Wybitna lekcja czystej proporcji i przestrzeni."
   },
   {
-    id: "drawing-weird-feeling-2022",
+    id: "to-dziwne-uczucie-2022",
     title: "To dziwne uczucie",
     year: "2022",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
@@ -126,10 +126,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Złożony i zmysłowy rysunek, który dotyka nieuchwytnych stanów emocjonalnych. Każde pociągnięcie ołówka buduje głęboką strukturę psychologiczną postaci."
   },
   {
-    id: "drawing-escape-2022",
+    id: "ucieczka-2022",
     title: "Ucieczka",
     year: "2022",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,
@@ -137,10 +137,10 @@ export const SHOP_PRODUCTS: Product[] = [
     description: "Dynamiczny, metaforyczny rysunek ukazujący pragnienie wolności i przestrzeni. Niezwykła lekkość kompozycji idealnie ożywi minimalistyczne wnętrze."
   },
   {
-    id: "drawing-fear-2022",
+    id: "strach-2022",
     title: "Strach",
     year: "2022",
-    category: "drawing",
+    category: "rysunek",
     originalPrice: 200,
     printPrice: 20,
     isOriginalAvailable: true,

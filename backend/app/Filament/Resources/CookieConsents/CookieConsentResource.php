@@ -25,11 +25,11 @@ class CookieConsentResource extends Resource
 
     protected static ?string $modelLabel = 'log zgody cookies';
 
-    protected static ?string $pluralModelLabel = 'logi zgód cookies';
+    protected static ?string $pluralModelLabel = 'zgody na cookies';
 
     protected static ?string $navigationLabel = 'Zgody na cookies';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'System & Ustawienia';
+    protected static \UnitEnum|string|null $navigationGroup = 'System & ustawienia';
 
     protected static ?int $navigationSort = 5;
 

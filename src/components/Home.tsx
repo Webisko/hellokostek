@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import ProductSlider from "./ProductSlider";
 import Testimonials from "./Testimonials";
+import FaqSection from "./FaqSection";
 import {
   ArrowRight,
   ArrowLeft,
@@ -483,6 +484,8 @@ export default function Home() {
       </section>
 
       <ProductSlider />
+
+      <FaqSection />
 
       {isMounted && lightbox.isOpen && createPortal(
         <div

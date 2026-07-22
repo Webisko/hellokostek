@@ -4,7 +4,7 @@ namespace App\Filament\Resources\FaqItems\Schemas;
 
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -22,10 +22,18 @@ class FaqItemForm
                         ->required()
                         ->maxLength(255)
                         ->columnSpanFull(),
-                    Textarea::make('answer')
-                        ->label('Odpowiedz')
+                    RichEditor::make('answer')
+                        ->label('Odpowiedź (edytor WYSIWYG)')
+                        ->toolbarButtons([
+                            'bold',
+                            'italic',
+                            'link',
+                            'bulletList',
+                            'orderedList',
+                            'undo',
+                            'redo',
+                        ])
                         ->required()
-                        ->rows(8)
                         ->columnSpanFull(),
                     TextInput::make('group_name')
                         ->label('Grupa')

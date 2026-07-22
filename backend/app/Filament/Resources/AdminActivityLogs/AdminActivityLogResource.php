@@ -25,11 +25,11 @@ class AdminActivityLogResource extends Resource
 
     protected static ?string $modelLabel = 'log aktywnosci';
 
-    protected static ?string $pluralModelLabel = 'logi aktywnosci';
+    protected static ?string $pluralModelLabel = 'dziennik zmian';
 
     protected static ?string $navigationLabel = 'Dziennik zmian';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'System & Ustawienia';
+    protected static \UnitEnum|string|null $navigationGroup = 'System & ustawienia';
 
     protected static ?int $navigationSort = 2;
 

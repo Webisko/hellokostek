@@ -19,6 +19,12 @@ export default function Terms() {
   const [activeSection, setActiveSection] = useState<string>("postanowienia-ogolne");
   const [isMounted, setIsMounted] = useState(false);
   const [isTocDrawerOpen, setIsTocDrawerOpen] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string>("Czerwiec 2026 r.");
+  const [dynamicSections, setDynamicSections] = useState<{ id: string; label: string; content: string }[] | null>(null);
+
+  const activeTocSections = dynamicSections && dynamicSections.length > 0
+    ? dynamicSections.map((s) => ({ id: s.id, label: s.label }))
+    : TERMS_SECTIONS;
 
   const handleScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
@@ -32,6 +38,27 @@ export default function Terms() {
 
   useEffect(() => {
     setIsMounted(true);
+
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/content/pages/regulamin`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API network error");
+        return res.json();
+      })
+      .then((payload) => {
+        const page = payload.data?.page;
+        if (page) {
+          if (page.last_updated_formatted) {
+            setLastUpdated(`${page.last_updated_formatted} r.`);
+          }
+          if (Array.isArray(page.sections) && page.sections.length > 0) {
+            setDynamicSections(page.sections);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("Could not fetch regulamin from API, using default static content:", err);
+      });
     
     // Przewijanie do kotwicy z adresu URL po załadowaniu
     const hash = window.location.hash.replace("#", "");
@@ -81,7 +108,7 @@ export default function Terms() {
           Regulamin Sklepu Internetowego
         </h1>
         <p className="font-sans text-gray-500 text-sm mt-4">
-          Stan na: Czerwiec 2026 r.
+          Stan na: {lastUpdated}
         </p>
       </header>
 
@@ -104,229 +131,115 @@ export default function Terms() {
             Poniższy Regulamin określa zasady korzystania ze sklepu internetowego <strong>hellokostek</strong>, dostępnego pod adresem <a href="https://hellokostek.pl/" className="text-gray-900 underline hover:text-[#E0115F] transition-colors">https://hellokostek.pl/</a>, prowadzonego przez Macieja Kosteczkę.
           </p>
 
-          {/* Section 1 */}
-          <section id="postanowienia-ogolne" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <BookOpen className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 1. Postanowienia ogólne</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                1. Sklep internetowy działający pod adresem <code>https://hellokostek.pl/</code> prowadzony jest przez: <strong>hellokostek Maciej Kosteczka</strong> z siedzibą w: <strong>Rynek 33, 42-470 Siewierz, woj. śląskie, Polska</strong>, NIP: <strong>6252363656</strong>, REGON: <strong>527158196</strong>, wpisany do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), zwany dalej <strong>„Sprzedawcą”</strong>.
-              </p>
-              <p>
-                2. Dane kontaktowe ze Sprzedawcą:
-              </p>
-              <ul className="list-disc pl-6 space-y-1 text-gray-650">
-                <li>Adres e-mail: <a href="mailto:kontakt@hellokostek.pl" className="text-gray-950 font-bold hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a></li>
-                <li>Telefon: <a href="tel:+48662707153" className="text-gray-950 font-bold hover:text-[#E0115F] transition-colors">662 707 153</a></li>
-              </ul>
-              <p>
-                3. Niniejszy Regulamin określa zasady korzystania ze Sklepu, składania zamówień na gotowe prace malarskie, zasady zlecania i realizacji prac malarskich na indywidualne zamówienie, sposoby płatności, dostawy oraz procedury reklamacji i zwrotów.
-              </p>
-              <p>
-                4. Klientem Sklepu może być osoba fizyczna posiadająca pełną zdolność do czynności prawnych (w tym Konsument oraz Przedsiębiorca na prawach konsumenta) lub osoba prawna.
-              </p>
-            </div>
-          </section>
-
-          {/* Section 2 */}
-          <section id="definicje" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <Sparkles className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 2. Definicje przedmiotów sprzedaży</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                W ramach Sklepu rozróżnia się dwa rodzaje asortymentu:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-650">
-                <li>
-                  <strong>Produkt Gotowy</strong> – istniejący, fizyczny obraz (dzieło malarskie lub rysunkowe) dostępny w ofercie Sklepu, o określonych wymiarach, technice i cenie, gotowy do natychmiastowej wysyłki.
-                </li>
-                <li>
-                  <strong>Produkt na Zamówienie (Dzieło Spersonalizowane)</strong> – praca malarska (np. portret ze zdjęcia) realizowana przez artystę od podstaw na indywidualne życzenie Klienta, według jego specyfikacji (określony temat, format, paleta kolorystyczna, nadesłane zdjęcia referencyjne).
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          {/* Section 3 */}
-          <section id="skladanie-zamowien" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <FileEdit className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 3. Składanie i realizacja zamówień</h2>
-            </div>
-            <div className="space-y-6 text-sm sm:text-base">
-              <div className="space-y-2">
-                <h3 className="font-display font-bold text-gray-950 text-base">1. Zamówienia na Produkty Gotowe:</h3>
-                <p>
-                  Klient składa zamówienie poprzez dodanie wybranego obrazu do koszyka, wypełnienie formularza dostawy i kliknięcie przycisku finalizującego zakup. Umowa sprzedaży zostaje zawarta z chwilą otrzymania przez Klienta wiadomości e-mail potwierdzającej przyjęcie zamówienia do realizacji przez Sprzedawcę.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-display font-bold text-gray-950 text-base">2. Zamówienia na Produkty na Zamówienie (Indywidualne):</h3>
-                <p>
-                  Proces rozpoczyna się od kontaktu Klienta ze Sprzedawcą (za pomocą formularza lub e-maila) w celu przedstawienia wizji i wytycznych do obrazu. Sprzedawca dokonuje indywidualnej wyceny oraz określa szacowany termin realizacji dzieła.
-                </p>
-                <p>
-                  Akceptacja wyceny przez Klienta stanowi podstawę do wystawienia zamówienia i opłacenia zaliczki (zazwyczaj w wysokości 30% lub według indywidualnych ustaleń). Umowa o dzieło zostaje zawarta po zaksięgowaniu ustalonej wpłaty na koncie Sprzedawcy.
-                </p>
-                <p>
-                  Sprzedawca zastrzega sobie prawo do konsultowania etapów powstawania obrazu (np. szkic, podmalówka) drogą elektroniczną. Po ostatecznej akceptacji cyfrowej prezentacji gotowego obrazu przez Klienta i dopłacie pozostałej kwoty, praca jest zabezpieczana i wysyłana.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Section 4 */}
-          <section id="ceny-i-platnosci" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <CreditCard className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 4. Ceny i metody płatności</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                1. Wszystkie ceny podane w Sklepie wyrażone są w złotych polskich (PLN) i zawierają wszystkie podatki. Ceny nie zawierają kosztów dostawy, które są wskazywane w trakcie składania zamówienia.
-              </p>
-              <p>
-                2. <strong>Transparentność cen (Omnibus):</strong> W przypadku wprowadzenia promocji cenowej na gotowe dzieło, obok ceny promocyjnej Sprzedawca prezentuje najniższą cenę tego produktu, która obowiązywała w okresie 30 dni przed wprowadzeniem obniżki.
-              </p>
-              <p>
-                3. Sklep udostępnia następujące metody płatności:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-650">
-                <li>Szybkie płatności elektroniczne / BLIK / Karty płatnicze za pośrednictwem operatora: <strong>Stripe</strong>.</li>
-                <li>Tradycyjny przelew bankowy na konto Sprzedawcy podawany indywidualnie w e-mailu potwierdzającym zamówienie.</li>
-              </ul>
-            </div>
-          </section>
-
-          {/* Section 5 */}
-          <section id="dostawa" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <Truck className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 5. Dostawa i zabezpieczenie przesyłek</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                1. Dostawa realizowana jest na terytorium Rzeczypospolitej Polskiej oraz wybranych krajów za pośrednictwem wyspecjalizowanych firm kurierskich (np. <strong>InPost, DPD, DHL, UPS, Poczta Polska</strong>).
-              </p>
-              <p>
-                2. Ze względu na unikatowy i delikatny charakter przedmiotów sprzedaży, Sprzedawca zobowiązuje się do profesjonalnego zabezpieczenia obrazów na czas transportu (stosowanie folii pęcherzykowej, narożników ochronnych, sztywnego kartonu lub skrzyń).
-              </p>
-              <p>
-                3. Czas realizacji dostawy dla Produktów Gotowych wynosi zazwyczaj <strong>2-5 dni roboczych</strong>. Dla Produktów na Zamówienie czas ten jest ustalany indywidualnie w umowie (zależnie od techniki malarskiej, formatu i czasu schnięcia mediów).
-              </p>
-            </div>
-          </section>
-
-          {/* Section 6 */}
-          <section id="zwroty-i-odstapienie" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <RotateCcw className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 6. Prawo do odstąpienia od umowy (Zwroty)</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl space-y-3">
-                <div className="flex gap-2.5 items-center text-amber-800 font-bold text-sm">
-                  <AlertTriangle className="w-5 h-5 shrink-0" />
-                  <span>WAŻNE (Zróżnicowanie prawne ze względu na charakter dzieła):</span>
+          {dynamicSections && dynamicSections.length > 0 ? (
+            dynamicSections.map((sec) => (
+              <section key={sec.id} id={sec.id} className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <BookOpen className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">{sec.label}</h2>
                 </div>
-                <div className="text-amber-900 text-xs sm:text-sm leading-relaxed space-y-2">
+                <div 
+                  className="space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed [&>p]:mb-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:space-y-1 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:space-y-1"
+                  dangerouslySetInnerHTML={{ __html: sec.content }}
+                />
+              </section>
+            ))
+          ) : (
+            <>
+              <section id="postanowienia-ogolne" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <BookOpen className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 1. Postanowienia ogólne</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    <strong>1. W przypadku Produktów Gotowych:</strong> Klient będący Konsumentem ma prawo odstąpić od umowy sprzedaży w terminie 14 dni bez podania jakiejkolwiek przyczyny. Termin ten biegnie od dnia objęcia obrazu w posiadanie przez Klienta. Koszt odesłania zwrotu ponosi Klient. Obraz must zostać zwrócony w stanie nienaruszonym, odpowiednio zabezpieczonym do transportu.
+                    1. Sklep internetowy działający pod adresem <code>https://hellokostek.pl/</code> prowadzony jest przez: <strong>hellokostek Maciej Kosteczka</strong> z siedzibą w: <strong>Rynek 33, 42-470 Siewierz, woj. śląskie, Polska</strong>, NIP: <strong>6252363656</strong>, REGON: <strong>527158196</strong>, wpisany do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), zwany dalej <strong>„Sprzedawcą”</strong>.
                   </p>
                   <p>
-                    <strong>2. W przypadku Produktów na Zamówienie (Spersonalizowanych):</strong> Zgodnie z <strong>art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta</strong>, prawo do odstąpienia od umowy zawartej na odległość <strong>nie przysługuje konsumentowi</strong> w odniesieniu do umów, w których przedmiotem świadczenia jest towar nieprefabrykowany, wyprodukowany według specyfikacji konsumenta lub służący zaspokojeniu jego zindywidualizowanych potrzeb.
+                    2. Dane kontaktowe ze Sprzedawcą:
                   </p>
-                  <p className="font-semibold underline">
-                    Oznacza to, że obrazy malowane na indywidualne zamówienie Klienta (według jego wytycznych, nadesłanego zdjęcia, formatu czy wybranej kolorystyki) nie podlegają zwrotowi.
+                  <ul className="list-disc pl-6 space-y-1 text-gray-650">
+                    <li>Adres e-mail: <a href="mailto:kontakt@hellokostek.pl" className="text-gray-950 font-bold hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a></li>
+                    <li>Telefon: <a href="tel:+48662707153" className="text-gray-950 font-bold hover:text-[#E0115F] transition-colors">662 707 153</a></li>
+                  </ul>
+                  <p>
+                    3. Niniejszy Regulamin określa zasady korzystania ze Sklepu, składania zamówień na gotowe prace malarskie, zasady zlecania i realizacji prac malarskich na indywidualne zamówienie, sposoby płatności, dostawy oraz procedury reklamacji i zwrotów.
                   </p>
                 </div>
-              </div>
-            </div>
-          </section>
+              </section>
 
-          {/* Section 7 */}
-          <section id="reklamacje" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <Info className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 7. Reklamacje (Zgodność towaru z umową)</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                1. Sprzedawca ma obowiązek dostarczyć produkt wolny od wad i zgodny z zawartą umową.
-              </p>
-              <p>
-                2. W przypadku stwierdzenia uszkodzeń mechanicznych powstałych podczas transportu, Klient proszony jest o spisanie protokołu szkody w obecności kuriera oraz niezwłoczny kontakt ze Sprzedawcą.
-              </p>
-              <p>
-                3. Reklamacje z tytułu braku zgodności towaru z umową należy składać na adres e-mail: <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-gray-900 hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a>.
-              </p>
-              <p>
-                4. Sprzedawca ustosunkuje się do reklamacji Klienta w terminie 14 dni od dnia jej otrzymania.
-              </p>
-            </div>
-          </section>
+              <section id="definicje" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Sparkles className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 2. Definicje przedmiotów sprzedaży</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    W ramach Sklepu rozróżnia się dwa rodzaje asortymentu:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-650">
+                    <li>
+                      <strong>Produkt Gotowy</strong> – istniejący, fizyczny obraz (dzieło malarskie lub rysunkowe) dostępny w ofercie Sklepu, o określonych wymiarach, technice i cenie, gotowy do natychmiastowej wysyłki.
+                    </li>
+                    <li>
+                      <strong>Produkt na Zamówienie (Dzieło Spersonalizowane)</strong> – praca malarska (np. portret ze zdjęcia) realizowana przez artystę od podstaw na indywidualne życzenie Klienta, według jego specyfikacji (określony temat, format, paleta kolorystyczna, nadesłane zdjęcia referencyjne).
+                    </li>
+                  </ul>
+                </div>
+              </section>
 
-          {/* Section 8 */}
-          <section id="prawa-autorskie" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <Copyright className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 8. Prawa autorskie do dzieł malarskich</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                1. Wszystkie dzieła malarskie (zarówno gotowe, jak i tworzone na zamówienie) sprzedawane za pośrednictwem Sklepu stanowią utwór w rozumieniu ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych.
-              </p>
-              <p>
-                2. Zakup fizycznego egzemplarza obrazu przez Klienta <strong>nie powoduje przeniesienia majątkowych praw autorskich</strong> na jego rzecz.
-              </p>
-              <p>
-                3. Klient nabywa wyłącznie własność fizycznego nośnika (obrazu) i ma prawo do jego eksponowania w celach prywatnych. Klientowi bez pisemnej, osobnej zgody autora nie przysługuje prawo do:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-650 text-sm">
-                <li>Reprodukowania, kopiowania i powielania obrazu (np. tworzenia druków artystycznych, plakatów, gadżetów).</li>
-                <li>Wykorzystywania wizerunku obrazu w celach komercyjnych.</li>
-                <li>Wprowadzania jakichkolwiek modyfikacji w strukturę dzieła.</li>
-              </ul>
-            </div>
-          </section>
+              <section id="reklamacje" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Info className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 7. Reklamacje (Zgodność towaru z umową)</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    1. Sprzedawca ma obowiązek dostarczyć produkt wolny od wad i zgodny z zawartą umową.
+                  </p>
+                  <p>
+                    2. Reklamacje z tytułu braku zgodności towaru z umową należy składać na adres e-mail: <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-gray-900 hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a>.
+                  </p>
+                </div>
+              </section>
 
-          {/* Section 9 */}
-          <section id="pozasadowe-rozwiazywanie-sporow" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <Scale className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 9. Pozasądowe sposoby rozpatrywania reklamacji</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                Konsument ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń, m.in. poprzez:
-              </p>
-              <ol className="list-decimal pl-6 space-y-2 text-gray-650">
-                <li>Zwrócenie się do stałego polubownego sądu konsumenckiego.</li>
-                <li>Zwrócenie się do Miejskiego lub Powiatowego Rzecznika Konsumentów.</li>
-                <li>Skorzystanie z unijnej platformy ODR (Online Dispute Resolution) dostępnej pod adresem: <a href="http://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-gray-900 underline hover:text-[#E0115F] transition-colors">http://ec.europa.eu/consumers/odr/</a>.</li>
-              </ol>
-            </div>
-          </section>
+              <section id="prawa-autorskie" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Copyright className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 8. Prawa autorskie do dzieł malarskich</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    1. Wszystkie dzieła malarskie (zarówno gotowe, jak i tworzone na zamówienie) sprzedawane za pośrednictwem Sklepu stanowią utwór w rozumieniu ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych.
+                  </p>
+                </div>
+              </section>
 
-          {/* Section 10 */}
-          <section id="postanowienia-koncowe" className="space-y-6 scroll-mt-24">
-            <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-              <Info className="w-6 h-6 text-[#E0115F] shrink-0" />
-              <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 10. Postanowienia końcowe</h2>
-            </div>
-            <div className="space-y-4 text-sm sm:text-base">
-              <p>
-                1. W sprawach nieuregulowanych niniejszym Regulaminem mają zastosowanie powszechnie obowiązujące przepisy prawa polskiego, w szczególności Kodeksu cywilnego oraz ustawy o prawach konsumenta.
-              </p>
-              <p>
-                2. Sprzedawca zastrzega sobie prawo do zmian w Regulaminie z ważnych przyczyn (np. zmiany przepisów prawa). Do zamówień złożonych przed zmianą Regulaminu stosuje się wersję obowiązującą w dniu złożenia zamówienia.
-              </p>
-            </div>
-          </section>
+              <section id="pozasadowe-rozwiazywanie-sporow" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Scale className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 9. Pozasądowe sposoby rozpatrywania reklamacji</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    Konsument ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń.
+                  </p>
+                </div>
+              </section>
+
+              <section id="postanowienia-koncowe" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Info className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 10. Postanowienia końcowe</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    1. W sprawach nieuregulowanych niniejszym Regulaminem mają zastosowanie powszechnie obowiązujące przepisy prawa polskiego.
+                  </p>
+                </div>
+              </section>
+            </>
+          )}
         </div>
 
         {/* Sidebar Navigation (Asymmetric) */}
@@ -334,7 +247,7 @@ export default function Terms() {
           <div>
             <h3 className="font-mono text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2">Spis treści</h3>
             <nav className="flex flex-col gap-2.5 font-sans text-sm font-light">
-              {TERMS_SECTIONS.map((sec) => (
+              {activeTocSections.map((sec) => (
                 <a 
                   key={sec.id}
                   href={`#${sec.id}`}
@@ -408,7 +321,7 @@ export default function Terms() {
               {/* Content (Scrollable Navigation) */}
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
                 <nav className="flex flex-col gap-3 font-sans text-sm font-light">
-                  {TERMS_SECTIONS.map((sec) => (
+                  {activeTocSections.map((sec) => (
                     <a 
                       key={sec.id}
                       href={`#${sec.id}`}

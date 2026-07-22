@@ -28,15 +28,6 @@ class StoreSettingInfolist
             // 2. DYNAMICZNE MENU (Wspólne)
             Section::make('Zarządzanie Menu i Nawigacją')->columnSpanFull()
                 ->schema([
-                    RepeatableEntry::make('metadata.navigation_groups')
-                        ->label('Grupy menu')
-                        ->schema([
-                            TextEntry::make('name')->label('Nazwa (klucz)'),
-                            TextEntry::make('label')->label('Wyświetlana etykieta'),
-                            TextEntry::make('sort_order')->label('Kolejność'),
-                        ])
-                        ->columns(3),
-
                     RepeatableEntry::make('metadata.resources_navigation')
                         ->label('Zarządzanie zakładkami (Zasobami)')
                         ->schema([

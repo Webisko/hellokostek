@@ -29,7 +29,7 @@ class ProductInfolist
                                         ->icon('heroicon-o-gift')
                                         ->copyable(),
                                     TextEntry::make('slug')
-                                        ->label('Slug')
+                                        ->label('Adres URL (slug)')
                                         ->copyable()
                                         ->color('gray'),
                                     TextEntry::make('sku')

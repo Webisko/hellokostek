@@ -36,7 +36,7 @@ class CustomerResource extends Resource
 
     protected static ?string $slug = 'klienci';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & Zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
 
     protected static ?int $navigationSort = 2;
 

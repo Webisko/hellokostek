@@ -19,9 +19,9 @@ class AnalyticsOverview extends Page
 
     protected static ?string $title = 'Analityka sklepu';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & Zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Analityka & system';
 
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 10;
 
     protected string $view = 'filament.pages.analytics-overview';
 

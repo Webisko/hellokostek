@@ -33,7 +33,7 @@ class ProductAttributeResource extends Resource
 
     protected static ?string $navigationLabel = 'Atrybuty produktów';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & Galeria';
+    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & galeria';
 
     protected static ?int $navigationSort = 3;
 

@@ -18,7 +18,6 @@ Route::get('/og-image', OgImageController::class)->middleware(['signed', 'thrott
 Route::middleware('auth')->prefix('admin/exports')->group(function (): void {
     Route::get('/customers', [AdminContactExportController::class, 'customers'])->name('admin.exports.customers');
     Route::get('/orders', [AdminOrderExportController::class, 'export'])->name('admin.exports.orders');
-    Route::get('/questionnaire-submissions', [AdminContactExportController::class, 'questionnaireSubmissions'])->name('admin.exports.questionnaire-submissions');
 });
 
 Route::get('/login', function () {

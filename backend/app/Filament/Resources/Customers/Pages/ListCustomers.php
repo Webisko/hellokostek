@@ -18,7 +18,7 @@ class ListCustomers extends ListRecords
             Action::make('exportCustomers')
                 ->label('Eksport CSV')
                 ->icon('heroicon-o-arrow-down-tray')
-                ->color('info')
+                ->color('lime')
                 ->url(route('admin.exports.customers'), shouldOpenInNewTab: true),
         ];
     }

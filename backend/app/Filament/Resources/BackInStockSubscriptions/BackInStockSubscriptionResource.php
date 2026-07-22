@@ -30,7 +30,7 @@ class BackInStockSubscriptionResource extends Resource
 
     protected static ?string $navigationLabel = 'Powiadomienia o dostępności';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & Galeria';
+    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & galeria';
 
     protected static ?int $navigationSort = 4;
 

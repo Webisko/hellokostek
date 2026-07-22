@@ -34,9 +34,9 @@ class ProductCategoryResource extends Resource
 
     protected static ?string $slug = 'kategorie';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & Galeria';
+    protected static \UnitEnum|string|null $navigationGroup = 'Produkty & sklep';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {

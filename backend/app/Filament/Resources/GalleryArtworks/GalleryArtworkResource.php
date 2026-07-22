@@ -29,9 +29,9 @@ class GalleryArtworkResource extends Resource
 
     protected static ?string $slug = 'galeria';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & Galeria';
+    protected static \UnitEnum|string|null $navigationGroup = 'Strona & wygląd';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $recordTitleAttribute = 'title';
 

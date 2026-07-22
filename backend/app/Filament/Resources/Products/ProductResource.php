@@ -32,13 +32,13 @@ class ProductResource extends Resource
 
     protected static ?string $pluralModelLabel = 'produkty';
 
-    protected static ?string $navigationLabel = 'Produkty i Prace';
+    protected static ?string $navigationLabel = 'Produkty';
 
     protected static ?string $slug = 'produkty';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Oferta & Galeria';
+    protected static \UnitEnum|string|null $navigationGroup = 'Produkty & sklep';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     protected static ?string $recordTitleAttribute = 'name';
 

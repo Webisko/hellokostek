@@ -43,7 +43,7 @@ class ProductForm
                                             ->required()
                                             ->native(false),
                                         TextInput::make('slug')
-                                            ->label('Slug')
+                                            ->label('Adres URL (slug)')
                                             ->required()
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true),

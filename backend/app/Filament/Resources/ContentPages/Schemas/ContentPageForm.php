@@ -35,7 +35,7 @@ class ContentPageForm
                             $set('slug', Str::slug((string) $state));
                         }),
                     TextInput::make('slug')
-                        ->label('Adres URL / Ścieżka (slug)')
+                        ->label('Adres URL (slug)')
                         ->required()
                         ->maxLength(255)
                         ->unique(ignoreRecord: true),
@@ -60,9 +60,41 @@ class ContentPageForm
                         ->rows(3)
                         ->columnSpanFull(),
                     Textarea::make('content.pl')
-                        ->label('Treść strony')
-                        ->rows(8)
+                        ->label('Treść strony (ogólna)')
+                        ->rows(6)
                         ->columnSpanFull(),
+                ]),
+            Section::make('Struktura Paragrafów i Sekcji (np. Regulamin, Polityka Prywatności)')
+                ->columnSpanFull()
+                ->description('Możesz dodać wyodrębnione paragrafy dla stron prawnych. Każdy paragraf tworzy sekcję w spisie treści oraz kotwicę URL.')
+                ->schema([
+                    \Filament\Forms\Components\Repeater::make('metadata.sections')
+                        ->label('Paragrafy / Sekcje strony')
+                        ->columns(2)
+                        ->schema([
+                            TextInput::make('label')
+                                ->label('Tytuł w spisie treści (np. § 1. Postanowienia ogólne)')
+                                ->required()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state): void {
+                                    if (($get('id') ?? '') !== Str::slug((string) $old)) {
+                                        return;
+                                    }
+                                    $set('id', Str::slug((string) $state));
+                                }),
+                            TextInput::make('id')
+                                ->label('Identyfikator kotwicy URL (id)')
+                                ->required()
+                                ->maxLength(100),
+                            \Filament\Forms\Components\RichEditor::make('content')
+                                ->label('Treść paragrafu (WYSIWYG)')
+                                ->columnSpanFull()
+                                ->required(),
+                        ])
+                        ->collapsible()
+                        ->cloneable()
+                        ->reorderable()
+                        ->itemLabel(fn (array $state): ?string => $state['label'] ?? 'Nowy paragraf'),
                 ]),
             Section::make('Obrazek wyróżniający i Media')->columnSpanFull()
                 ->schema([

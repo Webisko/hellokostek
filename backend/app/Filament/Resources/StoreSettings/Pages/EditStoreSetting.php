@@ -10,10 +10,29 @@ class EditStoreSetting extends EditRecord
 {
     protected static string $resource = StoreSettingResource::class;
 
+    public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return 'Ustawienia';
+    }
+
+    public function getHeading(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return 'Ustawienia';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
+            $this->getSaveFormAction()
+                ->label('Zapisz')
+                ->icon('heroicon-o-check'),
+            $this->getCancelFormAction()
+                ->label('Anuluj'),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 }

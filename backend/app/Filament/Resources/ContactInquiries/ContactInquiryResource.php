@@ -22,15 +22,15 @@ class ContactInquiryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
 
-    protected static ?string $modelLabel = 'zapytanie o portret';
+    protected static ?string $modelLabel = 'zapytanie';
 
-    protected static ?string $pluralModelLabel = 'zapytania o portrety';
+    protected static ?string $pluralModelLabel = 'zapytania';
 
-    protected static ?string $navigationLabel = 'Zapytania o portrety';
+    protected static ?string $navigationLabel = 'Zapytania';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & Zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {

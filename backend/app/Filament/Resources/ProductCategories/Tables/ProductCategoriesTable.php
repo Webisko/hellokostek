@@ -24,7 +24,7 @@ class ProductCategoriesTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('slug')
-                    ->label('Slug')
+                    ->label('Adres URL (slug)')
                     ->color('gray')
                     ->searchable(),
                 TextColumn::make('products_count')

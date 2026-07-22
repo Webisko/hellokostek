@@ -27,8 +27,6 @@ class StoreSettingsController extends Controller
             'cookie_banner_title' => $this->storeSettings->cookieBannerTitle(),
             'cookie_banner_description' => $this->storeSettings->cookieBannerDescription(),
             'custom_head_scripts' => $this->storeSettings->customHeadScripts(),
-            'announcement_enabled' => $this->storeSettings->announcementEnabled(),
-            'announcement_text' => $this->storeSettings->announcementText(),
             'global_noindex' => $this->storeSettings->globalNoindex(),
             'maintenance_mode_enabled' => $this->storeSettings->maintenanceModeEnabled(),
             'maintenance_mode_message' => $this->storeSettings->maintenanceModeMessage(),

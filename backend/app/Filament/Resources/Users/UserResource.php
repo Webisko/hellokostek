@@ -31,7 +31,9 @@ class UserResource extends Resource
     protected static ?string $pluralModelLabel = 'użytkownicy';
     protected static ?string $navigationLabel = 'Użytkownicy';
     protected static ?string $slug = 'uzytkownicy';
-    protected static \UnitEnum|string|null $navigationGroup = 'System & Ustawienia';
+    protected static \UnitEnum|string|null $navigationGroup = 'Analityka & system';
+
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

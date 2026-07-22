@@ -108,11 +108,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           const originalVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-OR'));
           const printVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-PR'));
           
-          let category: 'watercolor' | 'drawing' = 'watercolor';
+          let category: 'akwarela' | 'rysunek' = 'akwarela';
           if (apiProd.categories && apiProd.categories.length > 0) {
             const catSlug = apiProd.categories[0].slug;
-            if (catSlug === 'watercolor' || catSlug === 'drawing') {
-              category = catSlug;
+            if (catSlug === 'akwarela' || catSlug === 'rysunek' || catSlug === 'watercolor' || catSlug === 'drawing') {
+              category = catSlug === 'watercolor' ? 'akwarela' : catSlug === 'drawing' ? 'rysunek' : catSlug;
             }
           }
 
@@ -494,7 +494,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <div className="border-b border-gray-50 pb-2.5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4">
               <span className="font-semibold text-gray-900 sm:col-span-4">Nośnik bazowy</span>
               <span className="sm:col-span-8 mt-0.5 sm:mt-0">
-                {currentProduct.category === "watercolor" 
+                {currentProduct.category === "akwarela" 
                   ? "Gruby papier bawełniany Arches 300g/m²" 
                   : "Wysokiej jakości papier graficzny Canson 220g/m²"}
               </span>
