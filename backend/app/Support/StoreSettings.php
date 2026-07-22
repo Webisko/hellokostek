@@ -565,7 +565,7 @@ class StoreSettings
 
     public function resourceNavigationVisible(string $resource, bool $default): bool
     {
-        if ($resource === 'MediaResource') {
+        if ($resource === 'MediaResource' || $resource === 'FaqItemResource') {
             return true;
         }
         $config = $this->resourceNavigationConfig($resource);
@@ -607,13 +607,13 @@ class StoreSettings
             ['resource' => 'GalleryArtworkResource', 'label' => 'Galeria', 'group' => 'Strona & wygląd', 'sort_order' => 10, 'visible' => true],
             ['resource' => 'MediaResource', 'label' => 'Multimedia', 'group' => 'Strona & wygląd', 'sort_order' => 20, 'visible' => true],
             ['resource' => 'ContentPageResource', 'label' => 'Strony', 'group' => 'Strona & wygląd', 'sort_order' => 30, 'visible' => true],
+            ['resource' => 'FaqItemResource', 'label' => 'FAQ', 'group' => 'Strona & wygląd', 'sort_order' => 40, 'visible' => true],
 
             // Analityka & system
             ['resource' => 'StoreSettingResource', 'label' => 'Ustawienia', 'group' => 'Analityka & system', 'sort_order' => 20, 'visible' => true],
             ['resource' => 'UserResource', 'label' => 'Użytkownicy', 'group' => 'Analityka & system', 'sort_order' => 30, 'visible' => true],
 
             // Wyłączone z nawigacji
-            ['resource' => 'FaqItemResource', 'label' => 'FAQ', 'group' => 'Strona & wygląd', 'sort_order' => 100, 'visible' => false],
             ['resource' => 'CustomerResource', 'label' => 'Klienci', 'group' => 'Sprzedaż & zapytania', 'sort_order' => 100, 'visible' => false],
             ['resource' => 'ProductAttributeResource', 'label' => 'Atrybuty produktów', 'group' => 'Produkty & sklep', 'sort_order' => 100, 'visible' => false],
             ['resource' => 'BackInStockSubscriptionResource', 'label' => 'Powiadomienia o dostępności', 'group' => 'Produkty & sklep', 'sort_order' => 100, 'visible' => false],
