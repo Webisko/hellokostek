@@ -22,9 +22,14 @@ class GalleryArtworkForm
                     Select::make('category_id')
                         ->label('Kategoria')
                         ->relationship('category', 'name')
-                        ->getOptionLabelFromRecordUsing(fn ($record) => is_array($record->name) ? ($record->name['pl'] ?? reset($record->name)) : $record->name)
+                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                         ->searchable()
                         ->preload(),
+
+                    TextInput::make('title')
+                        ->label('Tytuł')
+                        ->required()
+                        ->maxLength(255),
 
                     TextInput::make('year')
                         ->label('Rok powstania')
@@ -47,24 +52,6 @@ class GalleryArtworkForm
                     Toggle::make('is_active')
                         ->label('Aktywny w portfolio')
                         ->default(true),
-
-                    Tabs::make('Tłumaczenia')
-                        ->tabs([
-                            Tabs\Tab::make('Polski')
-                                ->schema([
-                                    TextInput::make('title.pl')
-                                        ->label('Tytuł')
-                                        ->required()
-                                        ->maxLength(255),
-                                ]),
-                            Tabs\Tab::make('English')
-                                ->schema([
-                                    TextInput::make('title.en')
-                                        ->label('Title (EN)')
-                                        ->maxLength(255),
-                                ]),
-                        ])
-                        ->columnSpanFull(),
                 ]),
 
             Section::make('Zdjęcie')

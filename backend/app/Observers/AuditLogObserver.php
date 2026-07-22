@@ -99,9 +99,11 @@ class AuditLogObserver
         // If model has a name or title attribute, append it for better summary readability
         $nameAttr = '';
         if (isset($model->name)) {
-            $nameAttr = ' "' . (is_array($model->name) ? ($model->name['pl'] ?? reset($model->name)) : $model->name) . '"';
+            $val = $model->name;
+            $nameAttr = ' "' . (is_array($val) ? ($val['pl'] ?? reset($val)) : (string) $val) . '"';
         } elseif (isset($model->title)) {
-            $nameAttr = ' "' . (is_array($model->title) ? ($model->title['pl'] ?? reset($model->title)) : $model->title) . '"';
+            $val = $model->title;
+            $nameAttr = ' "' . (is_array($val) ? ($val['pl'] ?? reset($val)) : (string) $val) . '"';
         } elseif (isset($model->number)) {
             $nameAttr = ' "' . $model->number . '"';
         } elseif (isset($model->code)) {

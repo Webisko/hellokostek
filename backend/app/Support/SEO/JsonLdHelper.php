@@ -17,9 +17,9 @@ class JsonLdHelper
         $data = [
             '@context' => 'https://schema.org',
             '@type' => 'Product',
-            'name' => $product->getTranslation('name', app()->getLocale()),
+            'name' => $product->name,
             'image' => $product->featuredImageUrl() ?: ($baseUrl . '/images/placeholder.png'),
-            'description' => strip_tags($product->getTranslation('short_description', app()->getLocale()) ?: $product->getTranslation('description', app()->getLocale())),
+            'description' => strip_tags($product->short_description ?: $product->description ?: ''),
             'sku' => $product->sku ?: 'PROD-' . $product->id,
             'offers' => [
                 '@type' => 'Offer',
@@ -60,8 +60,8 @@ class JsonLdHelper
         $data = [
             '@context' => 'https://schema.org',
             '@type' => 'Course',
-            'name' => $course->getTranslation('title', app()->getLocale()),
-            'description' => strip_tags($course->getTranslation('description', app()->getLocale())),
+            'name' => $course->title ?? '',
+            'description' => strip_tags($course->description ?? ''),
             'provider' => [
                 '@type' => 'Organization',
                 'name' => config('app.name'),
@@ -81,10 +81,10 @@ class JsonLdHelper
         foreach ($faqItems as $item) {
             $mainEntity[] = [
                 '@type' => 'Question',
-                'name' => $item->getTranslation('question', app()->getLocale()),
+                'name' => $item->question ?? '',
                 'acceptedAnswer' => [
                     '@type' => 'Answer',
-                    'text' => strip_tags($item->getTranslation('answer', app()->getLocale())),
+                    'text' => strip_tags($item->answer ?? ''),
                 ]
             ];
         }

@@ -20,18 +20,12 @@ class ContentPageShowController extends Controller
             ? $baseUrl . '/' 
             : $baseUrl . '/' . $page->slug;
 
-        $defaultLocale = config('app.locale', 'pl');
-        $supportedLocales = [$defaultLocale, config('app.fallback_locale', 'en')];
-        $hreflangs = [];
-        foreach ($supportedLocales as $locale) {
-            $langPrefix = $locale === $defaultLocale ? '' : '/' . $locale;
-            $hreflangs[] = [
-                'locale' => $locale,
-                'url' => ($page->slug === 'home' || $page->template === 'home') 
-                    ? $baseUrl . $langPrefix . '/' 
-                    : $baseUrl . $langPrefix . '/' . $page->slug,
-            ];
-        }
+        $hreflangs = [
+            [
+                'locale' => 'pl',
+                'url' => $pageUrl,
+            ],
+        ];
 
         $ogTitle = $page->metadata['og_title'] ?? $page->seo_title ?? $page->title;
         $ogDescription = $page->metadata['og_description'] ?? $page->seo_description ?? $page->excerpt;

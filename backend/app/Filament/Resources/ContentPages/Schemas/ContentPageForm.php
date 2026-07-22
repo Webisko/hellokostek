@@ -23,7 +23,7 @@ class ContentPageForm
             Section::make('Podstawowe informacje o stronie')->columnSpanFull()
                 ->columns(2)
                 ->schema([
-                    TextInput::make('title.pl')
+                    TextInput::make('title')
                         ->label('Tytuł strony')
                         ->required()
                         ->maxLength(255)
@@ -55,11 +55,11 @@ class ContentPageForm
                         ->required(),
                     DateTimePicker::make('published_at')
                         ->label('Data publikacji'),
-                    Textarea::make('excerpt.pl')
+                    Textarea::make('excerpt')
                         ->label('Krótki opis / Zajawka')
                         ->rows(3)
                         ->columnSpanFull(),
-                    Textarea::make('content.pl')
+                    Textarea::make('content')
                         ->label('Treść strony (ogólna)')
                         ->rows(6)
                         ->columnSpanFull(),

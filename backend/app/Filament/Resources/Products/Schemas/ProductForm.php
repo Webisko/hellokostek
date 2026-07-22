@@ -58,37 +58,23 @@ class ProductForm
                                             ->preload()
                                             ->searchable()
                                             ->columnSpanFull(),
-                                        Tabs::make('Language')
-                                            ->tabs([
-                                                Tabs\Tab::make('Polski')
-                                                    ->schema([
-                                                        TextInput::make('name.pl')
-                                                            ->label('Nazwa')
-                                                            ->required()
-                                                            ->maxLength(255)
-                                                            ->live(onBlur: true)
-                                                            ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state): void {
-                                                                if (($get('slug') ?? '') !== Str::slug((string) $old)) {
-                                                                    return;
-                                                                }
-                                                                $set('slug', Str::slug((string) $state));
-                                                            }),
-                                                        RichEditor::make('short_description.pl')
-                                                            ->label('Krótki opis'),
-                                                        RichEditor::make('description.pl')
-                                                            ->label('Opis'),
-                                                    ]),
-                                                Tabs\Tab::make('English')
-                                                    ->schema([
-                                                        TextInput::make('name.en')
-                                                            ->label('Name (EN)')
-                                                            ->maxLength(255),
-                                                        RichEditor::make('short_description.en')
-                                                            ->label('Short description (EN)'),
-                                                        RichEditor::make('description.en')
-                                                            ->label('Description (EN)'),
-                                                    ]),
-                                            ])
+                                        TextInput::make('name')
+                                            ->label('Nazwa')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state): void {
+                                                if (($get('slug') ?? '') !== Str::slug((string) $old)) {
+                                                    return;
+                                                }
+                                                $set('slug', Str::slug((string) $state));
+                                            })
+                                            ->columnSpanFull(),
+                                        RichEditor::make('short_description')
+                                            ->label('Krótki opis')
+                                            ->columnSpanFull(),
+                                        RichEditor::make('description')
+                                            ->label('Opis')
                                             ->columnSpanFull(),
                                     ]),
                                 Group::make()

@@ -6,15 +6,11 @@ use App\Support\PublicMediaUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
-
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContentPage extends Model
 {
-    use HasFactory, HasTranslations, SoftDeletes;
-
-    public array $translatable = ['title', 'excerpt', 'content'];
+    use HasFactory, SoftDeletes;
 
     public static function templateOptions(): array
     {

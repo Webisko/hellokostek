@@ -43,26 +43,26 @@ class HelloKostekSeeder extends Seeder
         $categoriesData = [
             [
                 'slug' => 'olej',
-                'name' => ['pl' => 'Olej', 'en' => 'Oil'],
-                'description' => ['pl' => 'Tradycyjne malarstwo olejne na płótnie bawełnianym.', 'en' => 'Traditional oil painting on cotton canvas.'],
+                'name' => 'Olej',
+                'description' => 'Tradycyjne malarstwo olejne na płótnie bawełnianym.',
                 'sort_order' => 10,
             ],
             [
                 'slug' => 'akryl',
-                'name' => ['pl' => 'Akryl', 'en' => 'Acrylic'],
-                'description' => ['pl' => 'Nowoczesne i wyraziste malarstwo akrylowe na płótnie.', 'en' => 'Modern acrylic painting on canvas.'],
+                'name' => 'Akryl',
+                'description' => 'Nowoczesne i wyraziste malarstwo akrylowe na płótnie.',
                 'sort_order' => 20,
             ],
             [
                 'slug' => 'akwarela',
-                'name' => ['pl' => 'Akwarela', 'en' => 'Watercolor'],
-                'description' => ['pl' => 'Subtelne i zmysłowe akwarele na papierze bawełnianym.', 'en' => 'Subtle and sensual watercolors on cotton paper.'],
+                'name' => 'Akwarela',
+                'description' => 'Subtelne i zmysłowe akwarele na papierze bawełnianym.',
                 'sort_order' => 30,
             ],
             [
                 'slug' => 'rysunek',
-                'name' => ['pl' => 'Rysunek', 'en' => 'Drawing'],
-                'description' => ['pl' => 'Precyzyjne i dynamiczne rysunki wykonane ołówkiem.', 'en' => 'Precise and dynamic graphite drawings.'],
+                'name' => 'Rysunek',
+                'description' => 'Precyzyjne i dynamiczne rysunki wykonane ołówkiem.',
                 'sort_order' => 40,
             ],
         ];
@@ -74,8 +74,8 @@ class HelloKostekSeeder extends Seeder
                 [
                     'name' => $cat['name'],
                     'description' => $cat['description'],
-                    'seo_title' => $cat['name']['pl'] . ' | Hello Kostek',
-                    'seo_description' => $cat['description']['pl'],
+                    'seo_title' => $cat['name'] . ' | Hello Kostek',
+                    'seo_description' => $cat['description'],
                     'sort_order' => $cat['sort_order'],
                     'is_active' => true,
                 ]
@@ -236,10 +236,9 @@ class HelloKostekSeeder extends Seeder
                 ['slug' => $prod['id']],
                 [
                     'sku' => 'HK-' . strtoupper(str_replace('-', '', $prod['id'])),
-                    'type' => ProductType::Physical,
-                    'name' => ['pl' => $prod['title'], 'en' => $prod['title']],
-                    'short_description' => ['pl' => Str::limit($prod['description'], 120), 'en' => ''],
-                    'description' => ['pl' => $prod['description'], 'en' => ''],
+                    'name' => $prod['title'],
+                    'short_description' => Str::limit($prod['description'], 120),
+                    'description' => $prod['description'],
                     'featured_image_path' => $prod['imageUrl'],
                     'currency' => 'PLN',
                     'regular_price_amount' => $prod['printPrice'] * 100, // Domyślna najniższa cena (wydruk)
@@ -359,7 +358,7 @@ class HelloKostekSeeder extends Seeder
                 ['id' => (int) str_replace('gallery-', '', $art['id'])],
                 [
                     'category_id' => $catId,
-                    'title' => ['pl' => $art['title'], 'en' => ''],
+                    'title' => $art['title'],
                     'technique' => $art['technique'],
                     'year' => $art['year'],
                     'image_path' => $art['imageUrl'],
@@ -442,8 +441,8 @@ class HelloKostekSeeder extends Seeder
         \App\Models\ContentPage::query()->updateOrCreate(
             ['slug' => 'regulamin'],
             [
-                'title' => ['pl' => 'Regulamin Sklepu'],
-                'excerpt' => ['pl' => 'Zasady korzystania ze sklepu Hello Kostek, składania zamówień oraz prawa konsumenta.'],
+                'title' => 'Regulamin Sklepu',
+                'excerpt' => 'Zasady korzystania ze sklepu Hello Kostek, składania zamówień oraz prawa konsumenta.',
                 'template' => 'legal',
                 'seo_title' => 'Regulamin Sklepu | Hello Kostek',
                 'seo_description' => 'Oficjalny regulamin sklepu internetowego Hello Kostek. Zasady sprzedaży obrazów i dzieł sztuki.',
@@ -509,8 +508,8 @@ class HelloKostekSeeder extends Seeder
         \App\Models\ContentPage::query()->updateOrCreate(
             ['slug' => 'polityka-prywatnosci'],
             [
-                'title' => ['pl' => 'Polityka Prywatności i Cookies'],
-                'excerpt' => ['pl' => 'Zasady przetwarzania danych osobowych (RODO) oraz wykorzystywania plików cookies.'],
+                'title' => 'Polityka Prywatności i Cookies',
+                'excerpt' => 'Zasady przetwarzania danych osobowych (RODO) oraz wykorzystywania plików cookies.',
                 'template' => 'legal',
                 'seo_title' => 'Polityka Prywatności | Hello Kostek',
                 'seo_description' => 'Informacje o przetwarzaniu danych osobowych (RODO) oraz polityce plików cookies sklepu Hello Kostek.',

@@ -5,7 +5,6 @@ require_once __DIR__ . '/../app/Support/IntlPolyfill.php';
 use App\Http\Middleware\AddNoindexHeaders;
 use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\StoreMaintenanceMode;
-use App\Http\Middleware\SetLocaleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,7 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(StoreMaintenanceMode::class);
         $middleware->append(AddSecurityHeaders::class);
         $middleware->append(AddNoindexHeaders::class);
-        $middleware->append(SetLocaleMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -10,16 +10,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\Translatable\HasTranslations;
-
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    use HasFactory, HasTranslations, SoftDeletes;
-
-    public array $translatable = ['name', 'short_description', 'description'];
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'slug',

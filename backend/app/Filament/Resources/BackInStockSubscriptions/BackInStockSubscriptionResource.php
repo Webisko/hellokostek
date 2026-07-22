@@ -49,8 +49,7 @@ class BackInStockSubscriptionResource extends Resource
                     ->label('Produkt')
                     ->weight('bold')
                     ->searchable()
-                    ->sortable()
-                    ->getStateUsing(fn ($record) => is_array($record->product?->name) ? ($record->product?->name['pl'] ?? reset($record->product?->name)) : $record->product?->name),
+                    ->getStateUsing(fn ($record) => $record->product?->name),
                 TextColumn::make('productVariant')
                     ->label('Wariant')
                     ->getStateUsing(fn ($record) => $record->productVariant ? $record->productVariant->optionValues->pluck('value')->join(', ') : '-'),

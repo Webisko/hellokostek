@@ -4,7 +4,7 @@
 
 <p>Mamy świetną wiadomość! Produkt, na który czekasz, jest już ponownie dostępny w sprzedaży:</p>
 
-<h3>{{ is_array($product->name) ? ($product->name['pl'] ?? reset($product->name)) : $product->name }}</h3>
+<h3>{{ $product->name }}</h3>
 
 @if ($variant)
     @php

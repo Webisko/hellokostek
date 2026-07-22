@@ -199,16 +199,12 @@ class CatalogController extends Controller
         $baseUrl = rtrim((string) config('services.storefront.url', config('app.url')), '/');
         $productUrl = $baseUrl . '/products/' . $product->slug;
  
-        $defaultLocale = config('app.locale', 'pl');
-        $supportedLocales = [$defaultLocale, config('app.fallback_locale', 'en')];
-        $hreflangs = [];
-        foreach ($supportedLocales as $locale) {
-            $langPrefix = $locale === $defaultLocale ? '' : '/' . $locale;
-            $hreflangs[] = [
-                'locale' => $locale,
-                'url' => $baseUrl . $langPrefix . '/products/' . $product->slug,
-            ];
-        }
+        $hreflangs = [
+            [
+                'locale' => 'pl',
+                'url' => $productUrl,
+            ],
+        ];
 
         $reviewsCount = isset($product->approved_reviews_count) 
             ? (int) $product->approved_reviews_count 
