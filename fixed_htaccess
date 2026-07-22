@@ -1,3 +1,8 @@
+# Use PHP 8.4 for LiteSpeed / LH.pl
+<FilesMatch "\.(php|phtml)$">
+    SetHandler application/x-httpd-alt-php84
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
