@@ -86,6 +86,7 @@ Route::get('/content/map', ContentMapController::class)->name('api.content.map')
 Route::get('/content/pages', ContentPageIndexController::class)->name('api.content.pages.index');
 Route::get('/content/pages/{slug}', ContentPageShowController::class)->name('api.content.pages.show');
 Route::get('/faq', FaqIndexController::class)->name('api.faq.index');
+Route::get('/pytania-i-odpowiedzi', FaqIndexController::class)->name('api.pytania-i-odpowiedzi.index');
 Route::get('/gallery', GalleryArtworkController::class)->name('api.gallery.index');
 Route::get('/redirects/resolve', RedirectResolveController::class)->name('api.redirects.resolve');
 

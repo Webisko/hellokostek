@@ -31,7 +31,7 @@ class FaqItemResource extends Resource
 
     protected static ?string $navigationLabel = 'FAQ';
 
-    protected static ?string $slug = 'faq';
+    protected static ?string $slug = 'pytania-i-odpowiedzi';
 
     protected static bool $shouldRegisterNavigation = true;
 

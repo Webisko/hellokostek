@@ -27,6 +27,8 @@ class MediaResource extends Resource
 
     protected static ?string $pluralModelLabel = 'pliki pomocnicze';
 
+    protected static ?string $slug = 'multimedia';
+
     protected static \UnitEnum|string|null $navigationGroup = 'Strona & wygląd';
 
     protected static ?int $navigationSort = 20;
