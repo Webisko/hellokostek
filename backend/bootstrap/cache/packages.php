@@ -1,4 +1,11 @@
 <?php return array (
+  'anourvalar/eloquent-serialize' => 
+  array (
+    'aliases' => 
+    array (
+      'EloquentSerialize' => 'AnourValar\\EloquentSerialize\\Facades\\EloquentSerializeFacade',
+    ),
+  ),
   'barryvdh/laravel-dompdf' => 
   array (
     'aliases' => 
@@ -208,13 +215,6 @@
     'providers' => 
     array (
       0 => 'Spatie\\SignalAwareCommand\\SignalAwareCommandServiceProvider',
-    ),
-  ),
-  'spatie/laravel-translatable' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Spatie\\Translatable\\TranslatableServiceProvider',
     ),
   ),
 );
