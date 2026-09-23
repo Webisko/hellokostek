@@ -39,6 +39,17 @@ class HelloKostekSeeder extends Seeder
             'role' => \App\Domain\Commerce\Enums\UserRole::Admin,
         ])->save();
 
+        // 0.1 STORE SETTINGS EMAILS
+        $settings = \App\Models\StoreSetting::query()->first();
+        if ($settings) {
+            $settings->forceFill([
+                'admin_notification_email' => 'kontakt@hellokostek.pl',
+                'order_notification_email' => 'kontakt@hellokostek.pl',
+                'mail_from_address' => 'kontakt@hellokostek.pl',
+                'mail_from_name' => 'Hello Kostek',
+            ])->save();
+        }
+
         // 1. KATEGORIE (Olej, Akryl, Akwarela, Rysunek)
         $categoriesData = [
             [

@@ -3,10 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ContactInquiryAdminMail;
 use App\Models\ContactInquiry;
+use App\Models\TransactionalEmailLog;
+use App\Support\StoreSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 class ContactInquiryController extends Controller
 {
@@ -64,6 +70,46 @@ class ContactInquiryController extends Controller
             'user_agent' => $request->userAgent(),
             'status' => 'new',
         ]);
+
+        // Wysyłka powiadomienia e-mail do administratora / artysty
+        $recipient = null;
+        try {
+            /** @var StoreSettings $settings */
+            $settings = app(StoreSettings::class);
+            $recipient = $settings->adminNotificationEmail()
+                ?: config('mail.from.address')
+                ?: 'kontakt@hellokostek.pl';
+
+            if (filled($recipient)) {
+                Mail::to($recipient)->send(new ContactInquiryAdminMail($inquiry));
+
+                TransactionalEmailLog::create([
+                    'email_type' => 'contact_inquiry_admin',
+                    'recipient' => $recipient,
+                    'subject' => 'Nowe zapytanie o wycenę portretu: ' . $inquiry->name,
+                    'status' => 'sent',
+                    'sent_at' => now(),
+                    'payload' => [
+                        'inquiry_id' => $inquiry->id,
+                        'customer_email' => $inquiry->email,
+                        'customer_name' => $inquiry->name,
+                    ],
+                ]);
+            }
+        } catch (Throwable $e) {
+            Log::warning('Nie udało się wysłać powiadomienia e-mail o zapytaniu: ' . $e->getMessage());
+
+            TransactionalEmailLog::create([
+                'email_type' => 'contact_inquiry_admin',
+                'recipient' => $recipient ?? 'unknown',
+                'subject' => 'Nowe zapytanie o wycenę portretu: ' . $inquiry->name,
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+                'payload' => [
+                    'inquiry_id' => $inquiry->id,
+                ],
+            ]);
+        }
 
         return response()->json([
             'success' => true,

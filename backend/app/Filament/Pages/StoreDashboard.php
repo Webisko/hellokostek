@@ -113,7 +113,8 @@ class StoreDashboard extends Page
                 'label' => 'Nowe zapytania o portret',
                 'value' => number_format($newInquiries, 0, ',', ' '),
                 'description' => 'Nowe wiadomości z formularza zamówień portretu.',
-                'tone' => $newInquiries > 0 ? 'danger' : 'success',
+                'tone' => $newInquiries > 0 ? 'warning' : 'success',
+                'badge' => $newInquiries > 0 ? 'Nowe' : 'OK',
                 'url' => '/admin/zapytania-kontaktowe',
             ],
 
@@ -122,6 +123,7 @@ class StoreDashboard extends Page
                 'value' => number_format($pendingFulfillment, 0, ',', ' '),
                 'description' => 'Zamówienia opłacone czekające na pakowanie i nadanie.',
                 'tone' => $pendingFulfillment > 0 ? 'warning' : 'success',
+                'badge' => $pendingFulfillment > 0 ? 'Do wysyłki' : 'OK',
                 'url' => '/admin/zamowienia',
             ],
 
@@ -130,6 +132,7 @@ class StoreDashboard extends Page
                 'value' => number_format($pendingReturns, 0, ',', ' '),
                 'description' => 'Zgłoszenia zwrotów od klientów do weryfikacji.',
                 'tone' => $pendingReturns > 0 ? 'warning' : 'success',
+                'badge' => $pendingReturns > 0 ? 'Do zwrotu' : 'OK',
                 'url' => '/admin/zwroty',
             ],
         ];

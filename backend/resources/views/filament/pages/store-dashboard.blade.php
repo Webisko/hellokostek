@@ -4,9 +4,9 @@
         $operationalStats = $this->operationalStats();
         $toneBadge = static fn (string $tone): string => match ($tone) {
             'success' => 'OK',
-            'warning' => 'Uwaga',
+            'warning' => 'Do obsługi',
             'info' => 'Info',
-            'danger' => 'Błąd',
+            'danger' => 'Uwaga',
             default => 'Status',
         };
         $toneBadgeClass = static fn (string $tone): string => match ($tone) {
@@ -178,7 +178,7 @@
                                         <span class="text-gray-400 cursor-help text-xs" style="cursor: help; color: #a1a1aa; font-size: 0.75rem;" title="{{ $stat['description'] }}">ⓘ</span>
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
-                                        <span class="{{ $toneBadgeClass($stat['tone']) }}">{{ $toneBadge($stat['tone']) }}</span>
+                                        <span class="{{ $toneBadgeClass($stat['tone']) }}">{{ $stat['badge'] ?? $toneBadge($stat['tone']) }}</span>
                                         <span class="shop-analytics-table-value" style="min-width: 40px; text-align: right; font-weight: 700;">
                                             {{ $stat['value'] }}
                                         </span>

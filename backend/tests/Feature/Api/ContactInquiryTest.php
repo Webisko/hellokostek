@@ -12,12 +12,14 @@ class ContactInquiryTest extends TestCase
 
     public function test_contact_inquiry_can_be_submitted_successfully(): void
     {
+        \Illuminate\Support\Facades\Mail::fake();
+
         $response = $this->postJson(route('api.inquiries.store'), [
             'name' => 'Jan Kowalski',
             'email' => 'jan@kowalski.pl',
             'phone' => '123456789',
-            'subject' => 'Pytanie o ofertÄ™',
-            'message' => 'DzieĹ„ dobry, chciaĹ‚bym zapytaÄ‡ o ofertÄ™.',
+            'subject' => 'Pytanie o ofertę',
+            'message' => 'Dzień dobry, chciałbym zapytać o ofertę.',
         ]);
 
         $response->assertStatus(201)
@@ -28,10 +30,14 @@ class ContactInquiryTest extends TestCase
         $this->assertDatabaseHas('contact_inquiries', [
             'name' => 'Jan Kowalski',
             'email' => 'jan@kowalski.pl',
-            'subject' => 'Pytanie o ofertÄ™',
-            'message' => 'DzieĹ„ dobry, chciaĹ‚bym zapytaÄ‡ o ofertÄ™.',
+            'subject' => 'Pytanie o ofertę',
+            'message' => 'Dzień dobry, chciałbym zapytać o ofertę.',
             'status' => 'new',
         ]);
+
+        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\ContactInquiryAdminMail::class, function ($mail) {
+            return $mail->inquiry->email === 'jan@kowalski.pl';
+        });
     }
 
     public function test_contact_inquiry_can_save_complex_payload_from_multistep_forms(): void
