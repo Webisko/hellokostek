@@ -11,7 +11,7 @@ import {
 
 const getSrc = (img: any): string => (img && typeof img === 'object' && 'src' in img ? img.src : img);
 
-type FilterType = "all" | "2024" | "2023" | "2022" | "older";
+type FilterType = string;
 
 function mapGalleryArtwork(item: any): GalleryArtwork {
   const catName = typeof item.category === 'object' && item.category !== null 
@@ -22,11 +22,13 @@ function mapGalleryArtwork(item: any): GalleryArtwork {
   return {
     id: String(item.id),
     title: item.title?.pl || item.title || "",
-    year: item.year || "2022",
+    year: item.year || "2024",
     imageUrl: item.image_url || '/images/placeholder.png',
     originalUrl: item.original_url || undefined,
     category: catName,
     categorySlug: catSlug,
+    technique: item.technique || undefined,
+    format: item.format || undefined,
   };
 }
 
@@ -78,6 +80,25 @@ export default function Gallery() {
     return list;
   }, [artworks]);
 
+  // Compute year filter list dynamically from artworks
+  const yearFilters = useMemo(() => {
+    const yearsSet = new Set<string>();
+    artworks.forEach((art) => {
+      if (art.year && /^\d{4}$/.test(art.year)) {
+        yearsSet.add(art.year);
+      }
+    });
+    const sortedYears = Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
+    const list: { id: string; label: string }[] = [{ id: "all", label: "Wszystkie lata" }];
+    sortedYears.forEach((yr) => {
+      if (Number(yr) >= 2022) {
+        list.push({ id: yr, label: yr });
+      }
+    });
+    list.push({ id: "older", label: "Starsze prace" });
+    return list;
+  }, [artworks]);
+
   // Block body scroll when lightbox or filter drawer is open
   useEffect(() => {
     if (selectedImageIndex !== null || isFilterDrawerOpen) {
@@ -93,10 +114,14 @@ export default function Gallery() {
   // Filter logic
   const filteredArtworks = artworks.filter((artwork) => {
     // 1. Year filter
-    if (activeFilter === "2024" && artwork.year !== "2024") return false;
-    if (activeFilter === "2023" && artwork.year !== "2023") return false;
-    if (activeFilter === "2022" && artwork.year !== "2022") return false;
-    if (activeFilter === "older" && ["2024", "2023", "2022"].includes(artwork.year)) return false;
+    if (activeFilter !== "all") {
+      if (activeFilter === "older") {
+        const yrNum = parseInt(artwork.year, 10);
+        if (yrNum >= 2022) return false;
+      } else if (artwork.year !== activeFilter) {
+        return false;
+      }
+    }
 
     // 2. Category filter
     if (activeCategory !== "all") {
@@ -223,13 +248,7 @@ export default function Gallery() {
 
         {/* Year filters (Right) */}
         <div className="flex flex-wrap items-center justify-end gap-3 w-auto">
-          {[
-            { id: "all", label: "Wszystkie lata" },
-            { id: "2024", label: "2024" },
-            { id: "2023", label: "2023" },
-            { id: "2022", label: "2022" },
-            { id: "older", label: "Starsze prace" }
-          ].map((filter) => (
+          {yearFilters.map((filter) => (
             <button
               key={filter.id}
               onClick={() => {
@@ -352,7 +371,13 @@ export default function Gallery() {
               </h2>
 
               <div className="space-y-2.5 text-xs text-neutral-400 leading-relaxed">
-                {(currentArtwork.categorySlug === "olej" || currentArtwork.category?.toLowerCase() === "olej") && (
+                {currentArtwork.technique && (
+                  <p className="text-stone-200 font-medium">• Technika: <span className="text-neutral-300 font-normal">{currentArtwork.technique}</span></p>
+                )}
+                {currentArtwork.format && (
+                  <p className="text-stone-200 font-medium">• Format: <span className="text-neutral-300 font-normal">{currentArtwork.format}</span></p>
+                )}
+                {(currentArtwork.categorySlug === "olej" || currentArtwork.category?.toLowerCase() === "olej") && !currentArtwork.technique && (
                   <>
                     <p>• Tradycyjne malarstwo olejne na płótnie bawełnianym</p>
                     <p>• Naciąg na krosna sosnowe</p>
@@ -469,13 +494,7 @@ export default function Gallery() {
                 <div className="space-y-4">
                   <h3 className="text-xs font-mono uppercase tracking-widest text-[#E0115F] font-bold">Rok powstania</h3>
                   <div className="flex flex-col gap-2">
-                    {[
-                      { id: "all", label: "Wszystkie lata" },
-                      { id: "2024", label: "2024" },
-                      { id: "2023", label: "2023" },
-                      { id: "2022", label: "2022" },
-                      { id: "older", label: "Starsze prace" }
-                    ].map((filter) => (
+                    {yearFilters.map((filter) => (
                       <button
                         key={filter.id}
                         onClick={() => {

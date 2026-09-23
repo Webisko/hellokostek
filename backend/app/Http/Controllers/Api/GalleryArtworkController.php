@@ -24,6 +24,8 @@ class GalleryArtworkController extends Controller
                 'items' => $items->map(fn (GalleryArtwork $item): array => [
                     'id' => 'gallery-' . $item->id,
                     'title' => $item->title,
+                    'technique' => $item->technique,
+                    'format' => $item->format,
                     'category' => $item->category?->name,
                     'category_slug' => $item->category?->slug,
                     'category_id' => $item->category_id,

@@ -222,7 +222,7 @@ export default function PrivacyPolicy() {
               Jeśli chcesz zrealizować swoje prawa RODO lub masz jakiekolwiek wątpliwości, skontaktuj się ze mną bezpośrednio.
             </p>
             <a 
-              href="/hellokostek/kontakt?subject=other_question"
+              href="/kontakt?subject=other_question"
               className="button button--full button--sm cursor-pointer"
             >
               <div className="button__blobs">
@@ -293,7 +293,7 @@ export default function PrivacyPolicy() {
               {/* Footer */}
               <div className="p-6 border-t border-gray-100 bg-gray-55">
                 <a 
-                  href="/hellokostek/kontakt?subject=other_question"
+                  href="/kontakt?subject=other_question"
                   onClick={() => setIsTocDrawerOpen(false)}
                   className="button button--full button--sm cursor-pointer"
                 >

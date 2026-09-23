@@ -46,11 +46,11 @@ class CouponValidateController extends Controller
         }
 
         if ($coupon->minimum_subtotal_amount !== null) {
-            $minRequired = (float) $coupon->minimum_subtotal_amount;
-            if ($subtotal < $minRequired) {
+            $minRequiredPln = (float) $coupon->minimum_subtotal_amount / 100.0;
+            if ($subtotal < $minRequiredPln) {
                 return response()->json([
                     'valid' => false,
-                    'message' => sprintf('Minimalna wartość zamówienia dla tego kuponu to %s PLN.', number_format($minRequired, 2, ',', ' ')),
+                    'message' => sprintf('Minimalna wartość zamówienia dla tego kuponu to %s PLN.', number_format($minRequiredPln, 2, ',', ' ')),
                 ], 422);
             }
         }
@@ -69,15 +69,17 @@ class CouponValidateController extends Controller
             }
         }
 
-        // Calculate discount
+        // Calculate discount in PLN
         $discountAmount = 0.0;
         $discountType = $coupon->discount_type;
-        $value = (float) $coupon->value;
+        $rawValue = (float) $coupon->value;
 
         if ($discountType === 'percentage') {
+            $value = $rawValue;
             $discountAmount = round(($subtotal * ($value / 100.0)), 2);
         } else {
-            // fixed or fixed_cart
+            // fixed or fixed_cart (value stored in grosze in DB)
+            $value = round($rawValue / 100.0, 2);
             $discountAmount = min($subtotal, $value);
         }
 
@@ -87,7 +89,7 @@ class CouponValidateController extends Controller
             'name' => $coupon->name,
             'discount_type' => $discountType,
             'value' => $value,
-            'discount_amount' => $discountAmount,
+            'discount_amount' => round($discountAmount, 2),
             'message' => sprintf('Kupon rabatowy %s został naliczony!', $coupon->code),
         ]);
     }

@@ -144,7 +144,7 @@ export default function FaqSection() {
             </p>
           </div>
           <a
-            href="/hellokostek/kontakt"
+            href="/kontakt"
             className="button shrink-0 text-center cursor-pointer"
           >
             <div className="button__blobs">

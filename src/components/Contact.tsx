@@ -124,7 +124,7 @@ export default function Contact() {
 
       setIsSubmitting(false);
       if (typeof window !== "undefined") {
-        window.location.href = "/hellokostek/sukces-kontakt";
+        window.location.href = "/sukces-kontakt";
       }
     } catch (err: any) {
       setIsSubmitting(false);

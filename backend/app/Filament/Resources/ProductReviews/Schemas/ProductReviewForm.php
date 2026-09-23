@@ -20,6 +20,18 @@ class ProductReviewForm
                         ->label('Wybór Emoji')
                         ->placeholder('np. 🐶, ✨, ❤️, 🎨')
                         ->maxLength(16),
+                    Select::make('rating')
+                        ->label('Ocena (gwiazdki)')
+                        ->options([
+                            5 => '⭐⭐⭐⭐⭐ (5 gwiazdek)',
+                            4 => '⭐⭐⭐⭐ (4 gwiazdki)',
+                            3 => '⭐⭐⭐ (3 gwiazdki)',
+                            2 => '⭐⭐ (2 gwiazdki)',
+                            1 => '⭐ (1 gwiazdka)',
+                        ])
+                        ->default(5)
+                        ->required()
+                        ->native(false),
                     Select::make('status')
                         ->label('Status')
                         ->options([

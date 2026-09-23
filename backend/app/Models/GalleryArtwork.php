@@ -13,11 +13,13 @@ class GalleryArtwork extends Model
         'category_id',
         'title',
         'technique',
+        'format',
         'year',
         'image_path',
         'original_url',
         'is_active',
         'sort_order',
+        'metadata',
     ];
 
     protected function casts(): array
@@ -25,6 +27,7 @@ class GalleryArtwork extends Model
         return [
             'is_active' => 'boolean',
             'sort_order' => 'integer',
+            'metadata' => 'array',
         ];
     }
 

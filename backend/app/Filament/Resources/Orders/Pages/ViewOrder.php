@@ -18,6 +18,35 @@ class ViewOrder extends ViewRecord
         return [
             EditAction::make(),
 
+            // Mark as Paid (Zaksięguj wpłatę / przelew tradycyjny)
+            Action::make('mark_as_paid')
+                ->label('Zaksięguj wpłatę')
+                ->icon('heroicon-o-check-circle')
+                ->color('success')
+                ->visible(fn ($record): bool => $record->payment_status !== 'paid')
+                ->requiresConfirmation()
+                ->modalHeading('Zaksięgowanie wpłaty za zamówienie')
+                ->modalDescription(fn ($record): string => "Czy na pewno chcesz oznaczyć zamówienie {$record->number} jako opłacone? System zaktualizuje status zamówienia na opłacone.")
+                ->modalSubmitActionLabel('Zaksięguj wpłatę')
+                ->action(function ($record): void {
+                    $record->forceFill([
+                        'payment_status' => 'paid',
+                        'status' => in_array($record->status, ['draft', 'pending', 'cancelled']) ? 'placed' : $record->status,
+                    ])->save();
+
+                    try {
+                        app(\App\Domain\Commerce\Accounting\Drivers\BuiltInInvoiceDriver::class)->sendOrder($record);
+                    } catch (\Throwable $e) {
+                        // silently continue if already invoiced
+                    }
+
+                    Notification::make()
+                        ->title('Płatność zaksięgowana')
+                        ->body("Płatność dla zamówienia {$record->number} została pomyślnie zaksięgowana.")
+                        ->success()
+                        ->send();
+                }),
+
             // Generate InPost Label Action
             Action::make('generate_inpost_label')
                 ->label('Generuj etykietę InPost')

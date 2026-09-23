@@ -8,6 +8,8 @@ export interface GalleryArtwork {
   originalUrl?: string;
   category?: string;
   categorySlug?: string;
+  technique?: string;
+  format?: string;
 }
 
 export interface Product {

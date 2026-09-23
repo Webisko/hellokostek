@@ -20,6 +20,8 @@ class StoreSettingsController extends Controller
             'currency' => $this->storeSettings->currency(),
             'free_shipping_threshold' => $this->storeSettings->freeShippingThreshold(),
             'allow_guest_checkout' => $this->storeSettings->allowGuestCheckout(),
+            'announcement_enabled' => $this->storeSettings->announcementEnabled(),
+            'announcement_text' => $this->storeSettings->announcementText(),
             'cookie_banner_enabled' => $this->storeSettings->cookieBannerEnabled(),
             'google_tag_manager_id' => $this->storeSettings->googleTagManagerId(),
             'google_analytics_id' => $this->storeSettings->googleAnalyticsId(),

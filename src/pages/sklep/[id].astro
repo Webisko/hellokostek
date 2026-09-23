@@ -4,7 +4,56 @@ import ProductDetail from '../../components/ProductDetail';
 import { SHOP_PRODUCTS } from '../../data';
 
 export async function getStaticPaths() {
-  return SHOP_PRODUCTS.map((product) => ({
+  const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+  let products = [...SHOP_PRODUCTS];
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch(`${apiBase}/catalog`, { credentials: 'omit', signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      const payload = data.data || data;
+      if (Array.isArray(payload) && payload.length > 0) {
+        const mapped = payload.map((apiProd: any) => {
+          const originalVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-OR'));
+          const printVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-PR'));
+
+          let category: 'akwarela' | 'rysunek' = 'akwarela';
+          if (apiProd.categories && apiProd.categories.length > 0) {
+            const catSlug = apiProd.categories[0].slug;
+            if (catSlug === 'akwarela' || catSlug === 'rysunek' || catSlug === 'watercolor' || catSlug === 'drawing') {
+              category = catSlug === 'watercolor' ? 'akwarela' : catSlug === 'drawing' ? 'rysunek' : catSlug;
+            }
+          }
+
+          return {
+            id: apiProd.slug,
+            title: apiProd.name?.pl || apiProd.name || "",
+            year: apiProd.metadata?.year || "2022",
+            category,
+            originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProd.regular_price_amount / 100),
+            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
+            isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+            imageUrl: apiProd.featured_image_url || '/images/placeholder.png',
+            description: apiProd.description?.pl || apiProd.description || "",
+            originalVariantId: originalVariant?.id,
+            printVariantId: printVariant?.id,
+          };
+        });
+
+        const apiIds = new Set(mapped.map((m: any) => m.id));
+        const missingStatic = SHOP_PRODUCTS.filter((p) => !apiIds.has(p.id));
+        products = [...mapped, ...missingStatic];
+      }
+    }
+  } catch (e) {
+    // API not reachable during build: fallback safely to SHOP_PRODUCTS
+  }
+
+  return products.map((product) => ({
     params: { id: product.id },
     props: { product },
   }));

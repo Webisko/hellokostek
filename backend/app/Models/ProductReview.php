@@ -19,8 +19,6 @@ class ProductReview extends Model
         'rating',
         'comment',
         'status',
-        'is_verified_purchase',
-        'is_approved',
     ];
 
     protected static function booted(): void

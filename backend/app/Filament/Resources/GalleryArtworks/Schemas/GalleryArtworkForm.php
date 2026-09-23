@@ -31,9 +31,18 @@ class GalleryArtworkForm
                         ->required()
                         ->maxLength(255),
 
+                    TextInput::make('technique')
+                        ->label('Technika wykonania')
+                        ->placeholder('np. Cienkopisy i akwarela na papierze')
+                        ->maxLength(255),
+
+                    TextInput::make('format')
+                        ->label('Format')
+                        ->placeholder('np. A3 (297 x 420 mm)')
+                        ->maxLength(100),
+
                     TextInput::make('year')
                         ->label('Rok powstania')
-                        ->required()
                         ->placeholder('np. 2024')
                         ->maxLength(32),
 

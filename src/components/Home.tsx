@@ -169,7 +169,7 @@ export default function Home() {
       setEmailForm({ name: "", email: "", subject: "portrait_commission", message: "", shape: "", size: "" });
       setEmailFiles([]);
       if (typeof window !== "undefined") {
-        window.location.href = "/hellokostek/sukces-kontakt";
+        window.location.href = "/sukces-kontakt";
       }
     } catch (err: any) {
       setIsSubmitting(false);

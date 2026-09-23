@@ -16,11 +16,6 @@ class EditProduct extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            $this->getSaveFormAction()
-                ->label('Zapisz')
-                ->icon('heroicon-o-check'),
-            $this->getCancelFormAction()
-                ->label('Anuluj'),
             ViewAction::make(),
             DeleteAction::make(),
             RestoreAction::make(),
@@ -28,9 +23,15 @@ class EditProduct extends EditRecord
         ];
     }
 
-    protected function getFormActions(): array
+    protected function mutateFormDataBeforeSave(array $data): array
     {
-        return [];
+        if (isset($data['print_regular_price']) && filled($data['print_regular_price'])) {
+            $data['regular_price_amount'] = (int) round(((float) $data['print_regular_price']) * 100);
+        } elseif (isset($data['original_regular_price']) && filled($data['original_regular_price'])) {
+            $data['regular_price_amount'] = (int) round(((float) $data['original_regular_price']) * 100);
+        }
+
+        return $data;
     }
 
     protected function afterSave(): void

@@ -39,6 +39,14 @@ class ProductCategoryForm
                                 }
                                 $set('slug', Str::slug((string) $state));
                             }),
+                        TextInput::make('sort_order')
+                            ->label('Kolejność sortowania')
+                            ->numeric()
+                            ->default(0)
+                            ->required(),
+                        Toggle::make('is_active')
+                            ->label('Aktywna (widoczna w sklepie i galerii)')
+                            ->default(true),
                         Textarea::make('description')
                             ->label('Opis')
                             ->rows(4)

@@ -73,6 +73,19 @@ class StoreSettingForm
                                                 ->extraAttributes(['class' => 'fi-login-bg-upload flex-1 flex flex-col h-full']),
                                         ]),
                                 ]),
+                            Section::make('Pasek ogłoszeń sklepu (Announcement Banner)')
+                                ->description('Pasek informacyjny na samej górze sklepu (np. darmowa dostawa lub informacje o promocjach).')
+                                ->schema([
+                                    Toggle::make('announcement_enabled')
+                                        ->label('Włącz pasek ogłoszeń na górze strony')
+                                        ->default(false),
+                                    TextInput::make('announcement_text')
+                                        ->label('Treść paska ogłoszeń')
+                                        ->placeholder('np. Darmowa dostawa dla zamówień od 250 zł | Wysyłka w 24h')
+                                        ->maxLength(255),
+                                ])
+                                ->collapsible()
+                                ->columns(2),
                         ]),
 
                     Tabs\Tab::make('System i poczta')
@@ -242,6 +255,46 @@ class StoreSettingForm
                                         ->keyLabel('Waluta (EUR, USD)')
                                         ->valueLabel('Mnożnik (1 PLN = X waluty)')
                                         ->columnSpanFull(),
+                                ]),
+
+                            Section::make('Dane Sprzedawcy i Faktury VAT')
+                                ->description('Konfiguracja danych firmy umieszczanych na automatycznie generowanych fakturach VAT PDF.')
+                                ->columns(['lg' => 2, 'default' => 1])
+                                ->schema([
+                                    Toggle::make('metadata.invoicing_enabled')
+                                        ->label('Włącz automatyczne generowanie faktur PDF')
+                                        ->default(true)
+                                        ->columnSpanFull(),
+                                    TextInput::make('metadata.invoice_seller_name')
+                                        ->label('Pełna nazwa firmy sprzedawcy')
+                                        ->placeholder('np. hellokostek Maciej Kosteczka')
+                                        ->default('hellokostek Maciej Kosteczka')
+                                        ->maxLength(255),
+                                    TextInput::make('metadata.invoice_seller_nip')
+                                        ->label('NIP sprzedawcy')
+                                        ->placeholder('np. 6252363656')
+                                        ->default('6252363656')
+                                        ->maxLength(32),
+                                    TextInput::make('metadata.invoice_seller_address')
+                                        ->label('Adres siedziby sprzedawcy')
+                                        ->placeholder('np. Rynek 33, 42-470 Siewierz')
+                                        ->default('Rynek 33, 42-470 Siewierz')
+                                        ->columnSpanFull()
+                                        ->maxLength(255),
+                                    TextInput::make('metadata.invoice_seller_bank_account')
+                                        ->label('Numer rachunku bankowego (IBAN)')
+                                        ->placeholder('np. PL 00 0000 0000 0000 0000 0000 0000')
+                                        ->maxLength(64),
+                                    TextInput::make('metadata.invoice_number_prefix')
+                                        ->label('Prefiks numeracji faktur')
+                                        ->placeholder('FV/')
+                                        ->default('FV/')
+                                        ->maxLength(32),
+                                    TextInput::make('metadata.invoice_payment_days')
+                                        ->label('Domyślny termin płatności (dni)')
+                                        ->numeric()
+                                        ->default(14)
+                                        ->minValue(1),
                                 ]),
 
                             Section::make('Odzyskiwanie Porzuconych Koszyków')

@@ -36,6 +36,14 @@ class GalleryArtworkTable
                     ->color('info')
                     ->sortable(),
 
+                TextColumn::make('technique')
+                    ->label('Technika')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('format')
+                    ->label('Format')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('year')
                     ->label('Rok')
                     ->sortable(),

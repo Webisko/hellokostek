@@ -273,7 +273,7 @@ export default function Terms() {
               Mój regulamin ma na celu jasne zabezpieczenie zarówno Twoich praw, jak i integralności rękodzieła.
             </p>
             <a 
-              href="/hellokostek/kontakt?subject=other_question"
+              href="/kontakt?subject=other_question"
               className="button button--full button--sm cursor-pointer"
             >
               <div className="button__blobs">
@@ -344,7 +344,7 @@ export default function Terms() {
               {/* Footer */}
               <div className="p-6 border-t border-gray-100 bg-gray-55">
                 <a 
-                  href="/hellokostek/kontakt?subject=other_question"
+                  href="/kontakt?subject=other_question"
                   onClick={() => setIsTocDrawerOpen(false)}
                   className="button button--full button--sm cursor-pointer"
                 >
