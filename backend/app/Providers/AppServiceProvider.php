@@ -66,6 +66,18 @@ class AppServiceProvider extends ServiceProvider
             Mail::alwaysTo($safetyRecipient);
         }
 
+        // Obsługa wysyłki e-maili na hostingu współdzielonym (brak funkcji proc_open)
+        Mail::extend('sendmail', function () {
+            if (!function_exists('proc_open')) {
+                return new \App\Support\NativePhpMailTransport();
+            }
+            return new \Symfony\Component\Mailer\Transport\SendmailTransport();
+        });
+
+        Mail::extend('native', function () {
+            return new \App\Support\NativePhpMailTransport();
+        });
+
         try {
             if (!\Illuminate\Support\Facades\Schema::hasTable('media')) {
                 \Illuminate\Support\Facades\Schema::create('media', function (\Illuminate\Database\Schema\Blueprint $table) {
