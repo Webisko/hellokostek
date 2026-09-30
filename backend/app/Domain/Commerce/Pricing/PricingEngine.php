@@ -341,6 +341,6 @@ class PricingEngine
             return ['cod'];
         }
 
-        return ['przelewy24', 'stripe'];
+        return ['przelewy24', 'stripe', 'bank_transfer'];
     }
 }

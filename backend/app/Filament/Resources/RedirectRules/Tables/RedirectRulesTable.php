@@ -19,6 +19,7 @@ class RedirectRulesTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('source_path')->label('Stary adres')->searchable()->sortable(),
                 TextColumn::make('target_path')->label('Nowy adres')->searchable(),
@@ -37,15 +38,6 @@ class RedirectRulesTable
                 TernaryFilter::make('is_active')->label('Aktywny'),
             ])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Edytuj')
-                            ->slideOver()
-                            ->cancelParentActions(),
-                    ]),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')->slideOver(),
                 DeleteAction::make()->iconButton()->tooltip('Usuń'),
             ])

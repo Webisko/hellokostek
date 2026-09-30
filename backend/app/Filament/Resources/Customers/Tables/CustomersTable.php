@@ -18,7 +18,7 @@ class CustomersTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            ->recordAction('view')
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('name')
                     ->label('Imię i nazwisko')
@@ -97,17 +97,6 @@ class CustomersTable
                 \Filament\Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->modalWidth('7xl')
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Edytuj')
-                            ->slideOver()
-                            ->modalWidth('7xl')
-                            ->cancelParentActions(),
-                    ]),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()
                     ->modalWidth('7xl'),

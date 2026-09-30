@@ -18,7 +18,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if (@file_exists(base_path('../public_html'))) {
+        if (file_exists(base_path('public/index.php'))) {
+            $this->app->usePublicPath(base_path('public'));
+        } elseif (@file_exists(base_path('../public_html'))) {
             $this->app->usePublicPath(base_path('../public_html'));
         }
     }

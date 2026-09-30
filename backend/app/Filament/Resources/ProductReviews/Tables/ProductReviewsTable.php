@@ -15,7 +15,10 @@ class ProductReviewsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('sort_order', 'asc')
+            ->reorderable('sort_order')
+            ->reorderRecordsTriggerAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Zmień kolejność opinii (przeciągnij i upuść)'))
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('emoji')
                     ->label('Emoji')

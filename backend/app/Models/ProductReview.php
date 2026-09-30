@@ -11,6 +11,7 @@ class ProductReview extends Model
     use HasFactory;
 
     protected $fillable = [
+        'sort_order',
         'product_id',
         'customer_email',
         'customer_name',
@@ -35,6 +36,7 @@ class ProductReview extends Model
     protected function casts(): array
     {
         return [
+            'sort_order' => 'integer',
             'rating' => 'integer',
             'is_verified_purchase' => 'boolean',
             'is_approved' => 'boolean',

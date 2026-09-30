@@ -38,11 +38,8 @@ class FaqItemForm
                     TextInput::make('group_name')
                         ->label('Grupa')
                         ->maxLength(255),
-                    TextInput::make('sort_order')
-                        ->label('Kolejnosc')
-                        ->numeric()
-                        ->required()
-                        ->default(0),
+                    \Filament\Forms\Components\Hidden::make('sort_order')
+                        ->default(fn () => (\App\Models\FaqItem::max('sort_order') ?? 0) + 10),
                     Toggle::make('is_active')
                         ->label('Aktywne')
                         ->default(true),

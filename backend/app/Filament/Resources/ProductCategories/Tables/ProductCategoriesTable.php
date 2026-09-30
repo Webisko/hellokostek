@@ -15,8 +15,10 @@ class ProductCategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('name')
-            ->recordAction('view')
+            ->defaultSort('sort_order', 'asc')
+            ->reorderable('sort_order')
+            ->reorderRecordsTriggerAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Zmień kolejność kategorii (przeciągnij i upuść)'))
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('name')
                     ->label('Nazwa')
@@ -47,17 +49,6 @@ class ProductCategoriesTable
             ])
             ->filters([])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->modalWidth('7xl')
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Edytuj')
-                            ->slideOver()
-                            ->modalWidth('7xl')
-                            ->cancelParentActions(),
-                    ]),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()
                     ->modalWidth('7xl'),

@@ -18,6 +18,7 @@ class Product extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'sort_order',
         'slug',
         'sku',
         'type',
@@ -74,6 +75,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'sort_order' => 'integer',
             'type' => ProductType::class,
             'vat_rate' => 'integer',
             'manages_stock' => 'boolean',

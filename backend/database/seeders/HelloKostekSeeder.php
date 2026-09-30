@@ -246,6 +246,7 @@ class HelloKostekSeeder extends Seeder
             $product = Product::query()->updateOrCreate(
                 ['slug' => $prod['id']],
                 [
+                    'type' => ProductType::Physical,
                     'sku' => 'HK-' . strtoupper(str_replace('-', '', $prod['id'])),
                     'name' => $prod['title'],
                     'short_description' => Str::limit($prod['description'], 120),

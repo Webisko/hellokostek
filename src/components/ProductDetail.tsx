@@ -218,11 +218,10 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       ? currentProduct.originalVariantId 
       : currentProduct.printVariantId;
 
-    let shippingMethodCode = "courier";
-    if (selectedDelivery === "free_courier") shippingMethodCode = "courier";
-    else if (selectedDelivery === "inpost") shippingMethodCode = "inpost";
-    else if (selectedDelivery === "orlen") shippingMethodCode = "orlen";
-    else if (selectedDelivery === "courier") shippingMethodCode = "courier";
+    let shippingMethodCode = "flat_rate:courier";
+    if (selectedDelivery === "free_courier" || selectedDelivery === "courier") shippingMethodCode = "flat_rate:courier";
+    else if (selectedDelivery === "inpost") shippingMethodCode = "flexible_shipping:paczkomat";
+    else if (selectedDelivery === "orlen") shippingMethodCode = "flexible_shipping:orlen";
 
     let paymentMethodCode = "przelewy24";
     if (paymentMethod === "blik") paymentMethodCode = "przelewy24";
@@ -302,8 +301,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       setIsSubmitting(false);
       setIsCheckoutOpen(false);
 
-      if (paymentData && paymentData.payment_url) {
-        window.location.href = paymentData.payment_url;
+      const redirectUrl = paymentData?.payment_url || paymentData?.redirect_url;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
       } else {
         const deliveryOpt = deliveryOptions.find(opt => opt.id === selectedDelivery) || deliveryOptions[0];
         window.location.href = `${basePath}/sukces-zakup?orderNumber=${orderData.number}&productTitle=${encodeURIComponent(currentProduct.title)}&purchaseType=${selectedType}&price=${currentPrice}&shippingMethod=${encodeURIComponent(deliveryOpt.name)}&shippingPrice=${deliveryOpt.price}&isTransfer=${paymentMethodCode === 'bank_transfer'}`;

@@ -19,6 +19,8 @@ class GalleryArtworkTable
         return $table
             ->defaultSort('sort_order', 'asc')
             ->reorderable('sort_order')
+            ->reorderRecordsTriggerAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Zmień kolejność dzieł (przeciągnij i upuść)'))
+            ->recordAction('edit')
             ->columns([
                 ImageColumn::make('image_path')
                     ->label('Zdjęcie')

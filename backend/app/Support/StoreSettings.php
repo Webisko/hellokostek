@@ -91,7 +91,25 @@ class StoreSettings
             return null;
         }
 
-        return $this->shippingMethods()[$code] ?? null;
+        $methods = $this->shippingMethods();
+        if (isset($methods[$code])) {
+            return $methods[$code];
+        }
+
+        $alias = match ($code) {
+            'courier', 'free_courier' => 'flat_rate:courier',
+            'inpost', 'paczkomat' => 'flexible_shipping:paczkomat',
+            'orlen' => 'flexible_shipping:orlen',
+            'pickup' => 'flexible_shipping:pickup',
+            'cod' => 'flat_rate:cod',
+            default => null,
+        };
+
+        if ($alias !== null && isset($methods[$alias])) {
+            return $methods[$alias];
+        }
+
+        return null;
     }
 
     public function shippingZones(): array
@@ -101,7 +119,16 @@ class StoreSettings
 
     public function shippingMethodForCountry(?string $code, ?string $countryCode, float $cartWeight = 0.0, int $cartValue = 0): ?array
     {
-        $method = $this->shippingMethod($code);
+        $actualCode = match ($code) {
+            'courier', 'free_courier' => 'flat_rate:courier',
+            'inpost', 'paczkomat' => 'flexible_shipping:paczkomat',
+            'orlen' => 'flexible_shipping:orlen',
+            'pickup' => 'flexible_shipping:pickup',
+            'cod' => 'flat_rate:cod',
+            default => $code,
+        };
+
+        $method = $this->shippingMethod($actualCode);
         if (! is_array($method)) {
             return null;
         }
@@ -134,7 +161,7 @@ class StoreSettings
 
         // Retrieve raw method from DB record
         $rawMethods = $this->model()->shipping_methods ?? [];
-        $rawMethod = collect($rawMethods)->first(fn ($m) => ($m['code'] ?? null) === $code);
+        $rawMethod = collect($rawMethods)->first(fn ($m) => ($m['code'] ?? null) === $actualCode);
         if (! $rawMethod) {
             return null;
         }

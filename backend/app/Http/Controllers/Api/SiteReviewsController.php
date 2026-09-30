@@ -15,7 +15,8 @@ class SiteReviewsController extends Controller
                 $q->where('status', 'publiczny')
                   ->orWhere('is_approved', true);
             })
-            ->latest()
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (ProductReview $review) => [
                 'id' => $review->id,

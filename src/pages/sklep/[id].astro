@@ -16,8 +16,9 @@ export async function getStaticPaths() {
     if (res.ok) {
       const data = await res.json();
       const payload = data.data || data;
-      if (Array.isArray(payload) && payload.length > 0) {
-        const mapped = payload.map((apiProd: any) => {
+      const items = Array.isArray(payload) ? payload : (payload.products || []);
+      if (Array.isArray(items) && items.length > 0) {
+        const mapped = items.map((apiProd: any) => {
           const originalVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-OR'));
           const printVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-PR'));
 

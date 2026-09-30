@@ -21,7 +21,7 @@ class CouponsTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            ->recordAction('view')
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('code')
                     ->label('Kod')
@@ -69,17 +69,6 @@ class CouponsTable
                     ->label('Aktywny'),
             ])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->modalWidth('7xl')
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Edytuj')
-                            ->slideOver()
-                            ->modalWidth('7xl')
-                            ->cancelParentActions(),
-                    ]),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')->slideOver()->modalWidth('7xl'),
                 DeleteAction::make()->iconButton()->tooltip('Usuń'),
             ])

@@ -16,8 +16,10 @@ class ContentPagesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('sort_order')
+            ->defaultSort('sort_order', 'asc')
             ->reorderable('sort_order')
+            ->reorderRecordsTriggerAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Zmień kolejność stron (przeciągnij i upuść)'))
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('title')
                     ->label('Tytuł strony')

@@ -52,11 +52,8 @@ class GalleryArtworkForm
                         ->url()
                         ->maxLength(255),
 
-                    TextInput::make('sort_order')
-                        ->label('Kolejność sortowania')
-                        ->numeric()
-                        ->default(0)
-                        ->required(),
+                    \Filament\Forms\Components\Hidden::make('sort_order')
+                        ->default(fn () => (\App\Models\GalleryArtwork::max('sort_order') ?? 0) + 10),
 
                     Toggle::make('is_active')
                         ->label('Aktywny w portfolio')

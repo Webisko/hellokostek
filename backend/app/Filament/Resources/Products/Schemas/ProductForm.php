@@ -83,6 +83,7 @@ class ProductForm
                                         Repeater::make('bundleItems')
                                             ->relationship('bundleItems')
                                             ->label('Produkty wchodzące w skład zestawu')
+                                            ->orderColumn('sort_order')
                                             ->columns(2)
                                             ->schema([
                                                 Select::make('product_id')
@@ -318,7 +319,8 @@ class ProductForm
                                         Repeater::make('productRelations')
                                             ->relationship()
                                             ->label('Powiązane produkty')
-                                            ->columns(3)
+                                            ->orderColumn('sort_order')
+                                            ->columns(2)
                                             ->schema([
                                                 Select::make('related_product_id')
                                                     ->label('Produkt powiązany')
@@ -336,11 +338,6 @@ class ProductForm
                                                     ])
                                                     ->required()
                                                     ->native(false),
-                                                TextInput::make('sort_order')
-                                                    ->label('Kolejność')
-                                                    ->numeric()
-                                                    ->default(0)
-                                                    ->required(),
                                             ])
                                             ->defaultItems(0)
                                             ->columnSpanFull(),

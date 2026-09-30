@@ -30,29 +30,4 @@ Route::middleware('auth')->prefix('admin')->group(function (): void {
     Route::post('/sidebar/save-order', [\App\Http\Controllers\Admin\SidebarController::class, 'saveOrder'])->name('admin.sidebar.save-order');
 });
 
-// Secure endpoint for database initialization on shared hosting (deployment without SSH)
-Route::get('/init-db-98231', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
-        $migrateOut = \Illuminate\Support\Facades\Artisan::output();
-
-        \Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'HelloKostekSeeder',
-            '--force' => true
-        ]);
-        $seedOut = \Illuminate\Support\Facades\Artisan::output();
-
-        return response()->json([
-            'success' => true,
-            'migrate' => $migrateOut,
-            'seed' => $seedOut
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage()
-        ], 500);
-    }
-});
-
 

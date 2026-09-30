@@ -126,7 +126,7 @@ class CatalogController extends Controller
         } elseif ($sort === 'popular') {
             $query->orderBy('approved_reviews_count', 'desc');
         } else {
-            $query->orderBy('name');
+            $query->orderBy('sort_order', 'asc')->orderBy('id', 'asc');
         }
 
         // 7. Pagination

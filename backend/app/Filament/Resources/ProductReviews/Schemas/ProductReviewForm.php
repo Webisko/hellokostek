@@ -16,6 +16,8 @@ class ProductReviewForm
             Section::make('Szczegóły opinii')->columnSpanFull()
                 ->columns(2)
                 ->schema([
+                    \Filament\Forms\Components\Hidden::make('sort_order')
+                        ->default(fn () => (\App\Models\ProductReview::max('sort_order') ?? 0) + 10),
                     TextInput::make('emoji')
                         ->label('Wybór Emoji')
                         ->placeholder('np. 🐶, ✨, ❤️, 🎨')

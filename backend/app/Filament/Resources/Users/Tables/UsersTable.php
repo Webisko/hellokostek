@@ -17,6 +17,7 @@ class UsersTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('name')
                     ->label('Imię i nazwisko')

@@ -233,10 +233,12 @@ php artisan test
 
 ---
 
-## 🌐 Serwer Produkcyjny (LH.pl)
+## 🌐 Serwer Produkcyjny (SEOHost)
 
-* **Host**: `serwer69908.lh.pl` (Port SSH: 22, Port FTP: 21)
-* **Użytkownik**: `serwer69908`
-* **Katalog sklepu / frontendu**: `/public_html/hellokostek.pl/`
-* **Katalog backendu / CMS**: `/public_html/admin.hellokostek.pl/`
-* **Katalog publiczny CMS**: `/public_html/admin.hellokostek.pl/public/`
+* **Host**: `h93.seohost.pl` (IP: `91.236.131.93`, Port SSH: 57185, Port FTP: 21)
+* **Użytkownik**: `srv124983`
+* **Panel DirectAdmin**: `https://h93.seohost.pl:2222/`
+* **Baza Danych**: `srv124983_kostek` (MySQL / MariaDB 11.4)
+* **Katalog sklepu / frontendu**: `/home/srv124983/domains/hellokostek.pl/public_html/`
+* **Katalog backendu / CMS**: `/home/srv124983/domains/panel.hellokostek.pl/backend/`
+* **Katalog publiczny CMS (Symlink)**: `/home/srv124983/domains/panel.hellokostek.pl/public_html` -> `backend/public`

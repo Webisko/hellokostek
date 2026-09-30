@@ -19,8 +19,10 @@ class ProductAttributesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('sort_order')
-            ->recordAction('view')
+            ->defaultSort('sort_order', 'asc')
+            ->reorderable('sort_order')
+            ->reorderRecordsTriggerAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Zmień kolejność atrybutów (przeciągnij i upuść)'))
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('name')
                     ->label('Nazwa')
@@ -43,9 +45,6 @@ class ProductAttributesTable
                         'color' => 'heroicon-o-swatch',
                         default => null,
                     }),
-                TextColumn::make('sort_order')
-                    ->label('Kolejność')
-                    ->sortable(),
                 TextColumn::make('categories.name')
                     ->label('Kategorie')
                     ->listWithLineBreaks()
@@ -68,17 +67,6 @@ class ProductAttributesTable
                     ->label('Aktywny'),
             ])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->modalWidth('7xl')
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Edytuj')
-                            ->slideOver()
-                            ->modalWidth('7xl')
-                            ->cancelParentActions(),
-                    ]),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()
                     ->modalWidth('7xl'),

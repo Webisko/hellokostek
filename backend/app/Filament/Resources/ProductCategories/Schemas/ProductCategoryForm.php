@@ -39,11 +39,8 @@ class ProductCategoryForm
                                 }
                                 $set('slug', Str::slug((string) $state));
                             }),
-                        TextInput::make('sort_order')
-                            ->label('Kolejność sortowania')
-                            ->numeric()
-                            ->default(0)
-                            ->required(),
+                        \Filament\Forms\Components\Hidden::make('sort_order')
+                            ->default(fn () => (\App\Models\ProductCategory::max('sort_order') ?? 0) + 10),
                         Toggle::make('is_active')
                             ->label('Aktywna (widoczna w sklepie i galerii)')
                             ->default(true),

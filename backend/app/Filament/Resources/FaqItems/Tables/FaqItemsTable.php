@@ -17,27 +17,19 @@ class FaqItemsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('sort_order')
+            ->defaultSort('sort_order', 'asc')
             ->reorderable('sort_order')
+            ->reorderRecordsTriggerAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Zmień kolejność pytań (przeciągnij i upuść)'))
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('question')->label('Pytanie')->searchable(),
                 TextColumn::make('group_name')->label('Grupa')->toggleable(),
-                TextColumn::make('sort_order')->label('Kolejność')->sortable(),
                 IconColumn::make('is_active')->label('Aktywne')->boolean(),
             ])
             ->filters([
                 TernaryFilter::make('is_active')->label('Aktywne'),
             ])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Edytuj')
-                            ->slideOver()
-                            ->cancelParentActions(),
-                    ]),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')->slideOver(),
                 DeleteAction::make()->iconButton()->tooltip('Usuń'),
             ])

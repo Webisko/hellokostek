@@ -71,4 +71,20 @@ class CatalogTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('data.slug', 'test-produkt');
     }
+
+    public function test_catalog_products_are_ordered_by_sort_order(): void
+    {
+        $prod3 = Product::factory()->public()->create(['name' => 'Produkt A', 'sort_order' => 30]);
+        $prod1 = Product::factory()->public()->create(['name' => 'Produkt Z', 'sort_order' => 10]);
+        $prod2 = Product::factory()->public()->create(['name' => 'Produkt M', 'sort_order' => 20]);
+
+        $response = $this->getJson('/api/catalog');
+
+        $response->assertOk();
+        $products = $response->json('data.products');
+        $this->assertCount(3, $products);
+        $this->assertEquals($prod1->id, $products[0]['id']);
+        $this->assertEquals($prod2->id, $products[1]['id']);
+        $this->assertEquals($prod3->id, $products[2]['id']);
+    }
 }

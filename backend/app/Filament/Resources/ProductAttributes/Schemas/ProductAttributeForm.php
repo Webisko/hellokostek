@@ -38,11 +38,8 @@ class ProductAttributeForm
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                        TextInput::make('sort_order')
-                            ->label('Kolejnosc')
-                            ->numeric()
-                            ->default(0)
-                            ->required(),
+                        \Filament\Forms\Components\Hidden::make('sort_order')
+                            ->default(fn () => (\App\Models\ProductAttribute::max('sort_order') ?? 0) + 10),
                         TextInput::make('value_type')
                             ->label('Typ wartosci')
                             ->datalist(array_values(ProductAttributeResource::valueTypeOptions()))

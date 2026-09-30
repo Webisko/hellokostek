@@ -134,18 +134,27 @@ class CheckoutDataResolver
         $requestedCurrency = $validated['currency'] ?? null;
         $currency = $requestedCurrency ? strtoupper(trim($requestedCurrency)) : ($products->first()?->currency ?? $this->storeSettings->currency());
 
+        $normalizedShippingCode = match ($shippingMethodCode) {
+            'courier', 'free_courier' => 'flat_rate:courier',
+            'inpost', 'paczkomat' => 'flexible_shipping:paczkomat',
+            'orlen' => 'flexible_shipping:orlen',
+            'pickup' => 'flexible_shipping:pickup',
+            'cod' => 'flat_rate:cod',
+            default => $shippingMethodCode,
+        };
+
         return new ResolvedCheckoutData(
             quoteItems: $quoteItems,
             quote: new QuoteData(
                 items: $quoteItems,
                 customerSegment: $customerSegment,
                 coupon: $coupon,
-                shippingMethodCode: $shippingMethodCode,
+                shippingMethodCode: $normalizedShippingCode,
                 shippingCountryCode: $countryCode,
                 currency: $currency,
             ),
             coupon: $coupon,
-            shippingMethodCode: $shippingMethodCode,
+            shippingMethodCode: $normalizedShippingCode,
             shippingMethodName: is_array($shippingMethod) ? Arr::get($shippingMethod, 'name') : null,
             currency: $currency,
         );

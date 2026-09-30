@@ -12,7 +12,14 @@ class OrderRelationsSeeder extends Seeder
     public function run(): void
     {
         $orders = Order::all();
-        $user = User::first() ?: User::factory()->create();
+        if ($orders->isEmpty()) {
+            return;
+        }
+
+        $user = User::first();
+        if (!$user) {
+            return;
+        }
         foreach ($orders as $order) {
             if ($order->items()->count() === 0) {
                 $product = \App\Models\Product::first();

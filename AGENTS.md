@@ -19,12 +19,14 @@ Consult these guides before working on related tasks:
 - [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
 - Note: This project is single-language only (Polish). Do not add multilingual routing or translatable traits.
 
-## Production Server Credentials (LH.pl)
+## Production Server Credentials (SEOHost)
 
-- **Host:** `serwer69908.lh.pl` (FTP Port: 21, SSH Port: 22)
-- **User:** `serwer69908`
-- **Password:** `VXd|^@^!Oe%!r+^0`
-- **Subdomain Path:** `/public_html/admin.hellokostek.pl/`
-- **Public Directory:** `/public_html/admin.hellokostek.pl/public/`
-- **Storefront Directory:** `/public_html/hellokostek.pl/`
+- **Host:** `h93.seohost.pl` (IP: `91.236.131.93`)
+- **SSH Port:** `57185` (FTP Port: `21`)
+- **User:** `srv124983`
+- **Panel DirectAdmin:** `https://h93.seohost.pl:2222/`
+- **Database:** `srv124983_kostek` (User: `srv124983_kostek`)
+- **Storefront Directory:** `/home/srv124983/domains/hellokostek.pl/public_html/`
+- **Backend Directory:** `/home/srv124983/domains/panel.hellokostek.pl/backend/`
+- **Public Directory (Symlink):** `/home/srv124983/domains/panel.hellokostek.pl/public_html` -> `backend/public`
 

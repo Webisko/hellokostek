@@ -22,6 +22,7 @@ class CheckoutOrderService
         private readonly PricingEngine $pricingEngine,
         private readonly CustomerAccountService $customerAccountService,
         private readonly TransactionalEmailService $transactionalEmailService,
+        private readonly \App\Domain\Commerce\Payments\PaymentSessionService $paymentSessionService,
     ) {
     }
 
@@ -365,6 +366,18 @@ class CheckoutOrderService
         });
         if ($placeOrder) {
             $this->transactionalEmailService->sendOrderPlacedEmails($order);
+
+            if (in_array($selectedPaymentMethod, ['stripe', 'przelewy24'], true)) {
+                try {
+                    $transaction = $this->paymentSessionService->initiate($order);
+                    if (!empty($transaction->redirect_url)) {
+                        $paymentSummary['redirect_url'] = $transaction->redirect_url;
+                        $paymentSummary['payment_url'] = $transaction->redirect_url;
+                    }
+                } catch (\Throwable $e) {
+                    // Gateway error or configuration required - keep redirect_url null
+                }
+            }
         }
 
         return [
@@ -411,6 +424,13 @@ class CheckoutOrderService
                 'redirect_url' => null,
                 'next_action' => 'create_stripe_transaction',
             ],
+            'bank_transfer' => [
+                'provider' => 'bank_transfer',
+                'status' => 'pending_transfer',
+                'requires_redirect' => false,
+                'redirect_url' => null,
+                'next_action' => 'await_wire_transfer',
+            ],
             'cod' => [
                 'provider' => 'cod',
                 'status' => 'pending_collection',
@@ -430,9 +450,10 @@ class CheckoutOrderService
 
     private function resolvePaymentStatus(string $paymentMethod): string
     {
-        return in_array($paymentMethod, ['przelewy24', 'stripe'], true)
-            ? 'awaiting_payment'
-            : 'pending';
+        return match ($paymentMethod) {
+            'przelewy24', 'stripe', 'bank_transfer' => 'awaiting_payment',
+            default => 'pending',
+        };
     }
 
 

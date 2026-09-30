@@ -21,8 +21,10 @@ class ProductsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('name')
-            ->recordAction('view')
+            ->defaultSort('sort_order', 'asc')
+            ->reorderable('sort_order')
+            ->reorderRecordsTriggerAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Zmień kolejność produktów (przeciągnij i upuść)'))
+            ->recordAction('edit')
             ->columns([
                 ImageColumn::make('featured_image_path')
                     ->label('Zdjęcie')
@@ -143,18 +145,6 @@ class ProductsTable
                 \Filament\Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->modalWidth('7xl')
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Edytuj')
-                            ->slideOver()
-                            ->modalWidth('7xl')
-                            ->after(fn (Product $record, array $data) => Product::syncVariantsFromData($record, $data))
-                            ->cancelParentActions(),
-                    ]),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()
                     ->modalWidth('7xl')

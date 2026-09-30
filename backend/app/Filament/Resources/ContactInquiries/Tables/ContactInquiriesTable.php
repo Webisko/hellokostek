@@ -18,6 +18,7 @@ class ContactInquiriesTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('created_at')
                     ->label('Data otrzymania')
@@ -53,18 +54,7 @@ class ContactInquiriesTable
                     ->options(ContactInquiry::getStatuses()),
             ])
             ->recordActions([
-                ViewAction::make()->iconButton()->tooltip('Podgląd')->extraAttributes(['style' => 'display: none !important;'])
-                    ->slideOver()
-                    ->modalWidth('3xl')
-                    ->extraModalFooterActions([
-                        EditAction::make()
-                            ->button()
-                            ->label('Obsłuż')
-                            ->slideOver()
-                            ->modalWidth('3xl')
-                            ->cancelParentActions(),
-                    ]),
-                EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
+                EditAction::make()->iconButton()->tooltip('Obsłuż')->color('violet')
                     ->label('Obsłuż')
                     ->slideOver()
                     ->modalWidth('3xl'),

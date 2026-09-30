@@ -11,6 +11,7 @@ class EmailTemplatesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->recordAction('edit')
             ->columns([
                 TextColumn::make('name')->label('Nazwa szablonu')->sortable()->searchable(),
                 TextColumn::make('key')->label('Klucz systemowy')->sortable()->searchable(),

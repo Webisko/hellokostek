@@ -21,6 +21,7 @@ class MediaTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->recordAction('edit')
             ->columns([
                 ImageColumn::make('file_path')
                     ->label('Podgląd')

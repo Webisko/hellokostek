@@ -48,11 +48,8 @@ class ContentPageForm
                     Toggle::make('is_active')
                         ->label('Strona aktywna')
                         ->default(true),
-                    TextInput::make('sort_order')
-                        ->label('Kolejność w menu')
-                        ->numeric()
-                        ->default(0)
-                        ->required(),
+                    \Filament\Forms\Components\Hidden::make('sort_order')
+                        ->default(fn () => (\App\Models\ContentPage::max('sort_order') ?? 0) + 10),
                     DateTimePicker::make('published_at')
                         ->label('Data publikacji'),
                     Textarea::make('excerpt')
