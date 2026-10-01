@@ -147,21 +147,40 @@ Faktury są generowane asynchronicznie przez zadanie kolejkowe `SendOrderToAccou
 
 ## ⏰ Harmonogram i Komendy Konsolowe (Artisan)
 
-W katalogu `app/Console/Commands/` przygotowano dedykowane komendy:
+W projekcie przygotowano dedykowane komendy operacyjne i serwisowe:
 
 ```bash
 # 1. Automatyczne odzyskiwanie porzuconych koszyków
 # Wysyła spersonalizowane wiadomości e-mail do klientów, którzy przerwali proces zakupu
-php artisan commerce:recover-abandoned-carts
+php artisan app:recover-abandoned-carts
 
-# 2. Czyszczenie starych sesji koszyków
-php artisan commerce:cleanup-abandoned-carts
+# 2. Czyszczenie starych szkiców porzuconych koszyków
+php artisan app:cleanup-abandoned-carts --days=30
 
-# 3. Masowa konwersja obrazów do formatu WebP
+# 3. Zarządzanie użytkownikami administratora Filament CMS
+# Tworzy nowe konto lub promuje istniejące konto do roli administratora
+php artisan app:make-admin-user admin@hellokostek.pl --name="Konstanty Kostek" --password="TajneHaslo123!" --promote-existing
+
+# 4. Generowanie mapy witryny sitemap.xml
+php artisan app:generate-sitemap
+
+# 5. Czyszczenie archiwalnej historii cen dyrektywy Omnibus (starszej niż 90 dni)
+php artisan app:cleanup-price-history
+
+# 6. Agregacja dziennych metryk analityki first-party do lekkich raportów
+php artisan app:aggregate-analytics-daily
+
+# 7. Import katalogu dzieł sztuki i konfiguracji z plików JSON
+php artisan app:import-shop-json
+
+# 8. Import snapshotu 5-gwiazdkowych opinii Google do ustawień sklepu
+php artisan app:import-google-reviews-snapshot
+
+# 9. Masowa konwersja obrazów do formatu WebP
 # Skanuje dysk publiczny i optymalizuje zdjęcia dzieł malarskich
 php artisan media:convert-webp
 
-# 4. Skanowanie i synchronizacja bazy mediów
+# 10. Skanowanie i synchronizacja bazy mediów
 php artisan media:scan
 ```
 

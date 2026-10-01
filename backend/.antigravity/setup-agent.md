@@ -10,7 +10,7 @@ Przejdź do pliku README.md i wykonaj dla mnie pełne przygotowanie techniczne p
 2. Zainstaluj zależności PHP za pomocą Composer i JavaScript za pomocą NPM (najlepiej uruchom `composer run setup`, jeśli jest dostępny, lub wykonaj kroki instalacyjne po kolei).
 3. Wygeneruj klucz aplikacji (php artisan key:generate).
 4. Skonfiguruj bazę danych SQLite (utwórz pusty plik database/database.sqlite na Windowsie).
-5. Uruchom migracje i seedery (php artisan migrate --seed --seeder=DevCmsReviewSeeder).
+5. Uruchom migracje i seedery (php artisan migrate --seed).
 6. Uruchom budowanie assetów frontendu (npm run build).
 7. Po pomyślnym zakończeniu setupu, wygeneruj i zaktualizuj plik `.antigravity/schema.md` z aktualną strukturą tabel bazy danych, abym miał go jako referencję w tym nowym projekcie.
 

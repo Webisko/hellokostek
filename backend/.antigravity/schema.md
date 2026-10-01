@@ -1,6 +1,6 @@
 # Database Schema Reference
 
-This file is a cache of the database schema for the Laravel Filament CMS Boilerplate project. Generated on 2026-07-15 13:47:52.
+This file is a cache of the database schema for the Hello Kostek E-commerce & CMS project. Updated on 2026-10-01.
 
 ## Table: `admin_activity_logs`
 
@@ -108,39 +108,7 @@ This file is a cache of the database schema for the Laravel Filament CMS Boilerp
 | --- | --- | --- |
 | `back_in_stock_subscriptions_email_status_index` | No | `email`, `status` |
 
----
 
-## Table: `blog_posts`
-
-| Column | Type | Nullable | Default | Key |
-| --- | --- | --- | --- | --- |
-| `id` | `INTEGER` | No | `NULL` | PK |
-| `slug` | `varchar` | No | `NULL` |  |
-| `title` | `TEXT` | No | `NULL` |  |
-| `excerpt` | `TEXT` | Yes | `NULL` |  |
-| `content` | `TEXT` | Yes | `NULL` |  |
-| `author_name` | `varchar` | Yes | `NULL` |  |
-| `cover_image_url` | `varchar` | Yes | `NULL` |  |
-| `seo_title` | `varchar` | Yes | `NULL` |  |
-| `seo_description` | `TEXT` | Yes | `NULL` |  |
-| `is_active` | `tinyint(1)` | No | `'1'` |  |
-| `published_at` | `datetime` | Yes | `NULL` |  |
-| `metadata` | `TEXT` | Yes | `NULL` |  |
-| `created_at` | `datetime` | Yes | `NULL` |  |
-| `updated_at` | `datetime` | Yes | `NULL` |  |
-| `is_noindex` | `tinyint(1)` | No | `'0'` |  |
-| `deleted_at` | `datetime` | Yes | `NULL` |  |
-| `is_ai_generated` | `tinyint(1)` | No | `'0'` |  |
-| `ai_disclosure_text` | `TEXT` | Yes | `NULL` |  |
-
-### Indexes
-
-| Index Name | Unique | Columns |
-| --- | --- | --- |
-| `blog_posts_slug_unique` | Yes | `slug` |
-| `blog_posts_is_active_published_at_index` | No | `is_active`, `published_at` |
-
----
 
 ## Table: `breezy_sessions`
 
@@ -561,53 +529,9 @@ This file is a cache of the database schema for the Laravel Filament CMS Boilerp
 | `migration` | `varchar` | No | `NULL` |  |
 | `batch` | `INTEGER` | No | `NULL` |  |
 
----
 
-## Table: `newsletter_campaigns`
 
-| Column | Type | Nullable | Default | Key |
-| --- | --- | --- | --- | --- |
-| `id` | `INTEGER` | No | `NULL` | PK |
-| `subject` | `varchar` | No | `NULL` |  |
-| `body_html` | `TEXT` | No | `NULL` |  |
-| `status` | `varchar` | No | `'draft'` |  |
-| `sent_to_count` | `INTEGER` | No | `'0'` |  |
-| `sent_at` | `datetime` | Yes | `NULL` |  |
-| `created_at` | `datetime` | Yes | `NULL` |  |
-| `updated_at` | `datetime` | Yes | `NULL` |  |
 
----
-
-## Table: `newsletter_subscribers`
-
-| Column | Type | Nullable | Default | Key |
-| --- | --- | --- | --- | --- |
-| `id` | `INTEGER` | No | `NULL` | PK |
-| `email` | `varchar` | No | `NULL` |  |
-| `first_name` | `varchar` | Yes | `NULL` |  |
-| `last_name` | `varchar` | Yes | `NULL` |  |
-| `source` | `varchar` | Yes | `NULL` |  |
-| `consented_at` | `datetime` | Yes | `NULL` |  |
-| `unsubscribed_at` | `datetime` | Yes | `NULL` |  |
-| `is_active` | `tinyint(1)` | No | `'1'` |  |
-| `metadata` | `TEXT` | Yes | `NULL` |  |
-| `created_at` | `datetime` | Yes | `NULL` |  |
-| `updated_at` | `datetime` | Yes | `NULL` |  |
-| `status` | `varchar` | No | `'pending'` |  |
-| `double_opt_in_token` | `varchar` | Yes | `NULL` |  |
-| `double_opt_in_ip` | `varchar` | Yes | `NULL` |  |
-| `double_opt_in_confirmed_at` | `datetime` | Yes | `NULL` |  |
-
-### Indexes
-
-| Index Name | Unique | Columns |
-| --- | --- | --- |
-| `newsletter_subscribers_double_opt_in_token_index` | No | `double_opt_in_token` |
-| `newsletter_subscribers_status_index` | No | `status` |
-| `newsletter_subscribers_email_unique` | Yes | `email` |
-| `newsletter_subscribers_is_active_consented_at_index` | No | `is_active`, `consented_at` |
-
----
 
 ## Table: `order_fulfillment_actions`
 
