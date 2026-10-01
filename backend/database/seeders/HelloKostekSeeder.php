@@ -561,8 +561,8 @@ class HelloKostekSeeder extends Seeder
                 'technique' => 'Olej na płótnie',
                 'format' => '30x40 cm',
                 'year' => '2024',
-                'image_path' => 'images/portret_franka_mobile.webp',
-                'original_url' => null,
+                'image_path' => 'images/portret_Leona.webp',
+                'original_url' => '/images/portret_Leona.webp',
                 'sort_order' => 10,
             ],
             [

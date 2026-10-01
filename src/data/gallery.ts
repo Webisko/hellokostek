@@ -1,13 +1,12 @@
 import type { GalleryArtwork } from "../types";
-import portretLeona from "../assets/portret_Leona.webp";
 
 export const GALLERY_ARTWORKS: GalleryArtwork[] = [
   {
     id: "gallery-1",
     title: "Portret Kobiety",
     year: "2024",
-    imageUrl: portretLeona.src,
-    originalUrl: portretLeona.src,
+    imageUrl: "/images/portret_Leona.webp",
+    originalUrl: "/images/portret_Leona.webp",
     category: "Olej",
     categorySlug: "olej"
   },

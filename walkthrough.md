@@ -1,26 +1,26 @@
-# Podsumowanie Wdrożenia: Naprawa Galerii i Usunięcie Duplikatów (Hello Kostek)
+# Podsumowanie Wdrożenia: Naprawa Pierwszego Zdjęcia w Galerii ("Portret Kobiety")
 
-## 1. Wykonane Prace i Zmiany w Kodzie
+## 1. Zidentyfikowany Problem
+Podczas otwierania strony galerii (`https://hellokostek.pl/galeria/`) pierwsze zdjęcie na siatce początkowo wyświetlało właściwy portret kobiety, lecz po upływie około 1 sekundy automatycznie podmieniało się na portret małego chłopca (Franka).
 
-### A. Naprawa problemu znikających grafik w galerii
-- **Przyczyna:** Przy wstępnym renderowaniu Astro pobierało grafiki ze ścieżki statycznej `/images/...` (200 OK), a po 1 sekundzie asynchroniczny `useEffect` w React pobierał dane z API, które z powodu braku wiodącego ukośnika w `image_path` generowało błędne adresy `/storage/images/...` (zwracające 404 Not Found).
-- **Rozwiązanie na serwerze:** Utworzono symlink na serwerze SEOHost `backend/storage/app/public/images` $\rightarrow$ `backend/public/images`.
-- **Rozwiązanie w backendzie (`PublicMediaUrl.php`):** Ścieżki z prefiksem `images/` lub `/images/` są natychmiast kierowane do `url(ltrim($value, '/'))`.
-- **Rozwiązanie we frontendzie (`Gallery.tsx`):** Dodano normalizację błędnych ścieżek z API oraz mechanizm fallbacku zdarzenia `onError` na znacznikach `<img>`.
+## 2. Przyczyna Źródłowa
+- **Renderowanie początkowe (Astro):** W pliku `src/data/gallery.ts` pierwsza pozycja (`gallery-1`, *„Portret Kobiety”*) korzystała z lokalnego assetu `portret_Leona.webp` (kobieta w niebieskiej bluzce).
+- **Asynchroniczne pobieranie danych (React `useEffect`):** Po załadowaniu strony komponent `Gallery.tsx` odpytywał endpoint API `https://panel.hellokostek.pl/api/gallery`.
+- **Niezgodność w bazie danych i seederze:** W bazie danych MySQL na serwerze produkcyjnym oraz w `HelloKostekSeeder.php` rekord dla *„Portret Kobiety”* miał błędną ścieżkę `image_path = 'images/portret_franka_mobile.webp'` (miniaturę Franka). Reakcja komponentu na dane z API powodowała podmianę obrazu na oczach użytkownika.
 
-### B. Usunięcie powtórzeń i duplikatów w galerii
-- **Przyczyna:** Podwójne zasilenie bazy w `HelloKostekSeeder.php` – różnice w tytułach (literówki lub nazwy angielskie) spowodowały, że `updateOrCreate` utworzyło 7 nadmiarowych wpisów o ID 42..48 zamiast zaktualizować wpisy 9..27.
-- **Baza danych na SEOHost:** Usunięto 7 nadmiarowych rekordów o ID: `42, 43, 44, 45, 46, 47, 48` i zaktualizowano kanoniczne polskie tytuły w rekordach `9, 10, 11, 12, 13, 21, 27`. Liczba rekordów w bazie to obecnie dokładnie 33.
-- **Backend (`HelloKostekSeeder.php`):** Usunięto zdublowaną sekcję 3, a w sekcji 7 zmieniono klucz dopasowania na unikalny `image_path`.
-- **Frontend (`Gallery.tsx`):** Wprowadzono defensywną deduplikację po pliku graficznym przed zapisaniem stanu komponentu.
+## 3. Zastosowane Rozwiązanie
+1. **Frontend:**
+   - Skopiowano plik `src/assets/portret_Leona.webp` do publicznego katalogu `public/images/portret_Leona.webp`.
+   - Zaktualizowano `src/data/gallery.ts`, ustawiając bezpośrednią ścieżkę `/images/portret_Leona.webp`.
+   - Przeprowadzono pełny build frontendu (`npm run build`).
+2. **Backend:**
+   - Zaktualizowano `HelloKostekSeeder.php` dla *„Portret Kobiety”* (`image_path = 'images/portret_Leona.webp'`, `original_url = '/images/portret_Leona.webp'`).
+   - Wszystkie testy automatyczne backendu (`php artisan test`) zakończyły się wynikiem pozytywnym: **136 passed (640 assertions)**.
+3. **Serwer Produkcyjny SEOHost:**
+   - Wgrano plik graficzny `portret_Leona.webp` do `public_html/images/` oraz `backend/public/images/`.
+   - Zaktualizowano rekord w bazie danych MySQL na serwerze produkcyjnym (`UPDATE gallery_artworks SET image_path = 'images/portret_Leona.webp' WHERE id = 1`).
+   - Zsynchronizowano zaktualizowany kod frontendu (`galeria/index.html`, bundle `_astro/`, `index.html`) oraz seedera backendu.
 
----
-
-## 2. Wyniki Weryfikacji
-
-- **API Produkcyjne (`GET https://panel.hellokostek.pl/api/gallery`):**
-  - Zwraca dokładnie **33 pozycje** (0 duplikatów).
-  - Wszystkie grafiki zwracają kod **HTTP 200 OK**.
-- **Weryfikacja w przeglądarce (`https://hellokostek.pl/galeria`):**
-  - Brak efektu znikania zdjęć po załadowaniu i hydratacji.
-  - Brak powtórzeń – każda praca wyświetla się dokładnie jeden raz.
+## 4. Weryfikacja
+- **Endpoint API (`https://panel.hellokostek.pl/api/gallery`):** Pozycja 1 zwraca `https://panel.hellokostek.pl/images/portret_Leona.webp` (HTTP 200 OK).
+- **Strona w przeglądarce (`https://hellokostek.pl/galeria/`):** Potwierdzono brak efektu przeskakiwania obrazu – właściwy portret kobiety wyświetla się stabilnie od momentu wejścia na stronę.
