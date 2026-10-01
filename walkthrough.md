@@ -1,31 +1,26 @@
-# Podsumowanie Wdrożenia Produkcyjnego (Hello Kostek)
+# Podsumowanie Wdrożenia: Naprawa Galerii i Usunięcie Duplikatów (Hello Kostek)
 
-## 1. Wykonane operacje w Git i GitHub
-- **Commit:** `6c87841` (*"chore: clean up dead code, update comprehensive documentation and align test suite"*)
-- **Wypchnięcie do zdalnego repozytorium:** `git push origin main` -> `https://github.com/Webisko/hellokostek.git`
-- **GitHub Actions:** Automatyczne wdrożenie wersji demonstracyjnej na GitHub Pages.
+## 1. Wykonane Prace i Zmiany w Kodzie
 
-## 2. Wdrożenie na Serwer Produkcyjny SEOHost (h93.seohost.pl)
-- **Frontend Astro:**
-  - Skompilowana paczka `dist/` została wdrożona do katalogu `/home/srv124983/domains/hellokostek.pl/public_html/`.
-  - Zachowano produkcyjne reguły `.htaccess`, link symboliczny do panelu oraz katalog multimediów `images/`.
-- **Backend Laravel & Filament:**
-  - Zaktualizowano kod backendu w `/home/srv124983/domains/hellokostek.pl/backend/`.
-  - Usunięto martwe i osierocone klasy (joby i maile usuniętego newslettera, seedery z obcego projektu).
-  - Oczyszczono `bootstrap/cache` i wykonano bezpieczne `package:discover`.
-  - Przebudowano pamięć podręczną konfiguracji, tras i widoków:
-    - `php artisan config:cache`
-    - `php artisan route:cache`
-    - `php artisan view:cache`
-    - `php artisan migrate --force` (baza danych w pełni aktualna).
-- **Bezpieczeństwo:**
-  - Żadne dane dostępowe ani pliki `.env` nie zostały naruszone.
-  - Plik `credentials.local.md` pozostał wyłącznie na lokalnej maszynie.
+### A. Naprawa problemu znikających grafik w galerii
+- **Przyczyna:** Przy wstępnym renderowaniu Astro pobierało grafiki ze ścieżki statycznej `/images/...` (200 OK), a po 1 sekundzie asynchroniczny `useEffect` w React pobierał dane z API, które z powodu braku wiodącego ukośnika w `image_path` generowało błędne adresy `/storage/images/...` (zwracające 404 Not Found).
+- **Rozwiązanie na serwerze:** Utworzono symlink na serwerze SEOHost `backend/storage/app/public/images` $\rightarrow$ `backend/public/images`.
+- **Rozwiązanie w backendzie (`PublicMediaUrl.php`):** Ścieżki z prefiksem `images/` lub `/images/` są natychmiast kierowane do `url(ltrim($value, '/'))`.
+- **Rozwiązanie we frontendzie (`Gallery.tsx`):** Dodano normalizację błędnych ścieżek z API oraz mechanizm fallbacku zdarzenia `onError` na znacznikach `<img>`.
 
-## 3. Wyniki Weryfikacji Produkcyjnej (Smoke Test)
-Wszystkie kluczowe punkty końcowe zwracają status **HTTP 200 OK**:
-- **Strona główna (Storefront):** `https://hellokostek.pl/` -> `200 OK`
-- **Mapa witryny (Astro):** `https://hellokostek.pl/sitemap-index.xml` -> `200 OK`
-- **Mapa treści (API):** `https://panel.hellokostek.pl/api/content/map` -> `200 OK`
-- **Mapa witryny (Backend):** `https://panel.hellokostek.pl/sitemap.xml` -> `200 OK` (wyeliminowano błąd 500)
-- **Healthcheck API:** `https://panel.hellokostek.pl/api/health` -> `200 OK` (`{"status":"ok","app":"Hello Kostek"}`)
+### B. Usunięcie powtórzeń i duplikatów w galerii
+- **Przyczyna:** Podwójne zasilenie bazy w `HelloKostekSeeder.php` – różnice w tytułach (literówki lub nazwy angielskie) spowodowały, że `updateOrCreate` utworzyło 7 nadmiarowych wpisów o ID 42..48 zamiast zaktualizować wpisy 9..27.
+- **Baza danych na SEOHost:** Usunięto 7 nadmiarowych rekordów o ID: `42, 43, 44, 45, 46, 47, 48` i zaktualizowano kanoniczne polskie tytuły w rekordach `9, 10, 11, 12, 13, 21, 27`. Liczba rekordów w bazie to obecnie dokładnie 33.
+- **Backend (`HelloKostekSeeder.php`):** Usunięto zdublowaną sekcję 3, a w sekcji 7 zmieniono klucz dopasowania na unikalny `image_path`.
+- **Frontend (`Gallery.tsx`):** Wprowadzono defensywną deduplikację po pliku graficznym przed zapisaniem stanu komponentu.
+
+---
+
+## 2. Wyniki Weryfikacji
+
+- **API Produkcyjne (`GET https://panel.hellokostek.pl/api/gallery`):**
+  - Zwraca dokładnie **33 pozycje** (0 duplikatów).
+  - Wszystkie grafiki zwracają kod **HTTP 200 OK**.
+- **Weryfikacja w przeglądarce (`https://hellokostek.pl/galeria`):**
+  - Brak efektu znikania zdjęć po załadowaniu i hydratacji.
+  - Brak powtórzeń – każda praca wyświetla się dokładnie jeden raz.

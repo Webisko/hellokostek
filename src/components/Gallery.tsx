@@ -19,12 +19,22 @@ function mapGalleryArtwork(item: any): GalleryArtwork {
     : (item.category || "");
   const catSlug = item.category_slug || (typeof catName === 'string' ? catName.toLowerCase() : "");
 
+  let rawImg = item.image_url || '/images/placeholder.png';
+  if (typeof rawImg === 'string' && rawImg.includes('/storage/images/')) {
+    rawImg = rawImg.replace('/storage/images/', '/images/');
+  }
+
+  let rawOriginal = item.original_url || undefined;
+  if (typeof rawOriginal === 'string' && rawOriginal.includes('/storage/images/')) {
+    rawOriginal = rawOriginal.replace('/storage/images/', '/images/');
+  }
+
   return {
     id: String(item.id),
     title: item.title?.pl || item.title || "",
     year: item.year || "2024",
-    imageUrl: item.image_url || '/images/placeholder.png',
-    originalUrl: item.original_url || undefined,
+    imageUrl: rawImg,
+    originalUrl: rawOriginal,
     category: catName,
     categorySlug: catSlug,
     technique: item.technique || undefined,
@@ -55,7 +65,17 @@ export default function Gallery() {
         const items = Array.isArray(payload) ? payload : (payload.items || []);
         if (Array.isArray(items) && items.length > 0) {
           const mapped = items.map(mapGalleryArtwork);
-          setArtworks(mapped);
+          // Defensywna deduplikacja po nazwie pliku graficznego
+          const seen = new Set<string>();
+          const deduplicated: GalleryArtwork[] = [];
+          for (const art of mapped) {
+            const imgKey = typeof art.imageUrl === 'string' ? (art.imageUrl.split('/').pop()?.split('?')[0] || art.id) : art.id;
+            if (!seen.has(imgKey)) {
+              seen.add(imgKey);
+              deduplicated.push(art);
+            }
+          }
+          setArtworks(deduplicated);
         }
       })
       .catch((err) => {
@@ -176,6 +196,16 @@ export default function Gallery() {
   const currentArtwork = selectedImageIndex !== null ? filteredArtworks[selectedImageIndex] : null;
   const basePath = "";
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.currentTarget;
+    const currentSrc = target.src;
+    const filename = currentSrc.split('/').pop()?.split('?')[0];
+    if (filename && !target.dataset.triedFallback) {
+      target.dataset.triedFallback = 'true';
+      target.src = `/images/${filename}`;
+    }
+  };
+
   return (
     <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 md:space-y-12 xl:space-y-16 font-sans">
       
@@ -287,6 +317,7 @@ export default function Gallery() {
                   alt={artwork.title}
                   loading="lazy"
                   referrerPolicy="no-referrer"
+                  onError={handleImageError}
                   className="w-full h-full object-cover block transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
                 
@@ -332,6 +363,7 @@ export default function Gallery() {
               src={getSrc(currentArtwork.imageUrl)}
               alt={currentArtwork.title}
               referrerPolicy="no-referrer"
+              onError={handleImageError}
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none"
             />
 

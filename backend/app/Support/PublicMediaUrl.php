@@ -16,8 +16,8 @@ class PublicMediaUrl
             return $value;
         }
 
-        if (str_starts_with($value, '/')) {
-            return url($value);
+        if (str_starts_with($value, '/') || str_starts_with($value, 'images/')) {
+            return url(ltrim($value, '/'));
         }
 
         return Storage::disk('public')->url($value);

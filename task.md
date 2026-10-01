@@ -1,21 +1,14 @@
-# Lista Zadań: Porządki w Repozytorium i Usunięcie Zbędnego Kodu
+# Lista Zadań: Usunięcie Duplikatów Prac w Galerii
 
-- [x] Krok 1: Usunięcie martwego kodu i osieroconych plików Bloga i Newslettera (Backend) <!-- id: 0 -->
-    - [x] Usunąć martwe seedery z obcego projektu: `BlogPostRelatedProductsSeeder.php`, `DevCmsReviewSeeder.php` <!-- id: 1 -->
-    - [x] Usunąć osierocone klasy: `app/Mail/NewsletterMail.php`, `app/Jobs/SyncNewsletterToWebhookJob.php` <!-- id: 2 -->
-    - [x] Usunąć martwy plik testowy: `tests/Feature/Api/NewsletterDoubleOptInTest.php` <!-- id: 3 -->
-    - [x] Oczyścić `SitemapController.php` i `ContentMapController.php` z zapytań do nieistniejącego modelu `BlogPost` <!-- id: 4 -->
-    - [x] Oczyścić `StoreDashboard.php` i `JsonImportService.php` z martwych importów `BlogPost` i `NewsletterSubscriber` <!-- id: 5 -->
-- [x] Krok 2: Usunięcie zbędnych plików szablonu początkowego Astro (Frontend) <!-- id: 6 -->
-    - [x] Usunąć domyślny komponent szablonu Astro: `src/components/Welcome.astro` <!-- id: 7 -->
-    - [x] Usunąć domyślne grafiki szablonu: `src/assets/astro.svg`, `src/assets/background.svg` <!-- id: 8 -->
-- [x] Krok 3: Oczyszczenie katalogu tymczasowego `scratch/` <!-- id: 9 -->
-    - [x] Usunąć zdezaktualizowaną paczkę zip `scratch/storefront.zip` (8.5 MB) <!-- id: 10 -->
-    - [x] Usunąć jednorazowe skrypty robocze z katalogu `scratch/` <!-- id: 11 -->
-- [x] Krok 4: Uporządkowanie i dostosowanie testów backendu (`php artisan test`) <!-- id: 12 -->
-    - [x] Oczyścić `SeoTest.php` z testów usuniętego bloga i zaktualizować trasę recenzji (`/api/reviews/site`) <!-- id: 13 -->
-    - [x] Dostosować test CORS w `SecurityTest.php` do rzeczywistych dozwolonych domen (`http://localhost:4321`, `https://hellokostek.pl`) <!-- id: 14 -->
-    - [x] Oczyścić `VatOssAndMppTest.php` z zapisu do usuniętej tabeli newslettera <!-- id: 15 -->
-- [x] Krok 5: Weryfikacja Spójności i Build <!-- id: 16 -->
-    - [x] Uruchomić testy automatyczne `php artisan test` w backendzie <!-- id: 17 -->
-    - [x] Uruchomić `npm run build` we frontendzie <!-- id: 18 -->
+- [x] Krok 1: Oczyszczenie bazy danych na serwerze produkcyjnym SEOHost <!-- id: 0 -->
+    - [x] Usunięcie 7 nadmiarowych rekordów o ID: 42, 43, 44, 45, 46, 47, 48 <!-- id: 1 -->
+    - [x] Aktualizacja kanonicznych tytułów w rekordach 9, 10, 11, 12, 13, 21, 27 <!-- id: 2 -->
+    - [x] Weryfikacja API (dokładnie 33 rekordy, brak duplikatów) <!-- id: 3 -->
+- [x] Krok 2: Uporządkowanie seedera w Backendzie <!-- id: 4 -->
+    - [x] Usunięcie podwójnej definicji galerii w `HelloKostekSeeder.php` <!-- id: 5 -->
+    - [x] Weryfikacja testów backendu (`php artisan test`) <!-- id: 6 -->
+- [x] Krok 3: Defensywna deduplikacja we frontendzie <!-- id: 7 -->
+    - [x] Dodanie unikalności po pliku w `Gallery.tsx` <!-- id: 8 -->
+    - [x] Build i wdrożenie frontendu na SEOHost <!-- id: 9 -->
+- [x] Krok 4: Weryfikacja końcowa <!-- id: 10 -->
+    - [x] Sprawdzenie w przeglądarce [https://hellokostek.pl/galeria](https://hellokostek.pl/galeria) <!-- id: 11 -->
