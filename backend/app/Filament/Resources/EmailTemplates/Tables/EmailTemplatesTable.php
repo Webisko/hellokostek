@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmailTemplates\Tables;
 
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -22,11 +23,7 @@ class EmailTemplatesTable
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()
                     ->modalWidth('5xl'),
-            ])
-            ->actions([
-                EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
-                    ->slideOver()
-                    ->modalWidth('5xl'),
+                DeleteAction::make()->iconButton()->tooltip('Usuń'),
             ]);
     }
 }

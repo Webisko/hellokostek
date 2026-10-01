@@ -16,6 +16,13 @@ class ProductRelation extends Model
         'sort_order',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'sort_order' => 'integer',
+        ];
+    }
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'product_id');

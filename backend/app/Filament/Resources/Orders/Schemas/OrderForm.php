@@ -38,6 +38,7 @@ class OrderForm
                             ->label('Klient z bazy (opcjonalnie)')
                             ->relationship('customer', 'name', fn ($query) => $query->where('role', \App\Domain\Commerce\Enums\UserRole::Customer))
                             ->searchable()
+                            ->preload()
                             ->live()
                             ->afterStateUpdated(function ($state, $set) {
                                 $user = \App\Models\User::find($state);
@@ -117,6 +118,7 @@ class OrderForm
                                     ->relationship('product', 'name')
                                     ->required()
                                     ->searchable()
+                                    ->preload()
                                     ->live()
                                     ->afterStateUpdated(function ($state, $set) {
                                         $product = \App\Models\Product::find($state);

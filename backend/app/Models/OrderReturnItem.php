@@ -16,6 +16,13 @@ class OrderReturnItem extends Model
         'quantity',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'quantity' => 'integer',
+        ];
+    }
+
     public function orderReturn(): BelongsTo
     {
         return $this->belongsTo(OrderReturn::class);

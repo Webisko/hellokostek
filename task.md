@@ -1,0 +1,26 @@
+# Lista Zadań: Audyt i Naprawa (Laravel 13 + Filament 5 + Astro 7)
+
+- [x] Krok 1: Eloquent, Modele i Baza Danych <!-- id: 0 -->
+    - [x] Dodać brakujące metody `casts(): array` w modelach pomocniczych (`Media`, `CartItem`, `OrderReturnItem`, `ProductBundleItem`, `ProductAttributeAssignment`, `ProductRelation`) <!-- id: 1 -->
+    - [x] Zweryfikować i potwierdzić kompletność `$fillable` i relacji we wszystkich 41 modelach <!-- id: 2 -->
+- [x] Krok 2: Formularze i Tabele Filament 5 <!-- id: 3 -->
+    - [x] Dodać brakujące `->preload()` w polach relacji w `OrderForm.php` (`user_id`, `product_id`) <!-- id: 4 -->
+    - [x] Dodać brakujące `->preload()` w polach relacji w `OrderReturnForm.php` (`order_id`, `user_id`) <!-- id: 5 -->
+    - [x] Dodać `DeleteAction::make()` w `recordActions` w `UsersTable.php` <!-- id: 6 -->
+    - [x] Dodać `DeleteAction::make()` w `recordActions` w `EmailTemplatesTable.php` oraz uporządkować zdublowane akcje <!-- id: 7 -->
+- [x] Krok 3: Pamięć Masowa i Pliki na Hostingu Współdzielonym <!-- id: 8 -->
+    - [x] Skonfigurować elastyczne ścieżki dysku `public` w `config/filesystems.php` (wsparcie `FILESYSTEM_PUBLIC_ROOT` i `FILESYSTEM_PUBLIC_URL` dla hostingu współdzielonego) <!-- id: 9 -->
+    - [x] Dodać `->visibility('public')` do komponentów `FileUpload::make()` w `ProductForm.php`, `ContentPageForm.php`, `GalleryArtworkForm.php` <!-- id: 10 -->
+    - [x] Dodać `->disk('public')` do komponentów `FileUpload::make()` w `StoreSettingForm.php` <!-- id: 11 -->
+- [x] Krok 4: Refaktoryzacja Warstwy API (Laravel -> Astro) <!-- id: 12 -->
+    - [x] Utworzyć ustandaryzowane klasy `JsonResource` w `app/Http/Resources/` (`CustomerAddressResource`, `GalleryArtworkResource`, `FaqItemResource`, `ContentPageResource`, `ProductReviewResource`, `OrderReturnResource`) <!-- id: 13 -->
+    - [x] Zintegrować nowe zasoby API w odpowiednich kontrolerach API <!-- id: 14 -->
+    - [x] Zaktualizować `config/cors.php`, `backend/.env` i `backend/.env.example` o adresy Astro (`http://localhost:4321`) i domenę produkcyjną (`https://hellokostek.pl`) <!-- id: 15 -->
+- [x] Krok 5: Weryfikacja Pobierania Danych w Astro 7 <!-- id: 16 -->
+    - [x] Utworzyć katalog `src/types/` z plikiem `api.ts` definiującym typy odpowiedzi API (koperty `data`, paginacja, payloady) <!-- id: 17 -->
+    - [x] Zaktualizować i zintegrować `src/types.ts` z nowo utworzonymi typami API <!-- id: 18 -->
+    - [x] Sprawdzić obsługę awaryjną `try...catch` we frontendzie Astro <!-- id: 19 -->
+- [x] Protokół Zakończenia i Weryfikacja <!-- id: 20 -->
+    - [x] Wyczyścić pamięć podręczną Laravela (`php artisan config:clear && php artisan route:clear && php artisan view:clear`) <!-- id: 21 -->
+    - [x] Zweryfikować poprawność budowania frontendu Astro (`npm run build`) <!-- id: 22 -->
+    - [x] Zweryfikować poprawność działania backendu i operacji CRUD <!-- id: 23 -->

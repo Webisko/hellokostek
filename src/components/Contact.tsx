@@ -1,5 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Mail, Send, MessageSquare, Check, MapPin, Instagram, Facebook, ChevronDown, Youtube } from "lucide-react";
+import { Mail, Send, MessageSquare, Check, MapPin, ChevronDown } from "lucide-react";
+
+const InstagramIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.51" />
+  </svg>
+);
+
+const FacebookIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const YoutubeIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" />
+    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" />
+  </svg>
+);
 
 const TiktokIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -190,7 +211,7 @@ export default function Contact() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
                   >
-                    <Instagram className="w-4 h-4 text-[#E0115F]" />
+                    <InstagramIcon className="w-4 h-4 text-[#E0115F]" />
                     <span className="hidden sm:inline">Instagram</span>
                   </a>
                   <a
@@ -199,7 +220,7 @@ export default function Contact() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
                   >
-                    <Facebook className="w-4 h-4 text-[#1877F2]" />
+                    <FacebookIcon className="w-4 h-4 text-[#1877F2]" />
                     <span className="hidden sm:inline">Facebook</span>
                   </a>
                   <a
@@ -217,7 +238,7 @@ export default function Contact() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
                   >
-                    <Youtube className="w-4 h-4 text-[#FF0000]" />
+                    <YoutubeIcon className="w-4 h-4 text-[#FF0000]" />
                     <span className="hidden sm:inline">YouTube</span>
                   </a>
                 </div>

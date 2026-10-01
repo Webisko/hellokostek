@@ -259,6 +259,7 @@ class ProductForm
                                             ->label('Glowny obraz produktu')
                                             ->disk('public')
                                             ->directory('products')
+                                            ->visibility('public')
                                             ->image()
                                             ->imageEditor()
                                             ->columnSpanFull(),
@@ -271,6 +272,7 @@ class ProductForm
                                             ->label('Drugi obraz produktu (na hover)')
                                             ->disk('public')
                                             ->directory('products')
+                                            ->visibility('public')
                                             ->image()
                                             ->imageEditor()
                                             ->columnSpanFull(),
@@ -278,6 +280,7 @@ class ProductForm
                                             ->label('Galeria zdjęć produktu')
                                             ->disk('public')
                                             ->directory('products/gallery')
+                                            ->visibility('public')
                                             ->image()
                                             ->multiple()
                                             ->reorderable()
@@ -378,6 +381,7 @@ class ProductForm
                                             ->label('Dokumenty towarzyszące (instrukcje obsługi, deklaracje CE) - PDF')
                                             ->disk('public')
                                             ->directory('products/documents')
+                                            ->visibility('public')
                                             ->acceptedFileTypes(['application/pdf'])
                                             ->columnSpanFull(),
                                     ]),
@@ -436,6 +440,7 @@ class ProductForm
                                             ->label('Obraz Open Graph (og:image)')
                                             ->disk('public')
                                             ->directory('seo/og')
+                                            ->visibility('public')
                                             ->image()
                                             ->imageEditor(),
                                         KeyValue::make('metadata')

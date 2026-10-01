@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CustomerAddressResource;
 use App\Models\CustomerAddress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class CustomerAddressController extends Controller
         $addresses = Auth::user()->addresses()->latest()->get();
 
         return response()->json([
-            'data' => $addresses,
+            'data' => CustomerAddressResource::collection($addresses),
         ]);
     }
 
@@ -40,7 +41,7 @@ class CustomerAddressController extends Controller
         $address = Auth::user()->addresses()->create($validated);
 
         return response()->json([
-            'data' => $address,
+            'data' => new CustomerAddressResource($address),
             'message' => 'Adres został zapisany.',
         ], 201);
     }
@@ -70,7 +71,7 @@ class CustomerAddressController extends Controller
         $address->update($validated);
 
         return response()->json([
-            'data' => $address,
+            'data' => new CustomerAddressResource($address),
             'message' => 'Adres został zaktualizowany.',
         ]);
     }

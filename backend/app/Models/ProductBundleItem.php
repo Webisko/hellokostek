@@ -17,6 +17,14 @@ class ProductBundleItem extends Model
         'sort_order',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'quantity' => 'integer',
+            'sort_order' => 'integer',
+        ];
+    }
+
     public function bundleProduct(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'bundle_product_id');

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import type { Product } from "../types";
-import { ChevronLeft, Shield, ArrowRight, X, Lock } from "lucide-react";
+import { ChevronLeft, Shield, ArrowRight, X, Lock, MapPin, ExternalLink } from "lucide-react";
+import ParcelMapModal, { type SelectedParcelPoint, parseOrlenPointInput } from "./ParcelMapModal";
 
 interface ProductDetailProps {
   product: Product;
@@ -26,6 +27,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [paczkomatCode, setPaczkomatCode] = useState("");
+  const [selectedPointDetails, setSelectedPointDetails] = useState<SelectedParcelPoint | null>(null);
+  const [isParcelMapOpen, setIsParcelMapOpen] = useState(false);
   
   // Payment fields
   const [paymentMethod, setPaymentMethod] = useState<"blik" | "card" | "transfer">("blik");
@@ -270,10 +273,10 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       },
       delivery_point: isPointDelivery ? {
         id: paczkomatCode,
-        name: selectedDelivery === "inpost" ? "Paczkomat InPost" : "Orlen Paczka",
-        address: "Punkt Odbioru",
-        postal_code: "",
-        city: ""
+        name: selectedPointDetails?.name || (selectedDelivery === "inpost" ? `Paczkomat InPost ${paczkomatCode}` : `ORLEN Paczka ${paczkomatCode}`),
+        address: selectedPointDetails?.address || "Punkt Odbioru",
+        postal_code: selectedPointDetails?.postalCode || postalCode || "",
+        city: selectedPointDetails?.city || city || ""
       } : undefined,
     };
 
@@ -635,20 +638,82 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     {/* Conditional Fields based on Paczkomat / Courier */}
                     {selectedDelivery && (
                       isPointDelivery ? (
-                        <div className="space-y-1.5">
-                          <label htmlFor="checkout-paczkomat" className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block">Kod Paczkomatu InPost / Orlen Paczki *</label>
-                          <input
-                            type="text"
-                            id="checkout-paczkomat"
-                            required
-                            value={paczkomatCode}
-                            onChange={(e) => setPaczkomatCode(e.target.value.toUpperCase())}
-                            className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-base transition-all bg-white text-gray-900 font-sans"
-                            placeholder="np. WAW12A"
-                          />
-                          <p className="text-xs text-gray-400 leading-relaxed font-sans mt-1">
-                            Wpisz kod swojego ulubionego Paczkomatu lub Punktu odbioru. Paczkę wyślemy na ten punkt.
-                          </p>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label htmlFor="checkout-paczkomat" className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block">
+                              {selectedDelivery === "inpost" ? "Kod Paczkomatu InPost *" : "Kod punktu Orlen Paczka *"}
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setIsParcelMapOpen(true)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-[#E0115F] text-gray-800 hover:text-white transition-all cursor-pointer shadow-xs border border-gray-200 hover:border-[#E0115F]"
+                            >
+                              <MapPin className="w-3.5 h-3.5" />
+                              <span>Wybierz na mapie {selectedDelivery === "inpost" ? "InPost" : "ORLEN"}</span>
+                            </button>
+                          </div>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              id="checkout-paczkomat"
+                              required
+                              value={paczkomatCode}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (selectedDelivery === "orlen") {
+                                  const parsed = parseOrlenPointInput(val);
+                                  setPaczkomatCode(parsed.id);
+                                  if (parsed.id && parsed.id.length >= 3) {
+                                    setSelectedPointDetails({
+                                      id: parsed.id,
+                                      name: parsed.name,
+                                      address: parsed.address,
+                                    });
+                                  } else {
+                                    setSelectedPointDetails(null);
+                                  }
+                                } else {
+                                  setPaczkomatCode(val.toUpperCase().replace(/\s+/g, ""));
+                                  if (selectedPointDetails && selectedPointDetails.id !== val.toUpperCase().replace(/\s+/g, "")) {
+                                    setSelectedPointDetails(null);
+                                  }
+                                }
+                              }}
+                              className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-base transition-all bg-white text-gray-900 font-mono tracking-wider uppercase"
+                              placeholder={selectedDelivery === "inpost" ? "np. WAW01A" : "np. 913861 lub Punkt Partnerski 913861"}
+                            />
+                            {paczkomatCode.trim().length >= 4 && (
+                              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
+                                ✓ Wybrany punkt
+                              </span>
+                            )}
+                          </div>
+                          {selectedPointDetails ? (
+                            <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-xl text-xs font-sans text-emerald-950 flex items-start justify-between gap-3 animate-fadeIn">
+                              <div className="flex items-start gap-2.5">
+                                <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                                <div>
+                                  <span className="font-bold block text-emerald-900">{selectedPointDetails.name}</span>
+                                  <span className="text-emerald-700 leading-relaxed block">
+                                    {selectedPointDetails.address}{selectedPointDetails.city ? `, ${selectedPointDetails.city}` : ""}
+                                  </span>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setIsParcelMapOpen(true)}
+                                className="text-[#E0115F] hover:underline font-semibold text-xs shrink-0 self-center cursor-pointer"
+                              >
+                                Zmień
+                              </button>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 leading-relaxed font-sans">
+                              {selectedDelivery === "inpost"
+                                ? "Wpisz kod Paczkomatu (np. KRA01M) lub kliknij przycisk powyżej, aby wybrać go bezpośrednio na mapie."
+                                : "Wpisz 6-cyfrowy kod punktu (np. 913861) lub wklej nagłówek z mapy (np. Punkt Partnerski 913861)."}
+                            </p>
+                          )}
                         </div>
                       ) : (
                         <>
@@ -986,6 +1051,19 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           />
         </div>
       )}
+
+      {/* Parcel Map Modal for InPost and Orlen */}
+      <ParcelMapModal
+        isOpen={isParcelMapOpen}
+        onClose={() => setIsParcelMapOpen(false)}
+        provider={selectedDelivery === "orlen" ? "orlen" : "inpost"}
+        onSelectPoint={(point) => {
+          setPaczkomatCode(point.id);
+          setSelectedPointDetails(point);
+          if (point.city && !city) setCity(point.city);
+          if (point.postalCode && !postalCode) setPostalCode(point.postalCode);
+        }}
+      />
     </div>
   );
 }

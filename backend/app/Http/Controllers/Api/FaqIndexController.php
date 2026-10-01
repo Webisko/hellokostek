@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FaqItemResource;
 use App\Models\FaqItem;
 use Illuminate\Http\JsonResponse;
 
@@ -31,13 +32,7 @@ class FaqIndexController extends Controller
 
         return response()->json([
             'data' => [
-                'items' => $items->map(fn (FaqItem $item): array => [
-                    'id' => $item->id,
-                    'question' => $item->question,
-                    'answer' => $item->answer,
-                    'group_name' => $item->group_name,
-                    'sort_order' => $item->sort_order,
-                ])->all(),
+                'items' => FaqItemResource::collection($items),
                 'schema_json_ld' => $schema,
             ],
         ]);

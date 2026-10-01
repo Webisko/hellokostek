@@ -49,10 +49,6 @@ class AdminPanelProvider extends PanelProvider
                 fn (): string => view('filament.components.topbar-theme-switcher')->render(),
             )
             ->renderHook(
-                PanelsRenderHook::BODY_END,
-                fn (): string => view('filament.components.broadcast-listener')->render(),
-            )
-            ->renderHook(
                 PanelsRenderHook::SIDEBAR_FOOTER,
                 fn (): string => view('filament.components.sidebar-collapse-button')->render(),
             )

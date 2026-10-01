@@ -99,6 +99,7 @@ class ContentPageForm
                         ->label('Obrazek wyróżniający strony / Nagłówek')
                         ->disk('public')
                         ->directory('content-pages')
+                        ->visibility('public')
                         ->image()
                         ->imageEditor()
                         ->columnSpanFull(),
@@ -120,6 +121,7 @@ class ContentPageForm
                         ->label('Dedykowany obrazek Social Media (og:image)')
                         ->disk('public')
                         ->directory('seo/og')
+                        ->visibility('public')
                         ->image()
                         ->imageEditor(),
                 ]),

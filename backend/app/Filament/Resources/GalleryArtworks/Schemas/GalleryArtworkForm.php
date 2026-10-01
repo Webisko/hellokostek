@@ -67,6 +67,7 @@ class GalleryArtworkForm
                         ->label('Zdjęcie dzieła')
                         ->disk('public')
                         ->directory('gallery')
+                        ->visibility('public')
                         ->image()
                         ->imageEditor()
                         ->required()

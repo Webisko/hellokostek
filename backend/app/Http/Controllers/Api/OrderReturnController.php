@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OrderReturnResource;
 use App\Models\Order;
 use App\Models\OrderReturn;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +21,7 @@ class OrderReturnController extends Controller
             ->get();
 
         return response()->json([
-            'data' => $returns,
+            'data' => OrderReturnResource::collection($returns),
         ]);
     }
 
@@ -33,7 +34,7 @@ class OrderReturnController extends Controller
         $orderReturn->load(['order', 'items.orderItem.product']);
 
         return response()->json([
-            'data' => $orderReturn,
+            'data' => new OrderReturnResource($orderReturn),
         ]);
     }
 
@@ -142,7 +143,7 @@ class OrderReturnController extends Controller
         }
 
         return response()->json([
-            'data' => $orderReturn->load('items'),
+            'data' => new OrderReturnResource($orderReturn->load(['order', 'items.orderItem'])),
             'message' => 'Wniosek o zwrot został zarejestrowany.',
         ], 201);
     }

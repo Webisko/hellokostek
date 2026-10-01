@@ -37,6 +37,7 @@ class OrderReturnForm
                             ->relationship('order', 'number')
                             ->required()
                             ->searchable()
+                            ->preload()
                             ->live()
                             ->visible(fn ($context) => $context === 'create')
                             ->afterStateUpdated(function ($state, $set) {
@@ -56,6 +57,7 @@ class OrderReturnForm
                             ->relationship('user', 'name', fn ($query) => $query->where('role', \App\Domain\Commerce\Enums\UserRole::Customer))
                             ->required()
                             ->searchable()
+                            ->preload()
                             ->visible(fn ($context) => $context === 'create'),
                         Placeholder::make('user_name')
                             ->label('Klient')

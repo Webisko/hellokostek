@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProductReviewResource;
 use App\Models\Product;
 use App\Models\ProductReview;
 use Illuminate\Http\JsonResponse;
@@ -37,14 +38,7 @@ class ProductReviewController extends Controller
             'data' => [
                 'average_rating' => $product->averageRating(),
                 'reviews_count' => $product->approvedReviewsCount(),
-                'reviews' => $reviews->map(fn (ProductReview $review) => [
-                    'id' => $review->id,
-                    'customer_name' => $review->customer_name,
-                    'rating' => $review->rating,
-                    'comment' => $review->comment,
-                    'is_verified_purchase' => $review->is_verified_purchase,
-                    'created_at' => $review->created_at->toIso8601String(),
-                ])->all(),
+                'reviews' => ProductReviewResource::collection($reviews),
             ],
         ]);
     }

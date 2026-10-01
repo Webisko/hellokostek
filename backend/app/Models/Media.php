@@ -25,6 +25,15 @@ class Media extends Model
         'category',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'file_size' => 'integer',
+            'width' => 'integer',
+            'height' => 'integer',
+        ];
+    }
+
     protected static function booted(): void
     {
         static::deleting(function (Media $media) {

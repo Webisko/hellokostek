@@ -58,3 +58,5 @@ export interface Testimonial {
   meta: string;
   emoji?: string;
 }
+
+export * from './types/api';

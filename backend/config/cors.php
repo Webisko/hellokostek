@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => explode(',', env('ALLOWED_ORIGINS', 'http://localhost:3000')),
+    'allowed_origins' => array_values(array_filter(array_map('trim', explode(',', env('ALLOWED_ORIGINS', 'http://localhost:4321,http://localhost:3000,https://hellokostek.pl'))))),
 
     'allowed_origins_patterns' => [],
 

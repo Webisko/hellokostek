@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GalleryArtworkResource;
 use App\Models\GalleryArtwork;
-use App\Support\PublicMediaUrl;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
 
 class GalleryArtworkController extends Controller
 {
@@ -21,21 +20,7 @@ class GalleryArtworkController extends Controller
 
         return response()->json([
             'data' => [
-                'items' => $items->map(fn (GalleryArtwork $item): array => [
-                    'id' => 'gallery-' . $item->id,
-                    'title' => $item->title,
-                    'technique' => $item->technique,
-                    'format' => $item->format,
-                    'category' => $item->category?->name,
-                    'category_slug' => $item->category?->slug,
-                    'category_id' => $item->category_id,
-                    'year' => $item->year,
-                    'image_url' => PublicMediaUrl::resolve($item->image_path),
-                    'original_url' => $item->original_url
-                        ? (Str::startsWith($item->original_url, ['http://', 'https://']) ? $item->original_url : PublicMediaUrl::resolve($item->original_url))
-                        : null,
-                    'sort_order' => $item->sort_order,
-                ])->all(),
+                'items' => GalleryArtworkResource::collection($items),
             ],
         ]);
     }

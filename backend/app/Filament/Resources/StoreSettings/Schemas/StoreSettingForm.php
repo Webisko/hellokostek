@@ -45,6 +45,7 @@ class StoreSettingForm
                                                 ->schema([
                                                     FileUpload::make('metadata.admin_logo_path')
                                                         ->label('Logo w panelu administratora')
+                                                        ->disk('public')
                                                         ->image()
                                                         ->directory('branding')
                                                         ->visibility('public')
@@ -52,6 +53,7 @@ class StoreSettingForm
                                                         ->panelAspectRatio('1:1'),
                                                     FileUpload::make('metadata.admin_favicon_path')
                                                         ->label('Favicon panelu')
+                                                        ->disk('public')
                                                         ->image()
                                                         ->directory('branding')
                                                         ->visibility('public')
@@ -66,6 +68,7 @@ class StoreSettingForm
                                         ->schema([
                                             FileUpload::make('metadata.admin_login_background_path')
                                                 ->label('Tło ekranu logowania')
+                                                ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
                                                 ->visibility('public')
