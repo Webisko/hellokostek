@@ -2,24 +2,41 @@
 
 Zaplecze systemowe (Backend REST API & Filament CMS) przygotowane specjalnie dla autorskiej pracowni malarskiej **Hello Kostek (Maciej Kosteczka)**.
 
-System odpowiada za kompleksowe zarządzanie katalogiem obrazów i rysunków, realizację zamówień, obsługę płatności online i logistyki kurierskiej, przyjmowanie zapytań o portrety na zamówienie ze zdjęciem, moderację opinii, edycję podstron prawnych z podziałem na paragrafy, bazę FAQ oraz zgodność prawną e-commerce (dyrektywa Omnibus, dyrektywa zwrotów 2023/2673, RODO, EAA).
+System odpowiada za kompleksowe zarządzanie katalogiem obrazów i rysunków, realizację zamówień, obsługę płatności online i logistyki kurierskiej, przyjmowanie zapytań o portrety na zamówienie ze zdjęciem, moderację opinii, edycję podstron prawnych z podziałem na bloki paragrafowe, bazę FAQ oraz zgodność prawną e-commerce (dyrektywa Omnibus, dyrektywa zwrotów 2023/2673, RODO, EAA, GPSR).
 
-Całość działa w **100% w języku polskim** (zarówno panel CMS, jak i komunikaty API).
+Całość działa w **100% w języku polskim** (zarówno panel CMS, jak i komunikaty API oraz powiadomienia transakcyjne).
 
 ---
 
 ## 🛠️ Stack Technologiczny Backendu
 
 - **Framework**: Laravel 13 (PHP 8.3+)
-- **Panel Administracyjny**: Filament CMS v5.6 + Filament Breezy
+- **Architektura Domenowa**: 9 wyspecjalizowanych modułów w katalogu `app/Domain/`
+- **Panel Administracyjny**: Filament CMS v5.6 + Filament Breezy v3.2
 - **Autentykacja**: Laravel Sanctum (tokeny API Bearer dla klientów & sesje panelu CMS dla administratorów)
-- **Baza Danych**: SQLite (`database/database.sqlite` lokalnie) / MySQL (produkcja)
-- **Księgowość & PDF**: Barryvdh Laravel DomPDF (wbudowane generowanie faktur PDF) + sterowniki do platform Fakturownia, iFirma, inFakt, wFirma
-- **Płatności**: Stripe PHP SDK, Przelewy24 API, obsługa BLIK
-- **Logistyka**: InPost ShipX (Paczkomaty 24/7 i kurier), Orlen Paczka, webhook BaseLinker
-- **Weryfikacja B2B**: Wyszukiwarka REGON/NIP w rejestrze BIR Głównego Urzędu Statystycznego
-- **Opinie**: Synchronizacja z Google Places API
-- **Kolejki i Bezpieczeństwo**: Laravel Queue, Spatie Laravel Backup, Laravel Reverb
+- **Baza Danych**: SQLite (`database/database.sqlite` lokalnie) / MySQL MariaDB 11.4 (środowisko produkcyjne)
+- **Księgowość & PDF**: Barryvdh Laravel DomPDF v3.1 (wbudowane generowanie faktur PDF) + sterowniki do platform Fakturownia, iFirma, inFakt, wFirma
+- **Płatności**: Stripe PHP SDK v21, Przelewy24 API, obsługa BLIK z kodem 6-cyfrowym
+- **Logistyka**: InPost ShipX (Paczkomaty 24/7 i kurier ubezpieczony), Orlen Paczka, webhook BaseLinker
+- **Weryfikacja B2B**: Wyszukiwarka REGON/NIP w rejestrze BIR Głównego Urzędu Statystycznego (GUS)
+- **Opinie**: Synchronizacja z Google Places API (`GooglePlaceReviewsService.php`)
+- **Generator Grafik Social Media**: Dynamiczne, podpisane obrazy OpenGraph (`GET /og-image`)
+- **Kolejki i Bezpieczeństwo**: Laravel Queue, Spatie Laravel Backup v10, Laravel Reverb
+
+---
+
+## 🏛️ Architektura Domenowa (`app/Domain/`)
+
+Logika biznesowa została zorganizowana w modularne domeny domenowe:
+1. **Admin**: Personalizacja panelu CMS, sortowanie i konfiguracja pulpitów.
+2. **Analytics**: Zbieranie i agregacja zdarzeń frontendu, statystyki odsłon i konwersji.
+3. **Commerce**: Logika koszyka, zamówień, wyliczania cen Omnibus, kalkulatora portretów, fakturowania i procedury zwrotów RMA.
+4. **Communication**: Szablony maili transakcyjnych HTML, wysyłka powiadomień i logowanie korespondencji.
+5. **Customers**: Profile klientów B2C i firm B2B, integracja z GUS BIR, książki adresowe.
+6. **Imports**: Narzędzia importu i migracji produktów oraz zasobów mediów.
+7. **Integrations**: Sterowniki bramek płatności (Stripe, Przelewy24) oraz operatorów logistycznych (InPost, Orlen Paczka, BaseLinker).
+8. **Operations**: Audyt działań administratorów, reguły przekierowań URL 301/302, automatyczne kopie zapasowe.
+9. **Storefront**: Serwisy prezentacji oferty, FAQ z danymi Schema.org, opinie Google Places i generator sitemap.
 
 ---
 
@@ -67,7 +84,7 @@ Wszystkie zasoby znajdują się w katalogu `app/Filament/Resources/` i zostały 
 ### 3. Treść i Portfolio
 * **Galeria Prac (`GalleryArtworkResource`)**:
   - Zarządzanie dziełami prezentowanymi w portfolio na podstronie `/galeria`.
-  - Przypisywanie technik, roku powstania (2024, 2023, 2022, starsze) oraz relacji do sklepu.
+  - Przypisywanie technik, roku powstania (2026, 2024, 2023, 2022, starsze) oraz relacji do sklepu.
 * **Edytor Stron Treści (`ContentPageResource`)**:
   - Zarządzanie podstronami prawnymi (*Regulamin Sklepu*, *Polityka Prywatności i Cookies*).
   - Edytor bloków paragrafowych (`Repeater::make('metadata.sections')`) z unikalnymi identyfikatorami kotwic (`id`), tytułami sekcji i edytorem WYSIWYG (`RichEditor`).
@@ -95,12 +112,26 @@ Wszystkie zasoby znajdują się w katalogu `app/Filament/Resources/` i zostały 
 
 ---
 
+## 🌐 Trasy Webowe (`routes/web.php`)
+
+Poza punktami końcowymi REST API, system udostępnia kluczowe trasy HTTP:
+* `GET /` – automatyczne przekierowanie do panelu administracyjnego (`filament.admin.home`).
+* `GET /sitemap.xml` – dynamiczna mapa witryny w formacie XML uwzględniająca produkty, galerie i strony CMS.
+* `GET /robots.txt` – dynamiczny plik reguł dla robotów indeksujących i agentów AI.
+* `GET /og-image` – podpisany cyfrowo generator dynamicznych miniatur OpenGraph dla mediów społecznościowych.
+* `GET /admin/orders/{number}/inpost-label` – bezpośrednie pobranie wygenerowanej etykiety wysyłkowej InPost w formacie PDF.
+* `GET /admin/orders/{number}/orlen-label` – bezpośrednie pobranie etykiety wysyłkowej Orlen Paczka w formacie PDF.
+* `GET /admin/exports/customers` – eksport bazy klientów do celów analitycznych (CSV).
+* `GET /admin/exports/orders` – eksport zestawienia zamówień do celów księgowych (CSV/Excel).
+
+---
+
 ## 🚚 Logistyka i Księgowość
 
 ### 1. InPost Paczkomaty & Orlen Paczka
-- Kontrolery w `routes/web.php` umożliwiają natychmiastowe pobranie etykiety PDF z poziomu widoku zamówienia w CMS:
-  - `GET /admin/orders/{number}/inpost-label`
-  - `GET /admin/orders/{number}/orlen-label`
+Pobieranie etykiet PDF bezpośrednio z poziomu panelu zamówienia:
+- `GET /admin/orders/{number}/inpost-label`
+- `GET /admin/orders/{number}/orlen-label`
 
 ### 2. Sterowniki Fakturowania (Accounting Drivers)
 W katalogu `app/Domain/Commerce/Accounting/Drivers/` zaimplementowano 5 wymiennych sterowników:
@@ -110,11 +141,7 @@ W katalogu `app/Domain/Commerce/Accounting/Drivers/` zaimplementowano 5 wymienny
 4. `InFaktDriver` – integracja z API inFakt.
 5. `WFirmaDriver` – integracja z API wFirma.
 
-Faktury są generowane asynchronicznie przez job `SendOrderToAccountingJob`.
-
-### 3. Eksport Danych
-- `GET /admin/exports/customers` – eksport bazy klientów do celów analitycznych.
-- `GET /admin/exports/orders` – eksport zamówień do zestawień księgowych.
+Faktury są generowane asynchronicznie przez zadanie kolejkowe `SendOrderToAccountingJob`.
 
 ---
 
@@ -140,11 +167,11 @@ php artisan media:scan
 
 ---
 
-## 🔑 Domyślne Konto Administratora
+## 🔑 Bezpieczeństwo i Dostęp do Panelu
 
 - **Adres panelu**: `http://localhost:8000/admin`
-- **E-mail**: `admin@hellokostek.pl`
-- **Hasło**: `Admin1234!`
+- Szczegółowe dane kont deweloperskich oraz parametry środowiska produkcyjnego znajdują się w lokalnym pliku **`credentials.local.md`** (wykluczonym ze śledzenia w Git).
+- Wszystkie hasła i klucze API produkcyjne muszą być konfigurowane wyłącznie za pośrednictwem zmiennych środowiskowych w pliku `.env`.
 
 ---
 

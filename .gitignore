@@ -44,3 +44,7 @@ dev-error.log
 dev_debug.log
 scratch/
 
+# Local sensitive credentials and secrets
+*.local.md
+credentials.local.*
+*credentials*

@@ -1,17 +1,24 @@
-# Pracownia Artystyczna Kostek — Maciej Kosteczka
+# Pracownia Artystyczna & Sklep – hellokostek (Maciej Kosteczka)
 
-> Pracownia artystyczna specjalizująca się w ręcznie malowanych portretach ze zdjęcia na zamówienie (olej na płótnie, rysunek, akwarela) oraz sprzedaży autorskich dzieł sztuki.
+> Autorska pracownia sztuki tradycyjnej specjalizująca się w ręcznie malowanych portretach ze zdjęcia na zamówienie (malarstwo olejne, akryl, akwarela, rysunek ołówkiem) oraz sprzedaży oryginalnych dzieł sztuki i kolekcjonerskich reprodukcji.
 
-## Główne sekcje i oferta
+## Kluczowe Informacje o Pracowni
+- **Artysta & Właściciel:** Maciej Kosteczka
+- **Motto i Manifest:** „Człowiek dla człowieka – sztuka prawdziwa bez AI” (100% rzemiosło sztalugowe, naturalne pigmenty, bez grafiki generatywnej).
+- **Siedziba formalno-rejestrowa (CEIDG / faktury):** Rynek 33, 42-470 Siewierz, NIP: 6252363656, REGON: 527158196.
+- **Lokalizacja twórcza (Pracownia / odbiory):** Łódź, Śródmieście, woj. łódzkie.
+- **Kontakt bezpośredni:** e-mail: kontakt@hellokostek.pl | tel.: +48 662 707 153.
+- **Social Media:** Instagram (@hellokostek), Facebook (/hellokostek/), TikTok (@hellokostek), YouTube (@hellokostek).
 
-- [Strona Główna Pracowni](https://hellokostek.pl/): Prezentacja pracowni, konfigurator portretów na zamówienie ze zdjęcia oraz opinie klientów.
-- [Galeria Zrealizowanych Portretów](https://hellokostek.pl/galeria): Przegląd dotychczas wykonanych portretów olejnych, rysunków i akwareli.
-- [Sklep z Obrazami](https://hellokostek.pl/sklep): Oryginalne, ręcznie malowane akwarele oraz rysunki ołówkiem dostępne do kupienia online od ręki.
-- [O Artyście](https://hellokostek.pl/o-mnie): Biografia i filozofia twórcza malarza Macieja Kosteczki.
-- [Zamawianie i Wycena Portretu](https://hellokostek.pl/kontakt): Formularz kontaktowy i darmowa wycena indywidualnego portretu ze zdjęcia.
-- [Pełna Dokumentacja LLM](https://hellokostek.pl/llms-full.txt): Pełna specyfikacja oferty i cennik dla modeli językowych i agentów AI.
+## Główne sekcje platformy
+- [Strona Główna Pracowni](https://hellokostek.pl/): Prezentacja pracowni, interaktywny konfigurator portretów ze zdjęcia (krosna prostokątne i unikalne owalne) oraz opinie klientów.
+- [Sklep z Obrazami i Reprodukcjami](https://hellokostek.pl/sklep): Oryginały (unikaty 1/1) oraz kolekcjonerskie wydruki artystyczne na papierze archiwalnym.
+- [Karta Dzieła Sztuki](https://hellokostek.pl/sklep/obiekt-ii-2022): Podgląd faktury malarskiej, zgodność z dyrektywą Omnibus, 1-Click checkout z interaktywną mapą Paczkomatów.
+- [Galeria i Portfolio](https://hellokostek.pl/galeria): Archiwum zrealizowanych prac malarskich i rysunkowych z filtrowaniem po technikach i rocznikach.
+- [O Artyście](https://hellokostek.pl/o-mnie): Biografia, warsztat rzemieślniczy i droga twórcza malarza Macieja Kosteczki.
+- [Wycena i Kontakt](https://hellokostek.pl/kontakt): Formularz wyceny portretu z możliwością załączenia zdjęć referencyjnych.
+- [Pełna Dokumentacja dla Modeli AI](https://hellokostek.pl/llms-full.txt): Pełna specyfikacja oferty, cennik i procedury zamówień.
 
-## Szczegółowa specyfikacja usług
-
-- [Regulamin Zamówień](https://hellokostek.pl/regulamin): Zasady realizacji zamówień, warunki płatności i dostawy.
-- [Polityka Prywatności](https://hellokostek.pl/polityka-prywatnosci): Zasady przetwarzania danych osobowych i plików cookies.
+## Zgodność Prawna i Obsługa Klienta
+- [Regulamin Sklepu](https://hellokostek.pl/regulamin): Procedury zamówień, zasady zaliczek (50%), prawo do zwrotu 14 dni dla reprodukcji i wyłączenia dla dzieł spersonalizowanych.
+- [Polityka Prywatności i Cookies](https://hellokostek.pl/polityka-prywatnosci): Zasady przetwarzania danych osobowych RODO oraz rejestr zgód Google Consent Mode v2.

@@ -2,12 +2,10 @@
 
 namespace App\Domain\Imports;
 
-use App\Models\BlogPost;
 use App\Models\ContentPage;
 use App\Models\Coupon;
 use App\Models\CustomerProfile;
 use App\Models\FaqItem;
-use App\Models\NewsletterSubscriber;
 use App\Models\Order;
 use App\Models\OrderFulfillmentAction;
 use App\Models\OrderItem;
@@ -85,10 +83,8 @@ class JsonImportService
             'product-categories' => $this->importProductCategory($record, $dryRun),
             'products' => $this->importProduct($record, $dryRun),
             'content-pages' => $this->importContentPage($record, $dryRun),
-            'blog-posts' => $this->importBlogPost($record, $dryRun),
             'faq-items' => $this->importFaqItem($record, $dryRun),
             'coupons' => $this->importCoupon($record, $dryRun),
-            'newsletter-subscribers' => $this->importNewsletterSubscriber($record, $dryRun),
             'redirect-rules' => $this->importRedirectRule($record, $dryRun),
             'customers' => $this->importCustomer($record, $dryRun),
             'orders' => $this->importOrder($record, $dryRun),
@@ -180,22 +176,6 @@ class JsonImportService
         ]);
     }
 
-    private function importBlogPost(array $record, bool $dryRun): array
-    {
-        return $this->upsertBySlug(BlogPost::class, $record, $dryRun, [
-            'title' => $this->requireString($record, 'title'),
-            'excerpt' => Arr::get($record, 'excerpt'),
-            'content' => Arr::get($record, 'content'),
-            'author_name' => Arr::get($record, 'author_name'),
-            'cover_image_url' => Arr::get($record, 'cover_image_url'),
-            'seo_title' => Arr::get($record, 'seo_title'),
-            'seo_description' => Arr::get($record, 'seo_description'),
-            'is_active' => (bool) Arr::get($record, 'is_active', true),
-            'published_at' => $this->nullableDate(Arr::get($record, 'published_at')),
-            'metadata' => Arr::get($record, 'metadata', []),
-        ]);
-    }
-
     private function importFaqItem(array $record, bool $dryRun): array
     {
         return $this->upsert(
@@ -229,24 +209,6 @@ class JsonImportService
                 'usage_limit_per_customer' => Arr::has($record, 'usage_limit_per_customer') ? (int) Arr::get($record, 'usage_limit_per_customer') : null,
                 'starts_at' => $this->nullableDate(Arr::get($record, 'starts_at')),
                 'ends_at' => $this->nullableDate(Arr::get($record, 'ends_at')),
-                'is_active' => (bool) Arr::get($record, 'is_active', true),
-                'metadata' => Arr::get($record, 'metadata', []),
-            ],
-            dryRun: $dryRun,
-        );
-    }
-
-    private function importNewsletterSubscriber(array $record, bool $dryRun): array
-    {
-        return $this->upsert(
-            modelClass: NewsletterSubscriber::class,
-            unique: ['email' => Str::lower($this->requireString($record, 'email'))],
-            attributes: [
-                'first_name' => Arr::get($record, 'first_name'),
-                'last_name' => Arr::get($record, 'last_name'),
-                'source' => Arr::get($record, 'source'),
-                'consented_at' => $this->nullableDate(Arr::get($record, 'consented_at')),
-                'unsubscribed_at' => $this->nullableDate(Arr::get($record, 'unsubscribed_at')),
                 'is_active' => (bool) Arr::get($record, 'is_active', true),
                 'metadata' => Arr::get($record, 'metadata', []),
             ],

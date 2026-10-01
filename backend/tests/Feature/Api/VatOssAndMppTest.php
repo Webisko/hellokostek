@@ -5,7 +5,6 @@ namespace Tests\Feature\Api;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\NewsletterSubscriber;
 use App\Support\VatOssHelper;
 use App\Support\MinimalPdfGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -198,32 +197,6 @@ class VatOssAndMppTest extends TestCase
 
     public function test_cleanup_commands(): void
     {
-        // Insert newsletter subscribers via raw DB to preserve custom timestamps
-        DB::table('newsletter_subscribers')->insert([
-            'email' => 'old_pending@example.com',
-            'status' => 'pending',
-            'created_at' => now()->subDays(15)->toDateTimeString(),
-            'updated_at' => now()->subDays(15)->toDateTimeString(),
-        ]);
-        DB::table('newsletter_subscribers')->insert([
-            'email' => 'new_pending@example.com',
-            'status' => 'pending',
-            'created_at' => now()->subDays(5)->toDateTimeString(),
-            'updated_at' => now()->subDays(5)->toDateTimeString(),
-        ]);
-        DB::table('newsletter_subscribers')->insert([
-            'email' => 'old_active@example.com',
-            'status' => 'active',
-            'created_at' => now()->subDays(20)->toDateTimeString(),
-            'updated_at' => now()->subDays(20)->toDateTimeString(),
-        ]);
-
-        Artisan::call('app:cleanup-pending-subscribers', ['--days' => 14]);
-
-        $this->assertDatabaseMissing('newsletter_subscribers', ['email' => 'old_pending@example.com']);
-        $this->assertDatabaseHas('newsletter_subscribers', ['email' => 'new_pending@example.com']);
-        $this->assertDatabaseHas('newsletter_subscribers', ['email' => 'old_active@example.com']);
-
         // Insert orders via raw DB to preserve custom timestamps
         DB::table('orders')->insert([
             'number' => 'ORD-OLD-DRAFT',

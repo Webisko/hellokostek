@@ -2,13 +2,11 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\BlogPost;
 use App\Models\ContactInquiry;
 use App\Models\ContentPage;
 use App\Models\CustomerProfile;
 use App\Models\FailedJob;
 use App\Models\IntegrationLog;
-use App\Models\NewsletterSubscriber;
 use App\Models\Order;
 use App\Models\OrderReturn;
 use App\Models\Product;

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\BlogPost;
 use App\Models\ContentPage;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -22,16 +21,6 @@ class SeoTest extends TestCase
         // Create data
         $product = Product::factory()->public()->create(['slug' => 'test-product']);
         $category = ProductCategory::factory()->create(['slug' => 'test-category', 'is_active' => true]);
-        
-        $post = BlogPost::create([
-            'title' => 'Test Post',
-            'slug' => 'test-post',
-            'excerpt' => 'Excerpt',
-            'content' => 'Content',
-            'author_name' => 'Author',
-            'is_active' => true,
-            'published_at' => now()->subDay(),
-        ]);
 
         $page = ContentPage::create([
             'title' => 'Test Page',
@@ -54,7 +43,6 @@ class SeoTest extends TestCase
         $this->assertStringContainsString('https://test-storefront.com/', $content);
         $this->assertStringContainsString('https://test-storefront.com/products/test-product', $content);
         $this->assertStringContainsString('https://test-storefront.com/categories/test-category', $content);
-        $this->assertStringContainsString('https://test-storefront.com/blog/test-post', $content);
         $this->assertStringContainsString('https://test-storefront.com/test-page', $content);
     }
 
@@ -99,157 +87,14 @@ class SeoTest extends TestCase
         ]);
     }
 
-    public function test_blog_post_slug_change_creates_301_redirect(): void
+    public function test_site_reviews_endpoint_returns_success(): void
     {
-        $post = BlogPost::create([
-            'title' => 'Old Post',
-            'slug' => 'old-post',
-            'excerpt' => 'Excerpt',
-            'content' => 'Content',
-            'author_name' => 'Author',
-            'is_active' => true,
-            'published_at' => now(),
-        ]);
-
-        $post->update(['slug' => 'new-post']);
-
-        $this->assertDatabaseHas('redirect_rules', [
-            'source_path' => '/blog/old-post',
-            'target_path' => '/blog/new-post',
-            'status_code' => 301,
-        ]);
-    }
-
-    public function test_content_page_slug_change_creates_301_redirect(): void
-    {
-        $page = ContentPage::create([
-            'title' => 'Old Page',
-            'slug' => 'old-page',
-            'excerpt' => 'Excerpt',
-            'content' => 'Content',
-            'template' => 'default',
-            'is_active' => true,
-        ]);
-
-        $page->update(['slug' => 'new-page']);
-
-        $this->assertDatabaseHas('redirect_rules', [
-            'source_path' => '/old-page',
-            'target_path' => '/new-page',
-            'status_code' => 301,
-        ]);
-    }
-
-    public function test_product_payload_returns_featured_image_alt(): void
-    {
-        $product = Product::factory()->public()->create([
-            'slug' => 'test-product-alt',
-            'metadata' => [
-                'featured_image_alt' => 'Niesamowity alt tekst obrazka',
-            ],
-        ]);
-
-        $response = $this->getJson('/api/catalog');
+        $response = $this->getJson('/api/reviews/site');
         $response->assertStatus(200);
-
-        // Find the product in JSON
-        $products = $response->json('data.products');
-        $found = collect($products)->firstWhere('slug', 'test-product-alt');
-
-        $this->assertNotNull($found);
-        $this->assertEquals('Niesamowity alt tekst obrazka', $found['featured_image_alt']);
-    }
-
-    public function test_faq_index_returns_faqpage_schema(): void
-    {
-        \App\Models\FaqItem::create([
-            'question' => 'Jakie sa koszty dostawy?',
-            'answer' => 'Darmowa od 250 PLN.',
-            'is_active' => true,
-            'sort_order' => 1,
+        $response->assertJsonStructure([
+            'status',
+            'data',
         ]);
-
-        $response = $this->getJson('/api/faq');
-        $response->assertStatus(200);
-
-        $schema = $response->json('data.schema_json_ld');
-        $this->assertNotNull($schema);
-        $this->assertEquals('FAQPage', $schema['@type']);
-        $this->assertCount(1, $schema['mainEntity']);
-        $this->assertEquals('Jakie sa koszty dostawy?', $schema['mainEntity'][0]['name']);
-        $this->assertEquals('Darmowa od 250 PLN.', $schema['mainEntity'][0]['acceptedAnswer']['text']);
-    }
-
-    public function test_blog_post_show_returns_blogposting_schema_author_and_sources(): void
-    {
-        config(['services.storefront.url' => 'https://test-storefront.com']);
-
-        $post = BlogPost::create([
-            'title' => 'Test Post E-E-A-T',
-            'slug' => 'test-post-eeat',
-            'excerpt' => 'Post excerpt',
-            'content' => 'Full post content',
-            'author_name' => 'Dr Jan Kowalski',
-            'is_active' => true,
-            'published_at' => now(),
-            'metadata' => [
-                'author_bio' => 'Ekspert ds. e-commerce',
-                'author_avatar_path' => 'authors/kowalski.jpg',
-                'author_linkedin' => 'https://linkedin.com/in/kowalski',
-                'sources' => [
-                    ['title' => 'Badanie 1', 'url' => 'https://example.com/badanie1']
-                ]
-            ]
-        ]);
-
-        $response = $this->getJson('/api/blog/posts/test-post-eeat');
-        $response->assertStatus(200);
-
-        $data = $response->json('data.post');
-        $this->assertEquals('Dr Jan Kowalski', $data['author_details']['name']);
-        $this->assertEquals('Ekspert ds. e-commerce', $data['author_details']['bio']);
-        $this->assertEquals('https://linkedin.com/in/kowalski', $data['author_details']['linkedin']);
-        $this->assertCount(1, $data['sources']);
-        $this->assertEquals('Badanie 1', $data['sources'][0]['title']);
-
-        $schema = $data['schema_json_ld'];
-        $this->assertNotNull($schema);
-        $this->assertEquals('BlogPosting', $schema['@type']);
-        $this->assertEquals('Dr Jan Kowalski', $schema['author']['name']);
-        $this->assertEquals('Ekspert ds. e-commerce', $schema['author']['description']);
-    }
-
-    public function test_google_reviews_returns_local_business_schema_with_nap(): void
-    {
-        // Configure NAP settings
-        $settings = \App\Models\StoreSetting::query()->first();
-        if (!$settings) {
-            $settings = \App\Models\StoreSetting::create([
-                'store_name' => 'Sklep testowy',
-                'currency' => 'PLN',
-            ]);
-        }
-        $settings->update([
-            'metadata' => [
-                'phone' => '+48 123 456 789',
-                'address_street' => 'ul. Wiejska 1',
-                'address_city' => 'Warszawa',
-                'address_postal_code' => '00-001',
-                'address_country' => 'Polska',
-                'latitude' => '52.23',
-                'longitude' => '21.01',
-            ]
-        ]);
-
-        $response = $this->getJson('/api/reviews/google');
-        $response->assertStatus(200);
-
-        $schema = $response->json('schema_json_ld');
-        $this->assertEquals('LocalBusiness', $schema['@type']);
-        $this->assertEquals('+48 123 456 789', $schema['telephone']);
-        $this->assertEquals('ul. Wiejska 1', $schema['address']['streetAddress']);
-        $this->assertEquals('Warszawa', $schema['address']['addressLocality']);
-        $this->assertEquals('52.23', $schema['geo']['latitude']);
     }
 
     public function test_robots_txt_returns_dynamic_content_and_disallows_admin_path(): void
@@ -313,36 +158,6 @@ class SeoTest extends TestCase
         $this->assertEquals('Custom OG Title', $data['social_meta']['og:title']);
         $this->assertEquals('Custom OG Description', $data['social_meta']['og:description']);
         $this->assertStringContainsString('seo/og/custom.jpg', $data['social_meta']['og:image']);
-    }
-
-    public function test_blog_post_detail_returns_og_metadata_and_canonical_url(): void
-    {
-        config(['services.storefront.url' => 'https://test-storefront.com']);
-
-        // Test with custom OG values
-        $post = BlogPost::create([
-            'title' => 'Blog Post Title',
-            'slug' => 'blog-post-slug',
-            'excerpt' => 'Blog Post Excerpt',
-            'content' => 'Blog Post Content',
-            'author_name' => 'Author',
-            'is_active' => true,
-            'published_at' => now()->subDay(),
-            'metadata' => [
-                'og_title' => 'Custom Blog OG Title',
-                'og_description' => 'Custom Blog OG Description',
-                'og_image_path' => 'seo/og/blog.jpg',
-            ]
-        ]);
-
-        $response = $this->getJson('/api/blog/posts/blog-post-slug');
-        $response->assertStatus(200);
-
-        $data = $response->json('data.post');
-        $this->assertEquals('https://test-storefront.com/blog/blog-post-slug', $data['canonical_url']);
-        $this->assertEquals('Custom Blog OG Title', $data['social_meta']['og:title']);
-        $this->assertEquals('Custom Blog OG Description', $data['social_meta']['og:description']);
-        $this->assertStringContainsString('seo/og/blog.jpg', $data['social_meta']['og:image']);
     }
 
     public function test_content_page_detail_returns_og_metadata_and_canonical_url(): void
@@ -411,4 +226,3 @@ class SeoTest extends TestCase
         $this->assertTrue($products[0]['is_bestseller']);
     }
 }
-

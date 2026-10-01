@@ -1,26 +1,21 @@
-# Lista Zadań: Audyt i Naprawa (Laravel 13 + Filament 5 + Astro 7)
+# Lista Zadań: Porządki w Repozytorium i Usunięcie Zbędnego Kodu
 
-- [x] Krok 1: Eloquent, Modele i Baza Danych <!-- id: 0 -->
-    - [x] Dodać brakujące metody `casts(): array` w modelach pomocniczych (`Media`, `CartItem`, `OrderReturnItem`, `ProductBundleItem`, `ProductAttributeAssignment`, `ProductRelation`) <!-- id: 1 -->
-    - [x] Zweryfikować i potwierdzić kompletność `$fillable` i relacji we wszystkich 41 modelach <!-- id: 2 -->
-- [x] Krok 2: Formularze i Tabele Filament 5 <!-- id: 3 -->
-    - [x] Dodać brakujące `->preload()` w polach relacji w `OrderForm.php` (`user_id`, `product_id`) <!-- id: 4 -->
-    - [x] Dodać brakujące `->preload()` w polach relacji w `OrderReturnForm.php` (`order_id`, `user_id`) <!-- id: 5 -->
-    - [x] Dodać `DeleteAction::make()` w `recordActions` w `UsersTable.php` <!-- id: 6 -->
-    - [x] Dodać `DeleteAction::make()` w `recordActions` w `EmailTemplatesTable.php` oraz uporządkować zdublowane akcje <!-- id: 7 -->
-- [x] Krok 3: Pamięć Masowa i Pliki na Hostingu Współdzielonym <!-- id: 8 -->
-    - [x] Skonfigurować elastyczne ścieżki dysku `public` w `config/filesystems.php` (wsparcie `FILESYSTEM_PUBLIC_ROOT` i `FILESYSTEM_PUBLIC_URL` dla hostingu współdzielonego) <!-- id: 9 -->
-    - [x] Dodać `->visibility('public')` do komponentów `FileUpload::make()` w `ProductForm.php`, `ContentPageForm.php`, `GalleryArtworkForm.php` <!-- id: 10 -->
-    - [x] Dodać `->disk('public')` do komponentów `FileUpload::make()` w `StoreSettingForm.php` <!-- id: 11 -->
-- [x] Krok 4: Refaktoryzacja Warstwy API (Laravel -> Astro) <!-- id: 12 -->
-    - [x] Utworzyć ustandaryzowane klasy `JsonResource` w `app/Http/Resources/` (`CustomerAddressResource`, `GalleryArtworkResource`, `FaqItemResource`, `ContentPageResource`, `ProductReviewResource`, `OrderReturnResource`) <!-- id: 13 -->
-    - [x] Zintegrować nowe zasoby API w odpowiednich kontrolerach API <!-- id: 14 -->
-    - [x] Zaktualizować `config/cors.php`, `backend/.env` i `backend/.env.example` o adresy Astro (`http://localhost:4321`) i domenę produkcyjną (`https://hellokostek.pl`) <!-- id: 15 -->
-- [x] Krok 5: Weryfikacja Pobierania Danych w Astro 7 <!-- id: 16 -->
-    - [x] Utworzyć katalog `src/types/` z plikiem `api.ts` definiującym typy odpowiedzi API (koperty `data`, paginacja, payloady) <!-- id: 17 -->
-    - [x] Zaktualizować i zintegrować `src/types.ts` z nowo utworzonymi typami API <!-- id: 18 -->
-    - [x] Sprawdzić obsługę awaryjną `try...catch` we frontendzie Astro <!-- id: 19 -->
-- [x] Protokół Zakończenia i Weryfikacja <!-- id: 20 -->
-    - [x] Wyczyścić pamięć podręczną Laravela (`php artisan config:clear && php artisan route:clear && php artisan view:clear`) <!-- id: 21 -->
-    - [x] Zweryfikować poprawność budowania frontendu Astro (`npm run build`) <!-- id: 22 -->
-    - [x] Zweryfikować poprawność działania backendu i operacji CRUD <!-- id: 23 -->
+- [x] Krok 1: Usunięcie martwego kodu i osieroconych plików Bloga i Newslettera (Backend) <!-- id: 0 -->
+    - [x] Usunąć martwe seedery z obcego projektu: `BlogPostRelatedProductsSeeder.php`, `DevCmsReviewSeeder.php` <!-- id: 1 -->
+    - [x] Usunąć osierocone klasy: `app/Mail/NewsletterMail.php`, `app/Jobs/SyncNewsletterToWebhookJob.php` <!-- id: 2 -->
+    - [x] Usunąć martwy plik testowy: `tests/Feature/Api/NewsletterDoubleOptInTest.php` <!-- id: 3 -->
+    - [x] Oczyścić `SitemapController.php` i `ContentMapController.php` z zapytań do nieistniejącego modelu `BlogPost` <!-- id: 4 -->
+    - [x] Oczyścić `StoreDashboard.php` i `JsonImportService.php` z martwych importów `BlogPost` i `NewsletterSubscriber` <!-- id: 5 -->
+- [x] Krok 2: Usunięcie zbędnych plików szablonu początkowego Astro (Frontend) <!-- id: 6 -->
+    - [x] Usunąć domyślny komponent szablonu Astro: `src/components/Welcome.astro` <!-- id: 7 -->
+    - [x] Usunąć domyślne grafiki szablonu: `src/assets/astro.svg`, `src/assets/background.svg` <!-- id: 8 -->
+- [x] Krok 3: Oczyszczenie katalogu tymczasowego `scratch/` <!-- id: 9 -->
+    - [x] Usunąć zdezaktualizowaną paczkę zip `scratch/storefront.zip` (8.5 MB) <!-- id: 10 -->
+    - [x] Usunąć jednorazowe skrypty robocze z katalogu `scratch/` <!-- id: 11 -->
+- [x] Krok 4: Uporządkowanie i dostosowanie testów backendu (`php artisan test`) <!-- id: 12 -->
+    - [x] Oczyścić `SeoTest.php` z testów usuniętego bloga i zaktualizować trasę recenzji (`/api/reviews/site`) <!-- id: 13 -->
+    - [x] Dostosować test CORS w `SecurityTest.php` do rzeczywistych dozwolonych domen (`http://localhost:4321`, `https://hellokostek.pl`) <!-- id: 14 -->
+    - [x] Oczyścić `VatOssAndMppTest.php` z zapisu do usuniętej tabeli newslettera <!-- id: 15 -->
+- [x] Krok 5: Weryfikacja Spójności i Build <!-- id: 16 -->
+    - [x] Uruchomić testy automatyczne `php artisan test` w backendzie <!-- id: 17 -->
+    - [x] Uruchomić `npm run build` we frontendzie <!-- id: 18 -->

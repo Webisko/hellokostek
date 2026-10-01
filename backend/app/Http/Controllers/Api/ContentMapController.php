@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\BlogPost;
 use App\Models\ContentPage;
 use App\Models\FaqItem;
 use App\Models\ProductCategory;
@@ -44,10 +43,6 @@ class ContentMapController extends Controller
                     'template' => $page->template,
                     'template_label' => ContentPage::templateOptions()[$page->template] ?? $page->template,
                 ])->all(),
-                'blog' => [
-                    'posts_endpoint' => route('api.blog.posts.index', absolute: false),
-                    'published_posts_count' => BlogPost::query()->publiclyVisible()->count(),
-                ],
                 'faq' => [
                     'items_endpoint' => route('api.faq.index', absolute: false),
                     'groups' => $faqGroups,

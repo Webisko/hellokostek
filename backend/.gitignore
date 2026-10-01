@@ -36,3 +36,8 @@ Thumbs.db
 !/storage/framework/views/.gitignore
 /storage/app/invoices/ORD-2*
 /scratch
+
+# Local sensitive credentials and secrets
+*.local.md
+credentials.local.*
+*credentials*

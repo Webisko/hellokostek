@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Str;
 
+Artisan::command('app:recover-abandoned-carts', function () {
+    return $this->call(\App\Console\Commands\RecoverAbandonedCarts::class);
+})->purpose('Wysyła wiadomości e-mail o porzuconych koszykach do klientów, którzy nie sfinalizowali zamówienia');
+
+Artisan::command('app:cleanup-abandoned-carts {--days=30 : Liczba dni, po których porzucone szkice koszyków będą usuwane}', function () {
+    return $this->call(\App\Console\Commands\CleanupAbandonedCarts::class, [
+        '--days' => $this->option('days'),
+    ]);
+})->purpose('Usuwa z bazy danych porzucone szkice koszyków');
+
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');

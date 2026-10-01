@@ -307,7 +307,9 @@ class SecurityTest extends TestCase
      */
     public function test_cors_configuration_restricts_allowed_origins(): void
     {
-        $this->assertEquals(['http://localhost:3000'], config('cors.allowed_origins'));
+        $allowed = config('cors.allowed_origins');
+        $this->assertContains('http://localhost:4321', $allowed);
+        $this->assertContains('https://hellokostek.pl', $allowed);
     }
 
     /**

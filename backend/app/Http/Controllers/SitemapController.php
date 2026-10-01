@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BlogPost;
 use App\Models\ContentPage;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -64,19 +63,6 @@ class SitemapController extends Controller
                 }
                 $xml[] = '        <changefreq>weekly</changefreq>';
                 $xml[] = '        <priority>0.7</priority>';
-                $xml[] = '    </url>';
-            }
-            
-            // Blog Posts
-            $posts = BlogPost::query()->publiclyVisible()->where('is_noindex', false)->get();
-            foreach ($posts as $post) {
-                $xml[] = '    <url>';
-                $xml[] = '        <loc>' . htmlspecialchars($baseUrl . '/blog/' . $post->slug) . '</loc>';
-                if ($post->updated_at) {
-                    $xml[] = '        <lastmod>' . $post->updated_at->toAtomString() . '</lastmod>';
-                }
-                $xml[] = '        <changefreq>monthly</changefreq>';
-                $xml[] = '        <priority>0.6</priority>';
                 $xml[] = '    </url>';
             }
             

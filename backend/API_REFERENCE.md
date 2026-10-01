@@ -8,7 +8,7 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
 
 ## 1. Architektura API i Standardy Komunikacji
 
-* **Bazowy adres API:** `http://localhost:8000/api` (środowisko deweloperskie) / `https://admin.hellokostek.pl/api` (produkcja).
+* **Bazowy adres API:** `http://localhost:8000/api` (środowisko deweloperskie) / `https://panel.hellokostek.pl/api` (produkcja).
 * **Format danych:** Wszystkie zapytania wysyłające dane JSON muszą zawierać nagłówek `Content-Type: application/json` oraz `Accept: application/json`. Odpowiedzi są zawsze zwracane w formacie JSON.
 * **Jednostki kwot i waluta:** Wszystkie kwoty pieniężne (ceny obrazów, wydruków, koszty dostawy, rabaty) są reprezentowane jako **liczby całkowite w groszach (PLN)**. Przykładowo kwota `30000` oznacza `300,00 PLN`.
 * **Autoryzacja (gdzie wymagana):** Laravel Sanctum. Token należy przesyłać w nagłówku:
@@ -19,11 +19,12 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
   - Trasy ogólne: 60 zapytań / minutę per IP.
   - Formularze kontaktowe i wyceny (`/api/inquiries`, `/api/quote`, `/api/returns`): 20 zapytań / minutę per IP.
   - Checkout (`/api/checkout/*`): 30 zapytań / minutę per IP.
-  - Autoryzacja (`/api/auth/login`, `/api/auth/register`): 5-10 zapytań / minutę per IP.
+  - Autoryzacja (`/api/auth/login`, `/api/auth/register`): 5–10 zapytań / minutę per IP.
+  - Zbieranie zdarzeń (`/api/analytics/events`): 60 zapytań / minutę per IP.
 
 ---
 
-## 2. Stan Aplikacji, Ustawienia & Prawne (RODO)
+## 2. Stan Aplikacji, Ustawienia, Prawne i Diagnostyka
 
 ### 2.1. Health Check
 * **Adres:** `GET /api/health`
@@ -75,9 +76,41 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
   ```
 * **Odpowiedź (201 Created):** Zwraca zarejestrowany rekord zgody z dokładnym znacznikiem czasu.
 
+### 2.4. Rozwiązywanie Przekierowań (Redirects Resolver)
+* **Adres:** `GET /api/redirects/resolve?path={sciezka}`
+* **Zastosowanie:** Sprawdzenie przez routing Astro, czy dany adres URL posiada aktywne przekierowanie 301 lub 302 zarejestrowane w CMS.
+* **Odpowiedź (200 OK):**
+  ```json
+  {
+    "has_redirect": true,
+    "destination": "/sklep/obiekt-ii-2022",
+    "status_code": 301
+  }
+  ```
+
+### 2.5. Zbieranie Zdarzeń Analitycznych
+* **Adres:** `POST /api/analytics/events`
+* **Rate limit:** 60 / minutę per IP.
+* **Payload JSON:**
+  ```json
+  {
+    "event_name": "view_item",
+    "page_url": "/sklep/obiekt-ii-2022",
+    "metadata": {
+      "product_id": 1,
+      "category": "akwarela"
+    }
+  }
+  ```
+* **Odpowiedź (202 Accepted):** `{"status": "queued"}`
+
+### 2.6. Diagnostyka Formatów WebP
+* **Adres:** `GET /api/debug/webp-status`
+* **Zastosowanie:** Weryfikacja integralności i stopnia konwersji plików graficznych na dysku publicznym.
+
 ---
 
-## 3. Katalog Dzieł Sztuki i Sklep
+## 3. Katalog Dzieł Sztuki, Asortyment i Recenzje
 
 ### 3.1. Lista Produktów (Katalog)
 * **Adres:** `GET /api/catalog`
@@ -104,7 +137,7 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
       "description": "Subtelna akwarela z cyklu badającego formę i relacje przestrzenne...",
       "regular_price_amount": 30000,
       "lowest_price_last_30_days": 30000,
-      "featured_image_url": "https://admin.hellokostek.pl/storage/products/Wiecej-o-obiekcie-2-2022.webp",
+      "featured_image_url": "https://panel.hellokostek.pl/storage/products/Wiecej-o-obiekcie-2-2022.webp",
       "categories": [
         { "slug": "akwarela", "name": "Akwarela" }
       ],
@@ -134,7 +167,40 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
   }
   ```
 
-### 3.4. Powiadomienia o Dostępności (Back in Stock)
+### 3.4. Rekomendacje Produktowe
+* **Adres:** `GET /api/catalog/products/{slug}/recommendations`
+* **Odpowiedź (200 OK):** Zwraca listę powiązanych dzieł z tej samej kategorii lub okresu twórczego.
+
+### 3.5. Sprawdzanie Stanu Magazynowego SKU
+* **Adres:** `GET /api/inventory/{sku}`
+* **Odpowiedź (200 OK):**
+  ```json
+  {
+    "data": {
+      "sku": "OBIEKT-II-OR",
+      "slug": "obiekt-ii-2022",
+      "name": "Obiekt II",
+      "quantity": 1,
+      "is_available": true
+    }
+  }
+  ```
+
+### 3.6. Opinie i Recenzje Produktu
+* **Pobranie opinii:** `GET /api/catalog/products/{slug}/reviews`
+* **Dodanie opinii:** `POST /api/catalog/products/{slug}/reviews`
+* **Payload dodawania recenzji:**
+  ```json
+  {
+    "customer_name": "Anna Nowak",
+    "customer_email": "anna@example.pl",
+    "rating": 5,
+    "comment": "Obraz na żywo prezentuje się zjawiskowo, pociągnięcia pędzla i faktura robią ogromne wrażenie!"
+  }
+  ```
+* **Odpowiedź (201 Created):** Opinia zostaje zapisana i oczekuje na moderację w panelu Filament CMS.
+
+### 3.7. Powiadomienia o Dostępności (Back in Stock)
 * **Adres:** `POST /api/catalog/products/back-in-stock-subscribe`
 * **Payload JSON:**
   ```json
@@ -147,18 +213,42 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
 
 ---
 
-## 4. Portrety na Zamówienie & Formularze Kontaktowe
+## 4. Serwerowy Koszyk (Server-side Cart)
 
-### 4.1. Wysłanie Zapytania / Wyceny Portretu ze Zdjęciem
+Dla zachowania spójności koszyka między urządzeniami lub po zalogowaniu, system udostępnia pełne API koszyka z obsługą nagłówka `X-Cart-Session-Token`:
+
+* **Pobranie koszyka:** `GET /api/cart`
+* **Dodanie elementu:** `POST /api/cart/items`
+  ```json
+  {
+    "product_id": 1,
+    "product_variant_id": 10,
+    "quantity": 1
+  }
+  ```
+* **Aktualizacja ilości:** `PUT /api/cart/items/{itemId}`
+  ```json
+  {
+    "quantity": 2
+  }
+  ```
+* **Usunięcie pozycji:** `DELETE /api/cart/items/{itemId}`
+
+---
+
+## 5. Portrety na Zamówienie & Formularze Kontaktowe
+
+### 5.1. Wysłanie Zapytania / Wyceny Portretu ze Zdjęciem
 * **Adres:** `POST /api/inquiries`
 * **Format:** `multipart/form-data`
+* **Rate limit:** 20 / minutę per IP.
 * **Pola formularza:**
   - `name` (wymagane, string): Imię i nazwisko zamawiającego.
   - `email` (wymagane, email): Adres e-mail do kontaktu.
   - `phone` (opcjonalne, string): Numer telefonu.
   - `subject` (opcjonalne, string): Temat zgłoszenia (np. `portrait_commission`).
-  - `message` (wymagane, string): Opis wizji artystycznej, okazji (rocznica, prezent) lub wytycznych.
-  - `shape` (opcjonalne, string): Rodzaj płótna (`prostokatne` lub `owalne`).
+  - `message` (wymagane, string): Opis wizji artystycznej, okazji lub wytycznych.
+  - `shape` (opcjonalne, string): Rodzaj płótna (`prostokatne` lub unikalne `owalne`).
   - `size` (opcjonalne, string): Format podobrazia (np. `30x40`, `40x50`, `50x70`).
   - `files[]` (opcjonalne, pliki graficzne): Zdjęcia referencyjne twarzy lub pupila do namalowania.
 * **Odpowiedź (200 OK):**
@@ -172,7 +262,7 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
   }
   ```
 
-### 4.2. Kalkulator Wyceny Koszyka (Quote)
+### 5.2. Kalkulator Wyceny Koszyka (Quote)
 * **Adres:** `POST /api/quote`
 * **Zastosowanie:** Dynamiczne przeliczanie kwoty zlecenia lub koszyka z uwzględnieniem rabatów.
 * **Payload JSON:**
@@ -188,9 +278,9 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
 
 ---
 
-## 5. Kody Rabatowe (Coupons)
+## 6. Kody Rabatowe (Coupons)
 
-### 5.1. Walidacja Kodu Rabatowego
+### 6.1. Walidacja Kodu Rabatowego
 * **Adres:** `POST /api/coupons/validate`
 * **Payload JSON:**
   ```json
@@ -208,19 +298,12 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
     "message": "Kupon został pomyślnie zastosowany!"
   }
   ```
-* **Odpowiedź przy błędzie (422 Unprocessable Content):**
-  ```json
-  {
-    "valid": false,
-    "message": "Kod rabatowy stracił ważność lub osiągnął limit użyć."
-  }
-  ```
 
 ---
 
-## 6. Proces Zakupowy (Checkout) i Płatności
+## 7. Proces Zakupowy (Checkout) i Płatności
 
-### 6.1. Kalkulacja Koszyka przed Zakupem (Checkout Draft)
+### 7.1. Kalkulacja Koszyka przed Zakupem (Checkout Draft)
 * **Adres:** `POST /api/checkout/draft`
 * **Payload JSON:**
   ```json
@@ -233,7 +316,7 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
   }
   ```
 
-### 6.2. Złożenie Zamówienia (Checkout Place)
+### 7.2. Złożenie Zamówienia (Checkout Place)
 * **Adres:** `POST /api/checkout/place`
 * **Payload JSON:**
   ```json
@@ -278,38 +361,23 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
   }
   ```
 
-### 6.3. Szczegóły Zamówienia (Thank You Page)
+### 7.3. Szczegóły Zamówienia (Thank You Page)
 * **Adres:** `GET /api/checkout/orders/{number}`
 * **Nagłówek weryfikacyjny (dla gości):** `X-Order-Email: jan@kowalski.pl` lub parametr `?email=jan@kowalski.pl`.
 
-### 6.4. Ponowienie Sesji Płatności
+### 7.4. Ponowienie Sesji Płatności
 * **Adres:** `POST /api/checkout/orders/{number}/payment-session`
 
 ---
 
-## 7. Weryfikacja Danych Firmowych B2B (GUS BIR)
+## 8. Weryfikacja Danych Firmowych B2B (GUS BIR)
 
 * **Adres:** `GET /api/b2b/gus/{nip}`
-* **Opis:** Weryfikuje numer NIP i automatycznie pobiera pełną nazwę rejestrową firmy, numer REGON oraz adres siedziby z rejestru Głównego Urzędu Statystycznego.
-* **Odpowiedź (200 OK):**
-  ```json
-  {
-    "success": true,
-    "data": {
-      "name": "PRZYKŁADOWA PRACOWNIA SP. Z O.O.",
-      "nip": "6252363656",
-      "regon": "527158196",
-      "street": "Rynek",
-      "building_number": "33",
-      "city": "Siewierz",
-      "postal_code": "42-470"
-    }
-  }
-  ```
+* **Opis:** Weryfikuje numer NIP i automatycznie pobiera pełną nazwę rejestrową firmy, numer REGON oraz adres siedziby z bazy Głównego Urzędu Statystycznego.
 
 ---
 
-## 8. Elektroniczne Odstąpienie od Umowy i Zwroty (RMA)
+## 9. Elektroniczne Odstąpienie od Umowy i Zwroty (RMA)
 
 * **Adres:** `POST /api/returns`
 * **Zastosowanie:** Zgodność z unijną dyrektywą 2023/2673 dotyczącą umów zawieranych na odległość.
@@ -326,55 +394,74 @@ Dokumentacja opisuje integrację frontendu **Astro v7 + React v19** z silnikiem 
     ]
   }
   ```
-* **Odpowiedź (201 Created):**
-  ```json
-  {
-    "success": true,
-    "message": "Zgłoszenie zwrotu zostało pomyślnie zarejestrowane. Potwierdzenie wysłano na e-mail.",
-    "return_number": "RET-20260923-01"
-  }
-  ```
+* **Odpowiedź (201 Created):** Zwraca numer zwrotu `return_number` oraz generuje powiadomienie e-mail z instrukcją bezpiecznego odesłania dzieła.
 
 ---
 
-## 9. Treści CMS, Galeria, FAQ i Opinie
+## 10. Treści CMS, Galeria, FAQ i Opinie
 
-### 9.1. Galeria Dzieł w Portfolio
-* **Adres:** `GET /api/gallery`
-* **Odpowiedź (200 OK):** Zwraca listę wszystkich dzieł z podziałem na techniki i roczniki (do widoku `/galeria`).
+### 10.1. Mapa Struktury Treści
+* **Adres:** `GET /api/content/map`
+* **Odpowiedź (200 OK):** Zwraca drzewo podstron, kategorie, grupy FAQ oraz powiązane zasoby dla nawigacji frontendu.
 
-### 9.2. Baza Pytań i Odpowiedzi (FAQ)
-* **Adres:** `GET /api/faq` (lub alternatywnie `/api/pytania-i-odpowiedzi`)
-* **Odpowiedź (200 OK):** Lista pytań i sformatowanych odpowiedzi HTML wraz ze znacznikami Schema.org `FAQPage`.
+### 10.2. Lista Podstron CMS
+* **Adres:** `GET /api/content/pages`
 
-### 9.3. Strony Prawne z Blokami Paragrafowymi
+### 10.3. Strony Prawne z Blokami Paragrafowymi
 * **Adres:** `GET /api/content/pages/{slug}` (np. `/api/content/pages/regulamin` lub `/polityka-prywatnosci`)
-* **Odpowiedź (200 OK):**
-  ```json
-  {
-    "data": {
-      "page": {
-        "title": "Regulamin Sklepu",
-        "last_updated_formatted": "23 września 2026",
-        "sections": [
-          {
-            "id": "postanowienia-ogolne",
-            "label": "§ 1. Postanowienia ogólne",
-            "content": "<p>Niniejszy Regulamin określa zasady korzystania ze sklepu...</p>"
-          }
-        ]
-      }
-    }
-  }
-  ```
+* **Odpowiedź (200 OK):** Zwraca tytuł, sformatowaną datę modyfikacji oraz tablicę bloków sekcji `sections` z unikalnymi identyfikatorami kotwic `id` i sformatowanym HTML.
 
-### 9.4. Opinie Ogólne o Pracowni (Strona Główna)
+### 10.4. Galeria Dzieł w Portfolio
+* **Adres:** `GET /api/gallery`
+* **Odpowiedź (200 OK):** Pełna lista dzieł z podziałem na techniki i roczniki.
+
+### 10.5. Baza Pytań i Odpowiedzi (FAQ)
+* **Adres:** `GET /api/faq` (lub alternatywnie `/api/pytania-i-odpowiedzi`)
+
+### 10.6. Opinie Ogólne o Pracowni (Strona Główna)
 * **Adres:** `GET /api/reviews/site`
-* **Odpowiedź (200 OK):** Zaakceptowane opinie z ocenami, cytatami, emoji i awatarami.
 
 ---
 
-## 10. Webhooki Integracyjne (Płatności i Logistyka)
+## 11. Autentykacja Klientów (Sanctum)
+
+Dla zarejestrowanych klientów sklep udostępnia bezpieczne logowanie oparte o tokeny Bearer:
+
+* **Rejestracja:** `POST /api/auth/register`
+  - Pola: `name`, `email`, `password`, `password_confirmation`.
+* **Logowanie:** `POST /api/auth/login`
+  - Pola: `email`, `password`.
+  - Odpowiedź zwraca token: `{"data": {"token": "1|xyz...", "user": {...}}}`.
+* **Wylogowanie:** `POST /api/auth/logout` (wymaga `Authorization: Bearer <token>`).
+* **Przypomnienie hasła:** `POST /api/auth/forgot-password` (`email`).
+* **Reset hasła:** `POST /api/auth/reset-password` (`token`, `email`, `password`, `password_confirmation`).
+* **Weryfikacja e-mail:** `GET /api/auth/email/verify/{id}/{hash}` (podpisany link).
+* **Ponowna wysyłka linku:** `POST /api/auth/email/resend`.
+
+---
+
+## 12. Strefa Klienta (Konto Zalogowanego Użytkownika)
+
+Wszystkie poniższe trasy wymagają nagłówka `Authorization: Bearer <token>`:
+
+* **Profil użytkownika:** `GET /api/account/me`
+* **Historia zamówień:** `GET /api/account/orders`
+* **Książka adresowa:**
+  - `GET /api/account/addresses` – lista zapisanych adresów dostawy i faktury.
+  - `POST /api/account/addresses` – dodanie nowego adresu.
+  - `PUT /api/account/addresses/{id}` – aktualizacja adresu.
+  - `DELETE /api/account/addresses/{id}` – usunięcie adresu.
+* **Lista życzeń (Wishlist):**
+  - `GET /api/account/wishlist` – ulubione dzieła sztuki.
+  - `POST /api/account/wishlist` – dodanie do ulubionych (`product_id`).
+  - `DELETE /api/account/wishlist/{productId}` – usunięcie z ulubionych.
+* **Historia zwrotów RMA:**
+  - `GET /api/account/returns` – lista zgłoszeń odstąpienia od umowy.
+  - `GET /api/account/returns/{id}` – szczegóły i status danego zwrotu.
+
+---
+
+## 13. Webhooki Integracyjne (Płatności i Logistyka)
 
 * `POST /api/integrations/stripe/payment-callback` – webhook potwierdzający transakcje kartowe Stripe.
 * `POST /api/integrations/przelewy24/payment-callback` – webhook potwierdzający transakcje Przelewy24 / BLIK.

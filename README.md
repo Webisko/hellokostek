@@ -2,48 +2,55 @@
 
 Oficjalna platforma internetowa oraz sklep autorskiej pracowni malarskiej **Kostka Macieja Kosteczki**. 
 
-Platforma łączy prezentację bogatego dorobku artystycznego (obrazy olejne, akrylowe, akwarele, rysunki ołówkiem) z dedykowanym systemem e-commerce do bezpośredniej sprzedaży oryginalnych dzieł sztuki, artystycznych reprodukcji kolekcjonerskich, zestawów oraz składania spersonalizowanych zamówień na ręcznie malowane portrety ze zdjęcia.
+Platforma łączy prezentację bogatego dorobku artystycznego (obrazy olejne, akrylowe, akwarele, rysunki ołówkiem) z dedykowanym systemem e-commerce do bezpośredniej sprzedaży oryginalnych dzieł sztuki (unikatów 1/1), kolekcjonerskich reprodukcji na papierze archiwalnym, zestawów oraz składania spersonalizowanych zamówień na ręcznie malowane portrety ze zdjęcia.
 
-Głównym mottem artysty jest: **„Człowiek dla człowieka – sztuka prawdziwa bez AI”**, co podkreśla w pełni tradycyjny warsztat malarski, autentyczność rzemiosła i brak generatywnych grafik AI.
+Głównym mottem twórczym artysty jest: **„Człowiek dla człowieka – sztuka prawdziwa bez AI”**, co podkreśla w 100% tradycyjny warsztat malarski, mistrzowskie rzemiosło sztalugowe, naturalne pigmenty i brak generatywnych grafik AI.
 
 > [!NOTE]
-> **Tożsamość geograficzna i prawna pracowni:**
-> * **Siedziba formalno-prawna (CEIDG / dane rejestrowe do faktur):** Rynek 33, 42-470 Siewierz, woj. śląskie, NIP: 6252363656, REGON: 527158196.
-> * **Pracownia artystyczna i lokalizacja twórcza (SEO / Schema.org / odbiory):** Łódź, Śródmieście, woj. łódzkie.
-> * **Jednolitość językowa:** Serwis (frontend sklepu, backend REST API oraz panel CMS Filament) działa **w 100% w języku polskim**.
+> **Tożsamość geograficzna, prawna i kontakt z pracownią:**
+> * **Siedziba formalno-prawna (CEIDG / dane do faktur):** Rynek 33, 42-470 Siewierz, woj. śląskie, NIP: `6252363656`, REGON: `527158196`.
+> * **Pracownia artystyczna i lokalizacja twórcza (odbiory osobiste, SEO / Schema.org):** Łódź, Śródmieście, woj. łódzkie.
+> * **Bezpośredni kontakt:** e-mail: [kontakt@hellokostek.pl](mailto:kontakt@hellokostek.pl) | telefon: [+48 662 707 153](tel:+48662707153).
+> * **Social Media:** [Instagram (@hellokostek)](https://www.instagram.com/hellokostek/) | [Facebook (/hellokostek/)](https://www.facebook.com/hellokostek/) | [TikTok (@hellokostek)](https://www.tiktok.com/@hellokostek) | [YouTube (@hellokostek)](https://www.youtube.com/@hellokostek).
+> * **Jednolitość językowa:** Cały serwis (frontend sklepu, panel CMS Filament oraz komunikaty REST API) działa **w 100% w języku polskim**.
 
 ---
 
 ## 🚀 Architektura i Wykaz Podstron Frontendu
 
-Warstwa wizualna i interfejs klienta zostały zrealizowane w technologii **Astro v7** w architekturze *Islands Architecture* z komponentami **React v19**.
+Warstwa wizualna i interfejs użytkownika zostały zrealizowane w technologii **Astro v7** w architekturze *Islands Architecture* z komponentami **React v19** oraz biblioteką mapową **Leaflet**.
 
 ### 1. Strona Główna (`/`)
 * **Sekcja Hero**: Przyciągający nagłówek z manifestem artystycznym oraz prezentacją autorskiego dzieła (*Portret Franka*).
 * **O Mnie & Biografia**: Skrócona prezentacja sylwetki artysty, jego pasji do sztuki tradycyjnej oraz powiązania pracy teatralnej z malarstwem.
-* **Kalkulator & Formularz Portretów**: Interaktywny konfigurator portretu na zamówienie ze zdjęcia (wybór płótna: prostokątne lub unikalne owalne, techniki, liczby postaci i formatu).
+* **Kalkulator & Formularz Portretów**: Interaktywny konfigurator portretu na zamówienie ze zdjęcia:
+  - Wybór krosna: **płótno prostokątne** lub unikalne **autorskie płótno owalne**.
+  - Formaty: `30x40 cm`, `40x50 cm`, `50x70 cm` oraz wymiary niestandardowe.
+  - Wybór liczby postaci (portret pojedynczy, podwójny, wieloosobowy, portret pupila).
+  - Automatyczne wyliczanie zaliczki początkowej (50% bezzwrotnego zadatku rezerwującego termin w kalendarzu sztalugowym).
 * **Karuzela Dzieł (`ProductSlider.tsx`)**: Dynamiczny slajder polecanych prac z autorskiej kolekcji.
-* **Sekcja Opinii Klienckich (`Testimonials.tsx`)**: Opinie ze zdjęciami, gwiazdkami i recenzjami pobierane dynamicznie z API (`GET /api/reviews/site`) oraz zsynchronizowane z Google Places.
-* **Baza Często Zadawanych Pytań (`FaqSection.tsx`)**: Akordeon z odpowiedziami dotyczącymi zamawiania prac, pakowania, oprawy i wysyłki (`GET /api/faq`) ze znacznikami Google Schema.org `FAQPage`.
+* **Sekcja Opinii Klienckich (`Testimonials.tsx`)**: Opinie ze zdjęciami, ocenami gwiazdkowymi, emoji i recenzjami pobierane dynamicznie z API (`GET /api/reviews/site`) oraz zsynchronizowane z wizytówką Google Places.
+* **Baza Często Zadawanych Pytań (`FaqSection.tsx`)**: Akordeon z odpowiedziami dotyczącymi zamawiania prac, pakowania, bezpiecznej oprawy i wysyłki (`GET /api/faq`) zintegrowany ze znacznikami Google Schema.org `FAQPage`.
 
 ### 2. Sklep z Pracami i Reprodukcjami (`/sklep`)
 * **Katalog Produktów**: Przejrzysta siatka dostępnych obrazów, akwareli i rysunków.
-* **Filtrowanie i Wyszukiwanie**: Filtry kategorii (*Olej*, *Akryl*, *Akwarela*, *Rysunek*), atrybutów oraz wyszukiwarka z podpowiedziami na żywo (`GET /api/catalog/search/suggest`).
+* **Filtrowanie i Wyszukiwanie**: Filtry głównych kategorii artystycznych (*Olej*, *Akryl*, *Akwarela*, *Rysunek*), atrybutów fizycznych oraz wyszukiwarka z podpowiedziami na żywo (`GET /api/catalog/search/suggest`).
 
 ### 3. Karta Dzieła Sztuki (`/sklep/[id]`)
 * **Wybór Wariantu**:
-  - **Oryginał dzieła** (`-OR`) – unikatowy, pojedynczy egzemplarz fizyczny malowany przez artystę.
-  - **Artystyczna reprodukcja / wydruk** (`-PR`) – wysokiej jakości wydruk cyfrowy na papierze archiwalnym.
+  - **Oryginał dzieła** (`-OR`) – unikatowy, pojedynczy egzemplarz fizyczny malowany na sztaludze przez artystę (stan magazynowy: 1 szt.).
+  - **Artystyczna reprodukcja / wydruk** (`-PR`) – wysokiej jakości wydruk cyfrowy na certyfikowanym papierze archiwalnym.
 * **Zgodność z Dyrektywą Omnibus**: Prezentacja najniższej ceny z ostatnich 30 dni przed obniżką.
 * **Powiadomienia o Dostępności**: Formularz zapisu na powiadomienie mailowe przy wyprzedanym nakładzie (`POST /api/catalog/products/back-in-stock-subscribe`).
-* **Pełnoekranowy Lightbox**: Podgląd pociągnięć pędzla i detali faktury w wysokiej rozdzielczości.
+* **Pełnoekranowy Lightbox**: Podgląd pociągnięć pędzla, impastów i faktury płótna w wysokiej rozdzielczości.
 * **1-Click Modal Checkout**: Szybki, 2-etapowy proces zakupowy otwierany bezpośrednio z karty dzieła:
-  - *Krok 1:* Dane zamawiającego, wybór metody dostawy (InPost Paczkomat 24/7 z kodem automatu, Orlen Paczka, kurier ubezpieczony), obsługa kuponów rabatowych (`POST /api/coupons/validate`).
-  - *Krok 2:* Wybór płatności (BLIK z 6-cyfrowym kodem, karta płatnicza Stripe, szybki przelew Przelewy24, tradycyjny przelew) i złożenie zamówienia (`POST /api/checkout/place`).
+  - *Krok 1 (Dostawa & Rabaty):* Dane zamawiającego, wybór metody dostawy (InPost Paczkomat 24/7, Orlen Paczka, kurier ubezpieczony z opcją ostrożnie), walidacja kodów rabatowych (`POST /api/coupons/validate`).
+  - *Interaktywna Mapa Punktów Odbioru (`ParcelMapModal.tsx`):* Wybór automatu Paczkomat lub punktu Orlen Paczka bezpośrednio na pełnoekranowej, interaktywnej mapie **Leaflet**, z geolokalizacją, wyszukiwarką miast i podglądem adresów.
+  - *Krok 2 (Płatność):* Płatność BLIK z kodem 6-cyfrowym, karta płatnicza Stripe (Visa/Mastercard z 3D Secure), szybki przelew online Przelewy24, tradycyjny przelew bankowy oraz finalizacja zamówienia (`POST /api/checkout/place`).
 
 ### 4. Galeria Prac & Portfolio (`/galeria`)
 * **Archiwum Dzieł Malarskich**: Pełna kolekcja dotychczasowych prac artysty zasilana dynamicznie z API (`GET /api/gallery`).
-* **Filtrowanie Wielokryterialne**: Sortowanie według techniki malarskiej oraz rocznika powstania (2024, 2023, 2022, starsze).
+* **Filtrowanie Wielokryterialne**: Sortowanie według techniki malarskiej (Olej, Akryl, Akwarela, Rysunek) oraz rocznika powstania (2026, 2024, 2023, 2022, starsze).
 * **Podgląd Lightbox**: Pełnoekranowy pokaz dzieł z obsługą nawigacji strzałkami i klawiszem Escape.
 
 ### 5. O Artyście (`/o-mnie`)
@@ -51,18 +58,19 @@ Warstwa wizualna i interfejs klienta zostały zrealizowane w technologii **Astro
 
 ### 6. Kontakt & Zamówienia Indywidualne (`/kontakt`)
 * Formularz wyceny portretu na zamówienie ze zdjęcia z uploadem plików referencyjnych (`multipart/form-data`) bezpośrednio do bazy CMS (`POST /api/inquiries`).
-* Dane kontaktowe, godziny pracy pracowni, bezpośredni adres e-mail oraz odnośniki do social media (Instagram, Facebook, TikTok, YouTube).
+* Dane kontaktowe, godziny pracy pracowni, bezpośredni adres e-mail oraz odnośniki do mediów społecznościowych.
 
 ### 7. Podstrony Prawne & Zgodność (`/regulamin` & `/polityka-prywatnosci`)
 * Dynamicznie pobierane z CMS (`GET /api/content/pages/regulamin`, `GET /api/content/pages/polityka-prywatnosci`).
-* Edytor paragrafowy z automatycznym generowaniem spisu treści (TOC), śledzeniem aktywnej sekcji podczas przewijania (ScrollSpy) i obsługą kotwic w URL.
-* Szczegółowy audyt zgodności z prawem opisano w dokumentach:
-  - [Raport wymogów prawnych e-commerce 2026](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/raport-wymagan.md) (dyrektywa 2023/2673, EAA, Omnibus, GPSR).
+* Edytor paragrafowy z automatycznym generowaniem spisu treści (TOC), śledzeniem aktywnej sekcji podczas przewijania (ScrollSpy), mobilnym wysuwanym panelem spisu treści (Drawer) i obsługą kotwic w URL.
+* Szczegółowy audyt zgodności prawnej opisano w dedykowanych dokumentach:
+  - [Raport wymogów prawnych e-commerce 2026](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/raport-wymagan.md) (dyrektywa 2023/2673 RMA, EAA, Omnibus, GPSR).
   - [Wymagania i specyfikacja Cookies / Consent Mode v2](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/wymagania-cookies.md).
 
-### 8. Strony Sukcesu
+### 8. Strony Sukcesu i Mikrointerakcje
 * `/sukces-zakup`: Podsumowanie opłaconego zamówienia z czyszczeniem koszyka w Nanostores (`clearCart()`).
 * `/sukces-kontakt`: Potwierdzenie przyjęcia formularza wyceny portretu ze zdjęciem.
+* **Mikrointerakcje:** Animowane logo SVG w stopce (`Footer.astro`) uruchamiane po dotknięciu lub ruchu myszy, filtr SVG Gooey (`Layout.astro`), przycisk powrotu na górę strony (`BackToTop.astro`).
 
 ---
 
@@ -72,20 +80,25 @@ Warstwa wizualna i interfejs klienta zostały zrealizowane w technologii **Astro
 - **Framework**: [Astro v7.3+](https://astro.build/) (architektura wyspowa SSG/Islands).
 - **Interaktywne Komponenty UI**: [React v19](https://react.dev/).
 - **Stylizowanie**: [Tailwind CSS v4](https://tailwindcss.com/) zintegrowany przez `@tailwindcss/vite`.
-- **Animacje**: [Motion v12](https://motion.dev/) (nowa generacja Framer Motion).
+- **Mapy i Punkty Odbioru**: [Leaflet v1.9](https://leafletjs.com/) (`leaflet`, `@types/leaflet`) do interaktywnego wyboru Paczkomatów i punktów Orlen Paczka.
+- **Animacje**: [Motion v12/13](https://motion.dev/) (nowa generacja Framer Motion).
 - **Ikony**: Lucide React (`lucide-react`).
 - **Typografia**: `@fontsource/poppins`, `@fontsource/montserrat`, `@fontsource/fira-code`.
 - **Zarządzanie Stanem**: Nanostores (`cartStore.ts` z persistent atom w `localStorage`).
-- **SEO & AI Search**: `@astrojs/sitemap`, mikrodane Schema.org, pliki `/llms.txt` i `/llms-full.txt`.
+- **SEO & AI Search**: `@astrojs/sitemap`, mikrodane Schema.org (`LocalBusiness`, `Person`, `WebSite`, `Service`, `Product`, `FAQPage`), pliki `/llms.txt` i `/llms-full.txt`.
 
 ### Backend & CMS
-- **Framework**: [Laravel 13](https://laravel.com/) (REST API).
-- **Panel Administracyjny**: [Filament CMS v5.6](https://filamentphp.com/) + Filament Breezy.
-- **Baza Danych**: SQLite (środowisko deweloperskie) / MySQL (środowisko produkcyjne).
-- **Autentykacja API**: Laravel Sanctum (tokeny Bearer + sesje panelu).
-- **Płatności i Finanse**: Stripe PHP SDK, Przelewy24, BLIK.
-- **Księgowość**: Barryvdh Laravel DomPDF (wbudowane faktury PDF) + integracje z Fakturownia, iFirma, inFakt, wFirma.
-- **Zadania w Tle i Backup**: Laravel Queue, Spatie Laravel Backup, Laravel Reverb.
+- **Framework**: [Laravel 13](https://laravel.com/) (REST API, PHP 8.3+).
+- **Architektura Domenowa**: 9 dedykowanych modułów w `app/Domain/` (Admin, Analytics, Commerce, Communication, Customers, Imports, Integrations, Operations, Storefront).
+- **Modele i Baza**: 41 modeli Eloquent, SQLite (środowisko deweloperskie) / MySQL MariaDB 11.4 (środowisko produkcyjne).
+- **Panel Administracyjny**: [Filament CMS v5.6](https://filamentphp.com/) + Filament Breezy v3.2.
+- **Autentykacja API**: Laravel Sanctum (tokeny Bearer dla klientów i strefy konta, sesje panelu dla administratorów).
+- **Płatności i Finanse**: Stripe PHP SDK v21, Przelewy24, BLIK.
+- **Logistyka**: Integracja z InPost ShipX (generowanie etykiet PDF), Orlen Paczka, webhooki BaseLinker.
+- **Księgowość**: Barryvdh Laravel DomPDF v3.1 (wbudowane faktury PDF) + sterowniki do Fakturownia, iFirma, inFakt, wFirma.
+- **Weryfikacja Kontrahentów**: Bezpośrednia integracja z rejestrem BIR Głównego Urzędu Statystycznego (GUS REGON/NIP).
+- **Zadania w Tle i Backup**: Laravel Queue, Spatie Laravel Backup v10, Laravel Reverb.
+- **Generator Grafik Social Media**: Dynamiczne, podpisane obrazy OpenGraph (`GET /og-image`).
 
 ---
 
@@ -98,7 +111,7 @@ Panel administracyjny pod adresem `/admin` zawiera 25 wyspecjalizowanych moduł�
 | **Sprzedaż & Magazyn** | `ProductResource` | Zarządzanie dziełami, warianty `-OR` (oryginał) vs `-PR` (wydruk), historia cen Omnibus, ceny B2B. |
 | | `ProductCategoryResource` | Kategorie dzieł sztuki (Olej, Akryl, Akwarela, Rysunek). |
 | | `ProductAttributeResource` | Definicje parametrów fizycznych (podłoże, format, technika oprawy). |
-| | `OrderResource` | Obsługa zamówień, zmiana statusów, generowanie przesyłek i faktur. |
+| | `OrderResource` | Obsługa zamówień, zmiana statusów, generowanie etykiet InPost/Orlen i faktur PDF. |
 | | `InvoiceResource` | Generowanie i wysyłka faktur VAT/bez VAT (wbudowany DomPDF lub API księgowe). |
 | | `CouponResource` | Kampanie promocyjne, kody rabatowe kwotowe i procentowe, limity użyć. |
 | | `AbandonedCartResource` | Monitorowanie nieukończonych koszyków i moduł ich odzyskiwania. |
@@ -149,12 +162,11 @@ hello-kostek-dev/
 ├── backend/                             # Backend Laravel 13 + Filament CMS
 │   ├── app/
 │   │   ├── Console/Commands/            # Komendy crona (odzyskiwanie koszyków, konwersja WebP)
-│   │   ├── Domain/Commerce/             # Logika domenowa (Accounting, Checkout, Logistics, Payments, Pricing)
-│   │   ├── Domain/Storefront/           # Synchronizacja recenzji Google Place
+│   │   ├── Domain/                      # 9 domen biznesowych (Commerce, Storefront, Integrations, itp.)
 │   │   ├── Filament/Resources/          # 25 modułów panelu CMS
 │   │   ├── Http/Controllers/Api/        # Kontrolery REST API (/api/catalog, /api/checkout, itp.)
 │   │   ├── Jobs/                        # Asynchroniczne zadania kolejek (analityka, księgowość)
-│   │   ├── Models/                      # Modele Eloquent (Product, Order, GalleryArtwork, itp.)
+│   │   ├── Models/                      # 41 modeli Eloquent (Product, Order, GalleryArtwork, itp.)
 │   │   └── Support/                     # Klasy pomocnicze (Invoicing, WebP converter, StoreSettings)
 │   ├── database/
 │   │   ├── migrations/                  # Migracje struktury bazy danych
@@ -162,14 +174,14 @@ hello-kostek-dev/
 │   │       └── HelloKostekSeeder.php    # Główny seeder produkcyjny Hello Kostek
 │   ├── routes/
 │   │   ├── api.php                      # Trasy REST API (/api/...)
-│   │   └── web.php                      # Trasy panelu, pobierania etykiet i eksportów
+│   │   └── web.php                      # Trasy panelu, etykiet, eksportów i sitemap
 │   ├── API_REFERENCE.md                 # Kompletna dokumentacja techniczna endpointów API
 │   ├── raport-wymagan.md                # Raport zgodności z prawem e-commerce 2026
 │   └── wymagania-cookies.md             # Specyfikacja techniczna wdrożenia cookies i RODO
 ├── src/                                 # Kod źródłowy frontendu Astro v7 / React v19
 │   ├── assets/                          # Zdjęcia dzieł malarskich i grafiki
-│   ├── components/                      # Komponenty React i wyspy (ProductDetail, Gallery, Contact, Terms)
-│   ├── layouts/                         # Główny layout strony (Layout.astro z metadanymi i Schema.org)
+│   ├── components/                      # Komponenty React, wyspy i modale mapy (ParcelMapModal)
+│   ├── layouts/                         # Główny layout strony (Layout.astro ze Schema.org i filtrem SVG)
 │   ├── pages/                           # Routing podstron Astro (index, sklep, galeria, o-mnie, kontakt)
 │   ├── stores/                          # Stan globalny Nanostores (cartStore.ts)
 │   └── styles/                          # Style CSS i konfiguracja Tailwind CSS v4
@@ -178,7 +190,8 @@ hello-kostek-dev/
 │   └── llms-full.txt                    # Pełna dokumentacja pracowni dla agentów AI
 ├── astro.config.mjs                     # Konfiguracja Astro (integracje React, Sitemap, Vite Tailwind)
 ├── package.json                         # Zależności i skrypty frontendu
-├── AGENTS.md                            # Wytyczne deweloperskie dla asystentów AI i dane serwera
+├── AGENTS.md                            # Wytyczne deweloperskie dla asystentów AI
+├── credentials.local.md                 # Poufne dane dostępowe i serwerowe (plik lokalny, git-ignored)
 └── README.md                            # Główna dokumentacja projektu
 ```
 
@@ -190,7 +203,10 @@ hello-kostek-dev/
 ```bash
 cd backend
 
-# Migracje i zasilenie bazy danymi testowymi Hello Kostek
+# Instalacja zależności
+composer install
+
+# Migracje i zasilenie bazy danymi Hello Kostek
 php artisan migrate --force
 php artisan db:seed --class=HelloKostekSeeder
 
@@ -198,7 +214,7 @@ php artisan db:seed --class=HelloKostekSeeder
 php artisan serve --port=8000
 ```
 * **Panel CMS Filament**: `http://localhost:8000/admin`
-* **Dane logowania dev**: `admin@hellokostek.pl` / `Admin1234!`
+* Szczegółowe dane kont deweloperskich znajdują się w pliku `credentials.local.md` (lub `.env.example`).
 
 ### 2. Frontend Astro
 ```bash
@@ -233,12 +249,9 @@ php artisan test
 
 ---
 
-## 🌐 Serwer Produkcyjny (SEOHost)
+## 🔒 Konfiguracja Środowiska Produkcyjnego i Bezpieczeństwo
 
-* **Host**: `h93.seohost.pl` (IP: `91.236.131.93`, Port SSH: 57185, Port FTP: 21)
-* **Użytkownik**: `srv124983`
-* **Panel DirectAdmin**: `https://h93.seohost.pl:2222/`
-* **Baza Danych**: `srv124983_kostek` (MySQL / MariaDB 11.4)
-* **Katalog sklepu / frontendu**: `/home/srv124983/domains/hellokostek.pl/public_html/`
-* **Katalog backendu / CMS**: `/home/srv124983/domains/panel.hellokostek.pl/backend/`
-* **Katalog publiczny CMS (Symlink)**: `/home/srv124983/domains/panel.hellokostek.pl/public_html` -> `backend/public`
+Wszelkie parametry serwerowe (host, porty SSH/FTP, baza danych, użytkownicy systemowi oraz dane logowania do panelu hostingowego SEOHost) zostały **odseparowane ze względów bezpieczeństwa** od repozytorium kodu.
+
+* Kompletne poświadczenia serwerowe znajdują się w lokalnym pliku **`credentials.local.md`** (plik objęty regułą `.gitignore`).
+* Na serwerze produkcyjnym zmienne wrażliwe należy konfigurować wyłącznie poprzez plik `.env`.
