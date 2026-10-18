@@ -120,14 +120,21 @@ export default function FaqSection() {
                   />
                 </button>
 
-                {isOpen && (
-                  <div className="px-6 pb-6 pt-0 animate-fadeIn">
-                    <div
-                      className="font-sans text-sm sm:text-base text-gray-700 leading-relaxed border-t border-stone-200/60 pt-4 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-[#E0115F] [&>a]:underline"
-                      dangerouslySetInnerHTML={{ __html: item.answer }}
-                    />
+                <div
+                  className={`grid transition-all duration-300 ease-in-out ${
+                    isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                  aria-hidden={!isOpen}
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-6 pb-6 pt-0">
+                      <div
+                        className="font-sans text-sm sm:text-base text-gray-700 leading-relaxed border-t border-stone-200/60 pt-4 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-[#E0115F] [&>a]:underline"
+                        dangerouslySetInnerHTML={{ __html: item.answer }}
+                      />
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
