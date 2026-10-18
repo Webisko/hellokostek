@@ -154,10 +154,10 @@ export default function Contact() {
   };
 
   return (
-    <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-24">
-      <header className="border-b border-gray-100 pb-12 w-full">
+    <div className="animate-fadeIn pt-5 sm:pt-8 md:pt-14 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-12 md:space-y-24">
+      <header className="border-b border-gray-100 pb-8 md:pb-12 w-full">
         <div className="max-w-4xl">
-          <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-4">
+          <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-3 sm:mb-4">
             Kontakt ze mną
           </span>
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-gray-900 tracking-tight leading-none font-normal">

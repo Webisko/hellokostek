@@ -104,26 +104,42 @@ export default function AboutMe() {
 
   const basePath = "";
   return (
-    <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 space-y-16 md:space-y-24 lg:space-y-20 xl:space-y-16 2xl:space-y-24">
+    <div className="animate-fadeIn pt-5 sm:pt-8 md:pt-14 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 space-y-12 md:space-y-24 lg:space-y-20 xl:space-y-16 2xl:space-y-24">
       {/* Asymmetric Section 1: Biography vs Workspace Photography */}
-      <section className="content-container grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <section className="content-container grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
         {/* Left Column: Storytelling Text (Asymmetric span) */}
         <div className="lg:col-span-7">
           {/* Editorial Magazine Hero Header */}
-          <div className="border-b border-gray-100 pb-12 mb-12">
+          <div className="border-b border-gray-100 pb-7 mb-7 lg:pb-12 lg:mb-12">
             {subtitle && (
-              <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-4">
+              <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-3 sm:mb-4">
                 {subtitle}
               </span>
             )}
-            <h1 className="font-display text-[1.6rem] xs:text-[1.85rem] sm:text-4xl md:text-[2.6rem] lg:text-[2.5rem] xl:text-[3.15rem] 2xl:text-[3.5rem] text-gray-900 tracking-tight leading-tight font-normal mb-8 whitespace-nowrap overflow-hidden text-ellipsis">
+            <h1 className="font-display text-[1.45rem] min-[375px]:text-[1.65rem] min-[410px]:text-[1.85rem] sm:text-4xl md:text-[2.6rem] lg:text-[2.5rem] xl:text-[3.15rem] 2xl:text-[3.5rem] text-gray-900 tracking-tight leading-tight font-normal mb-5 sm:mb-8 whitespace-nowrap overflow-hidden text-ellipsis">
               {formatAboutTitle(title)}
             </h1>
             {quote && (
-              <p className="font-sans italic text-gray-650 text-xl sm:text-2xl pl-6 border-l-4 border-[#E0115F] leading-relaxed">
+              <p className="font-sans italic text-gray-650 text-xl sm:text-2xl pl-5 sm:pl-6 border-l-4 border-[#E0115F] leading-relaxed">
                 {quote}
               </p>
             )}
+          </div>
+
+          {/* Mobile/Tablet Portrait Photo (placed between quote and biography on < lg) */}
+          <div className="lg:hidden mb-8 aspect-[3/4] rounded-[28px] sm:rounded-[32px] overflow-hidden shadow-sm border border-gray-100 bg-gray-50 relative group">
+            <img
+              src={imageUrl}
+              alt={`${title}, Pracownia Artystyczna Łódź`}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src !== window.location.origin + DEFAULT_IMAGE) {
+                  target.src = DEFAULT_IMAGE;
+                }
+              }}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
           </div>
 
           {isHtmlContent ? (
@@ -151,7 +167,7 @@ export default function AboutMe() {
 
         {/* Right Column: Dynamic Workspace Image Framing (Asymmetric span) */}
         <div className="lg:col-span-5 space-y-8">
-          <div className="aspect-[3/4] rounded-[32px] overflow-hidden shadow-sm border border-gray-100 bg-gray-50 relative group">
+          <div className="hidden lg:block aspect-[3/4] rounded-[32px] overflow-hidden shadow-sm border border-gray-100 bg-gray-50 relative group">
             <img
               src={imageUrl}
               alt={`${title}, Pracownia Artystyczna Łódź`}

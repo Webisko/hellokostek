@@ -17,9 +17,9 @@ export default function Navbar({ currentPath }: NavbarProps) {
       const scrollY = window.scrollY;
       
       setIsScrolled((prev) => {
-        if (scrollY > 100) {
+        if (scrollY > 8) {
           return true;
-        } else if (scrollY < 20) {
+        } else if (scrollY <= 2) {
           return false;
         }
         return prev;
@@ -33,6 +33,8 @@ export default function Navbar({ currentPath }: NavbarProps) {
       }
     };
 
+    handleScroll();
+
     // Swap static logo to animated logo on user interaction (hover/touch/scroll)
     const triggerAnimation = () => {
       setLogoSrc("/images/logo-animation.webp");
@@ -40,9 +42,9 @@ export default function Navbar({ currentPath }: NavbarProps) {
 
     window.addEventListener("mouseenter", triggerAnimation, { once: true });
     window.addEventListener("touchstart", triggerAnimation, { once: true });
-    window.addEventListener("scroll", triggerAnimation, { once: true });
+    window.addEventListener("scroll", triggerAnimation, { once: true, passive: true });
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mouseenter", triggerAnimation);
@@ -62,8 +64,10 @@ export default function Navbar({ currentPath }: NavbarProps) {
   const isContact = normPath === `${basePath}/kontakt` || normPath === '/kontakt';
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-neutral-100 transition-all duration-500 ease-in-out">
-      <div className="navbar-container flex items-center justify-between transition-all duration-500 ease-in-out py-3 lg:py-0 relative">
+    <nav className="sticky top-0 z-50 bg-white border-b border-neutral-100 transition-all duration-300 ease-in-out">
+      <div className={`navbar-container flex items-center justify-between transition-all duration-300 ease-in-out relative ${
+        isScrolled ? "py-1 sm:py-1.5 lg:py-0" : "py-1.5 sm:py-2.5 lg:py-0"
+      }`}>
         
         {/* Left Side (Desktop: Links, Tablet: Hamburger, Mobile: Hidden) */}
         <div className="!hidden sm:!flex sm:absolute sm:left-6 md:left-12 lg:left-16 sm:top-1/2 sm:-translate-y-1/2 sm:items-center sm:justify-start sm:z-10 xl:relative xl:left-auto xl:top-auto xl:translate-y-0 xl:w-5/12">
@@ -153,10 +157,10 @@ export default function Navbar({ currentPath }: NavbarProps) {
             className="flex flex-col items-start sm:items-center group focus:outline-none"
             aria-label="Strona główna hellokostek"
           >
-            <div className={`flex items-center justify-start sm:justify-center overflow-hidden transition-all duration-500 ease-in-out ${
+            <div className={`flex items-center justify-start sm:justify-center overflow-hidden transition-all duration-300 ease-in-out ${
               isScrolled 
-                ? "w-[130px] h-[39px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]" 
-                : "w-[240px] h-[72px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
+                ? "w-[125px] h-[36px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]" 
+                : "w-[185px] h-[54px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
             }`}>
               <img
                 src={logoSrc}
@@ -167,7 +171,7 @@ export default function Navbar({ currentPath }: NavbarProps) {
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-500 -ml-[15%] sm:ml-0"
+                className="max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-300 -ml-[15%] sm:ml-0"
               />
             </div>
           </a>

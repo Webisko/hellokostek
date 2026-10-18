@@ -138,7 +138,7 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
 
     <!-- Centered Navigation -->
     {!hideHeaderFooter && (
-      <Navbar currentPath={currentPath} client:idle />
+      <Navbar currentPath={currentPath} client:load />
     )}
 
     <!-- Main content body -->

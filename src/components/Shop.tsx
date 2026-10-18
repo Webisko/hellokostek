@@ -94,9 +94,9 @@ export default function Shop() {
   const basePath = "";
 
   return (
-    <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 md:space-y-12 xl:space-y-16 font-sans">
+    <div className="animate-fadeIn pt-5 sm:pt-8 md:pt-14 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-6 md:space-y-12 xl:space-y-16 font-sans">
       {/* Page Title & SEO Introductory block */}
-      <header className="pb-4 md:pb-6 xl:pb-12 max-w-none space-y-4">
+      <header className="pb-2 md:pb-6 xl:pb-12 max-w-none space-y-3 sm:space-y-4">
         <span className="font-mono text-[10px] sm:text-xs tracking-wider sm:tracking-widest uppercase text-[#E0115F] font-semibold block">
           SELEKCJA DZIEŁ SZTUKI • ORYGINAŁY I LIMITOWANE WYDRUKI
         </span>
@@ -109,7 +109,7 @@ export default function Shop() {
       </header>
 
       {/* Mobile/Tablet Filter Trigger (Sticky, floating, transparent) */}
-      <div className="sticky top-[63px] md:top-[72px] xl:hidden z-30 flex justify-between items-center w-full py-3 pointer-events-none">
+      <div className="sticky top-[48px] sm:top-[58px] md:top-[68px] xl:hidden z-30 flex justify-between items-center w-full py-2.5 sm:py-3 pointer-events-none">
         <button
           onClick={() => setIsFilterDrawerOpen(true)}
           className="pointer-events-auto flex items-center gap-2 px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-800 text-xs font-semibold uppercase tracking-wider hover:bg-gray-55 hover:border-gray-300 transition-all cursor-pointer shadow-md active:scale-[0.98]"

@@ -33,10 +33,6 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   
   // Payment fields
   const [paymentMethod, setPaymentMethod] = useState<"blik" | "card" | "transfer">("blik");
-  const [blikCode, setBlikCode] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -234,12 +230,6 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   };
 
   const isKrok2Valid = () => {
-    if (paymentMethod === "blik") {
-      return blikCode.length === 6;
-    }
-    if (paymentMethod === "card") {
-      return cardNumber.replace(/\s/g, "").length === 16 && cardExpiry.length === 5 && cardCvv.length === 3;
-    }
     return true;
   };
 
@@ -257,13 +247,13 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       : currentProduct.printVariantId;
 
     let shippingMethodCode = "flat_rate:courier";
-    if (selectedDelivery === "free_courier" || selectedDelivery === "courier") shippingMethodCode = "flat_rate:courier";
+    if (selectedDelivery === "free_courier") shippingMethodCode = "free_courier";
+    else if (selectedDelivery === "courier") shippingMethodCode = "flat_rate:courier";
     else if (selectedDelivery === "inpost") shippingMethodCode = "flexible_shipping:paczkomat";
     else if (selectedDelivery === "orlen") shippingMethodCode = "flexible_shipping:orlen";
 
-    let paymentMethodCode = "przelewy24";
-    if (paymentMethod === "blik") paymentMethodCode = "przelewy24";
-    else if (paymentMethod === "card") paymentMethodCode = "stripe";
+    let paymentMethodCode = "stripe";
+    if (paymentMethod === "blik" || paymentMethod === "card") paymentMethodCode = "stripe";
     else if (paymentMethod === "transfer") paymentMethodCode = "bank_transfer";
 
     const nameParts = fullName.trim().split(" ");
@@ -344,7 +334,10 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         window.location.href = redirectUrl;
       } else {
         const deliveryOpt = deliveryOptions.find(opt => opt.id === selectedDelivery) || deliveryOptions[0];
-        window.location.href = `${basePath}/sukces-zakup?orderNumber=${orderData.number}&productTitle=${encodeURIComponent(currentProduct.title)}&purchaseType=${selectedType}&price=${currentPrice}&shippingMethod=${encodeURIComponent(deliveryOpt.name)}&shippingPrice=${deliveryOpt.price}&isTransfer=${paymentMethodCode === 'bank_transfer'}`;
+        const discountedItemsPrice = Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0));
+        const isTransfer = paymentMethodCode === "bank_transfer";
+        const paymentPending = !isTransfer;
+        window.location.href = `${basePath}/sukces-zakup?orderNumber=${encodeURIComponent(orderData.number)}&productTitle=${encodeURIComponent(currentProduct.title)}&purchaseType=${selectedType}&price=${discountedItemsPrice}&shippingMethod=${encodeURIComponent(deliveryOpt.name)}&shippingPrice=${deliveryOpt.price}&isTransfer=${isTransfer}&paymentPending=${paymentPending}`;
       }
     } catch (err: any) {
       setIsSubmitting(false);
@@ -390,7 +383,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   }
 
   return (
-    <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
+    <div className="animate-fadeIn pt-5 sm:pt-8 md:pt-10 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-6 sm:space-y-8 xl:space-y-16">
       {/* Back to Gallery Path Link */}
       <a
         href={`${basePath}/sklep`}
@@ -936,69 +929,25 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     
                     {/* Method fields */}
                     {paymentMethod === "blik" && (
-                      <div className="space-y-1.5 animate-fadeIn">
-                        <label htmlFor="checkout-blik" className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block">Kod BLIK *</label>
-                        <input
-                          type="text"
-                          id="checkout-blik"
-                          maxLength={6}
-                          required
-                          value={blikCode}
-                          onChange={(e) => setBlikCode(e.target.value.replace(/\D/g, ""))}
-                          className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-base transition-all tracking-[0.5em] text-center font-mono font-bold bg-white text-gray-900"
-                          placeholder="000000"
-                        />
+                      <div className="p-4 bg-stone-50 border border-gray-150 rounded-xl space-y-2 animate-fadeIn">
+                        <p className="text-xs text-gray-650 leading-relaxed font-sans">
+                          Po kliknięciu przycisku poniżej przejdziesz do bezpiecznej bramki płatności <strong>Stripe</strong>, gdzie podasz 6-cyfrowy kod BLIK z aplikacji swojego banku.
+                        </p>
                       </div>
                     )}
                     
                     {paymentMethod === "card" && (
-                      <div className="space-y-3 animate-fadeIn">
-                        <div className="space-y-1.5">
-                          <label htmlFor="checkout-card-number" className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block">Numer Karty *</label>
-                          <input
-                            type="text"
-                            id="checkout-card-number"
-                            required
-                            value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                            className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-base transition-all bg-white text-gray-900 font-mono"
-                            placeholder="0000 0000 0000 0000"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-1.5">
-                            <label htmlFor="checkout-card-expiry" className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block">Termin ważności *</label>
-                            <input
-                              type="text"
-                              id="checkout-card-expiry"
-                              required
-                              value={cardExpiry}
-                              onChange={(e) => setCardExpiry(e.target.value.replace(/\D/g, '').replace(/(\d{2})/, '$1/'))}
-                              className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-base transition-all bg-white text-gray-900 font-mono"
-                              placeholder="MM/RR"
-                            />
-                          </div>
-                          <div className="space-y-1.5">
-                            <label htmlFor="checkout-card-cvv" className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block">CVC / CVV *</label>
-                            <input
-                              type="text"
-                              id="checkout-card-cvv"
-                              maxLength={3}
-                              required
-                              value={cardCvv}
-                              onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ""))}
-                              className="w-full px-4 py-3.5 rounded-xl border border-gray-200 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-base transition-all bg-white text-gray-900 font-mono"
-                              placeholder="000"
-                            />
-                          </div>
-                        </div>
+                      <div className="p-4 bg-stone-50 border border-gray-150 rounded-xl space-y-2 animate-fadeIn">
+                        <p className="text-xs text-gray-650 leading-relaxed font-sans">
+                          Po kliknięciu przycisku poniżej przejdziesz do szyfrowanej strony płatności <strong>Stripe</strong> (obsługa kart Visa, Mastercard oraz portfeli Apple Pay i Google Pay).
+                        </p>
                       </div>
                     )}
                     
                     {paymentMethod === "transfer" && (
                       <div className="p-4 bg-stone-50 border border-gray-150 rounded-xl space-y-2 animate-fadeIn">
                         <p className="text-xs text-gray-650 leading-relaxed font-sans">
-                          Dane do przelewu wyślemy na Twój e-mail po potwierdzeniu zamówienia. Rezerwujemy produkt na 3 dni robocze.
+                          Dane do przelewu tradycyjnego wyślemy na Twój e-mail po potwierdzeniu zamówienia. Wybraną pracę rezerwujemy na 3 dni robocze.
                         </p>
                       </div>
                     )}
@@ -1010,6 +959,12 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                       <span>Praca ({selectedType === "original" ? "Oryginał" : `Wydruk x${quantity}`}):</span>
                       <span className="font-semibold text-gray-950">{currentPrice * quantity} zł</span>
                     </div>
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-emerald-700 text-sm">
+                        <span>Rabat ({appliedCoupon.code}):</span>
+                        <span className="font-semibold font-mono">-{appliedCoupon.discount_amount} zł</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span>Wysyłka ({deliveryOptions.find(opt => opt.id === selectedDelivery)?.name}):</span>
                       <span className="font-semibold text-gray-950">
@@ -1021,7 +976,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     <div className="flex justify-between border-t border-gray-200/60 pt-3 text-base text-gray-950 font-bold">
                       <span>Razem:</span>
                       <span className="text-magenta-accent font-bold text-lg">
-                        {currentPrice * quantity + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł
+                        {Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0)) + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł
                       </span>
                     </div>
                   </div>
@@ -1076,7 +1031,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                       ) : (
                         <>
                           <Lock className="w-3.5 h-3.5" />
-                          Zapłać {currentPrice * quantity + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł
+                          {paymentMethod === "transfer" ? "Zamawiam z obowiązkiem zapłaty" : "Zapłać"} ({Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0)) + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł)
                         </>
                       )}
                     </div>

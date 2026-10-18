@@ -95,13 +95,13 @@ export default function PrivacyPolicy() {
   }, []);
   
   return (
-    <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
+    <div className="animate-fadeIn pt-5 sm:pt-8 md:pt-10 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-6 sm:space-y-8 xl:space-y-16">
       {/* Editorial Header */}
-      <header className="border-b border-gray-100 pb-12 max-w-4xl">
-        <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-4">
+      <header className="border-b border-gray-100 pb-8 md:pb-12 max-w-4xl">
+        <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-3 sm:mb-4">
           Regulacje i ochrona danych
         </span>
-        <h1 className="font-display text-5xl sm:text-6xl text-gray-900 tracking-tight leading-none font-normal">
+        <h1 className="font-display text-4xl sm:text-6xl text-gray-900 tracking-tight leading-none font-normal">
           Polityka Prywatności i Plików Cookies
         </h1>
         <p className="font-sans text-gray-500 text-sm mt-4">
@@ -110,7 +110,7 @@ export default function PrivacyPolicy() {
       </header>
 
       {/* Mobile Table of Contents Trigger (Sticky, floating) */}
-      <div className="sticky top-[63px] md:top-[72px] lg:hidden z-30 flex justify-between items-center w-full py-3 pointer-events-none">
+      <div className="sticky top-[48px] sm:top-[58px] md:top-[68px] lg:hidden z-30 flex justify-between items-center w-full py-2.5 sm:py-3 pointer-events-none">
         <button
           onClick={() => setIsTocDrawerOpen(true)}
           className="pointer-events-auto flex items-center gap-2 px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-800 text-xs font-semibold uppercase tracking-wider hover:bg-gray-55 hover:border-gray-300 transition-all cursor-pointer shadow-md active:scale-[0.98]"
