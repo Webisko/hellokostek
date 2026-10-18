@@ -167,5 +167,69 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
         </filter>
       </defs>
     </svg>
+
+    <!-- Global Polish Typography: Automatic Orphan / Single-letter Conjunction Prevention -->
+    <script>
+      function fixTypographyOrphans(root: Node = document.body) {
+        if (!root) return;
+        const walker = document.createTreeWalker(
+          root,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode(node) {
+              const parent = node.parentElement;
+              if (!parent) return NodeFilter.FILTER_REJECT;
+              const tag = parent.tagName.toLowerCase();
+              if (['script', 'style', 'code', 'pre', 'textarea', 'input', 'svg', 'noscript', 'template'].includes(tag)) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }
+        );
+
+        const orphanRegex = /(^|[\s(„"«'”])([aAiIoOuUwWzZ])\s+/g;
+        let node: Node | null;
+        while ((node = walker.nextNode())) {
+          let val = node.nodeValue;
+          if (val && orphanRegex.test(val)) {
+            let prev = "";
+            while (prev !== val) {
+              prev = val;
+              val = val.replace(orphanRegex, '$1$2\u00A0');
+            }
+            node.nodeValue = val;
+          }
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => fixTypographyOrphans());
+      } else {
+        fixTypographyOrphans();
+      }
+
+      document.addEventListener('astro:page-load', () => fixTypographyOrphans());
+
+      // Support for client-side hydrated components and asynchronous API data
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      const observer = new MutationObserver((mutations) => {
+        let hasNewNodes = false;
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            hasNewNodes = true;
+            break;
+          }
+        }
+        if (hasNewNodes) {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
+            fixTypographyOrphans();
+          }, 80);
+        }
+      });
+
+      observer.observe(document.body, { childList: true, subtree: true });
+    </script>
   </body>
 </html>

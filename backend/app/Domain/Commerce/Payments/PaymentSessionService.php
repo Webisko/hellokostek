@@ -365,8 +365,24 @@ class PaymentSessionService
     private function returnUrl(Order $order): string
     {
         $storefrontUrl = rtrim((string) config('services.storefront.url'), '/');
+        $order->loadMissing('items');
+        $firstItem = $order->items->first();
+        $productTitle = $firstItem?->name ?? 'Zamówienie';
+        $purchaseType = ($firstItem && str_ends_with((string) $firstItem->sku, '-OR')) ? 'original' : 'print';
+        $price = max(0, ($order->subtotal_amount - $order->discount_amount) / 100);
+        $shippingMethod = $order->shipping_method_name ?? '';
+        $shippingPrice = ($order->shipping_amount ?? 0) / 100;
 
-        return $storefrontUrl . '/zamowienie?number=' . urlencode($order->number);
+        $query = http_build_query([
+            'orderNumber' => $order->number,
+            'productTitle' => $productTitle,
+            'purchaseType' => $purchaseType,
+            'price' => $price,
+            'shippingMethod' => $shippingMethod,
+            'shippingPrice' => $shippingPrice,
+        ]);
+
+        return $storefrontUrl . '/sukces-zakup?' . $query;
     }
 
     private function normalizedPhone(?string $phone, string $country): ?string
@@ -445,6 +461,7 @@ class PaymentSessionService
             $client = $this->stripeApiClient->getClient();
             $stripeSession = $client->checkout->sessions->create([
                 'payment_method_types' => ['card', 'blik', 'p24'],
+                'customer_email' => $order->customer_email ?: null,
                 'line_items' => [[
                     'price_data' => [
                         'currency' => strtolower($order->currency),

@@ -135,7 +135,8 @@ class CheckoutDataResolver
         $currency = $requestedCurrency ? strtoupper(trim($requestedCurrency)) : ($products->first()?->currency ?? $this->storeSettings->currency());
 
         $normalizedShippingCode = match ($shippingMethodCode) {
-            'courier', 'free_courier' => 'flat_rate:courier',
+            'courier' => 'flat_rate:courier',
+            'free_courier' => 'free_courier',
             'inpost', 'paczkomat' => 'flexible_shipping:paczkomat',
             'orlen' => 'flexible_shipping:orlen',
             'pickup' => 'flexible_shipping:pickup',

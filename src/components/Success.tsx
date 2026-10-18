@@ -14,19 +14,77 @@ interface OrderDetails {
   price: number;
   shippingMethod?: string;
   shippingPrice?: number;
+  isTransfer?: boolean;
+  paymentPending?: boolean;
+  stripeStatus?: string | null;
 }
 
-export default function Success({ mode, orderDetails }: SuccessProps) {
+export default function Success({ mode, orderDetails: initialOrderDetails }: SuccessProps) {
   const isPurchase = mode === "purchase";
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(initialOrderDetails || null);
 
   useEffect(() => {
     if (isPurchase) {
       // Clear the cart on mount for successful purchase
       clearCart();
+
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const orderNumber = params.get("orderNumber") || params.get("number");
+        const productTitle = params.get("productTitle");
+        const purchaseType = (params.get("purchaseType") as "original" | "print" | null) || "original";
+        const price = parseFloat(params.get("price") || "0");
+        const shippingMethod = params.get("shippingMethod") || undefined;
+        const shippingPrice = params.get("shippingPrice") !== null ? parseFloat(params.get("shippingPrice") || "0") : undefined;
+        const isTransfer = params.get("isTransfer") === "true";
+        const paymentPending = params.get("paymentPending") === "true";
+        const stripeStatus = params.get("stripe_status");
+
+        if (orderNumber) {
+          setOrderDetails({
+            orderNumber,
+            productTitle: productTitle || "Zamówiona praca",
+            purchaseType,
+            price,
+            shippingMethod,
+            shippingPrice,
+            isTransfer,
+            paymentPending,
+            stripeStatus,
+          });
+        }
+      }
     }
   }, [isPurchase]);
 
   const basePath = "";
+
+  const isCancelled = isPurchase && orderDetails?.stripeStatus === "cancelled";
+  const isTransfer = isPurchase && orderDetails?.isTransfer;
+  const isPending = isPurchase && orderDetails?.paymentPending && orderDetails?.stripeStatus !== "success";
+
+  const renderHeading = () => {
+    if (!isPurchase) return "Wiadomość wysłana!";
+    if (isCancelled) return "Płatność została przerwana";
+    if (isTransfer || isPending) return "Zamówienie zostało przyjęte!";
+    return "Płatność powiodła się!";
+  };
+
+  const renderDescription = () => {
+    if (!isPurchase) {
+      return "Twój formularz kontaktowy został pomyślnie wysłany i dostarczony. Wkrótce zapoznam się z Twoim zapytaniem i wrócę z odpowiedzią.";
+    }
+    if (isCancelled) {
+      return "Twoje zamówienie zostało zapisane w systemie, jednak płatność w bramce Stripe nie została sfinalizowana. Szczegóły zamówienia wysłaliśmy na Twój adres e-mail.";
+    }
+    if (isTransfer) {
+      return "Twoje zamówienie zostało przekazane do mojej Pracowni Artystycznej w Łodzi. Dane do przelewu tradycyjnego wysłaliśmy w wiadomości potwierdzającej na Twój adres e-mail. Wybraną pracę rezerwujemy na 3 dni robocze.";
+    }
+    if (isPending) {
+      return "Twoje zamówienie zostało pomyślnie zarejestrowane i przekazane do mojej Pracowni Artystycznej w Łodzi. Potwierdzenie wraz ze szczegółami płatności wysłaliśmy na Twój adres e-mail.";
+    }
+    return "Twoja transakcja została pomyślnie autoryzowana przez Stripe. Zamówienie uwieczniające wyjątkowe kadry zostało przekazane do mojej Pracowni Artystycznej w Łodzi.";
+  };
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
@@ -43,12 +101,10 @@ export default function Success({ mode, orderDetails }: SuccessProps) {
             {isPurchase ? "Dziękujemy za zamówienie • hellokostek" : "Dziękujemy za zaufanie • hellokostek"}
           </span>
           <h1 className="font-display text-4.5xl text-gray-900 tracking-tight leading-none font-normal">
-            {isPurchase ? "Płatność powiodła się!" : "Wiadomość wysłana!"}
+            {renderHeading()}
           </h1>
           <p className="font-sans text-gray-600 text-base leading-relaxed">
-            {isPurchase
-              ? "Twoja transakcja została pomyślnie autoryzowana przez Stripe. Wirtualne zamówienie uwieczniające wyjątkowe kadry zostało przekazane do mojej Pracowni Artystycznej w Łodzi."
-              : "Twój formularz kontaktowy został pomyślnie wysłany i dostarczony. Wkrótce zapoznam się z Twoim zapytaniem i wrócę z odpowiedzią."}
+            {renderDescription()}
           </p>
         </div>
 
@@ -58,10 +114,10 @@ export default function Success({ mode, orderDetails }: SuccessProps) {
             <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 text-left space-y-3 font-sans text-gray-750">
               <div className="flex items-center gap-2 border-b border-gray-150 pb-3">
                 <FileText className="w-4 h-4 text-[#E0115F]" />
-                <span className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold">Podsumowanie transakcji</span>
+                <span className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold">Podsumowanie zamówienia</span>
               </div>
               <div className="grid grid-cols-2 gap-y-2 text-xs sm:text-sm">
-                <span className="text-gray-500">Numer transakcji:</span>
+                <span className="text-gray-500">Numer zamówienia:</span>
                 <strong className="text-gray-900 font-mono text-right">{orderDetails.orderNumber}</strong>
 
                 <span className="text-gray-500">Zamówiona praca:</span>
@@ -99,7 +155,7 @@ export default function Success({ mode, orderDetails }: SuccessProps) {
                 <strong className="text-gray-900 font-semibold block">Skrzynka Odbiorcza</strong>
                 <span>
                   {isPurchase
-                    ? "Potwierdzenie zakupu wraz z podsumowaniem parametrów wysłaliśmy na Twój adres e-mail."
+                    ? "Potwierdzenie zamówienia wraz z podsumowaniem parametrów wysłaliśmy na Twój adres e-mail."
                     : "Potwierdzenie wysłania formularza wraz z kopią wiadomości zostało wysłane na podany adres e-mail."}
                 </span>
               </div>

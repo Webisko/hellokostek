@@ -21,17 +21,20 @@ class OrderPaidCustomerMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Potwierdzenie płatności za zamówienie ' . $this->order->number,
+            subject: 'Potwierdzenie płatności za zamówienie ' . $this->order->number . ' | hellokostek',
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            htmlString: "<p>Witaj {$this->order->customer_first_name},</p>"
-                . "<p>Dziękujemy! Otrzymaliśmy płatność za Twoje zamówienie <strong>{$this->order->number}</strong>.</p>"
-                . "<p>W załączniku przesyłamy fakturę potwierdzającą zakup.</p>"
-                . "<p>Pozdrawiamy,<br>Sklep internetowy</p>",
+            htmlString: "<div style=\"font-family: sans-serif; color: #1a1a1a; line-height: 1.6;\">"
+                . "<h2 style=\"color: #111;\">Dziękujemy za opłacenie zamówienia {$this->order->number}</h2>"
+                . "<p>Cześć {$this->order->customer_first_name},</p>"
+                . "<p>Otrzymaliśmy płatność za Twoje zamówienie <strong>{$this->order->number}</strong> na kwotę <strong>" . number_format($this->order->total_amount / 100, 2, ',', ' ') . " {$this->order->currency}</strong>.</p>"
+                . "<p>Twoja praca jest już przygotowywana do wysyłki w Pracowni Artystycznej hellokostek. O nadaniu paczki poinformujemy Cię w osobnej wiadomości.</p>"
+                . "<p style=\"margin-top: 24px;\">Pozdrawiam serdecznie,<br><strong>Maciej Kosteczka • hellokostek</strong></p>"
+                . "</div>",
         );
     }
 

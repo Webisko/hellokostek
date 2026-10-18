@@ -21,7 +21,7 @@ class OrderPlacedCustomerMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Potwierdzenie zamowienia ' . $this->order->number,
+            subject: 'Potwierdzenie zamówienia ' . $this->order->number . ' | hellokostek',
         );
     }
 

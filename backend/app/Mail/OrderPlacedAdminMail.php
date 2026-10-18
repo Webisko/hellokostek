@@ -21,7 +21,7 @@ class OrderPlacedAdminMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Nowe zamowienie ' . $this->order->number,
+            subject: 'Nowe zamówienie ' . $this->order->number . ' | hellokostek',
         );
     }
 

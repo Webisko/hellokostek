@@ -106,7 +106,12 @@ class StoreSettings
         };
 
         if ($alias !== null && isset($methods[$alias])) {
-            return $methods[$alias];
+            $resolved = $methods[$alias];
+            if ($code === 'free_courier') {
+                $resolved['name'] = 'Ubezpieczona przesyłka kurierska';
+                $resolved['amount'] = 0;
+            }
+            return $resolved;
         }
 
         return null;
@@ -157,6 +162,12 @@ class StoreSettings
 
         if (! $matchedZone) {
             return null;
+        }
+
+        if ($code === 'free_courier') {
+            $method['name'] = 'Ubezpieczona przesyłka kurierska';
+            $method['amount'] = 0;
+            return $method;
         }
 
         // Retrieve raw method from DB record

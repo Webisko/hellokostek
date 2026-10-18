@@ -2,9 +2,9 @@
 
 return [
     'store' => [
-        'name' => env('APP_NAME', 'Generic Shop'),
+        'name' => env('APP_NAME', 'Hello Kostek'),
         'currency' => 'PLN',
-        'free_shipping_threshold' => 25000, // 250.00 PLN
+        'free_shipping_threshold' => 20000, // 200.00 PLN
     ],
 
     'product_types' => [
@@ -51,14 +51,14 @@ return [
         ],
         'methods' => [
             'flexible_shipping:paczkomat' => [
-                'name' => 'Paczkomat',
-                'amount' => 1599,
+                'name' => 'InPost Paczkomat 24/7',
+                'amount' => 1500,
                 'supports_cod' => false,
                 'requires_delivery_point' => true,
             ],
             'flexible_shipping:orlen' => [
-                'name' => 'ORLEN Paczka',
-                'amount' => 1199,
+                'name' => 'Orlen Paczka',
+                'amount' => 1000,
                 'supports_cod' => false,
                 'requires_delivery_point' => true,
             ],
@@ -69,8 +69,8 @@ return [
                 'requires_delivery_point' => true,
             ],
             'flat_rate:courier' => [
-                'name' => 'Kurier',
-                'amount' => 1750,
+                'name' => 'Kurier DPD / InPost',
+                'amount' => 2000,
                 'supports_cod' => false,
             ],
             'flat_rate:cod' => [

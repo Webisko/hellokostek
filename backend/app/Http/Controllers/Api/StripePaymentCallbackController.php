@@ -53,7 +53,12 @@ class StripePaymentCallbackController extends Controller
             requestPayload: ['event_type' => $event->type],
         );
 
-        if ($event->type === 'checkout.session.completed') {
+        if (in_array($event->type, [
+            'checkout.session.completed',
+            'checkout.session.async_payment_succeeded',
+            'checkout.session.async_payment_failed',
+            'checkout.session.expired',
+        ], true)) {
             $session = $event->data->object;
             $orderNumber = data_get($session->metadata, 'order_number');
             $stripeSessionId = $session->id;
@@ -61,7 +66,7 @@ class StripePaymentCallbackController extends Controller
             $transaction = PaymentTransaction::query()
                 ->with('order')
                 ->where('provider', 'stripe')
-                ->where(function ($query) use ($stripeSessionId, $orderNumber) {
+                ->where(function ($query) use ($stripeSessionId) {
                     $query->where('response_payload->registration->id', $stripeSessionId)
                         ->orWhere('external_session_id', $stripeSessionId)
                         ->orWhere('metadata->stripe_session_id', $stripeSessionId);
@@ -84,10 +89,14 @@ class StripePaymentCallbackController extends Controller
 
             $order = $transaction->order;
 
-            if ($session->payment_status === 'paid') {
-                DB::transaction(function () use ($transaction, $order, $session) {
+            $isPaid = ($event->type === 'checkout.session.async_payment_succeeded')
+                || ($event->type === 'checkout.session.completed' && $session->payment_status === 'paid');
+
+            if ($isPaid) {
+                DB::transaction(function () use ($transaction, $order, $session, $event) {
                     $responsePayload = $transaction->response_payload ?? [];
                     $responsePayload['callback'] = [
+                        'event_type' => $event->type,
                         'session_id' => $session->id,
                         'payment_status' => $session->payment_status,
                         'received_at' => now()->toIso8601String(),
@@ -111,13 +120,14 @@ class StripePaymentCallbackController extends Controller
                     order: $order,
                     direction: 'incoming',
                     externalReference: $session->id,
-                    requestPayload: ['session_id' => $session->id, 'payment_status' => $session->payment_status],
+                    requestPayload: ['event_type' => $event->type, 'session_id' => $session->id, 'payment_status' => $session->payment_status],
                     responsePayload: ['status' => 'confirmed'],
                 );
-            } else {
-                DB::transaction(function () use ($transaction, $order, $session) {
+            } elseif (in_array($event->type, ['checkout.session.async_payment_failed', 'checkout.session.expired'], true)) {
+                DB::transaction(function () use ($transaction, $order, $session, $event) {
                     $responsePayload = $transaction->response_payload ?? [];
                     $responsePayload['callback'] = [
+                        'event_type' => $event->type,
                         'session_id' => $session->id,
                         'payment_status' => $session->payment_status,
                         'received_at' => now()->toIso8601String(),
@@ -127,8 +137,14 @@ class StripePaymentCallbackController extends Controller
                         'status' => 'failed',
                         'response_payload' => $responsePayload,
                         'failed_at' => now(),
-                        'error_message' => 'Stripe session payment_status was ' . $session->payment_status,
+                        'error_message' => 'Stripe session (' . $event->type . ') payment_status was ' . $session->payment_status,
                     ])->save();
+
+                    if ($order->payment_status !== 'paid') {
+                        $order->forceFill([
+                            'payment_status' => 'failed',
+                        ])->save();
+                    }
                 });
 
                 $this->integrationLogService->record(
@@ -138,7 +154,7 @@ class StripePaymentCallbackController extends Controller
                     order: $order,
                     direction: 'incoming',
                     externalReference: $session->id,
-                    requestPayload: ['session_id' => $session->id, 'payment_status' => $session->payment_status],
+                    requestPayload: ['event_type' => $event->type, 'session_id' => $session->id, 'payment_status' => $session->payment_status],
                     errorMessage: 'Stripe payment status was: ' . $session->payment_status,
                 );
             }

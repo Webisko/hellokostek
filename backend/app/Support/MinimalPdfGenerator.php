@@ -14,12 +14,11 @@ class MinimalPdfGenerator
         $date = $order->placed_at ? $order->placed_at->format('Y-m-d') : now()->format('Y-m-d');
 
         $storeSettings = app(StoreSettings::class);
-        $sellerName = $storeSettings->storeName();
-        $sellerEmail = $storeSettings->supportEmail() ?? '';
-        
         $metadata = $storeSettings->model()->metadata ?? [];
-        $sellerAddress = $metadata['address_street'] ?? 'Ulica Przykładowa 12';
-        $sellerCity = ($metadata['address_postal_code'] ?? '00-001') . ' ' . ($metadata['address_city'] ?? 'Warszawa');
+        $sellerName = $metadata['invoice_seller_name'] ?? $storeSettings->storeName();
+        $sellerEmail = $storeSettings->supportEmail() ?? 'kontakt@hellokostek.pl';
+        $sellerAddress = $metadata['invoice_seller_address'] ?? ($metadata['address_street'] ?? 'Pracownia Artystyczna hellokostek');
+        $sellerCity = isset($metadata['address_postal_code']) ? (($metadata['address_postal_code'] ?? '') . ' ' . ($metadata['address_city'] ?? '')) : '';
 
         $buyerName = $order->billing_company_name ?? ($order->customer_first_name . ' ' . $order->customer_last_name);
         $buyerNip = $order->billing_nip ? 'NIP: ' . $order->billing_nip : '';

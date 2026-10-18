@@ -9,11 +9,11 @@ const DEFAULT_BOX_TITLE = "Dlaczego malarstwo tradycyjne?";
 const DEFAULT_BOX_TEXT =
   "Wierzę, że w dobie sztucznej inteligencji i fotografii cyfrowej to właśnie tradycyjne malarstwo i sztuka użytkowa mają największą wartość sentymentalną. W końcu za każdym stworzonym przeze mnie dziełem stoją godziny pracy nad detalami i serce włożone w proces twórczy.";
 const DEFAULT_CONTENT = [
-  "Ukończył Państwową Wyższą Szkołę Teatralną w Krakowie na Wydziale Teatru Tańca w Bytomiu. Kulturoznawca po UŚ w Katowicach. Uczestnik International Summer Program – stypendium Roberta Wilsona w Watermill Center w Nowym Jorku. Pracował w Teatrze Tańca i Ruchu Rozbark, a w ramach Festiwalu Maltaw przy projekcie „Ksenofonia Symfonia dla Innego” oraz współtworzył spektakl „A co gdyby” na rezydencji Gdańskiego Festiwalu Tańca. Od lat współpracuje z Teatrem w Ruchu grając spektakle dla dzieci w całym kraju. Ex-pracownik korporacji.",
-  "Równolegle: malarz, grafik i twórca rękodzieła – od 2023 roku prowadzi własną działalność: hellokostek tworząc obrazy olejne na zamówienie i ucząc aktorstwa, i rysunku. Od 2020 roku szkoli się pod okiem Pauliny Kwietniewskiej (malarstwo) i Macieja Kusa (rzeźba).",
+  "Ukończyłem Państwową Wyższą Szkołę Teatralną w Krakowie na Wydziale Teatru Tańca w Bytomiu oraz kulturoznawstwo na Uniwersytecie Śląskim w Katowicach. Byłem stypendystą Roberta Wilsona w Watermill Center w Nowym Jorku (International Summer Program). Pracowałem w Teatrze Tańca i Ruchu Rozbark, brałem udział w projekcie „Ksenofonia Symfonia dla Innego” w ramach Festiwalu Malta oraz współtworzyłem spektakl „A co gdyby” na rezydencji Gdańskiego Festiwalu Tańca. Od lat współpracuję z Teatrem w Ruchu, grając w spektaklach dla dzieci w całym kraju. Mam też za sobą doświadczenie pracy w korporacji.",
+  "Równolegle rozwijam się jako malarz, grafik i twórca rękodzieła – od 2023 roku prowadzę własną działalność: hellokostek, tworząc obrazy olejne na zamówienie oraz ucząc aktorstwa i rysunku. Od 2020 roku doskonalę warsztat pod okiem Pauliny Kwietniewskiej (malarstwo) i Macieja Kusa (rzeźba).",
   "Wystawy indywidualne: „SIEWIERZ-513W13R2”, 2017, Hotel Natura Residence, Siewierz; „Rogue Planet”, 2022, Klubokawiarnia KIPISZ, Łódź.",
   "Wystawy zbiorowe: „Spotkanie na czerwonej kanapie - jak rzeźba wrocławska czuje się w Łodzi”, 2025, OFF Piotrkowska, Łódź.",
-  "Prace artysty dostępne są w galerii Two Of Art w Amsterdamie oraz na aukcjach organizowanych przez galerię Pragaleria w Warszawie.",
+  "Moje prace są dostępne w galerii Two Of Art w Amsterdamie oraz na aukcjach organizowanych przez galerię Pragaleria w Warszawie.",
 ].join("\n\n");
 const DEFAULT_IMAGE = "/images/o_mnie_nowe.webp";
 const DEFAULT_CTA_TITLE = "Podoba Ci się moja twórczość?";
@@ -120,7 +120,7 @@ export default function AboutMe() {
               {formatAboutTitle(title)}
             </h1>
             {quote && (
-              <p className="font-sans italic text-gray-650 text-xl sm:text-2xl pl-5 sm:pl-6 border-l-4 border-[#E0115F] leading-relaxed">
+              <p className="font-sans italic text-gray-650 text-lg sm:text-xl pl-5 sm:pl-6 border-l-4 border-[#E0115F] leading-relaxed">
                 {quote}
               </p>
             )}
@@ -144,7 +144,7 @@ export default function AboutMe() {
 
           {isHtmlContent ? (
             <div
-              className="space-y-6 font-sans text-base text-gray-750 leading-relaxed [&>p:first-child]:text-lg [&>p:first-child]:font-medium [&>p:first-child]:text-gray-950"
+              className="space-y-6 font-sans text-base text-gray-750 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: content }}
             />
           ) : (
@@ -152,11 +152,7 @@ export default function AboutMe() {
               {paragraphs.map((paragraph, idx) => (
                 <p
                   key={idx}
-                  className={
-                    idx === 0
-                      ? "text-lg font-medium text-gray-950 leading-relaxed whitespace-pre-line"
-                      : "leading-relaxed whitespace-pre-line"
-                  }
+                  className="leading-relaxed whitespace-pre-line"
                 >
                   {paragraph}
                 </p>

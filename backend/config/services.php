@@ -54,7 +54,7 @@ return [
     ],
 
     'storefront' => [
-        'url' => env('STOREFRONT_URL', env('APP_URL', 'http://localhost')),
+        'url' => env('STOREFRONT_URL', env('FRONTEND_URL', env('APP_URL', 'http://localhost'))),
     ],
 
 	'mail_safety' => [

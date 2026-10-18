@@ -55,6 +55,15 @@ html, body {
   overflow-anchor: none;
 }
 
+/* Polish Typography: Orphan and widow prevention */
+p, li, blockquote, dd {
+  text-wrap: pretty;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
 /* Custom animations and styling utilities */
 .custom-scroll::-webkit-scrollbar {
   width: 4px;
