@@ -183,12 +183,13 @@ export const GALLERY_ARTWORKS: GalleryArtwork[] = [
   },
   {
     id: "gallery-26",
-    title: "Portret dziewczynki w kapeluszu",
+    title: "Portret siedmiolatki",
     year: "2013",
     imageUrl: "/images/01-portret-edited.webp",
     originalUrl: "/images/01-portret-edited.webp",
     category: "Akryl",
-    categorySlug: "akryl"
+    categorySlug: "akryl",
+    technique: "Akryl na płótnie"
   },
   {
     id: "gallery-27",

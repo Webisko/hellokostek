@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import ProductDetail from '../../components/ProductDetail';
 import { SHOP_PRODUCTS } from '../../data';
+import { parseLocalizedString } from '../../utils/localization';
 
 export async function getStaticPaths() {
   const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
@@ -30,18 +31,22 @@ export async function getStaticPaths() {
             }
           }
 
+          const rawDesc = parseLocalizedString(apiProd.description) || parseLocalizedString(apiProd.short_description);
+
           return {
             id: apiProd.slug,
-            title: apiProd.name?.pl || apiProd.name || "",
+            title: parseLocalizedString(apiProd.name),
             year: apiProd.metadata?.year || "2022",
             category,
             originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProd.regular_price_amount / 100),
-            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
-            isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : (category === 'akwarela' ? 30 : 20),
+            isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
             imageUrl: apiProd.featured_image_url || '/images/placeholder.png',
-            description: apiProd.description?.pl || apiProd.description || "",
+            description: rawDesc.replace(/<[^>]*>/g, "").trim(),
             originalVariantId: originalVariant?.id,
             printVariantId: printVariant?.id,
+            technique: parseLocalizedString(apiProd.metadata?.technique) || undefined,
+            format: parseLocalizedString(apiProd.metadata?.format) || undefined,
           };
         });
 

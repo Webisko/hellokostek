@@ -23,7 +23,7 @@ class InvoicesTable
                     ->label('Numer zamówienia')
                     ->searchable()
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->order_id ? route('filament.admin.resources.orders.view', ['record' => $record->order_id]) : null),
+                    ->url(fn ($record): ?string => $record->order ? \App\Filament\Resources\Orders\OrderResource::getUrl('index', ['tableSearch' => $record->order->number]) : null),
                 TextColumn::make('order.customer_email')
                     ->label('Email klienta')
                     ->searchable(),

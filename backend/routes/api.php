@@ -40,40 +40,6 @@ use App\Http\Controllers\Api\ContactInquiryController;
 use App\Http\Controllers\Api\SiteReviewsController;
 
 Route::get('/health', HealthController::class)->name('api.health');
-Route::get('/debug/webp-status', function() {
-    $disk = \Illuminate\Support\Facades\Storage::disk('public');
-    $rootPath = $disk->path('');
-    
-    $nonWebpFiles = [];
-    $webpFiles = [];
-
-    if (is_dir($rootPath)) {
-        $finder = new \Symfony\Component\Finder\Finder();
-        $finder->files()->in($rootPath);
-        foreach ($finder as $file) {
-            $ext = strtolower($file->getExtension());
-            $rel = str_replace('\\', '/', $file->getRelativePathname());
-            if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                $nonWebpFiles[] = $rel;
-            } elseif ($ext === 'webp') {
-                $webpFiles[] = $rel;
-            }
-        }
-    }
-
-    $mediaItems = \App\Models\Media::query()->select('id', 'file_name', 'file_path', 'mime_type')->get();
-    $products = \App\Models\Product::query()->select('id', 'name', 'primary_image')->get();
-
-    return response()->json([
-        'total_webp_files_on_disk' => count($webpFiles),
-        'total_non_webp_files_on_disk' => count($nonWebpFiles),
-        'non_webp_files' => $nonWebpFiles,
-        'sample_webp_files' => array_slice($webpFiles, 0, 10),
-        'media_table_count' => $mediaItems->count(),
-        'sample_media' => $mediaItems->take(5),
-        'sample_products' => $products->take(5),
-    ]);
-});
 Route::get('/store/settings', StoreSettingsController::class)->name('api.store.settings');
 Route::get('/reviews/site', SiteReviewsController::class)->name('api.reviews.site');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('api.catalog.index');

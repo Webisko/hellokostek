@@ -311,7 +311,7 @@ class StoreSettingForm
                                         ->label('Czas wysyłki przypomnienia (w godzinach)')
                                         ->numeric()
                                         ->default(2)
-                                        ->required(),
+                                        ->dehydrateStateUsing(fn ($state) => filled($state) ? (int) $state : 2),
                                 ]),
 
                             Section::make('Strefy i Metody Wysyłki')

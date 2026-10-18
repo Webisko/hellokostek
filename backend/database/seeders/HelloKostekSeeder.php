@@ -98,58 +98,58 @@ class HelloKostekSeeder extends Seeder
             // --- WATERCOLORS ---
             [
                 'id' => 'akwarela-2-2022',
-                'title' => 'Obiekt II',
+                'title' => 'Obiekt 2',
                 'year' => '2022',
                 'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
                 'imageUrl' => 'products/Wiecej-o-obiekcie-2-2022-edited-768x768.webp',
-                'description' => 'Subtelna akwarela z cyklu badającego formę i relacje przestrzenne. Delikatne rozmycia i głębokie tony budują melancholijny, intymny nastrój idealny do sypialni lub salonu wypoczynkowego.'
+                'description' => 'Rogue planet'
             ],
             [
                 'id' => 'akwarela-7-2022',
-                'title' => 'Obiekt VII',
+                'title' => 'Obiekt 7',
                 'year' => '2022',
                 'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
                 'imageUrl' => 'products/Wiecej-o-obiekcie-7-2022-scaled.webp',
-                'description' => 'Poruszająca kompozycja akwarelowa na grubym papierze bawełnianym. Harmoniczne zestrojenie chłodnych barw z delikatną nutą ciepła emanuje spokojem i wyciszeniem.'
+                'description' => 'Rogue planet'
             ],
             [
                 'id' => 'akwarela-8-2022',
-                'title' => 'Obiekt VIII',
+                'title' => 'Obiekt 8',
                 'year' => '2022',
                 'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
                 'imageUrl' => 'products/Wiecej-o-obiekcie-8.webp',
-                'description' => 'Kameralna praca z przewagą organicznych, miękkich kształtów. Urzekający detal, który przyciąga wzrok i zaprasza do codziennej, cichej kontemplacji.'
+                'description' => 'Rogue planet'
             ],
             [
                 'id' => 'akwarela-9-2022',
-                'title' => 'Obiekt IX',
+                'title' => 'Obiekt 9',
                 'year' => '2022',
                 'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => true,
                 'imageUrl' => 'products/Wiecej-o-obiekcie-9-2022-scaled.webp',
-                'description' => 'Zmysłowe, płynne przejścia akwarelowe. Praca o silnym ładunku emocjonalnym, zbalansowana lekkim tłem, która doskonale komponuje się z nowoczesnymi oraz klasycznymi wnętrzami.'
+                'description' => 'Rogue planet'
             ],
             [
                 'id' => 'akwarela-13-2022',
-                'title' => 'Obiekt XIII (Sygnowany)',
+                'title' => 'Obiekt 13 (Sygnowany)',
                 'year' => '2022',
                 'category' => 'akwarela',
                 'originalPrice' => 300,
                 'printPrice' => 30,
                 'isOriginalAvailable' => false,
                 'imageUrl' => 'products/Wiecej-o-obiekcie-13-2022-scaled.webp',
-                'description' => 'Wyrafinowana kompozycja akwarelowa, dostępna wyłącznie w postaci wysokiej jakości wydruku artystycznego na luksusowym papierze archiwalnym.'
+                'description' => 'Rogue planet'
             ],
             // --- DRAWINGS ---
             [
@@ -507,6 +507,29 @@ class HelloKostekSeeder extends Seeder
             ]
         );
 
+        \App\Models\ContentPage::query()->updateOrCreate(
+            ['slug' => 'o-mnie'],
+            [
+                'title' => 'Kostek Maciej Kosteczka',
+                'excerpt' => '„Wydawać się może, że klasyczne malarstwo i sztuka figuratywna bardzo ograniczają twórcę, ale stosując zasady z improwizacji w teatrze, że: „gdzie są ograniczenia, tam jest najwięcej wolności”, szukam wolności w malarstwie realistycznym.”',
+                'content' => "Ukończył Państwową Wyższą Szkołę Teatralną w Krakowie na Wydziale Teatru Tańca w Bytomiu. Kulturoznawca po UŚ w Katowicach. Uczestnik International Summer Program – stypendium Roberta Wilsona w Watermill Center w Nowym Jorku. Pracował w Teatrze Tańca i Ruchu Rozbark, a w ramach Festiwalu Maltaw przy projekcie „Ksenofonia Symfonia dla Innego” oraz współtworzył spektakl „A co gdyby” na rezydencji Gdańskiego Festiwalu Tańca. Od lat współpracuje z Teatrem w Ruchu grając spektakle dla dzieci w całym kraju. Ex-pracownik korporacji.\n\nRównolegle: malarz, grafik i twórca rękodzieła – od 2023 roku prowadzi własną działalność: hellokostek tworząc obrazy olejne na zamówienie i ucząc aktorstwa, i rysunku. Od 2020 roku szkoli się pod okiem Pauliny Kwietniewskiej (malarstwo) i Macieja Kusa (rzeźba).\n\nWystawy indywidualne: „SIEWIERZ-513W13R2”, 2017, Hotel Natura Residence, Siewierz; „Rogue Planet”, 2022, Klubokawiarnia KIPISZ, Łódź.\n\nWystawy zbiorowe: „Spotkanie na czerwonej kanapie - jak rzeźba wrocławska czuje się w Łodzi”, 2025, OFF Piotrkowska, Łódź.\n\nPrace artysty dostępne są w galerii Two Of Art w Amsterdamie oraz na aukcjach organizowanych przez galerię Pragaleria w Warszawie.",
+                'hero_image_path' => 'content-pages/o_mnie_nowe.webp',
+                'template' => 'about',
+                'seo_title' => 'O mnie | Hello Kostek',
+                'seo_description' => 'Poznaj moją pracownię artystyczną Hello Kostek. Tradycyjne malarstwo olejne, akrylowe, akwarele i rysunki tworzone z pasją.',
+                'is_active' => true,
+                'published_at' => now(),
+                'metadata' => [
+                    'subtitle' => 'Aktor • Tancerz • Malarz • Rocznik ‘88',
+                    'quote' => '„Wydawać się może, że klasyczne malarstwo i sztuka figuratywna bardzo ograniczają twórcę, ale stosując zasady z improwizacji w teatrze, że: „gdzie są ograniczenia, tam jest najwięcej wolności”, szukam wolności w malarstwie realistycznym.”',
+                    'box_title' => 'Dlaczego malarstwo tradycyjne?',
+                    'box_text' => 'Wierzę, że w dobie sztucznej inteligencji i fotografii cyfrowej to właśnie tradycyjne malarstwo i sztuka użytkowa mają największą wartość sentymentalną. W końcu za każdym stworzonym przeze mnie dziełem stoją godziny pracy nad detalami i serce włożone w proces twórczy.',
+                    'cta_title' => 'Podoba Ci się moja twórczość?',
+                    'cta_text' => 'Zamów swój własny, unikalny portret ze zdjęcia lub zapoznaj się z gotowymi dziełami malarskimi dostępnymi w moim sklepie.',
+                ],
+            ]
+        );
+
         // 6. CZĘSTO ZADAWANE PYTANIA (FAQ)
         $faqItems = [
             [
@@ -756,7 +779,7 @@ class HelloKostekSeeder extends Seeder
                 'sort_order' => 200,
             ],
             [
-                'title' => 'Portret dziewczynki w kapeluszu',
+                'title' => 'Portret siedmiolatki',
                 'category_slug' => 'akryl',
                 'technique' => 'Akryl na płótnie',
                 'format' => '30x40 cm',
@@ -887,20 +910,40 @@ class HelloKostekSeeder extends Seeder
             ],
         ];
 
+        // Usunięcie zaszłościowego duplikatu ze starej ścieżki mobilnej
+        GalleryArtwork::query()
+            ->where('image_path', 'images/portret_franka_mobile.webp')
+            ->delete();
+
         foreach ($artworksData as $artwork) {
             $catId = isset($categories[$artwork['category_slug']])
                 ? $categories[$artwork['category_slug']]->id
                 : null;
 
+            $basename = basename($artwork['image_path']);
+            $altGalleryPath = 'gallery/' . $basename;
+
+            $existing = GalleryArtwork::query()
+                ->whereIn('image_path', [$artwork['image_path'], $altGalleryPath])
+                ->orderBy('id')
+                ->get();
+
+            if ($existing->count() > 1) {
+                $existing->slice(1)->each->delete();
+            }
+
+            $record = $existing->first();
+            $targetImagePath = $record ? $record->image_path : $artwork['image_path'];
+
             GalleryArtwork::query()->updateOrCreate(
-                ['image_path' => $artwork['image_path']],
+                ['image_path' => $targetImagePath],
                 [
                     'category_id' => $catId,
                     'title' => $artwork['title'],
                     'technique' => $artwork['technique'],
                     'format' => $artwork['format'],
                     'year' => $artwork['year'],
-                    'image_path' => $artwork['image_path'],
+                    'image_path' => $targetImagePath,
                     'original_url' => $artwork['original_url'],
                     'sort_order' => $artwork['sort_order'],
                     'is_active' => true,

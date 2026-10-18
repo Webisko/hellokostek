@@ -123,12 +123,13 @@ class OrderForm
                                     ->afterStateUpdated(function ($state, $set) {
                                         $product = \App\Models\Product::find($state);
                                         if ($product) {
+                                            $pricePln = $product->currentPriceAmount() / 100;
                                             $set('name', $product->name);
-                                            $set('sku', $product->sku);
+                                            $set('sku', $product->sku ?: $product->slug);
                                             $set('product_type', $product->type->value ?? $product->type);
-                                            $set('unit_price_amount', $product->price_amount / 100);
-                                            $set('regular_unit_price_amount', $product->price_amount / 100);
-                                            $set('total_amount', ($product->price_amount / 100) * 1);
+                                            $set('unit_price_amount', $pricePln);
+                                            $set('regular_unit_price_amount', $pricePln);
+                                            $set('total_amount', $pricePln * 1);
                                         }
                                     })
                                     ->columnSpan(['md' => 3]),
@@ -153,6 +154,7 @@ class OrderForm
                                     ->afterStateUpdated(function ($state, $set, $get) {
                                         $qty = $get('quantity') ?? 1;
                                         $set('total_amount', $state * $qty);
+                                        $set('regular_unit_price_amount', $state);
                                     })
                                     ->columnSpan(['md' => 1]),
                                 TextInput::make('total_amount')
@@ -162,6 +164,11 @@ class OrderForm
                                     ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
                                     ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null)
                                     ->columnSpan(['md' => 1]),
+                                TextInput::make('regular_unit_price_amount')
+                                    ->hidden()
+                                    ->default(0)
+                                    ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
+                                    ->dehydrateStateUsing(fn ($state, $get) => $state !== null ? (int) round($state * 100) : (int) round(($get('unit_price_amount') ?? 0) * 100)),
                                 TextInput::make('name')
                                     ->required()
                                     ->hidden(),

@@ -10,6 +10,7 @@ export interface GalleryArtwork {
   categorySlug?: string;
   technique?: string;
   format?: string;
+  bulletPoints?: string[];
 }
 
 export interface Product {
@@ -26,6 +27,8 @@ export interface Product {
   isPopular?: boolean;
   originalVariantId?: number;
   printVariantId?: number;
+  technique?: string;
+  format?: string;
 }
 
 export interface CartItem {

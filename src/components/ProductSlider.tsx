@@ -16,6 +16,10 @@ function mapProduct(apiProduct: any): Product {
   }
 
   const imageUrl = apiProduct.featured_image_url || '/images/placeholder.png';
+  const rawDescription = apiProduct.description?.pl || apiProduct.description || apiProduct.short_description || "";
+  const cleanDescription = typeof rawDescription === "string"
+    ? rawDescription.replace(/<[^>]*>/g, "").trim()
+    : "";
 
   return {
     id: apiProduct.slug,
@@ -24,9 +28,9 @@ function mapProduct(apiProduct: any): Product {
     category,
     originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProduct.regular_price_amount / 100),
     printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
-    isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+    isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
     imageUrl,
-    description: apiProduct.description?.pl || apiProduct.description || "",
+    description: cleanDescription,
     originalVariantId: originalVariant?.id,
     printVariantId: printVariant?.id,
   };

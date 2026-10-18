@@ -92,7 +92,7 @@ class OrderResource extends Resource
 
     public static function canDelete(Model $record): bool
     {
-        return false;
+        return true;
     }
 
     public static function getPages(): array

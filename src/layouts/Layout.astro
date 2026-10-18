@@ -45,7 +45,12 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
 
     <!-- Preload Critical Assets -->
     <link rel="preload" as="image" href="/images/logo-static.webp" type="image/webp" fetchpriority="high" />
-    <link rel="preload" as="image" href="/images/portret_franka_mobile.webp" type="image/webp" fetchpriority="high" media="(max-width: 639px)" />
+    {currentPath === "/" && (
+      <link rel="preload" as="image" href="/images/portret_franka_mobile.webp" type="image/webp" fetchpriority="high" media="(max-width: 639px)" />
+    )}
+    {(currentPath === "/o-mnie" || currentPath === "/o-mnie/") && (
+      <link rel="preload" as="image" href="/images/o_mnie_nowe.webp" type="image/webp" fetchpriority="high" />
+    )}
     
 
 
@@ -128,7 +133,9 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
     })} />
   </head>
   <body class="min-h-screen bg-white text-off-black flex flex-col justify-between">
-    
+    <!-- CMS Announcement Bar -->
+    <div id="cms-announcement-bar" class="hidden bg-off-black text-white text-xs font-mono tracking-wider text-center py-2.5 px-4"></div>
+
     <!-- Centered Navigation -->
     {!hideHeaderFooter && (
       <Navbar currentPath={currentPath} client:idle />
@@ -148,8 +155,8 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
       <BackToTop />
     )}
 
-    <!-- COOKIE CONSENT BANNER (Toggleable via enableCookieBanner prop or PUBLIC_ENABLE_COOKIE_BANNER env) -->
-    {enableCookieBanner && <CookieConsent />}
+    <!-- COOKIE CONSENT BANNER (Controlled via CMS /api/store/settings or enableCookieBanner prop) -->
+    <CookieConsent defaultEnabled={enableCookieBanner} />
 
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style={{ display: "none" }}>
       <defs>

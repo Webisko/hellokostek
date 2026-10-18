@@ -102,4 +102,67 @@ class CommerceVerificationTest extends TestCase
             'email_type' => 'contact_inquiry_admin',
         ]);
     }
+
+    public function test_checkout_with_original_variant_uses_original_price_and_decrements_variant_stock(): void
+    {
+        $product = Product::create([
+            'name' => 'Obraz Testowy z Wariantami',
+            'slug' => 'obraz-testowy-warianty',
+            'sku' => 'OBR-VAR',
+            'type' => 'physical',
+            'regular_price_amount' => 3000, // 30 PLN print base
+            'stock_quantity' => 999,
+            'manages_stock' => true,
+            'is_active' => true,
+            'is_visible' => true,
+            'is_purchasable' => true,
+            'metadata' => ['year' => '2025'],
+        ]);
+
+        Product::syncVariantsFromData($product, [
+            'print_regular_price' => 30,
+            'print_stock_quantity' => 999,
+            'has_original' => true,
+            'original_regular_price' => 300,
+            'original_stock_quantity' => 1,
+        ]);
+
+        $originalVariant = $product->variants()->where('sku', 'OBR-VAR-OR')->firstOrFail();
+        $printVariant = $product->variants()->where('sku', 'OBR-VAR-PR')->firstOrFail();
+
+        $this->assertEquals(30000, $originalVariant->regular_price_amount);
+        $this->assertEquals(3000, $printVariant->regular_price_amount);
+        $this->assertTrue($product->fresh()->metadata['original_available']);
+
+        $payload = [
+            'items' => [
+                [
+                    'slug' => $product->slug,
+                    'quantity' => 1,
+                    'variant_id' => $originalVariant->id,
+                    'product_variant_id' => $originalVariant->id,
+                ]
+            ],
+            'payment_method' => 'bank_transfer',
+            'customer' => [
+                'first_name' => 'Anna',
+                'last_name' => 'Kowalska',
+                'email' => 'anna@example.com',
+                'phone' => '+48600700800',
+            ],
+            'shipping_address' => [
+                'street' => 'Piotrkowska 10',
+                'postal_code' => '90-001',
+                'city' => 'Łódź',
+                'country' => 'PL',
+            ],
+            'shipping_method_code' => 'flat_rate:courier',
+            'terms_accepted' => true,
+        ];
+
+        $response = $this->postJson('/api/checkout/place', $payload);
+        $response->assertStatus(201);
+        $this->assertEquals(30000, $response->json('data.order.subtotal_amount'));
+        $this->assertEquals(0, $originalVariant->fresh()->stock_quantity);
+    }
 }

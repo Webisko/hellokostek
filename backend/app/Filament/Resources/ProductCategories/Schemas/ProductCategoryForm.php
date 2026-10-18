@@ -33,7 +33,10 @@ class ProductCategoryForm
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state): void {
+                            ->afterStateUpdated(function (string $operation, Get $get, Set $set, ?string $old, ?string $state): void {
+                                if ($operation !== 'create') {
+                                    return;
+                                }
                                 if (($get('slug') ?? '') !== Str::slug((string) $old)) {
                                     return;
                                 }

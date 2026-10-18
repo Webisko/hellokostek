@@ -40,4 +40,24 @@ class GalleryArtwork extends Model
     {
         return $query->where('is_active', true);
     }
+
+    protected static function booted(): void
+    {
+        static::saving(function (GalleryArtwork $artwork): void {
+            if ($artwork->year === null) {
+                $artwork->year = (string) date('Y');
+            }
+            if ($artwork->technique === null) {
+                $artwork->technique = '';
+            }
+        });
+
+        static::saved(function (): void {
+            \Illuminate\Support\Facades\Cache::forget('api.gallery.items');
+        });
+
+        static::deleted(function (): void {
+            \Illuminate\Support\Facades\Cache::forget('api.gallery.items');
+        });
+    }
 }

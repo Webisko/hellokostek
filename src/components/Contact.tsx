@@ -204,42 +204,42 @@ export default function Contact() {
               </div>
               <div className="text-base font-sans w-full">
                 <span className="block text-gray-400 font-mono text-xs uppercase tracking-widest font-semibold">Media społecznościowe</span>
-                <div className="flex flex-wrap gap-3 mt-1.5">
+                <div className="flex flex-wrap gap-3 mt-2">
                   <a
                     href="https://www.instagram.com/hellokostek/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
+                    aria-label="Instagram"
+                    className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#E0115F] hover:text-white transition-all duration-300"
                   >
-                    <InstagramIcon className="w-4 h-4 text-[#E0115F]" />
-                    <span className="hidden sm:inline">Instagram</span>
+                    <InstagramIcon className="w-5 h-5" />
                   </a>
                   <a
                     href="https://www.facebook.com/hellokostek/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
+                    aria-label="Facebook"
+                    className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#1877F2] hover:text-white transition-all duration-300"
                   >
-                    <FacebookIcon className="w-4 h-4 text-[#1877F2]" />
-                    <span className="hidden sm:inline">Facebook</span>
+                    <FacebookIcon className="w-5 h-5" />
                   </a>
                   <a
                     href="https://www.tiktok.com/@hellokostek"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
+                    aria-label="TikTok"
+                    className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-black hover:text-white transition-all duration-300"
                   >
-                    <TiktokIcon className="w-4 h-4 text-black" />
-                    <span className="hidden sm:inline">TikTok</span>
+                    <TiktokIcon className="w-5 h-5" />
                   </a>
                   <a
                     href="https://www.youtube.com/@hellokostek"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 hover:border-[#C4F013] transition-all rounded-xl text-sm font-sans text-gray-800 hover:text-black font-medium"
+                    aria-label="YouTube"
+                    className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650 hover:bg-[#FF0000] hover:text-white transition-all duration-300"
                   >
-                    <YoutubeIcon className="w-4 h-4 text-[#FF0000]" />
-                    <span className="hidden sm:inline">YouTube</span>
+                    <YoutubeIcon className="w-5 h-5" />
                   </a>
                 </div>
                 <span className="text-gray-500 block text-sm mt-2">Zobacz, jak powstają moje prace, i śledź moją codzienność na żywo.</span>

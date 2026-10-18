@@ -33,12 +33,11 @@ class OrderReturnsTable
                     ->iconColor('gray')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('user.name')
+                TextColumn::make('customer_display')
                     ->label('Klient')
+                    ->state(fn (OrderReturn $record): string => $record->user?->name ?? ($record->order ? trim(($record->order->customer_first_name ?? '') . ' ' . ($record->order->customer_last_name ?? '')) : '-'))
                     ->icon('heroicon-o-user')
-                    ->iconColor('gray')
-                    ->searchable()
-                    ->sortable(),
+                    ->iconColor('gray'),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()

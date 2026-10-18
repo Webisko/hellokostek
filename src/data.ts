@@ -4,58 +4,58 @@ export const SHOP_PRODUCTS: Product[] = [
   // --- WATERCOLORS (300 PLN Original, 30 PLN Print) ---
   {
     id: "akwarela-2-2022",
-    title: "Obiekt II",
+    title: "Obiekt 2",
     year: "2022",
     category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
     imageUrl: "/images/Wiecej-o-obiekcie-2-2022-edited-768x768.webp",
-    description: "Subtelna akwarela z cyklu badającego formę i relacje przestrzenne. Delikatne rozmycia i głębokie tony budują melancholijny, intymny nastrój idealny do sypialni lub salonu wypoczynkowego."
+    description: "Rogue planet"
   },
   {
     id: "akwarela-7-2022",
-    title: "Obiekt VII",
+    title: "Obiekt 7",
     year: "2022",
     category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
     imageUrl: "/images/Wiecej-o-obiekcie-7-2022-scaled.webp",
-    description: "Poruszająca kompozycja akwarelowa na grubym papierze bawełnianym. Harmoniczne zestrojenie chłodnych barw z delikatną nutą ciepła emanuje spokojem i wyciszeniem."
+    description: "Rogue planet"
   },
   {
     id: "akwarela-8-2022",
-    title: "Obiekt VIII",
+    title: "Obiekt 8",
     year: "2022",
     category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
     imageUrl: "/images/Wiecej-o-obiekcie-8.webp",
-    description: "Kameralna praca z przewagą organicznych, miękkich kształtów. Urzekający detal, który przyciąga wzrok i zaprasza do codziennej, cichej kontemplacji."
+    description: "Rogue planet"
   },
   {
     id: "akwarela-9-2022",
-    title: "Obiekt IX",
+    title: "Obiekt 9",
     year: "2022",
     category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: true,
     imageUrl: "/images/Wiecej-o-obiekcie-9-2022-scaled.webp",
-    description: "Zmysłowe, płynne przejścia akwarelowe. Praca o silnym ładunku emocjonalnym, zbalansowana lekkim tłem, która doskonale komponuje się z nowoczesnymi oraz klasycznymi wnętrzami."
+    description: "Rogue planet"
   },
   {
     id: "akwarela-13-2022",
-    title: "Obiekt XIII (Sygnowany)",
+    title: "Obiekt 13 (Sygnowany)",
     year: "2022",
     category: "akwarela",
     originalPrice: 300,
     printPrice: 30,
     isOriginalAvailable: false, // Only print as requested: "Dostępne są wydruki powyższych akwareli - 30 zł plus koszt wysyłki plus ta praca..."
     imageUrl: "/images/Wiecej-o-obiekcie-13-2022-scaled.webp",
-    description: "Wyrafinowana kompozycja akwarelowa, dostępna wyłącznie w postaci wysokiej jakości wydruku artystycznego na luksusowym papierze archiwalnym."
+    description: "Rogue planet"
   },
 
   // --- DRAWINGS (200 PLN Original, 20 PLN Print) ---

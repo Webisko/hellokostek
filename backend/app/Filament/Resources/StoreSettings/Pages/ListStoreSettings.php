@@ -14,7 +14,7 @@ class ListStoreSettings extends ListRecords
     {
         parent::mount();
 
-        $record = \App\Models\StoreSetting::firstOrCreate();
+        $record = app(\App\Support\StoreSettings::class)->model();
 
         $this->redirect(StoreSettingResource::getUrl('edit', ['record' => $record]));
     }

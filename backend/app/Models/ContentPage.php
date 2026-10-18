@@ -79,6 +79,17 @@ class ContentPage extends Model
                 }
             }
         });
+
+        static::saved(function (ContentPage $page): void {
+            \Illuminate\Support\Facades\Cache::forget("api.content.page.{$page->slug}");
+            if ($page->wasChanged('slug') && filled($page->getOriginal('slug'))) {
+                \Illuminate\Support\Facades\Cache::forget("api.content.page.{$page->getOriginal('slug')}");
+            }
+        });
+
+        static::deleted(function (ContentPage $page): void {
+            \Illuminate\Support\Facades\Cache::forget("api.content.page.{$page->slug}");
+        });
     }
 
     public function scopePubliclyVisible(Builder $query): Builder

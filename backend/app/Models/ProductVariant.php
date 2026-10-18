@@ -85,6 +85,12 @@ class ProductVariant extends Model
 
     public function lowestPriceInLast30Days(): ?int
     {
+        if (array_key_exists('lowest_price_last_30_days', $this->attributes)) {
+            return $this->attributes['lowest_price_last_30_days'] !== null
+                ? (int) $this->attributes['lowest_price_last_30_days']
+                : $this->currentPriceAmount();
+        }
+
         $price = $this->priceHistories()
             ->where('recorded_at', '>=', now()->subDays(30))
             ->min(\Illuminate\Support\Facades\DB::raw('COALESCE(sale_price_amount, regular_price_amount)'));
@@ -107,6 +113,12 @@ class ProductVariant extends Model
                     'recorded_at' => now(),
                 ]);
             }
+
+            Product::flushCatalogCache($variant->product?->slug);
+        });
+
+        static::deleted(function (ProductVariant $variant): void {
+            Product::flushCatalogCache($variant->product?->slug);
         });
     }
 }

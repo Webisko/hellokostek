@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { Product } from "../types";
+import { parseLocalizedString } from "../utils/localization";
 import { ChevronLeft, Shield, ArrowRight, X, Lock, MapPin, ExternalLink } from "lucide-react";
 import ParcelMapModal, { type SelectedParcelPoint, parseOrlenPointInput } from "./ParcelMapModal";
 
@@ -97,12 +98,30 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     };
   }, [isCheckoutOpen, isLightboxOpen]);
 
-  // Fetch fresh product details from API on mount
+  const [isDynamicLoading, setIsDynamicLoading] = useState(false);
+  const [isProductNotFound, setIsProductNotFound] = useState(false);
+
+  // Fetch fresh product details from API on mount (supports new CMS products via URL slug)
   useEffect(() => {
     const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
-    fetch(`${apiBase}/catalog/products/${product.id}`)
+    const pathSegments = window.location.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+    const urlSlug = pathSegments[pathSegments.length - 1] || product.id;
+    const isDifferentSlug = urlSlug !== product.id && urlSlug !== "sklep";
+    const targetSlug = urlSlug !== "sklep" ? urlSlug : product.id;
+
+    if (isDifferentSlug) {
+      setIsDynamicLoading(true);
+      setIsProductNotFound(false);
+    }
+
+    fetch(`${apiBase}/catalog/products/${encodeURIComponent(targetSlug)}`)
       .then((res) => {
-        if (!res.ok) throw new Error("API response error");
+        if (!res.ok) {
+          if (res.status === 404 && isDifferentSlug) {
+            setIsProductNotFound(true);
+          }
+          throw new Error("API response error");
+        }
         return res.json();
       })
       .then((data) => {
@@ -120,24 +139,40 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           }
 
           const imageUrl = apiProd.featured_image_url || '/images/placeholder.png';
+          const title = parseLocalizedString(apiProd.name) || product.title;
+          const descFromMain = parseLocalizedString(apiProd.description);
+          const descFromShort = parseLocalizedString(apiProd.short_description);
+          const rawDesc = descFromMain !== "" ? descFromMain : descFromShort;
+          const cleanDesc = typeof rawDesc === "string"
+            ? rawDesc.replace(/<[^>]*>/g, "").trim()
+            : "";
 
           setCurrentProduct({
             id: apiProd.slug,
-            title: apiProd.name?.pl || apiProd.name || product.title,
-            year: apiProd.metadata?.year || product.year,
+            title,
+            year: apiProd.metadata?.year || product.year || "2022",
             category,
             originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProd.regular_price_amount / 100),
-            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
-            isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : (category === 'akwarela' ? 30 : 20),
+            isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
             imageUrl,
-            description: apiProd.description?.pl || apiProd.description || product.description,
+            description: cleanDesc,
             originalVariantId: originalVariant?.id,
             printVariantId: printVariant?.id,
+            technique: parseLocalizedString(apiProd.metadata?.technique) || product.technique || undefined,
+            format: parseLocalizedString(apiProd.metadata?.format) || product.format || undefined,
           });
+
+          if (title) {
+            document.title = apiProd.seo_title || `${title} - Sklep hellokostek`;
+          }
         }
       })
       .catch((err) => {
         console.warn("Could not fetch product details from API, using static data fallback:", err);
+      })
+      .finally(() => {
+        setIsDynamicLoading(false);
       });
   }, [product]);
 
@@ -319,6 +354,41 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   const basePath = "";
 
+  if (isDynamicLoading) {
+    return (
+      <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
+        <a
+          href={`${basePath}/sklep`}
+          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-off-black hover:text-magenta-accent transition-all duration-300"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Cofnij do sklepu
+        </a>
+        <div className="py-24 text-center font-mono text-xs uppercase tracking-widest text-gray-400">
+          Wczytywanie dzieła z katalogu...
+        </div>
+      </div>
+    );
+  }
+
+  if (isProductNotFound) {
+    return (
+      <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
+        <a
+          href={`${basePath}/sklep`}
+          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-off-black hover:text-magenta-accent transition-all duration-300"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Cofnij do sklepu
+        </a>
+        <div className="py-24 text-center space-y-4 bg-gray-50 rounded-3xl border border-gray-100">
+          <h1 className="font-display text-3xl text-gray-900">Nie znaleziono wybranego dzieła</h1>
+          <p className="text-sm text-gray-500 font-sans">Wybrany produkt mógł zostać przeniesiony lub wycofany ze sprzedaży.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fadeIn pt-6 md:pt-8 xl:pt-12 2xl:pt-20 pb-16 content-container space-y-8 xl:space-y-16">
       {/* Back to Gallery Path Link */}
@@ -497,14 +567,16 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <div className="border-b border-gray-50 pb-2.5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4">
               <span className="font-semibold text-gray-900 sm:col-span-4">Nośnik bazowy</span>
               <span className="sm:col-span-8 mt-0.5 sm:mt-0">
-                {currentProduct.category === "akwarela" 
+                {currentProduct.technique || (currentProduct.category === "akwarela" 
                   ? "Gruby papier bawełniany Arches 300g/m²" 
-                  : "Wysokiej jakości papier graficzny Canson 220g/m²"}
+                  : "Wysokiej jakości papier graficzny Canson 220g/m²")}
               </span>
             </div>
             <div className="border-b border-gray-50 pb-2.5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4">
               <span className="font-semibold text-gray-900 sm:col-span-4">Format fizyczny</span>
-              <span className="sm:col-span-8 mt-0.5 sm:mt-0">Standardowy 30x40 cm (możliwość zamówienia passe-partout)</span>
+              <span className="sm:col-span-8 mt-0.5 sm:mt-0">
+                {currentProduct.format || "Standardowy 30x40 cm (możliwość zamówienia passe-partout)"}
+              </span>
             </div>
             <div className="border-b border-gray-50 pb-2.5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4">
               <span className="font-semibold text-gray-900 sm:col-span-4">Sygnatura</span>

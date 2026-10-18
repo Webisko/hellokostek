@@ -1,13 +1,23 @@
 ---
+interface Props {
+  defaultEnabled?: boolean;
+}
+const { defaultEnabled = false } = Astro.props;
 const basePath = "";
+const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
 ---
 
-<div id="cookie-banner" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white border border-neutral-200 p-6 rounded-2xl shadow-xl z-50 hidden animate-fadeIn font-sans space-y-4">
+<div
+  id="cookie-banner"
+  data-default-enabled={defaultEnabled ? "true" : "false"}
+  data-api-base={apiBase}
+  class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md bg-white border border-neutral-200 p-6 rounded-2xl shadow-xl z-50 hidden animate-fadeIn font-sans space-y-4"
+>
   <div class="flex items-start gap-3">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-off-black shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg>
     <div class="text-xs text-stone-600 leading-relaxed">
-      <strong class="text-off-black font-semibold block text-sm mb-1">Dbamy o Twoją prywatność</strong>
-      Ta strona korzysta z plików cookies w celu zapewnienia prawidłowego działania koszyka zakupowego, bezpiecznych płatności Stripe oraz analizowania ruchu. Klikając „Zgadzam się”, pozwalasz nam na pełną dbałość o Twoje doświadczenia zakupowe.
+      <strong id="cookie-banner-title" class="text-off-black font-semibold block text-sm mb-1">Dbamy o Twoją prywatność</strong>
+      <span id="cookie-banner-desc">Ta strona korzysta z plików cookies w celu zapewnienia prawidłowego działania koszyka zakupowego, bezpiecznych płatności Stripe oraz analizowania ruchu. Klikając „Zgadzam się”, pozwalasz nam na pełną dbałość o Twoje doświadczenia zakupowe.</span>
     </div>
   </div>
   
@@ -32,15 +42,48 @@ const basePath = "";
 <script>
   const banner = document.getElementById('cookie-banner');
   const acceptBtn = document.getElementById('accept-cookies');
-  
+  const titleEl = document.getElementById('cookie-banner-title');
+  const descEl = document.getElementById('cookie-banner-desc');
+  const announcementBar = document.getElementById('cms-announcement-bar');
+
   if (banner && acceptBtn) {
-    if (localStorage.getItem('hellokostek_cookies') !== 'true') {
+    const apiBase = banner.getAttribute('data-api-base') || 'http://localhost:8000/api';
+    const defaultEnabled = banner.getAttribute('data-default-enabled') === 'true';
+    const alreadyAccepted = localStorage.getItem('hellokostek_cookies') === 'true';
+
+    if (defaultEnabled && !alreadyAccepted) {
       banner.classList.remove('hidden');
     }
-    
+
     acceptBtn.addEventListener('click', () => {
       localStorage.setItem('hellokostek_cookies', 'true');
       banner.classList.add('hidden');
     });
+
+    fetch(`${apiBase}/store/settings`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((settings) => {
+        if (!settings) return;
+        const data = settings.data || settings;
+
+        if (announcementBar && data.announcement_enabled && data.announcement_text) {
+          announcementBar.textContent = data.announcement_text;
+          announcementBar.classList.remove('hidden');
+        }
+
+        if (data.cookie_banner_title && titleEl) {
+          titleEl.textContent = data.cookie_banner_title;
+        }
+        if (data.cookie_banner_description && descEl) {
+          descEl.textContent = data.cookie_banner_description;
+        }
+
+        if (data.cookie_banner_enabled && localStorage.getItem('hellokostek_cookies') !== 'true') {
+          banner.classList.remove('hidden');
+        } else if (data.cookie_banner_enabled === false && !defaultEnabled) {
+          banner.classList.add('hidden');
+        }
+      })
+      .catch(() => {});
   }
 </script>

@@ -18,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(\App\Support\StoreSettings::class);
+
         if (file_exists(base_path('public/index.php'))) {
             $this->app->usePublicPath(base_path('public'));
         } elseif (@file_exists(base_path('../public_html'))) {

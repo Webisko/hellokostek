@@ -7,11 +7,29 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductPriceHistory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
  
 class CatalogController extends Controller
 {
     public function index(\Illuminate\Http\Request $request): JsonResponse
     {
+        $isDefaultQuery = empty($request->query());
+        if ($isDefaultQuery) {
+            $cached = Cache::remember('api.catalog.default', 3600, fn (): array => $this->buildCatalogIndexData($request));
+
+            return response()->json(['data' => $cached]);
+        }
+
+        return response()->json([
+            'data' => $this->buildCatalogIndexData($request),
+        ]);
+    }
+
+    private function buildCatalogIndexData(\Illuminate\Http\Request $request): array
+    {
+        $thirtyDaysAgo = now()->subDays(30)->toDateTimeString();
+
         $query = Product::query()
             ->select('products.*')
             ->selectRaw('COALESCE(
@@ -36,9 +54,18 @@ class CatalogController extends Controller
                           AND h.recorded_at >= ?
                     ) 
                 END) as lowest_price_last_30_days
-            ', [now()->subDays(30)->toDateTimeString(), now()->subDays(30)->toDateTimeString()])
+            ', [$thirtyDaysAgo, $thirtyDaysAgo])
             ->publicCatalog()
-            ->with(['categories:id,name,slug', 'attributeValues.attribute', 'variants.optionValues.option'])
+            ->with([
+                'categories:id,name,slug',
+                'attributeValues.attribute',
+                'variants' => fn ($vq) => $vq
+                    ->with('optionValues.option')
+                    ->withMin(
+                        ['priceHistories as lowest_price_last_30_days' => fn ($hq) => $hq->where('recorded_at', '>=', $thirtyDaysAgo)],
+                        DB::raw('COALESCE(sale_price_amount, regular_price_amount)')
+                    ),
+            ])
             ->withCount(['reviews as approved_reviews_count' => fn ($query) => $query->where('is_approved', true)])
             ->withAvg(['reviews as average_rating' => fn ($query) => $query->where('is_approved', true)], 'rating');
 
@@ -139,59 +166,79 @@ class CatalogController extends Controller
             ->orderBy('name')
             ->get();
 
-        return response()->json([
-            'data' => [
-                'products' => collect($paginated->items())->map(fn (Product $product) => $this->productPayload($product))->all(),
-                'categories' => $categories->map(fn (ProductCategory $category) => [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug,
-                    'description' => $category->description,
-                ])->all(),
-                'pagination' => [
-                    'current_page' => $paginated->currentPage(),
-                    'last_page' => $paginated->lastPage(),
-                    'per_page' => $paginated->perPage(),
-                    'total' => $paginated->total(),
-                    'has_more_pages' => $paginated->hasMorePages(),
-                ]
+        return [
+            'products' => collect($paginated->items())->map(fn (Product $product) => $this->productPayload($product))->all(),
+            'categories' => $categories->map(fn (ProductCategory $category) => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+                'description' => $category->description,
+            ])->all(),
+            'pagination' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+                'has_more_pages' => $paginated->hasMorePages(),
             ],
-        ]);
+        ];
     }
  
     public function show(string $slug): JsonResponse
     {
-        $product = Product::query()
-            ->select('products.*')
-            ->selectRaw('
-                (CASE 
-                    WHEN EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = products.id AND pv.is_active = true) 
-                    THEN (
-                        SELECT MIN(COALESCE(h.sale_price_amount, h.regular_price_amount)) 
-                        FROM product_price_histories h 
-                        WHERE h.product_id = products.id 
-                          AND h.product_variant_id IN (SELECT pv2.id FROM product_variants pv2 WHERE pv2.product_id = products.id AND pv2.is_active = true) 
-                          AND h.recorded_at >= ?
-                    ) 
-                    ELSE (
-                        SELECT MIN(COALESCE(h.sale_price_amount, h.regular_price_amount)) 
-                        FROM product_price_histories h 
-                        WHERE h.product_id = products.id 
-                          AND h.product_variant_id IS NULL 
-                          AND h.recorded_at >= ?
-                    ) 
-                END) as lowest_price_last_30_days
-            ', [now()->subDays(30)->toDateTimeString(), now()->subDays(30)->toDateTimeString()])
-            ->publicCatalog()
-            ->with(['categories:id,name,slug', 'attributeValues.attribute', 'upsells', 'crossSells', 'similarProducts', 'variants.optionValues.option', 'bundleItems.product', 'bundleItems.variant.optionValues.option'])
-            ->withCount(['reviews as approved_reviews_count' => fn ($query) => $query->where('is_approved', true)])
-            ->withAvg(['reviews as average_rating' => fn ($query) => $query->where('is_approved', true)], 'rating')
-            ->where('slug', $slug)
-            ->firstOrFail();
- 
-         return response()->json([
-             'data' => $this->productPayload($product),
-         ]);
+        $payload = Cache::remember("api.catalog.product.{$slug}", 3600, function () use ($slug): ?array {
+            $thirtyDaysAgo = now()->subDays(30)->toDateTimeString();
+
+            $product = Product::query()
+                ->select('products.*')
+                ->selectRaw('
+                    (CASE 
+                        WHEN EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = products.id AND pv.is_active = true) 
+                        THEN (
+                            SELECT MIN(COALESCE(h.sale_price_amount, h.regular_price_amount)) 
+                            FROM product_price_histories h 
+                            WHERE h.product_id = products.id 
+                              AND h.product_variant_id IN (SELECT pv2.id FROM product_variants pv2 WHERE pv2.product_id = products.id AND pv2.is_active = true) 
+                              AND h.recorded_at >= ?
+                        ) 
+                        ELSE (
+                            SELECT MIN(COALESCE(h.sale_price_amount, h.regular_price_amount)) 
+                            FROM product_price_histories h 
+                            WHERE h.product_id = products.id 
+                              AND h.product_variant_id IS NULL 
+                              AND h.recorded_at >= ?
+                        ) 
+                    END) as lowest_price_last_30_days
+                ', [$thirtyDaysAgo, $thirtyDaysAgo])
+                ->publicCatalog()
+                ->with([
+                    'categories:id,name,slug',
+                    'attributeValues.attribute',
+                    'upsells',
+                    'crossSells',
+                    'similarProducts',
+                    'variants' => fn ($vq) => $vq
+                        ->with('optionValues.option')
+                        ->withMin(
+                            ['priceHistories as lowest_price_last_30_days' => fn ($hq) => $hq->where('recorded_at', '>=', $thirtyDaysAgo)],
+                            DB::raw('COALESCE(sale_price_amount, regular_price_amount)')
+                        ),
+                    'bundleItems.product',
+                    'bundleItems.variant.optionValues.option',
+                ])
+                ->withCount(['reviews as approved_reviews_count' => fn ($query) => $query->where('is_approved', true)])
+                ->withAvg(['reviews as average_rating' => fn ($query) => $query->where('is_approved', true)], 'rating')
+                ->where('slug', $slug)
+                ->first();
+
+            return $product ? $this->productPayload($product) : null;
+        });
+
+        abort_if($payload === null, 404);
+
+        return response()->json([
+            'data' => $payload,
+        ]);
     }
  
     private function productPayload(Product $product): array

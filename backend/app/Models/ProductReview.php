@@ -25,6 +25,9 @@ class ProductReview extends Model
     protected static function booted(): void
     {
         static::saving(function (ProductReview $review): void {
+            if (blank($review->customer_email)) {
+                $review->customer_email = 'opinia@hellokostek.pl';
+            }
             if ($review->isDirty('status')) {
                 $review->is_approved = ($review->status === 'publiczny');
             } elseif ($review->isDirty('is_approved')) {

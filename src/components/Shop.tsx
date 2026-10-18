@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { SHOP_PRODUCTS } from "../data";
 import type { Product } from "../types";
+import { parseLocalizedString } from "../utils/localization";
 import { ArrowRight, X, SlidersHorizontal } from "lucide-react";
 
 function mapProduct(apiProduct: any): Product {
@@ -17,19 +18,27 @@ function mapProduct(apiProduct: any): Product {
   }
 
   const imageUrl = apiProduct.featured_image_url || '/images/placeholder.png';
+  const rawDescription = apiProduct.description !== undefined && apiProduct.description !== null && String(parseLocalizedString(apiProduct.description)).trim() !== ""
+    ? parseLocalizedString(apiProduct.description)
+    : parseLocalizedString(apiProduct.short_description);
+  const cleanDescription = typeof rawDescription === "string"
+    ? rawDescription.replace(/<[^>]*>/g, "").trim()
+    : "";
 
   return {
     id: apiProduct.slug,
-    title: apiProduct.name?.pl || apiProduct.name || "",
+    title: parseLocalizedString(apiProduct.name),
     year: apiProduct.metadata?.year || "2022",
     category,
     originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProduct.regular_price_amount / 100),
-    printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
-    isOriginalAvailable: originalVariant ? (originalVariant.stock_quantity > 0) : false,
+    printPrice: printVariant ? (printVariant.regular_price_amount / 100) : (category === 'akwarela' ? 30 : 20),
+    isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
     imageUrl,
-    description: apiProduct.description?.pl || apiProduct.description || "",
+    description: cleanDescription,
     originalVariantId: originalVariant?.id,
     printVariantId: printVariant?.id,
+    technique: parseLocalizedString(apiProduct.metadata?.technique) || undefined,
+    format: parseLocalizedString(apiProduct.metadata?.format) || undefined,
   };
 }
 
@@ -160,58 +169,85 @@ export default function Shop() {
           Brak prac w wybranej kategorii.
         </div>
       ) : (
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 md:gap-8 lg:gap-10 xl:gap-16 pt-2 md:pt-4 xl:pt-6 [column-fill:_balance]">
-          {filteredProducts.map((product) => {
-            return (
-              <a
-                key={product.id}
-                href={`${basePath}/sklep/${product.id}`}
-                className="break-inside-avoid mb-6 md:mb-8 lg:mb-10 xl:mb-16 group flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-500 bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] hover:shadow-lg block"
-              >
-                {/* Image Wrapper */}
-                <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 w-full">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                  
-                  {/* Category Stamp */}
-                  <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-gray-905 text-xs font-mono font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest border border-gray-100 shadow-xs">
-                    {product.category === "akwarela" ? "Akwarela" : "Rysunek"}
-                  </span>
+        <>
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 md:gap-8 lg:gap-10 xl:gap-16 pt-2 md:pt-4 xl:pt-6 [column-fill:_balance]">
+            {filteredProducts.map((product, index) => {
+              const printPriceVal = product.printPrice || (product.category === "akwarela" ? 30 : 20);
+              const badgeLabel = product.isOriginalAvailable
+                ? product.category === "akwarela"
+                  ? "AKWARELA / WYDRUK"
+                  : "RYSUNEK / WYDRUK"
+                : "WYDRUK";
 
-                  {/* Year Tag */}
-                  <span className="absolute bottom-4 right-4 bg-gray-950 text-white text-xs font-mono px-3 py-1.5 rounded-lg font-medium tracking-widest uppercase">
-                    {product.year}
-                  </span>
-                </div>
+              return (
+                <a
+                  key={product.id}
+                  href={`${basePath}/sklep/${product.id}`}
+                  className="break-inside-avoid mb-6 md:mb-8 lg:mb-10 xl:mb-16 group flex flex-col justify-between space-y-4 cursor-pointer transition-all duration-500 bg-white border border-gray-55 hover:border-gray-200 p-4 rounded-[28px] hover:shadow-lg block"
+                >
+                  {/* Image Wrapper */}
+                  <div className="relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 w-full">
+                    <img
+                      src={product.imageUrl}
+                      alt={product.title}
+                      loading={index < 3 ? "eager" : "lazy"}
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-auto block transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    
+                    {/* Category Stamp */}
+                    <span className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-gray-905 text-xs font-mono font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest border border-gray-100 shadow-xs">
+                      {badgeLabel}
+                    </span>
 
-                {/* Info block */}
-                <div className="space-y-2 px-1">
-                  <div className="flex justify-between items-baseline gap-4">
-                    <h3 className="font-display text-lg sm:text-xl text-gray-900 group-hover:text-[#E0115F] transition-colors leading-snug">
-                      {product.title}
-                    </h3>
-                    <span className="font-mono text-sm text-[#E0115F] font-bold shrink-0">
-                      od {product.category === "akwarela" ? "30 zł" : "20 zł"}
+                    {/* Year Tag */}
+                    <span className="absolute bottom-4 right-4 bg-gray-950 text-white text-xs font-mono px-3 py-1.5 rounded-lg font-medium tracking-widest uppercase">
+                      {product.year}
                     </span>
                   </div>
-                  
-                  <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
-                    {product.description}
-                  </p>
 
-                  <div className="inline-flex items-center gap-1.5 pt-2 text-xs font-mono font-bold uppercase tracking-widest text-gray-450 group-hover:text-[#E0115F] transition-colors">
-                    Szczegóły 
-                    <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                  {/* Info block */}
+                  <div className="space-y-2 px-1">
+                    <div className="flex flex-col gap-1">
+                      <h3 className="font-display text-lg sm:text-xl text-gray-900 group-hover:text-[#E0115F] transition-colors leading-snug">
+                        {product.title}
+                      </h3>
+                      <span className="font-mono text-xs sm:text-sm text-[#E0115F] font-bold">
+                        {product.isOriginalAvailable
+                          ? `Oryginał: ${product.originalPrice} zł • Wydruk: ${printPriceVal} zł`
+                          : `Wydruk: ${printPriceVal} zł (Oryginał sprzedany)`}
+                      </span>
+                    </div>
+                    
+                    {product.description && (
+                      <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+                        {product.description}
+                      </p>
+                    )}
+
+                    <div className="inline-flex items-center gap-1.5 pt-2 text-xs font-mono font-bold uppercase tracking-widest text-gray-450 group-hover:text-[#E0115F] transition-colors">
+                      Szczegóły 
+                      <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
-                </div>
-              </a>
-            );
-          })}
-        </div>
+                </a>
+              );
+            })}
+          </div>
+
+          {/* Cennik podsumowujący pod pracami */}
+          <div className="bg-stone-50/80 border border-stone-200/80 rounded-2xl p-6 text-center space-y-2">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold">
+              Informacja o cenach wariantów
+            </p>
+            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+              Każda z prac dostępna jest w karcie produktu w dwóch wariantach:{" "}
+              <strong className="text-gray-950">Akwarela</strong> – oryginał <strong className="text-gray-950">300 zł</strong> / wydruk <strong className="text-gray-950">30 zł</strong>{" "}
+              oraz <strong className="text-gray-950">Rysunek</strong> – oryginał <strong className="text-gray-950">200 zł</strong> / wydruk <strong className="text-gray-950">20 zł</strong>.
+            </p>
+          </div>
+        </>
       )}
       {/* Filter Drawer (Off-Canvas Menu) */}
       {isMounted && createPortal(

@@ -51,17 +51,16 @@ class OrderReturnForm
                             ->content(fn ($record) => $record?->order?->number ?? '-')
                             ->visible(fn ($context) => $context !== 'create'),
 
-                        // Wybór klienta (tylko przy tworzeniu)
+                        // Wybór klienta (opcjonalny dla zamówień gości)
                         Select::make('user_id')
-                            ->label('Klient')
+                            ->label('Klient (konto)')
                             ->relationship('user', 'name', fn ($query) => $query->where('role', \App\Domain\Commerce\Enums\UserRole::Customer))
-                            ->required()
                             ->searchable()
                             ->preload()
                             ->visible(fn ($context) => $context === 'create'),
                         Placeholder::make('user_name')
                             ->label('Klient')
-                            ->content(fn ($record) => $record?->user?->name ?? '-')
+                            ->content(fn ($record) => $record?->user?->name ?? ($record?->order ? trim(($record->order->customer_first_name ?? '') . ' ' . ($record->order->customer_last_name ?? '')) : '-'))
                             ->visible(fn ($context) => $context !== 'create'),
 
                         TextInput::make('refund_amount')

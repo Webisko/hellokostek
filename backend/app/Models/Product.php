@@ -312,7 +312,24 @@ class Product extends Model
                     'recorded_at' => now(),
                 ]);
             }
+
+            static::flushCatalogCache($product->slug);
+            if ($product->wasChanged('slug')) {
+                static::flushCatalogCache($product->getOriginal('slug'));
+            }
         });
+
+        static::deleted(function (Product $product): void {
+            static::flushCatalogCache($product->slug);
+        });
+    }
+
+    public static function flushCatalogCache(?string $slug = null): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('api.catalog.default');
+        if (filled($slug)) {
+            \Illuminate\Support\Facades\Cache::forget("api.catalog.product.{$slug}");
+        }
     }
 
     public function priceHistories(): HasMany
@@ -530,5 +547,19 @@ class Product extends Model
                 'stock_quantity' => 0,
             ]);
         }
+
+        $metadata = is_array($product->metadata) ? $product->metadata : [];
+        $metadata['original_available'] = $hasOriginal && (($originalStock ?? 1) > 0);
+        if ($printPrice !== null && $printPrice > 0) {
+            $metadata['print_price_cents'] = $printPrice;
+        }
+        if ($hasOriginal && isset($originalPrice) && $originalPrice > 0) {
+            $metadata['original_price_cents'] = $originalPrice;
+        }
+        $product->updateQuietly([
+            'metadata' => $metadata,
+        ]);
+
+        static::flushCatalogCache($product->slug);
     }
 }

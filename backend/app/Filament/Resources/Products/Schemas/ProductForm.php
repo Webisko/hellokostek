@@ -37,107 +37,105 @@ class ProductForm
                                 Group::make()
                                     ->columns(2)
                                     ->schema([
-                                        Select::make('type')
-                                            ->label('Typ produktu')
-                                            ->options(ProductResource::typeOptions())
+                                        \Filament\Forms\Components\Hidden::make('type')
+                                            ->default(\App\Domain\Commerce\Enums\ProductType::Physical->value),
+                                        TextInput::make('name')
+                                            ->label('Tytuł pracy / Nazwa produktu')
+                                            ->placeholder('np. Obiekt 2')
                                             ->required()
-                                            ->native(false),
+                                            ->maxLength(255)
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(function (string $operation, Get $get, Set $set, ?string $old, ?string $state): void {
+                                                if ($operation !== 'create') {
+                                                    return;
+                                                }
+                                                $oldSlug = Str::slug((string) $old);
+                                                $newSlug = Str::slug((string) $state);
+                                                if (($get('slug') ?? '') === '' || ($get('slug') ?? '') === $oldSlug) {
+                                                    $set('slug', $newSlug);
+                                                }
+                                                $oldSku = Str::upper($oldSlug);
+                                                if (($get('sku') ?? '') === '' || ($get('sku') ?? '') === $oldSku) {
+                                                    $set('sku', Str::upper($newSlug));
+                                                }
+                                            })
+                                            ->columnSpanFull(),
+                                        Select::make('categories')
+                                            ->label('Kategoria (Akwarela / Rysunek)')
+                                            ->multiple()
+                                            ->relationship(titleAttribute: 'name')
+                                            ->preload()
+                                            ->searchable(),
+                                        TextInput::make('metadata.year')
+                                            ->label('Rok powstania')
+                                            ->placeholder('np. 2024')
+                                            ->default((string) date('Y'))
+                                            ->maxLength(16),
+                                        TextInput::make('metadata.technique')
+                                            ->label('Technika wykonania')
+                                            ->placeholder('np. Akwarela na papierze bawełnianym')
+                                            ->datalist([
+                                                'Akwarela na papierze bawełnianym',
+                                                'Rysunek ołówkiem i cienkopisem',
+                                                'Ołówek na papierze',
+                                                'Cienkopis na papierze',
+                                                'Olej na płótnie',
+                                                'Akryl na płótnie',
+                                            ])
+                                            ->maxLength(255),
+                                        TextInput::make('metadata.format')
+                                            ->label('Format / Wymiary')
+                                            ->placeholder('np. A4 (21 x 29,7 cm)')
+                                            ->datalist([
+                                                'A4 (21 x 29,7 cm)',
+                                                'A3 (29,7 x 42 cm)',
+                                                '30x40 cm',
+                                                '40x50 cm',
+                                                '50x70 cm',
+                                            ])
+                                            ->maxLength(100),
                                         TextInput::make('slug')
                                             ->label('Adres URL (slug)')
                                             ->required()
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true),
                                         TextInput::make('sku')
-                                            ->label('SKU')
+                                            ->label('Kod bazowy SKU')
+                                            ->placeholder('Generowany automatycznie z nazwy')
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true),
-                                        Select::make('categories')
-                                            ->label('Kategorie')
-                                            ->multiple()
-                                            ->relationship(titleAttribute: 'name')
-                                            ->preload()
-                                            ->searchable()
+                                        Textarea::make('description')
+                                            ->label('Opis pracy (wyświetlany na karcie produktu i w sklepie)')
+                                            ->placeholder('np. Rogue planet')
+                                            ->rows(4)
                                             ->columnSpanFull(),
-                                        TextInput::make('name')
-                                            ->label('Nazwa')
-                                            ->required()
-                                            ->maxLength(255)
-                                            ->live(onBlur: true)
-                                            ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state): void {
-                                                if (($get('slug') ?? '') !== Str::slug((string) $old)) {
-                                                    return;
-                                                }
-                                                $set('slug', Str::slug((string) $state));
-                                            })
-                                            ->columnSpanFull(),
-                                        RichEditor::make('short_description')
-                                            ->label('Krótki opis')
-                                            ->columnSpanFull(),
-                                        RichEditor::make('description')
-                                            ->label('Opis')
+                                        Textarea::make('short_description')
+                                            ->label('Krótki opis pomocniczy (opcjonalnie)')
+                                            ->rows(2)
                                             ->columnSpanFull(),
                                     ]),
                                 Group::make()
-                                    ->visible(fn (Get $get): bool => $get('type') === \App\Domain\Commerce\Enums\ProductType::Bundle->value)
+                                    ->columns(3)
                                     ->schema([
-                                        Repeater::make('bundleItems')
-                                            ->relationship('bundleItems')
-                                            ->label('Produkty wchodzące w skład zestawu')
-                                            ->orderColumn('sort_order')
-                                            ->columns(2)
-                                            ->schema([
-                                                Select::make('product_id')
-                                                    ->label('Produkt')
-                                                    ->options(fn (Get $get) => \App\Models\Product::query()
-                                                        ->where('type', '!=', \App\Domain\Commerce\Enums\ProductType::Bundle->value)
-                                                        ->where('id', '!=', $get('../../id'))
-                                                        ->pluck('name', 'id')
-                                                    )
-                                                    ->searchable()
-                                                    ->preload()
-                                                    ->required()
-                                                    ->native(false),
-                                                TextInput::make('quantity')
-                                                    ->label('Ilość w zestawie')
-                                                    ->numeric()
-                                                    ->default(1)
-                                                    ->minValue(1)
-                                                    ->required(),
-                                            ])
-                                            ->defaultItems(1)
-                                            ->columnSpanFull(),
-                                    ]),
-                                Group::make()
-                                    ->columns(2)
-                                    ->schema([
-                                        Toggle::make('manages_stock')
-                                            ->label('Zarzadzaj stanem magazynowym')
-                                            ->live()
-                                            ->visible(fn (Get $get): bool => $get('type') !== \App\Domain\Commerce\Enums\ProductType::Bundle->value),
-                                        TextInput::make('stock_quantity')
-                                            ->label('Stan magazynowy')
-                                            ->numeric()
-                                            ->visible(fn (Get $get): bool => (bool) $get('manages_stock') && $get('type') !== \App\Domain\Commerce\Enums\ProductType::Bundle->value),
-                                        \Filament\Forms\Components\Placeholder::make('bundle_stock_info')
-                                            ->label('Stan magazynowy zestawu')
-                                            ->content('Stan magazynowy tego zestawu jest wyliczany dynamicznie na podstawie dostępności produktów składowych.')
-                                            ->visible(fn (Get $get): bool => $get('type') === \App\Domain\Commerce\Enums\ProductType::Bundle->value)
-                                            ->columnSpan(2),
+                                        \Filament\Forms\Components\Hidden::make('manages_stock')
+                                            ->default(true),
+                                        \Filament\Forms\Components\Hidden::make('stock_quantity')
+                                            ->default(999),
                                         Toggle::make('is_active')
                                             ->label('Aktywny')
                                             ->default(true),
                                         Toggle::make('is_visible')
-                                            ->label('Widoczny w katalogu')
+                                            ->label('Widoczny w sklepie')
                                             ->default(true),
                                         Toggle::make('is_purchasable')
-                                            ->label('Mozliwy do zakupu')
+                                            ->label('Możliwy do zakupu')
                                             ->default(true),
                                     ]),
                             ]),
                         Tabs\Tab::make('Ceny i Warianty')
                             ->schema([
                                 Section::make('Warianty Sklepu (Wydruk & Praca Oryginalna)')
-                                    ->description('Wprowadź ceny i dostępność dla wydruku oraz oryginalnej pracy artystycznej.')
+                                    ->description('Wprowadź ceny i dostępność dla wydruku kolekcjonerskiego oraz oryginalnej pracy artystycznej.')
                                     ->columns(2)
                                     ->schema([
                                         Group::make()
@@ -146,7 +144,9 @@ class ProductForm
                                                     ->schema([
                                                         TextInput::make('print_regular_price')
                                                             ->label('Cena wydruku (PLN)')
+                                                            ->placeholder('np. 30 (akwarela) lub 20 (rysunek)')
                                                             ->numeric()
+                                                            ->default(30)
                                                             ->required()
                                                             ->minValue(0)
                                                             ->afterStateHydrated(function (TextInput $component, $record) {
@@ -157,7 +157,7 @@ class ProductForm
                                                                 }
                                                             }),
                                                         TextInput::make('print_stock_quantity')
-                                                            ->label('Stan magazynowy wydruków')
+                                                            ->label('Dostępna pula wydruków')
                                                             ->numeric()
                                                             ->default(999)
                                                             ->afterStateHydrated(function (TextInput $component, $record) {
@@ -184,6 +184,7 @@ class ProductForm
                                                             }),
                                                         TextInput::make('original_regular_price')
                                                             ->label('Cena pracy oryginalnej (PLN)')
+                                                            ->placeholder('np. 300 (akwarela) lub 200 (rysunek)')
                                                             ->numeric()
                                                             ->minValue(0)
                                                             ->visible(fn (Get $get) => (bool) $get('has_original'))
@@ -208,7 +209,9 @@ class ProductForm
                                                     ]),
                                             ]),
                                     ]),
-                                Section::make('Ustawienia cenowe i logistyka')
+                                Section::make('Zaawansowane ustawienia księgowe')
+                                    ->collapsible()
+                                    ->collapsed()
                                     ->columns(2)
                                     ->schema([
                                         TextInput::make('regular_price_amount')
@@ -242,185 +245,55 @@ class ProductForm
                                             ->default(app(StoreSettings::class)->currency())
                                             ->minLength(3)
                                             ->maxLength(3),
-                                        TextInput::make('weight')
-                                            ->label('Waga (kg)')
-                                            ->numeric()
-                                            ->step(0.001)
-                                            ->minValue(0),
                                         DateTimePicker::make('published_at')
                                             ->label('Publikacja od'),
                                     ]),
                             ]),
-                        Tabs\Tab::make('Media i Promocja')
+                        Tabs\Tab::make('Zdjęcia produktu')
                             ->schema([
                                 Group::make()
                                     ->schema([
                                         FileUpload::make('featured_image_path')
-                                            ->label('Glowny obraz produktu')
+                                            ->label('Główny obraz pracy')
                                             ->disk('public')
                                             ->directory('products')
                                             ->visibility('public')
                                             ->image()
                                             ->imageEditor()
+                                            ->imageResizeMode('contain')
+                                            ->imageResizeTargetWidth('1920')
+                                            ->imageResizeTargetHeight('1920')
+                                            ->imageResizeUpscale(false)
+                                            ->maxSize(15360)
                                             ->columnSpanFull(),
                                         TextInput::make('metadata.featured_image_alt')
                                             ->label('Tekst alternatywny głównego obrazu (alt)')
-                                            ->placeholder('np. Buty sportowe Nike Air Max w kolorze czarnym')
+                                            ->placeholder('np. Obiekt 2 – oryginalna akwarela z serii Kosmos, Maciej Kosteczka')
                                             ->maxLength(255)
                                             ->columnSpanFull(),
-                                        FileUpload::make('hover_image_path')
-                                            ->label('Drugi obraz produktu (na hover)')
-                                            ->disk('public')
-                                            ->directory('products')
-                                            ->visibility('public')
-                                            ->image()
-                                            ->imageEditor()
-                                            ->columnSpanFull(),
                                         FileUpload::make('gallery_image_paths')
-                                            ->label('Galeria zdjęć produktu')
+                                            ->label('Dodatkowe zdjęcia pracy (detale, oprawa)')
                                             ->disk('public')
                                             ->directory('products/gallery')
                                             ->visibility('public')
                                             ->image()
+                                            ->imageResizeMode('contain')
+                                            ->imageResizeTargetWidth('1920')
+                                            ->imageResizeTargetHeight('1920')
+                                            ->imageResizeUpscale(false)
+                                            ->maxSize(15360)
                                             ->multiple()
                                             ->reorderable()
                                             ->columnSpanFull(),
                                     ]),
-                                Group::make()
-                                    ->columns(2)
-                                    ->schema([
-                                        Toggle::make('is_new')
-                                            ->label('Nowosc'),
-                                        Toggle::make('is_bestseller')
-                                            ->label('Bestseller'),
-                                        Toggle::make('is_recommended')
-                                            ->label('Polecany'),
-                                        Toggle::make('is_promoted')
-                                            ->label('Promocja'),
-                                        Toggle::make('is_seasonal')
-                                            ->label('Sezonowy'),
-                                        Toggle::make('is_clearance')
-                                            ->label('Wyprzedaz'),
-                                        Toggle::make('show_on_homepage')
-                                            ->label('Pokaz na stronie glownej'),
-                                        Toggle::make('show_in_bestsellers')
-                                            ->label('Pokaz w sekcji bestsellerow'),
-                                        Toggle::make('show_in_new_arrivals')
-                                            ->label('Pokaz w sekcji nowosci'),
-                                        Toggle::make('show_in_recommended')
-                                            ->label('Pokaz w sekcji polecanych'),
-                                        TagsInput::make('manual_tags')
-                                            ->label('Reczne tagi')
-                                            ->placeholder('Dodaj tag')
-                                            ->columnSpanFull(),
-                                    ]),
                             ]),
-                        Tabs\Tab::make('Powiązania')
+                        Tabs\Tab::make('SEO')
                             ->schema([
-                                Group::make()
-                                    ->schema([
-                                        Repeater::make('productRelations')
-                                            ->relationship()
-                                            ->label('Powiązane produkty')
-                                            ->orderColumn('sort_order')
-                                            ->columns(2)
-                                            ->schema([
-                                                Select::make('related_product_id')
-                                                    ->label('Produkt powiązany')
-                                                    ->options(fn () => \App\Models\Product::query()->pluck('name', 'id'))
-                                                    ->searchable()
-                                                    ->preload()
-                                                    ->required()
-                                                    ->native(false),
-                                                Select::make('relation_type')
-                                                    ->label('Typ relacji')
-                                                    ->options([
-                                                        'similar' => 'Podobny',
-                                                        'upsell' => 'Up-sell',
-                                                        'cross_sell' => 'Cross-sell',
-                                                    ])
-                                                    ->required()
-                                                    ->native(false),
-                                            ])
-                                            ->defaultItems(0)
-                                            ->columnSpanFull(),
-                                    ]),
-                            ]),
-                        Tabs\Tab::make('Zgodność i SEO')
-                            ->schema([
-                                Group::make()
-                                    ->columns(2)
-                                    ->schema([
-                                        TextInput::make('gpsr_manufacturer_name')
-                                            ->label('Nazwa producenta')
-                                            ->maxLength(255),
-                                        TextInput::make('gpsr_manufacturer_email')
-                                            ->label('E-mail/WWW producenta')
-                                            ->maxLength(255),
-                                        Textarea::make('gpsr_manufacturer_address')
-                                            ->label('Adres pocztowy producenta')
-                                            ->columnSpanFull()
-                                            ->rows(2),
-                                        TextInput::make('gpsr_responsible_name')
-                                            ->label('Osoba odpowiedzialna w UE (Nazwa)')
-                                            ->placeholder('Wymagane dla producentów spoza UE')
-                                            ->maxLength(255),
-                                        TextInput::make('gpsr_responsible_email')
-                                            ->label('E-mail/WWW osoby odpowiedzialnej')
-                                            ->maxLength(255),
-                                        Textarea::make('gpsr_responsible_address')
-                                            ->label('Adres pocztowy osoby odpowiedzialnej')
-                                            ->columnSpanFull()
-                                            ->rows(2),
-                                        Textarea::make('gpsr_safety_warnings')
-                                            ->label('Ostrzeżenia i informacje o ryzyku')
-                                            ->placeholder('Wielojęzyczne teksty ostrzegawcze')
-                                            ->columnSpanFull()
-                                            ->rows(4),
-                                        FileUpload::make('gpsr_document_path')
-                                            ->label('Dokumenty towarzyszące (instrukcje obsługi, deklaracje CE) - PDF')
-                                            ->disk('public')
-                                            ->directory('products/documents')
-                                            ->visibility('public')
-                                            ->acceptedFileTypes(['application/pdf'])
-                                            ->columnSpanFull(),
-                                    ]),
-                                Group::make()
-                                    ->columns(2)
-                                    ->schema([
-                                        TextInput::make('digital_compatibility')
-                                            ->label('Kompatybilność systemowa')
-                                            ->placeholder('np. Windows 11, macOS Big Sur, iOS 16+')
-                                            ->maxLength(255),
-                                        TextInput::make('digital_interoperability')
-                                            ->label('Interoperacyjność')
-                                            ->placeholder('np. Działa z czytnikami Kindle, Adobe Digital Editions')
-                                            ->maxLength(255),
-                                        TextInput::make('digital_drm')
-                                            ->label('System zabezpieczeń (DRM)')
-                                            ->placeholder('np. Brak DRM, Adobe DRM')
-                                            ->maxLength(255),
-                                        TextInput::make('digital_updates_info')
-                                            ->label('Informacje o aktualizacjach')
-                                            ->placeholder('np. Bezpłatne aktualizacje przez 12 miesięcy')
-                                            ->maxLength(255),
-                                    ]),
-                                Group::make()
-                                    ->schema([
-                                        Toggle::make('is_ai_generated')
-                                            ->label('Produkt/Media wygenerowane przez AI')
-                                            ->reactive()
-                                            ->default(false),
-                                        Textarea::make('ai_disclosure_text')
-                                            ->label('Nota o udostępnieniu AI')
-                                            ->placeholder('np. Zdjęcia modeli prezentujących produkt lub opis zostały wygenerowane przy pomocy sztucznej inteligencji.')
-                                            ->visible(fn (Get $get) => (bool) $get('is_ai_generated'))
-                                            ->columnSpanFull(),
-                                    ]),
                                 Group::make()
                                     ->schema([
                                         TextInput::make('seo_title')
-                                            ->label('Tytul SEO')
+                                            ->label('Tytuł SEO')
+                                            ->placeholder('Pozostaw puste, aby użyć nazwy pracy')
                                             ->maxLength(255),
                                         Textarea::make('seo_description')
                                             ->label('Opis SEO')
@@ -428,26 +301,6 @@ class ProductForm
                                         Toggle::make('is_noindex')
                                             ->label('Zablokuj indeksowanie tego produktu (noindex)')
                                             ->default(false),
-                                        TextInput::make('metadata.og_title')
-                                            ->label('Tytuł Open Graph (og:title)')
-                                            ->placeholder('Pozostaw puste, aby użyć Tytułu SEO')
-                                            ->maxLength(255),
-                                        Textarea::make('metadata.og_description')
-                                            ->label('Opis Open Graph (og:description)')
-                                            ->placeholder('Pozostaw puste, aby użyć Opisu SEO')
-                                            ->rows(3),
-                                        FileUpload::make('metadata.og_image_path')
-                                            ->label('Obraz Open Graph (og:image)')
-                                            ->disk('public')
-                                            ->directory('seo/og')
-                                            ->visibility('public')
-                                            ->image()
-                                            ->imageEditor(),
-                                        KeyValue::make('metadata')
-                                            ->label('Metadane')
-                                            ->keyLabel('Klucz')
-                                            ->valueLabel('Wartosc')
-                                            ->columnSpanFull(),
                                     ]),
                             ]),
                     ])

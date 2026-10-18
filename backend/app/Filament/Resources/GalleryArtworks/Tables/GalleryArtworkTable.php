@@ -40,11 +40,12 @@ class GalleryArtworkTable
 
                 TextColumn::make('technique')
                     ->label('Technika')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable()
+                    ->toggleable(),
 
                 TextColumn::make('format')
                     ->label('Format')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
 
                 TextColumn::make('year')
                     ->label('Rok')

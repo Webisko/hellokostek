@@ -72,3 +72,12 @@
   Header set X-Frame-Options "SAMEORIGIN"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
+
+# 4. DYNAMIC CMS PRODUCT FALLBACK ROUTING FOR /sklep/{slug}
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^sklep/[^/]+/?$ /sklep/akwarela-2-2022/index.html [L]
+</IfModule>

@@ -24,6 +24,8 @@ class QuoteController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.slug' => ['required', 'string'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.variant_id' => ['nullable', 'integer'],
+            'items.*.product_variant_id' => ['nullable', 'integer'],
             'customer_segment' => ['nullable', 'string', Rule::in(array_map(
                 static fn (CustomerSegment $segment) => $segment->value,
                 CustomerSegment::cases(),

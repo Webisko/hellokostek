@@ -1,9 +1,107 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 
-const maciejImg = "/images/o_mnie_nowe.webp";
+const DEFAULT_SUBTITLE = "Aktor • Tancerz • Malarz • Rocznik ‘88";
+const DEFAULT_TITLE = "Kostek Maciej Kosteczka";
+const DEFAULT_QUOTE =
+  "„Wydawać się może, że klasyczne malarstwo i sztuka figuratywna bardzo ograniczają twórcę, ale stosując zasady z improwizacji w teatrze, że: „gdzie są ograniczenia, tam jest najwięcej wolności”, szukam wolności w malarstwie realistycznym.”";
+const DEFAULT_BOX_TITLE = "Dlaczego malarstwo tradycyjne?";
+const DEFAULT_BOX_TEXT =
+  "Wierzę, że w dobie sztucznej inteligencji i fotografii cyfrowej to właśnie tradycyjne malarstwo i sztuka użytkowa mają największą wartość sentymentalną. W końcu za każdym stworzonym przeze mnie dziełem stoją godziny pracy nad detalami i serce włożone w proces twórczy.";
+const DEFAULT_CONTENT = [
+  "Ukończył Państwową Wyższą Szkołę Teatralną w Krakowie na Wydziale Teatru Tańca w Bytomiu. Kulturoznawca po UŚ w Katowicach. Uczestnik International Summer Program – stypendium Roberta Wilsona w Watermill Center w Nowym Jorku. Pracował w Teatrze Tańca i Ruchu Rozbark, a w ramach Festiwalu Maltaw przy projekcie „Ksenofonia Symfonia dla Innego” oraz współtworzył spektakl „A co gdyby” na rezydencji Gdańskiego Festiwalu Tańca. Od lat współpracuje z Teatrem w Ruchu grając spektakle dla dzieci w całym kraju. Ex-pracownik korporacji.",
+  "Równolegle: malarz, grafik i twórca rękodzieła – od 2023 roku prowadzi własną działalność: hellokostek tworząc obrazy olejne na zamówienie i ucząc aktorstwa, i rysunku. Od 2020 roku szkoli się pod okiem Pauliny Kwietniewskiej (malarstwo) i Macieja Kusa (rzeźba).",
+  "Wystawy indywidualne: „SIEWIERZ-513W13R2”, 2017, Hotel Natura Residence, Siewierz; „Rogue Planet”, 2022, Klubokawiarnia KIPISZ, Łódź.",
+  "Wystawy zbiorowe: „Spotkanie na czerwonej kanapie - jak rzeźba wrocławska czuje się w Łodzi”, 2025, OFF Piotrkowska, Łódź.",
+  "Prace artysty dostępne są w galerii Two Of Art w Amsterdamie oraz na aukcjach organizowanych przez galerię Pragaleria w Warszawie.",
+].join("\n\n");
+const DEFAULT_IMAGE = "/images/o_mnie_nowe.webp";
+const DEFAULT_CTA_TITLE = "Podoba Ci się moja twórczość?";
+const DEFAULT_CTA_TEXT =
+  "Zamów swój własny, unikalny portret ze zdjęcia lub zapoznaj się z gotowymi dziełami malarskimi dostępnymi w moim sklepie.";
+
+function formatAboutTitle(rawTitle: string) {
+  const trimmed = rawTitle.trim();
+  const match = trimmed.match(/^(kostek)(?:\s*(?:[—–\-]\s*)?|\s+)(maciej\s+kosteczka)$/i);
+  if (match) {
+    return (
+      <>
+        <span className="text-gray-900 font-normal">Kostek</span>{" "}
+        <span className="text-[#E0115F] font-semibold">Maciej Kosteczka</span>
+      </>
+    );
+  }
+  return rawTitle;
+}
 
 export default function AboutMe() {
+  const [subtitle, setSubtitle] = useState<string>(DEFAULT_SUBTITLE);
+  const [title, setTitle] = useState<string>(DEFAULT_TITLE);
+  const [quote, setQuote] = useState<string>(DEFAULT_QUOTE);
+  const [boxTitle, setBoxTitle] = useState<string>(DEFAULT_BOX_TITLE);
+  const [boxText, setBoxText] = useState<string>(DEFAULT_BOX_TEXT);
+  const [ctaTitle, setCtaTitle] = useState<string>(DEFAULT_CTA_TITLE);
+  const [ctaText, setCtaText] = useState<string>(DEFAULT_CTA_TEXT);
+  const [content, setContent] = useState<string>(DEFAULT_CONTENT);
+  const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE);
+
+  useEffect(() => {
+    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/content/pages/o-mnie`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API network error");
+        return res.json();
+      })
+      .then((payload) => {
+        const page = payload.data?.page;
+        if (page) {
+          if (page.metadata?.subtitle) {
+            setSubtitle(page.metadata.subtitle);
+          }
+          if (page.title) {
+            setTitle(page.title);
+          }
+          if (typeof page.excerpt === "string" && page.excerpt.trim() !== "" && !page.excerpt.includes("Wierzę, że w dobie")) {
+            setQuote(page.excerpt.trim());
+          } else if (page.metadata?.quote) {
+            setQuote(page.metadata.quote);
+          }
+          if (page.metadata?.box_title) {
+            setBoxTitle(page.metadata.box_title);
+          }
+          if (page.metadata?.box_text) {
+            setBoxText(page.metadata.box_text);
+          } else if (typeof page.excerpt === "string" && page.excerpt.includes("Wierzę, że w dobie")) {
+            setBoxText(page.excerpt.trim());
+          }
+          if (page.metadata?.cta_title) {
+            setCtaTitle(page.metadata.cta_title);
+          }
+          if (page.metadata?.cta_text) {
+            setCtaText(page.metadata.cta_text);
+          }
+          if (typeof page.content === "string" && page.content.trim() !== "") {
+            setContent(page.content.trim());
+          }
+          if (page.hero_image_url) {
+            let resolvedImg = page.hero_image_url;
+            if (typeof resolvedImg === "string" && resolvedImg.includes("/storage/images/")) {
+              resolvedImg = resolvedImg.replace("/storage/images/", "/images/");
+            }
+            setImageUrl(resolvedImg);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback to static content seamlessly
+      });
+  }, []);
+
+  const isHtmlContent = /<\/?[a-z][\s\S]*>/i.test(content);
+  const paragraphs = !isHtmlContent
+    ? content.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
+    : [];
+
   const basePath = "";
   return (
     <div className="animate-fadeIn pt-12 md:pt-20 lg:pt-16 xl:pt-12 2xl:pt-20 pb-16 space-y-16 md:space-y-24 lg:space-y-20 xl:space-y-16 2xl:space-y-24">
@@ -13,45 +111,74 @@ export default function AboutMe() {
         <div className="lg:col-span-7">
           {/* Editorial Magazine Hero Header */}
           <div className="border-b border-gray-100 pb-12 mb-12">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-4">
-              Artysta • Malarz • Łódź
-            </span>
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-gray-900 tracking-tight leading-[1.05] font-normal mb-8">
-              Kostek Maciej Kosteczka
+            {subtitle && (
+              <span className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-semibold block mb-4">
+                {subtitle}
+              </span>
+            )}
+            <h1 className="font-display text-[1.6rem] xs:text-[1.85rem] sm:text-4xl md:text-[2.6rem] lg:text-[2.5rem] xl:text-[3.15rem] 2xl:text-[3.5rem] text-gray-900 tracking-tight leading-tight font-normal mb-8 whitespace-nowrap overflow-hidden text-ellipsis">
+              {formatAboutTitle(title)}
             </h1>
-            <p className="font-sans italic text-gray-650 text-xl sm:text-2xl pl-6 border-l-4 border-[#E0115F] leading-relaxed">
-              „Teatr daje możliwość przeżycia czegoś niepowtarzalnego tu i teraz, a malarstwo pozwala zatrzymać tę ulotną chwilę na zawsze.”
-            </p>
+            {quote && (
+              <p className="font-sans italic text-gray-650 text-xl sm:text-2xl pl-6 border-l-4 border-[#E0115F] leading-relaxed">
+                {quote}
+              </p>
+            )}
           </div>
 
-          <div className="space-y-8 font-sans text-base text-gray-750 leading-relaxed">
-            <p className="text-lg font-medium text-gray-950 leading-relaxed">
-              Teatr i malarstwo to dwie pasje, które od zawsze się we mnie przenikają. Przez lata pracy na scenie teatralnej nauczyłem się patrzeć na człowieka – na jego emocje, gesty i światło, które go otacza.
-            </p>
-          
-            <p>
-              Te doświadczenia przenoszę na płótno, tworząc portrety, które są czymś więcej niż tylko odwzorowaniem zdjęcia. Staram się uchwycić charakter i duszę portretowanej osoby, tworząc pamiątkę, która będzie cieszyć oko przez pokolenia.
-            </p>
-          </div>
+          {isHtmlContent ? (
+            <div
+              className="space-y-6 font-sans text-base text-gray-750 leading-relaxed [&>p:first-child]:text-lg [&>p:first-child]:font-medium [&>p:first-child]:text-gray-950"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          ) : (
+            <div className="space-y-6 font-sans text-base text-gray-750 leading-relaxed">
+              {paragraphs.map((paragraph, idx) => (
+                <p
+                  key={idx}
+                  className={
+                    idx === 0
+                      ? "text-lg font-medium text-gray-950 leading-relaxed whitespace-pre-line"
+                      : "leading-relaxed whitespace-pre-line"
+                  }
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Column: Dynamic Workspace Image Framing (Asymmetric span) */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-8">
           <div className="aspect-[3/4] rounded-[32px] overflow-hidden shadow-sm border border-gray-100 bg-gray-50 relative group">
             <img
-              src={maciejImg}
-              alt="Kostek Maciej Kosteczka, Pracownia Artystyczna Łódź"
+              src={imageUrl}
+              alt={`${title}, Pracownia Artystyczna Łódź`}
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src !== window.location.origin + DEFAULT_IMAGE) {
+                  target.src = DEFAULT_IMAGE;
+                }
+              }}
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />
           </div>
 
-          <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 space-y-4">
-            <h4 className="font-display text-lg text-gray-900 font-semibold">Dlaczego malarstwo tradycyjne?</h4>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Dzisiejszy świat jest przepełniony cyfrowym szumem i natychmiastowym zaspokajaniem potrzeb. Ręcznie malowany obraz olejny to luksus posiadania czegoś trwałego i niepowtarzalnego. Gra światła na fakturowej powierzchni farby zmienia się w zależności od pory dnia, tworząc spektakl, którego nie da się skopiować na żadnym wyświetlaczu.
-            </p>
-          </div>
+          {/* Boks wyróżniony pod zdjęciem: Dlaczego malarstwo tradycyjne? */}
+          {boxText && (
+            <div className="bg-stone-50 rounded-[28px] p-7 border border-neutral-100 space-y-3 font-sans shadow-xs">
+              {boxTitle && (
+                <h3 className="font-display text-xl sm:text-2xl text-gray-950 font-normal">
+                  {boxTitle}
+                </h3>
+              )}
+              <p className="text-sm sm:text-base text-gray-650 leading-relaxed">
+                {boxText}
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -60,10 +187,10 @@ export default function AboutMe() {
         <div className="bg-stone-50 rounded-[32px] p-8 sm:p-12 border border-neutral-100 flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="space-y-2 text-center lg:text-left max-w-2xl">
             <h2 className="font-display text-3xl text-gray-900 font-normal">
-              Podoba Ci się moja twórczość?
+              {ctaTitle}
             </h2>
             <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
-              Zamów swój własny, unikalny portret ze zdjęcia lub zapoznaj się z gotowymi dziełami malarskimi dostępnymi w moim sklepie.
+              {ctaText}
             </p>
           </div>
           <div className="flex flex-col xl:flex-row gap-4 shrink-0 w-full sm:w-auto">

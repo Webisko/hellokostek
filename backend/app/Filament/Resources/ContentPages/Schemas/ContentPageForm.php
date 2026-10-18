@@ -28,7 +28,10 @@ class ContentPageForm
                         ->required()
                         ->maxLength(255)
                         ->live(onBlur: true)
-                        ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state): void {
+                        ->afterStateUpdated(function (string $operation, Get $get, Set $set, ?string $old, ?string $state): void {
+                            if ($operation !== 'create') {
+                                return;
+                            }
                             if (($get('slug') ?? '') !== Str::slug((string) $old)) {
                                 return;
                             }
@@ -44,6 +47,7 @@ class ContentPageForm
                         ->options(ContentPage::templateOptions())
                         ->default('default')
                         ->required()
+                        ->live()
                         ->native(false),
                     Toggle::make('is_active')
                         ->label('Strona aktywna')
@@ -52,17 +56,50 @@ class ContentPageForm
                         ->default(fn () => (\App\Models\ContentPage::max('sort_order') ?? 0) + 10),
                     DateTimePicker::make('published_at')
                         ->label('Data publikacji'),
+                    TextInput::make('metadata.subtitle')
+                        ->label('Etykieta nad nazwiskiem / Podtytuł (np. na stronie O mnie)')
+                        ->placeholder('np. Aktor • Tancerz • Malarz • Rocznik ‘88')
+                        ->maxLength(255)
+                        ->visible(fn (Get $get): bool => $get('template') === 'about'),
                     Textarea::make('excerpt')
-                        ->label('Krótki opis / Zajawka')
+                        ->label(fn (Get $get): string => $get('template') === 'about'
+                            ? 'Cytat wyróżniony pod tytułem (np. o improwizacji i wolności w sztuce)'
+                            : 'Krótki opis / Zajawka')
+                        ->placeholder('„Wydawać się może, że klasyczne malarstwo i sztuka figuratywna bardzo ograniczają twórcę..."')
                         ->rows(3)
                         ->columnSpanFull(),
                     Textarea::make('content')
-                        ->label('Treść strony (ogólna)')
-                        ->rows(6)
+                        ->label(fn (Get $get): string => $get('template') === 'about'
+                            ? 'Główna biografia (lewa kolumna, akapity oddziel pustą linią)'
+                            : 'Treść strony (ogólna)')
+                        ->rows(8)
                         ->columnSpanFull(),
+                    TextInput::make('metadata.box_title')
+                        ->label('Tytuł boksu pod zdjęciem (prawa kolumna)')
+                        ->placeholder('Dlaczego malarstwo tradycyjne?')
+                        ->default('Dlaczego malarstwo tradycyjne?')
+                        ->visible(fn (Get $get): bool => $get('template') === 'about'),
+                    Textarea::make('metadata.box_text')
+                        ->label('Treść boksu pod zdjęciem (np. manifest o wartości tradycyjnego malarstwa w dobie AI)')
+                        ->placeholder('Wierzę, że w dobie sztucznej inteligencji i fotografii cyfrowej to właśnie tradycyjne malarstwo...')
+                        ->rows(4)
+                        ->columnSpanFull()
+                        ->visible(fn (Get $get): bool => $get('template') === 'about'),
+                    TextInput::make('metadata.cta_title')
+                        ->label('Nagłówek dolnego boksu zachęty (CTA)')
+                        ->placeholder('Podoba Ci się moja twórczość?')
+                        ->default('Podoba Ci się moja twórczość?')
+                        ->visible(fn (Get $get): bool => $get('template') === 'about'),
+                    Textarea::make('metadata.cta_text')
+                        ->label('Treść dolnego boksu zachęty (CTA)')
+                        ->placeholder('Zamów swój własny, unikalny portret ze zdjęcia lub zapoznaj się z gotowymi dziełami malarskimi dostępnymi w moim sklepie.')
+                        ->rows(2)
+                        ->columnSpanFull()
+                        ->visible(fn (Get $get): bool => $get('template') === 'about'),
                 ]),
             Section::make('Struktura Paragrafów i Sekcji (np. Regulamin, Polityka Prywatności)')
                 ->columnSpanFull()
+                ->hidden(fn (Get $get): bool => $get('template') === 'about')
                 ->description('Możesz dodać wyodrębnione paragrafy dla stron prawnych. Każdy paragraf tworzy sekcję w spisie treści oraz kotwicę URL.')
                 ->schema([
                     \Filament\Forms\Components\Repeater::make('metadata.sections')
@@ -102,6 +139,11 @@ class ContentPageForm
                         ->visibility('public')
                         ->image()
                         ->imageEditor()
+                        ->imageResizeMode('contain')
+                        ->imageResizeTargetWidth('1920')
+                        ->imageResizeTargetHeight('1920')
+                        ->imageResizeUpscale(false)
+                        ->maxSize(15360)
                         ->columnSpanFull(),
                 ]),
             Section::make('Ustawienia SEO i Metadane wyszukiwarki')->columnSpanFull()
@@ -123,7 +165,12 @@ class ContentPageForm
                         ->directory('seo/og')
                         ->visibility('public')
                         ->image()
-                        ->imageEditor(),
+                        ->imageEditor()
+                        ->imageResizeMode('contain')
+                        ->imageResizeTargetWidth('1200')
+                        ->imageResizeTargetHeight('630')
+                        ->imageResizeUpscale(false)
+                        ->maxSize(10240),
                 ]),
         ]);
     }

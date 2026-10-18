@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { GALLERY_ARTWORKS } from "../data/gallery";
 import type { GalleryArtwork } from "../types";
+import { parseLocalizedString } from "../utils/localization";
 import { 
   X, 
   ArrowLeft, 
@@ -14,10 +15,8 @@ const getSrc = (img: any): string => (img && typeof img === 'object' && 'src' in
 type FilterType = string;
 
 function mapGalleryArtwork(item: any): GalleryArtwork {
-  const catName = typeof item.category === 'object' && item.category !== null 
-    ? (item.category.pl || item.category.en || Object.values(item.category)[0]) 
-    : (item.category || "");
-  const catSlug = item.category_slug || (typeof catName === 'string' ? catName.toLowerCase() : "");
+  const catName = parseLocalizedString(item.category);
+  const catSlug = item.category_slug || (catName ? catName.toLowerCase() : "");
 
   let rawImg = item.image_url || '/images/placeholder.png';
   if (typeof rawImg === 'string' && rawImg.includes('/storage/images/')) {
@@ -29,16 +28,24 @@ function mapGalleryArtwork(item: any): GalleryArtwork {
     rawOriginal = rawOriginal.replace('/storage/images/', '/images/');
   }
 
+  const rawBullets = item.bullet_points;
+  const bulletPoints = Array.isArray(rawBullets)
+    ? rawBullets.map((b: any) => String(b).trim()).filter(Boolean)
+    : typeof rawBullets === 'string' && rawBullets.trim().length > 0
+      ? rawBullets.split(/\r?\n/).map((b: string) => b.trim()).filter(Boolean)
+      : undefined;
+
   return {
     id: String(item.id),
-    title: item.title?.pl || item.title || "",
+    title: parseLocalizedString(item.title),
     year: item.year || "2024",
     imageUrl: rawImg,
     originalUrl: rawOriginal,
     category: catName,
     categorySlug: catSlug,
-    technique: item.technique || undefined,
-    format: item.format || undefined,
+    technique: parseLocalizedString(item.technique) || undefined,
+    format: parseLocalizedString(item.format) || undefined,
+    bulletPoints,
   };
 }
 
@@ -315,7 +322,8 @@ export default function Gallery() {
                 <img
                   src={getSrc(artwork.imageUrl)}
                   alt={artwork.title}
-                  loading="lazy"
+                  loading={index < 4 ? "eager" : "lazy"}
+                  decoding="async"
                   referrerPolicy="no-referrer"
                   onError={handleImageError}
                   className="w-full h-full object-cover block transition-transform duration-700 ease-out group-hover:scale-[1.03]"
@@ -409,39 +417,31 @@ export default function Gallery() {
                 {currentArtwork.format && (
                   <p className="text-stone-200 font-medium">• Format: <span className="text-neutral-300 font-normal">{currentArtwork.format}</span></p>
                 )}
-                {(currentArtwork.categorySlug === "olej" || currentArtwork.category?.toLowerCase() === "olej") && !currentArtwork.technique && (
+                {currentArtwork.bulletPoints && currentArtwork.bulletPoints.length > 0 && (
                   <>
-                    <p>• Tradycyjne malarstwo olejne na płótnie bawełnianym</p>
-                    <p>• Naciąg na krosna sosnowe</p>
-                    <p>• Zabezpieczony werniksem końcowym</p>
-                    <p>• Wykonany ręcznie na zamówienie ze zdjęcia</p>
+                    {currentArtwork.bulletPoints.map((point, idx) => (
+                      <p key={idx}>• {point.replace(/^[•\-*]\s*/, "")}</p>
+                    ))}
                   </>
                 )}
-                {(currentArtwork.categorySlug === "akryl" || currentArtwork.category?.toLowerCase() === "akryl") && (
+                {!currentArtwork.technique && (!currentArtwork.bulletPoints || currentArtwork.bulletPoints.length === 0) && (
                   <>
-                    <p>• Malarstwo akrylowe na płótnie</p>
-                    <p>• Naciąg na krosna sosnowe</p>
-                    <p>• Zabezpieczony werniksem końcowym</p>
-                    <p>• Wykonany ręcznie</p>
+                    {(currentArtwork.categorySlug === "olej" || currentArtwork.category?.toLowerCase() === "olej") && (
+                      <p>• Tradycyjne malarstwo olejne na płótnie</p>
+                    )}
+                    {(currentArtwork.categorySlug === "akryl" || currentArtwork.category?.toLowerCase() === "akryl") && (
+                      <p>• Malarstwo akrylowe na płótnie</p>
+                    )}
+                    {(currentArtwork.categorySlug === "rysunek" || currentArtwork.category?.toLowerCase() === "rysunek") && (
+                      <p>• Tradycyjny rysunek na papierze</p>
+                    )}
+                    {(currentArtwork.categorySlug === "akwarela" || currentArtwork.category?.toLowerCase() === "akwarela") && (
+                      <p>• Akwarela na papierze bawełnianym</p>
+                    )}
+                    {currentArtwork.category && !["olej", "akryl", "rysunek", "akwarela"].includes(currentArtwork.categorySlug || currentArtwork.category?.toLowerCase() || "") && (
+                      <p>• Kategoria: {currentArtwork.category}</p>
+                    )}
                   </>
-                )}
-                {(currentArtwork.categorySlug === "rysunek" || currentArtwork.category?.toLowerCase() === "rysunek") && (
-                  <>
-                    <p>• Tradycyjny rysunek na papierze</p>
-                    <p>• Wykonany ołówkiem lub suchym pastelem</p>
-                    <p>• Utrwalony fiksatywą ochronną</p>
-                    <p>• Wykonany ręcznie</p>
-                  </>
-                )}
-                {(currentArtwork.categorySlug === "akwarela" || currentArtwork.category?.toLowerCase() === "akwarela") && (
-                  <>
-                    <p>• Akwarela na wysokiej jakości papierze bawełnianym</p>
-                    <p>• Unikalne, płynne przejścia barwne</p>
-                    <p>• Wykonany ręcznie</p>
-                  </>
-                )}
-                {currentArtwork.category && !["olej", "akryl", "rysunek", "akwarela"].includes(currentArtwork.categorySlug || currentArtwork.category?.toLowerCase() || "") && (
-                  <p>• Kategoria: {currentArtwork.category}</p>
                 )}
               </div>
             </div>
