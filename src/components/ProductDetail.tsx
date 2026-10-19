@@ -32,7 +32,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const [isParcelMapOpen, setIsParcelMapOpen] = useState(false);
   
   // Payment fields
-  const [paymentMethod, setPaymentMethod] = useState<"blik" | "card" | "transfer">("blik");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "transfer">("online");
   const [termsAccepted, setTermsAccepted] = useState(false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -253,9 +253,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     else if (selectedDelivery === "inpost") shippingMethodCode = "flexible_shipping:paczkomat";
     else if (selectedDelivery === "orlen") shippingMethodCode = "flexible_shipping:orlen";
 
-    let paymentMethodCode = "stripe";
-    if (paymentMethod === "blik" || paymentMethod === "card") paymentMethodCode = "stripe";
-    else if (paymentMethod === "transfer") paymentMethodCode = "bank_transfer";
+    const paymentMethodCode = paymentMethod === "transfer" ? "bank_transfer" : "stripe";
 
     const nameParts = fullName.trim().split(" ");
     const firstName = nameParts[0] || "";
@@ -892,55 +890,36 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     <label className="font-mono text-xs uppercase tracking-wider text-gray-400 font-bold block">Metoda płatności</label>
                     
                     {/* Method selector */}
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2.5">
                       <button
                         type="button"
-                        onClick={() => setPaymentMethod("blik")}
-                        className={`p-3 rounded-xl border text-xs font-bold font-mono tracking-wider transition-all cursor-pointer ${
-                          paymentMethod === "blik"
+                        onClick={() => setPaymentMethod("online")}
+                        className={`p-3.5 rounded-xl border text-xs font-bold font-mono tracking-wider transition-all cursor-pointer ${
+                          paymentMethod === "online"
                             ? "border-[#E0115F] bg-gray-50 text-off-black"
                             : "border-gray-200 bg-white text-gray-400 hover:bg-gray-55"
                         }`}
                       >
-                        BLIK
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod("card")}
-                        className={`p-3 rounded-xl border text-xs font-bold font-mono tracking-wider transition-all cursor-pointer ${
-                          paymentMethod === "card"
-                            ? "border-[#E0115F] bg-gray-50 text-off-black"
-                            : "border-gray-200 bg-white text-gray-400 hover:bg-gray-55"
-                        }`}
-                      >
-                        KARTA
+                        PŁATNOŚĆ ONLINE
                       </button>
                       <button
                         type="button"
                         onClick={() => setPaymentMethod("transfer")}
-                        className={`p-3 rounded-xl border text-xs font-bold font-mono tracking-wider transition-all cursor-pointer ${
+                        className={`p-3.5 rounded-xl border text-xs font-bold font-mono tracking-wider transition-all cursor-pointer ${
                           paymentMethod === "transfer"
                             ? "border-[#E0115F] bg-gray-50 text-off-black"
                             : "border-gray-200 bg-white text-gray-400 hover:bg-gray-55"
                         }`}
                       >
-                        PRZELEW
+                        PRZELEW TRADYCYJNY
                       </button>
                     </div>
                     
                     {/* Method fields */}
-                    {paymentMethod === "blik" && (
+                    {paymentMethod === "online" && (
                       <div className="p-4 bg-stone-50 border border-gray-150 rounded-xl space-y-2 animate-fadeIn">
                         <p className="text-xs text-gray-650 leading-relaxed font-sans">
-                          Po kliknięciu przycisku poniżej przejdziesz do bezpiecznej bramki płatności <strong>Stripe</strong>, gdzie podasz 6-cyfrowy kod BLIK z aplikacji swojego banku.
-                        </p>
-                      </div>
-                    )}
-                    
-                    {paymentMethod === "card" && (
-                      <div className="p-4 bg-stone-50 border border-gray-150 rounded-xl space-y-2 animate-fadeIn">
-                        <p className="text-xs text-gray-650 leading-relaxed font-sans">
-                          Po kliknięciu przycisku poniżej przejdziesz do szyfrowanej strony płatności <strong>Stripe</strong> (obsługa kart Visa, Mastercard oraz portfeli Apple Pay i Google Pay).
+                          Po kliknięciu przycisku poniżej przejdziesz do bezpiecznej bramki <strong>Stripe</strong>, gdzie wybierzesz wygodną metodę płatności: <strong>BLIK, karta płatnicza, Apple Pay, Google Pay, Revolut Pay lub Klarna</strong>.
                         </p>
                       </div>
                     )}
