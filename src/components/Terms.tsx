@@ -163,7 +163,7 @@ export default function Terms() {
                     <li>Telefon: <a href="tel:+48662707153" className="text-gray-950 font-bold hover:text-[#E0115F] transition-colors">662 707 153</a></li>
                   </ul>
                   <p>
-                    3. Niniejszy Regulamin określa zasady korzystania ze Sklepu, składania zamówień na gotowe prace malarskie, zasady zlecania i realizacji prac malarskich na indywidualne zamówienie, sposoby płatności, dostawy oraz procedury reklamacji i zwrotów.
+                    3. Niniejszy Regulamin określa zasady korzystania ze Sklepu, składania zamówień na gotowe prace malarskie i rysunkowe, zasady zlecania i realizacji prac malarskich na indywidualne zamówienie, sposoby płatności, dostawy oraz procedury reklamacji i zwrotów.
                   </p>
                 </div>
               </section>
@@ -175,30 +175,109 @@ export default function Terms() {
                 </div>
                 <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    W ramach Sklepu rozróżnia się dwa rodzaje asortymentu:
+                    W ramach Sklepu rozróżnia się następujące rodzaje asortymentu:
                   </p>
                   <ul className="list-disc pl-6 space-y-2 text-gray-650">
                     <li>
-                      <strong>Produkt Gotowy</strong> – istniejący, fizyczny obraz (dzieło malarskie lub rysunkowe) dostępny w ofercie Sklepu, o określonych wymiarach, technice i cenie, gotowy do natychmiastowej wysyłki.
+                      <strong>Oryginał (Produkt Gotowy)</strong> – unikatowe, fizyczne dzieło malarskie lub rysunkowe wykonane własnoręcznie przez artystę, dostępne w pojedynczym egzemplarzu i opatrzone ręcznym certyfikatem autentyczności.
                     </li>
                     <li>
-                      <strong>Produkt na Zamówienie (Dzieło Spersonalizowane)</strong> – praca malarska (np. portret ze zdjęcia) realizowana przez artystę od podstaw na indywidualne życzenie Klienta, według jego specyfikacji (określony temat, format, paleta kolorystyczna, nadesłane zdjęcia referencyjne).
+                      <strong>Wydruk Kolekcjonerski (Reprodukcja)</strong> – sygnowana reprodukcja autorskiej pracy wykonana na wysokogatunkowym papierze archiwalnym.
+                    </li>
+                    <li>
+                      <strong>Produkt na Zamówienie (Dzieło Spersonalizowane)</strong> – praca malarska (np. portret olejny ze zdjęcia) realizowana przez artystę od podstaw na indywidualne zlecenie Klienta, według jego specyfikacji (określony temat, format, kształt podobrazia, nadesłane zdjęcia referencyjne).
                     </li>
                   </ul>
                 </div>
               </section>
 
+              <section id="skladanie-zamowien" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <FileEdit className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 3. Składanie zamówień</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    1. Zamówienia na Produkty Gotowe oraz Wydruki Kolekcjonerskie można składać całodobowo poprzez interaktywny formularz zamówienia w Sklepie internetowym bez konieczności zakładania konta.
+                  </p>
+                  <p>
+                    2. Złożenie zamówienia następuje po wybraniu wariantu pracy, uzupełnieniu danych adresowych i kontaktowych, zaakceptowaniu Regulaminu oraz kliknięciu przycisku „Zamawiam i płacę” lub „Zamawiam z obowiązkiem zapłaty”.
+                  </p>
+                  <p>
+                    3. Zamówienia na Dzieła Spersonalizowane (portrety ze zdjęcia) przyjmowane są drogą indywidualnej wyceny przez formularz zapytania lub pocztę elektroniczną na adres <code>kontakt@hellokostek.pl</code>.
+                  </p>
+                </div>
+              </section>
+
+              <section id="ceny-i-platnosci" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <CreditCard className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 4. Ceny i metody płatności</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    1. Wszystkie ceny prezentowane w Sklepie są cenami brutto wyrażonymi w złotych polskich (PLN). Do ceny zamówienia doliczany jest koszt dostawy wskazany wyraźnie w podsumowaniu przed złożeniem zamówienia.
+                  </p>
+                  <p>
+                    2. Sklep udostępnia następujące bezpieczne metody płatności:
+                  </p>
+                  <ul className="list-disc pl-6 space-y-1 text-gray-650">
+                    <li><strong>Płatności elektroniczne Stripe Checkout:</strong> BLIK, karty płatnicze (Visa, Mastercard), Apple Pay, Google Pay, Klarna oraz Revolut Pay.</li>
+                    <li><strong>Przelew tradycyjny:</strong> wpłata bezpośrednio na rachunek bankowy Sprzedawcy (rezerwacja wybranej pracy obowiązuje przez 3 dni robocze).</li>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="dostawa" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Truck className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 5. Dostawa i czas wysyłki</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    1. Wysyłka zamówień realizowana jest na terytorium Rzeczypospolitej Polskiej za pośrednictwem firmy kurierskiej, automatów Paczkomat® InPost oraz punktów ORLEN Paczka.
+                  </p>
+                  <p>
+                    2. Dla oryginalnych dzieł malarskich ubezpieczona przesyłka kurierska jest bezpłatna. Dla wydruków kolekcjonerskich koszt dostawy wynosi: ORLEN Paczka – 10 zł, Paczkomat InPost – 15 zł, Kurier – 20 zł (darmowa dostawa dla zamówień od 200 zł).
+                  </p>
+                  <p>
+                    3. Czas przygotowania i nadania przesyłki wynosi zazwyczaj od 2 do 5 dni roboczych od momentu zaksięgowania płatności.
+                  </p>
+                </div>
+              </section>
+
+              <section id="zwroty-i-odstapienie" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <RotateCcw className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 6. Prawo odstąpienia od umowy (Zwroty)</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    1. Zgodnie z ustawą z dnia 30 maja 2014 r. o prawach konsumenta, Konsument (oraz Przedsiębiorca na prawach konsumenta) ma prawo odstąpić od umowy sprzedaży Produktu Gotowego lub Wydruku Kolekcjonerskiego w terminie <strong>14 dni</strong> od dnia objęcia rzeczy w posiadanie, bez podawania przyczyny.
+                  </p>
+                  <p>
+                    2. Aby skorzystać z prawa odstąpienia od umowy, wystarczy wysłać oświadczenie drogą mailową na adres <code>kontakt@hellokostek.pl</code> przed upływem 14-dniowego terminu, a następnie odesłać bezpiecznie zapakowaną pracę na adres siedziby Sprzedawcy (Rynek 33, 42-470 Siewierz). Zwrot płatności następuje niezwłocznie, nie później niż w ciągu 14 dni.
+                  </p>
+                  <p>
+                    3. <strong>Wyłączenie prawa odstąpienia (Dzieła Spersonalizowane):</strong> Zgodnie z art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta, prawo odstąpienia od umowy zawartej na odległość <strong>nie przysługuje</strong> w odniesieniu do umów, w których przedmiotem świadczenia jest rzecz nieprefabrykowana, wyprodukowana według specyfikacji Konsumenta lub służąca zaspokojeniu jego zindywidualizowanych potrzeb (dotyczy to w szczególności portretów i obrazów malowanych na indywidualne zamówienie ze zdjęcia).
+                  </p>
+                </div>
+              </section>
+
               <section id="reklamacje" className="space-y-6 scroll-mt-24">
                 <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
-                  <Info className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <AlertTriangle className="w-6 h-6 text-[#E0115F] shrink-0" />
                   <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 7. Reklamacje (Zgodność towaru z umową)</h2>
                 </div>
                 <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    1. Sprzedawca ma obowiązek dostarczyć produkt wolny od wad i zgodny z zawartą umową.
+                    1. Sprzedawca ma obowiązek dostarczyć dzieło wolne od wad fizycznych i zgodne z zawartą umową.
                   </p>
                   <p>
-                    2. Reklamacje z tytułu braku zgodności towaru z umową należy składać na adres e-mail: <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-gray-900 hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a>.
+                    2. Reklamacje z tytułu braku zgodności towaru z umową można składać drogą elektroniczną na adres e-mail: <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-gray-900 hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a> lub pisemnie na adres siedziby Sprzedawcy.
+                  </p>
+                  <p>
+                    3. Sprzedawca rozpatruje reklamację w terminie 14 dni kalendarzowych od dnia jej otrzymania.
                   </p>
                 </div>
               </section>
@@ -210,7 +289,10 @@ export default function Terms() {
                 </div>
                 <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    1. Wszystkie dzieła malarskie (zarówno gotowe, jak i tworzone na zamówienie) sprzedawane za pośrednictwem Sklepu stanowią utwór w rozumieniu ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych.
+                    1. Wszystkie dzieła malarskie i rysunkowe sprzedawane za pośrednictwem Sklepu stanowią utwory w rozumieniu ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych.
+                  </p>
+                  <p>
+                    2. Zakup fizycznego obrazu (oryginału lub reprodukcji) przenosi na Kupującego własność nabytego egzemplarza dzieła, ale nie obejmuje przeniesienia autorskich praw majątkowych do jego komercyjnego powielania, druku ani rozpowszechniania w celach zarobkowych bez pisemnej zgody autora.
                   </p>
                 </div>
               </section>
@@ -218,11 +300,11 @@ export default function Terms() {
               <section id="pozasadowe-rozwiazywanie-sporow" className="space-y-6 scroll-mt-24">
                 <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
                   <Scale className="w-6 h-6 text-[#E0115F] shrink-0" />
-                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 9. Pozasądowe sposoby rozpatrywania reklamacji</h2>
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 9. Pozasądowe sposoby rozpatrywania sporów</h2>
                 </div>
                 <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    Konsument ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń.
+                    Konsument ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń, m.in. poprzez zwrócenie się do stałego polubownego sądu konsumenckiego, wojewódzkiego inspektora Inspekcji Handlowej lub miejskiego (powiatowego) rzecznika konsumentów. Szczegółowe informacje dostępne są na stronie Urzędu Ochrony Konkurencji i Konsumentów (<code>uokik.gov.pl</code>).
                   </p>
                 </div>
               </section>
@@ -234,7 +316,10 @@ export default function Terms() {
                 </div>
                 <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    1. W sprawach nieuregulowanych niniejszym Regulaminem mają zastosowanie powszechnie obowiązujące przepisy prawa polskiego.
+                    1. W sprawach nieuregulowanych niniejszym Regulaminem mają zastosowanie powszechnie obowiązujące przepisy prawa polskiego, w szczególności Kodeksu cywilnego oraz ustawy o prawach konsumenta.
+                  </p>
+                  <p>
+                    2. Żadne z postanowień niniejszego Regulaminu nie ma na celu ograniczenia ani wyłączenia praw przysługujących Konsumentowi na mocy bezwzględnie obowiązujących przepisów prawa.
                   </p>
                 </div>
               </section>

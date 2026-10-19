@@ -33,6 +33,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   
   // Payment fields
   const [paymentMethod, setPaymentMethod] = useState<"blik" | "card" | "transfer">("blik");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -230,7 +231,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   };
 
   const isKrok2Valid = () => {
-    return true;
+    return termsAccepted;
   };
 
   const handleFinalSubmit = async (e: React.FormEvent) => {
@@ -272,13 +273,13 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       payment_method: paymentMethodCode,
       shipping_method_code: shippingMethodCode,
       coupon_code: appliedCoupon ? appliedCoupon.code : undefined,
-      terms_accepted: true,
+      terms_accepted: termsAccepted,
       customer: {
         email: email,
         first_name: firstName,
         last_name: lastName,
         phone: phone,
-        terms_accepted: true,
+        terms_accepted: termsAccepted,
       },
       shipping_address: isPointDelivery ? undefined : {
         first_name: firstName,
@@ -980,6 +981,20 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                       </span>
                     </div>
                   </div>
+
+                  {/* Legal Consent Checkbox */}
+                  <label className="flex items-start gap-3 p-3.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 cursor-pointer transition-all text-xs text-gray-600 font-sans leading-relaxed">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-[#E0115F] rounded cursor-pointer shrink-0"
+                    />
+                    <span>
+                      Akceptuję <a href="/regulamin" target="_blank" rel="noopener noreferrer" className="text-gray-900 font-semibold underline hover:text-[#E0115F]">Regulamin sklepu</a> i zapoznałem(-am) się z <a href="/polityka-prywatnosci" target="_blank" rel="noopener noreferrer" className="text-gray-900 font-semibold underline hover:text-[#E0115F]">Polityką prywatności</a>. *
+                    </span>
+                  </label>
                 </div>
               )}
             </div>
@@ -1031,7 +1046,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                       ) : (
                         <>
                           <Lock className="w-3.5 h-3.5" />
-                          {paymentMethod === "transfer" ? "Zamawiam z obowiązkiem zapłaty" : "Zapłać"} ({Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0)) + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł)
+                          {paymentMethod === "transfer" ? "Zamawiam z obowiązkiem zapłaty" : "Zamawiam i płacę"} ({Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0)) + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł)
                         </>
                       )}
                     </div>

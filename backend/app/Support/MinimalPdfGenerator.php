@@ -15,10 +15,11 @@ class MinimalPdfGenerator
 
         $storeSettings = app(StoreSettings::class);
         $metadata = $storeSettings->model()->metadata ?? [];
-        $sellerName = $metadata['invoice_seller_name'] ?? $storeSettings->storeName();
+        $sellerName = $metadata['invoice_seller_name'] ?? 'hellokostek Maciej Kosteczka';
+        $sellerNip = $metadata['invoice_seller_nip'] ?? '6252363656';
         $sellerEmail = $storeSettings->supportEmail() ?? 'kontakt@hellokostek.pl';
-        $sellerAddress = $metadata['invoice_seller_address'] ?? ($metadata['address_street'] ?? 'Pracownia Artystyczna hellokostek');
-        $sellerCity = isset($metadata['address_postal_code']) ? (($metadata['address_postal_code'] ?? '') . ' ' . ($metadata['address_city'] ?? '')) : '';
+        $sellerAddress = $metadata['invoice_seller_address'] ?? 'Rynek 33, 42-470 Siewierz';
+        $sellerBankAccount = $metadata['invoice_seller_bank_account'] ?? '';
 
         $buyerName = $order->billing_company_name ?? ($order->customer_first_name . ' ' . $order->customer_last_name);
         $buyerNip = $order->billing_nip ? 'NIP: ' . $order->billing_nip : '';
@@ -52,14 +53,15 @@ class MinimalPdfGenerator
         $drawLine(50, 710, 550, 710, 1.5);
 
         // Seller and Buyer info
-        $bdo = $storeSettings->bdoNumber();
         $drawText("Sprzedawca:", 50, 680, 12, true);
         $drawText($sellerName, 50, 660, 10);
         $drawText($sellerAddress, 50, 645, 10);
-        $drawText($sellerCity, 50, 630, 10);
+        if (!empty($sellerNip)) {
+            $drawText("NIP: " . $sellerNip, 50, 630, 10);
+        }
         $drawText("Email: " . $sellerEmail, 50, 615, 10);
-        if ($bdo) {
-            $drawText("BDO: " . $bdo, 50, 600, 10);
+        if (!empty($sellerBankAccount)) {
+            $drawText("Konto: " . $sellerBankAccount, 50, 600, 9);
         }
 
         $drawText("Nabywca:", 350, 680, 12, true);

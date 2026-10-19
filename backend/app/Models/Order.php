@@ -131,35 +131,41 @@ class Order extends Model
 
         static::updated(function (Order $order): void {
             if ($order->wasChanged('status') && $order->status === 'cancelled') {
-                // Restock items
-                foreach ($order->items as $item) {
-                    $product = $item->product;
-                    if ($product && $product->isBundle()) {
-                        foreach ($product->bundleItems as $bundleItem) {
-                            if ($bundleItem->product_variant_id) {
-                                $variant = $bundleItem->variant;
-                                if ($variant && $variant->manages_stock) {
-                                    $neededQty = $bundleItem->quantity * $item->quantity;
-                                    $variant->increment('stock_quantity', $neededQty);
-                                }
-                            } else {
-                                $comp = $bundleItem->product;
-                                if ($comp && $comp->manages_stock) {
-                                    $neededQty = $bundleItem->quantity * $item->quantity;
-                                    $comp->increment('stock_quantity', $neededQty);
+                if (!data_get($order->metadata, 'stock_restored')) {
+                    $order->loadMissing('items.variant', 'items.product');
+                    foreach ($order->items as $item) {
+                        $product = $item->product;
+                        if ($product && $product->isBundle()) {
+                            foreach ($product->bundleItems as $bundleItem) {
+                                if ($bundleItem->product_variant_id) {
+                                    $variant = $bundleItem->variant;
+                                    if ($variant && $variant->manages_stock) {
+                                        $neededQty = $bundleItem->quantity * $item->quantity;
+                                        $variant->increment('stock_quantity', $neededQty);
+                                    }
+                                } else {
+                                    $comp = $bundleItem->product;
+                                    if ($comp && $comp->manages_stock) {
+                                        $neededQty = $bundleItem->quantity * $item->quantity;
+                                        $comp->increment('stock_quantity', $neededQty);
+                                    }
                                 }
                             }
-                        }
-                    } elseif ($item->product_variant_id) {
-                        $variant = $item->variant;
-                        if ($variant && $variant->manages_stock) {
-                            $variant->increment('stock_quantity', $item->quantity);
-                        }
-                    } else {
-                        if ($product && $product->manages_stock) {
-                            $product->increment('stock_quantity', $item->quantity);
+                        } elseif ($item->product_variant_id) {
+                            $variant = $item->variant;
+                            if ($variant && $variant->manages_stock) {
+                                $variant->increment('stock_quantity', $item->quantity);
+                            }
+                        } else {
+                            if ($product && $product->manages_stock) {
+                                $product->increment('stock_quantity', $item->quantity);
+                            }
                         }
                     }
+
+                    $metadata = $order->metadata ?? [];
+                    $metadata['stock_restored'] = true;
+                    $order->forceFill(['metadata' => $metadata])->saveQuietly();
                 }
                 
                 // Refund payment

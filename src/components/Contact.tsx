@@ -461,6 +461,9 @@ export default function Contact() {
               <p className="text-xs text-gray-550 font-sans text-center mt-4 leading-relaxed">
                 Wiadomość zostanie przesłana bezpośrednio do mojej asystentki – rudej kotki o imieniu Aurea, która miauknięciem informuje o nowych wiadomościach z formularza. Odpowiedź ode mnie wraz z propozycją kompozycji otrzymasz z odbiciem łapki na podany adres e-mail.
               </p>
+              <p className="text-[11px] text-gray-400 font-sans text-center leading-relaxed">
+                Wysyłając wiadomość, akceptujesz przetwarzanie danych osobowych w celu obsługi zapytania zgodnie z <a href="/polityka-prywatnosci" className="underline hover:text-[#E0115F] transition-colors">Polityką prywatności</a>.
+              </p>
             </div>
           </form>
         </div>

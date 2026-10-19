@@ -403,52 +403,52 @@ class HelloKostekSeeder extends Seeder
                         [
                             'label' => '§ 1. Postanowienia ogólne',
                             'id' => 'postanowienia-ogolne',
-                            'content' => '<p>Niniejszy Regulamin określa zasady korzystania ze sklepu internetowego Hello Kostek prowadzonego przez Macieja Kostka.</p><p>Sklep prowadzi sprzedaż autorskich dzieł sztuki, obrazów olejnych, akrylowych, akwareli, rysunków oraz spersonalizowanych rękodzieł.</p>'
+                            'content' => '<p>1. Sklep internetowy działający pod adresem <code>https://hellokostek.pl/</code> prowadzony jest przez: <strong>hellokostek Maciej Kosteczka</strong> z siedzibą w: <strong>Rynek 33, 42-470 Siewierz, woj. śląskie, Polska</strong>, NIP: <strong>6252363656</strong>, REGON: <strong>527158196</strong>, wpisany do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), zwany dalej <strong>„Sprzedawcą”</strong>.</p><p>2. Dane kontaktowe ze Sprzedawcą: adres e-mail: <strong>kontakt@hellokostek.pl</strong>, telefon: <strong>662 707 153</strong>.</p><p>3. Niniejszy Regulamin określa zasady korzystania ze Sklepu, składania zamówień na gotowe prace malarskie i rysunkowe, zasady zlecania i realizacji prac malarskich na indywidualne zamówienie, sposoby płatności, dostawy oraz procedury reklamacji i zwrotów.</p>'
                         ],
                         [
                             'label' => '§ 2. Definicje przedmiotów',
                             'id' => 'definicje',
-                            'content' => '<p>Oryginał – unikatowe dzieło sztuki wykonane własnoręcznie przez artystę.</p><p>Reprodukcja (Wydruk) – wysokiej jakości wydruk cyfrowy na papierze artystycznym archiwalnym.</p>'
+                            'content' => '<p>W ramach Sklepu rozróżnia się następujące rodzaje asortymentu:</p><ul><li><strong>Oryginał (Produkt Gotowy)</strong> – unikatowe, fizyczne dzieło malarskie lub rysunkowe wykonane własnoręcznie przez artystę, dostępne w pojedynczym egzemplarzu i opatrzone ręcznym certyfikatem autentyczności.</li><li><strong>Wydruk Kolekcjonerski (Reprodukcja)</strong> – sygnowana reprodukcja autorskiej pracy wykonana na wysokogatunkowym papierze archiwalnym.</li><li><strong>Produkt na Zamówienie (Dzieło Spersonalizowane)</strong> – praca malarska (np. portret olejny ze zdjęcia) realizowana przez artystę od podstaw na indywidualne zlecenie Klienta, według jego specyfikacji (określony temat, format, kształt podobrazia, nadesłane zdjęcia referencyjne).</li></ul>'
                         ],
                         [
                             'label' => '§ 3. Składanie zamówień',
                             'id' => 'skladanie-zamowien',
-                            'content' => '<p>Zamówienia można składać całą dobę poprzez formularz zamówienia w sklepie internetowym.</p>'
+                            'content' => '<p>1. Zamówienia na Produkty Gotowe oraz Wydruki Kolekcjonerskie można składać całodobowo poprzez interaktywny formularz zamówienia w Sklepie internetowym bez konieczności zakładania konta.</p><p>2. Złożenie zamówienia następuje po wybraniu wariantu pracy, uzupełnieniu danych adresowych i kontaktowych, zaakceptowaniu Regulaminu oraz kliknięciu przycisku „Zamawiam i płacę” lub „Zamawiam z obowiązkiem zapłaty”.</p><p>3. Zamówienia na Dzieła Spersonalizowane (portrety ze zdjęcia) przyjmowane są drogą indywidualnej wyceny przez formularz zapytania lub pocztę elektroniczną na adres <code>kontakt@hellokostek.pl</code>.</p>'
                         ],
                         [
                             'label' => '§ 4. Ceny i płatności',
                             'id' => 'ceny-i-platnosci',
-                            'content' => '<p>Ceny podane w Sklepie są cenami brutto wyrażonymi w złotych polskich (PLN).</p><p>Dostępne metody płatności: BLIK, szybkie przelewy Przelewy24, karty płatnicze Stripe oraz tradycyjny przelew bankowy.</p>'
+                            'content' => '<p>1. Wszystkie ceny prezentowane w Sklepie są cenami brutto wyrażonymi w złotych polskich (PLN). Do ceny zamówienia doliczany jest koszt dostawy wskazany wyraźnie w podsumowaniu przed złożeniem zamówienia.</p><p>2. Sklep udostępnia następujące bezpieczne metody płatności:</p><ul><li><strong>Płatności elektroniczne Stripe Checkout:</strong> BLIK, karty płatnicze (Visa, Mastercard), Apple Pay, Google Pay, Klarna oraz Revolut Pay.</li><li><strong>Przelew tradycyjny:</strong> wpłata bezpośrednio na rachunek bankowy Sprzedawcy (rezerwacja wybranej pracy obowiązuje przez 3 dni robocze).</li></ul>'
                         ],
                         [
                             'label' => '§ 5. Dostawa i wysyłka',
                             'id' => 'dostawa',
-                            'content' => '<p>Wysyłka realizowana jest na terenie Polski za pośrednictwem Paczkomatów InPost oraz kuriera.</p>'
+                            'content' => '<p>1. Wysyłka zamówień realizowana jest na terytorium Rzeczypospolitej Polskiej za pośrednictwem firmy kurierskiej, automatów Paczkomat® InPost oraz punktów ORLEN Paczka.</p><p>2. Dla oryginalnych dzieł malarskich ubezpieczona przesyłka kurierska jest bezpłatna. Dla wydruków kolekcjonerskich koszt dostawy wynosi: ORLEN Paczka – 10 zł, Paczkomat InPost – 15 zł, Kurier – 20 zł (darmowa dostawa dla zamówień od 200 zł).</p><p>3. Czas przygotowania i nadania przesyłki wynosi zazwyczaj od 2 do 5 dni roboczych od momentu zaksięgowania płatności.</p>'
                         ],
                         [
                             'label' => '§ 6. Prawo do zwrotu',
                             'id' => 'zwroty-i-odstapienie',
-                            'content' => '<p>Konsument ma prawo odstąpić od umowy w terminie 14 dni bez podania przyczyny.</p><p>Prawo do zwrotu nie dotyczy produktów wykonanych na indywidualne zamówienie (np. spersonalizowane portrety na zamówienie).</p>'
+                            'content' => '<p>1. Zgodnie z ustawą z dnia 30 maja 2014 r. o prawach konsumenta, Konsument (oraz Przedsiębiorca na prawach konsumenta) ma prawo odstąpić od umowy sprzedaży Produktu Gotowego lub Wydruku Kolekcjonerskiego w terminie <strong>14 dni</strong> od dnia objęcia rzeczy w posiadanie, bez podawania przyczyny.</p><p>2. Aby skorzystać z prawa odstąpienia od umowy, wystarczy wysłać oświadczenie drogą mailową na adres <code>kontakt@hellokostek.pl</code> przed upływem 14-dniowego terminu, a następnie odesłać bezpiecznie zapakowaną pracę na adres siedziby Sprzedawcy (Rynek 33, 42-470 Siewierz). Zwrot płatności następuje niezwłocznie, nie później niż w ciągu 14 dni.</p><p>3. <strong>Wyłączenie prawa odstąpienia (Dzieła Spersonalizowane):</strong> Zgodnie z art. 38 ust. 1 pkt 3 ustawy o prawach konsumenta, prawo odstąpienia od umowy zawartej na odległość <strong>nie przysługuje</strong> w odniesieniu do umów, w których przedmiotem świadczenia jest rzecz nieprefabrykowana, wyprodukowana według specyfikacji Konsumenta lub służąca zaspokojeniu jego zindywidualizowanych potrzeb (dotyczy to w szczególności portretów i obrazów malowanych na indywidualne zamówienie ze zdjęcia).</p>'
                         ],
                         [
                             'label' => '§ 7. Reklamacje',
                             'id' => 'reklamacje',
-                            'content' => '<p>W przypadku stwierdzenia wady towaru kupujący ma prawo złożyć reklamację drogą mailową na kontakt@hellokostek.pl.</p>'
+                            'content' => '<p>1. Sprzedawca ma obowiązek dostarczyć dzieło wolne od wad fizycznych i zgodne z zawartą umową.</p><p>2. Reklamacje z tytułu braku zgodności towaru z umową można składać drogą elektroniczną na adres e-mail: <strong>kontakt@hellokostek.pl</strong> lub pisemnie na adres siedziby Sprzedawcy.</p><p>3. Sprzedawca rozpatruje reklamację w terminie 14 dni kalendarzowych od dnia jej otrzymania.</p>'
                         ],
                         [
                             'label' => '§ 8. Prawa autorskie',
                             'id' => 'prawa-autorskie',
-                            'content' => '<p>Wszystkie prezentowane prace i dzieła sztuki są chronione prawem autorskim. Zakup oryginału lub reprodukcji nie oznacza przeniesienia autorskich praw majątkowych ani prawa do dalszego powielania.</p>'
+                            'content' => '<p>1. Wszystkie dzieła malarskie i rysunkowe sprzedawane za pośrednictwem Sklepu stanowią utwory w rozumieniu ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych.</p><p>2. Zakup fizycznego obrazu (oryginału lub reprodukcji) przenosi na Kupującego własność nabytego egzemplarza dzieła, ale nie obejmuje przeniesienia autorskich praw majątkowych do jego komercyjnego powielania, druku ani rozpowszechniania w celach zarobkowych bez pisemnej zgody autora.</p>'
                         ],
                         [
                             'label' => '§ 9. Rozpatrywanie sporów',
                             'id' => 'pozasadowe-rozwiazywanie-sporow',
-                            'content' => '<p>Kupujący będący konsumentem ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń.</p>'
+                            'content' => '<p>Konsument ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń, m.in. poprzez zwrócenie się do stałego polubownego sądu konsumenckiego, wojewódzkiego inspektora Inspekcji Handlowej lub miejskiego (powiatowego) rzecznika konsumentów. Szczegółowe informacje dostępne są na stronie Urzędu Ochrony Konkurencji i Konsumentów (<code>uokik.gov.pl</code>).</p>'
                         ],
                         [
                             'label' => '§ 10. Postanowienia końcowe',
                             'id' => 'postanowienia-koncowe',
-                            'content' => '<p>Regulamin wchodzi w życie z dniem publikacji na stronie sklepu. Artysta zastrzega sobie prawo do zmiany regulaminu z zachowaniem praw nabytych kupujących.</p>'
+                            'content' => '<p>1. W sprawach nieuregulowanych niniejszym Regulaminem mają zastosowanie powszechnie obowiązujące przepisy prawa polskiego, w szczególności Kodeksu cywilnego oraz ustawy o prawach konsumenta.</p><p>2. Żadne z postanowień niniejszego Regulaminu nie ma na celu ograniczenia ani wyłączenia praw przysługujących Konsumentowi na mocy bezwzględnie obowiązujących przepisów prawa.</p>'
                         ]
                     ]
                 ]
@@ -470,37 +470,37 @@ class HelloKostekSeeder extends Seeder
                         [
                             'label' => '§ 1. Postanowienia ogólne',
                             'id' => 'postanowienia-ogolne',
-                            'content' => '<p>Administratorem danych osobowych jest Maciej Kostek prowadzący działalność pod marką Hello Kostek.</p>'
+                            'content' => '<p>1. Administratorem danych osobowych zbieranych za pośrednictwem Sklepu hellokostek jest <strong>hellokostek Maciej Kosteczka</strong> z siedzibą w: <strong>Rynek 33, 42-470 Siewierz, woj. śląskie, Polska</strong>, NIP: <strong>6252363656</strong>, REGON: <strong>527158196</strong>, wpisany do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), zwany dalej <strong>„Administratorem”</strong>.</p><p>2. Kontakt z Administratorem w sprawach związanych z ochroną i przetwarzaniem danych osobowych jest możliwy za pośrednictwem adresu e-mail: <strong>kontakt@hellokostek.pl</strong>, telefonicznie pod numerem <strong>662 707 153</strong> lub korespondencyjnie na adres siedziby wskazany w ust. 1.</p><p>3. Dane osobowe użytkowników są przetwarzane zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. (RODO), ustawą o ochronie danych osobowych oraz ustawą – Prawo komunikacji elektronicznej (PKE).</p>'
                         ],
                         [
                             'label' => '§ 2. Cele i podstawy prawne',
                             'id' => 'cele-i-podstawy-przetwarzania',
-                            'content' => '<p>Dane osobowe przetwarzane są w celu realizacji zamówień, obsługi zapytań kontaktowych oraz spełnienia obowiązków podatkowo-księgowych.</p>'
+                            'content' => '<p>Administrator przetwarza dane osobowe w następujących celach:</p><ul><li><strong>Zawarcie i wykonanie umowy sprzedaży lub wyceny dzieła</strong> (art. 6 ust. 1 lit. b RODO) – przez czas niezbędny do realizacji zamówienia i obsługi posprzedażowej.</li><li><strong>Wypełnienie obowiązków prawnych i podatkowo-księgowych</strong> (art. 6 ust. 1 lit. c RODO) – przez okres wymagany przepisami prawa podatkowego (5 lat od końca roku kalendarzowego).</li><li><strong>Obsługa zapytań z formularza kontaktowego oraz dochodzenie lub obrona przed roszczeniami</strong> (art. 6 ust. 1 lit. f RODO – prawnie uzasadniony interes Administratora).</li></ul>'
                         ],
                         [
                             'label' => '§ 3. Odbiorcy danych',
                             'id' => 'odbiorcy-danych',
-                            'content' => '<p>Odbiorcami danych są podmioty świadczące usługi dostawy (InPost), bramki płatności (Przelewy24, Stripe) oraz dostawcy usług IT.</p>'
+                            'content' => '<p>W związku z realizacją zamówień dane osobowe są przekazywane wyłącznie w niezbędnym zakresie podmiotom współpracującym: operatorowi bezpiecznych płatności elektronicznych (<strong>Stripe Payments Europe, Ltd.</strong>), przewoźnikom doręczającym przesyłki (<strong>InPost Sp. z o.o.</strong>, <strong>ORLEN Paczka</strong>, firmy kurierskie), biuru rachunkowemu oraz dostawcy hostingu.</p>'
                         ],
                         [
                             'label' => '§ 4. Twoje prawa (RODO)',
                             'id' => 'prawa-uzytkownikow',
-                            'content' => '<p>Każda osoba ma prawo do dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz wniesienia sprzeciwu.</p>'
+                            'content' => '<p>Każdej osobie, której dane dotyczą, przysługuje prawo dostępu do treści swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz wniesienia sprzeciwu. Przysługuje również prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (UODO, ul. Stawki 2, 00-193 Warszawa).</p>'
                         ],
                         [
                             'label' => '§ 5. Pliki cookies',
                             'id' => 'pliki-cookies',
-                            'content' => '<p>Strona wykorzystuje pliki cookies w celu zapewnienia prawidłowego działania koszyka i sesji oraz w celach analitycznych.</p>'
+                            'content' => '<p>Strona internetowa korzysta wyłącznie z niezbędnych technicznie plików cookies oraz pamięci lokalnej przeglądarki (<code>localStorage</code>) potrzebnych do prawidłowego funkcjonowania koszyka zakupowego i bezpiecznej realizacji płatności (zgodnie z art. 399 ust. 3 pkt 2 Prawa komunikacji elektronicznej). Strona nie ładuje zewnętrznych skryptów śledzących ani reklamowych bez wyraźnej zgody użytkownika.</p>'
                         ],
                         [
                             'label' => '§ 6. Dyrektywa Omnibus',
                             'id' => 'profilowanie-i-omnibus',
-                            'content' => '<p>Ceny prezentowane w sklepie spełniają wymogi dyrektywy Omnibus. Nie stosujemy automatycznego profilowania cen na podstawie historii przeglądania.</p>'
+                            'content' => '<p>Sklep nie stosuje zautomatyzowanego podejmowania decyzji ani indywidualnego dostosowywania cen na podstawie profilowania. W przypadku ogłoszenia obniżki ceny produktu, obok ceny promocyjnej zawsze prezentowana jest najniższa cena z 30 dni przed wprowadzeniem obniżki.</p>'
                         ],
                         [
                             'label' => '§ 7. Postanowienia końcowe',
                             'id' => 'postanowienia-koncowe',
-                            'content' => '<p>W sprawach nieuregulowanych polityką stosuje się przepisy RODO i polskiego prawa o ochronie danych osobowych.</p>'
+                            'content' => '<p>1. Administrator stosuje środki techniczne i organizacyjne zapewniające ochronę przetwarzanych danych osobowych (w tym szyfrowanie połączeń SSL/TLS).</p><p>2. Niniejsza Polityka Prywatności jest na bieżąco weryfikowana i w razie potrzeby aktualizowana.</p>'
                         ]
                     ]
                 ]

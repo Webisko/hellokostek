@@ -143,6 +143,7 @@ class StripePaymentCallbackController extends Controller
                     if ($order->payment_status !== 'paid') {
                         $order->forceFill([
                             'payment_status' => 'failed',
+                            'status' => 'cancelled',
                         ])->save();
                     }
                 });

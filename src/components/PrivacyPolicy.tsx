@@ -153,7 +153,7 @@ export default function PrivacyPolicy() {
                     1. Administratorem danych osobowych zbieranych za pośrednictwem Sklepu hellokostek jest <strong>hellokostek Maciej Kosteczka</strong> z siedzibą w: <strong>Rynek 33, 42-470 Siewierz, woj. śląskie, Polska</strong>, NIP: <strong>6252363656</strong>, REGON: <strong>527158196</strong>, wpisany do Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG), zwany dalej <strong>„Administratorem”</strong>.
                   </p>
                   <p>
-                    2. Kontakt z Administratorem w sprawach związanych z ochroną i przetwarzaniem danych osobowych jest możliwy za pośrednictwem adresu e-mail: <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-gray-900 hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a> lub korespondencyjnie na adres wskazany w ust. 1.
+                    2. Kontakt z Administratorem w sprawach związanych z ochroną i przetwarzaniem danych osobowych jest możliwy za pośrednictwem adresu e-mail: <a href="mailto:kontakt@hellokostek.pl" className="font-bold text-gray-900 hover:text-[#E0115F] transition-colors">kontakt@hellokostek.pl</a>, telefonicznie pod numerem <strong>662 707 153</strong> lub korespondencyjnie na adres siedziby wskazany w ust. 1.
                   </p>
                   <p>
                     3. Dane osobowe użytkowników są przetwarzane zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. (RODO), ustawą o ochronie danych osobowych oraz ustawą – Prawo komunikacji elektronicznej (PKE).
@@ -167,8 +167,59 @@ export default function PrivacyPolicy() {
                   <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 2. Cele i podstawy prawne przetwarzania danych</h2>
                 </div>
                 <div className="space-y-4 text-sm sm:text-base">
+                  <p>Administrator przetwarza dane osobowe w następujących celach:</p>
+                  <ul className="list-disc pl-6 space-y-2 text-gray-650">
+                    <li><strong>Zawarcie i wykonanie umowy sprzedaży lub wyceny dzieła</strong> (art. 6 ust. 1 lit. b RODO) – przez czas niezbędny do realizacji zamówienia i obsługi posprzedażowej.</li>
+                    <li><strong>Wypełnienie obowiązków prawnych i podatkowo-księgowych</strong> (art. 6 ust. 1 lit. c RODO) – przez okres wymagany przepisami prawa podatkowego (5 lat od końca roku kalendarzowego).</li>
+                    <li><strong>Obsługa zapytań z formularza kontaktowego oraz dochodzenie lub obrona przed roszczeniami</strong> (art. 6 ust. 1 lit. f RODO – prawnie uzasadniony interes Administratora).</li>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="odbiorcy-danych" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Users className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 3. Odbiorcy danych</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    Dane osobowe przetwarzane są w celu realizacji zamówień, obsługi zapytań oraz wypełnienia obowiązków prawno-podatkowych.
+                    W związku z realizacją zamówień dane osobowe są przekazywane wyłącznie w niezbędnym zakresie podmiotom współpracującym: operatorowi bezpiecznych płatności elektronicznych (<strong>Stripe Payments Europe, Ltd.</strong>), przewoźnikom doręczającym przesyłki (<strong>InPost Sp. z o.o.</strong>, <strong>ORLEN Paczka</strong>, firmy kurierskie), biuru rachunkowemu oraz dostawcy hostingu.
+                  </p>
+                </div>
+              </section>
+
+              <section id="prawa-uzytkownikow" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <UserCheck className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 4. Twoje prawa (RODO)</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    Każdej osobie, której dane dotyczą, przysługuje prawo dostępu do treści swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych oraz wniesienia sprzeciwu. Przysługuje również prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (UODO, ul. Stawki 2, 00-193 Warszawa).
+                  </p>
+                </div>
+              </section>
+
+              <section id="pliki-cookies" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <Cookie className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 5. Pliki cookies i pamięć przeglądarki</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    Strona internetowa korzysta wyłącznie z niezbędnych technicznie plików cookies oraz pamięci lokalnej przeglądarki (<code>localStorage</code>) potrzebnych do prawidłowego funkcjonowania koszyka zakupowego i bezpiecznej realizacji płatności (zgodnie z art. 399 ust. 3 pkt 2 Prawa komunikacji elektronicznej). Strona nie ładuje zewnętrznych skryptów śledzących ani reklamowych bez wyraźnej zgody użytkownika.
+                  </p>
+                </div>
+              </section>
+
+              <section id="profilowanie-i-omnibus" className="space-y-6 scroll-mt-24">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                  <FileText className="w-6 h-6 text-[#E0115F] shrink-0" />
+                  <h2 className="font-display text-2xl text-gray-900 font-semibold">§ 6. Dyrektywa Omnibus i brak profilowania</h2>
+                </div>
+                <div className="space-y-4 text-sm sm:text-base">
+                  <p>
+                    Sklep nie stosuje zautomatyzowanego podejmowania decyzji ani indywidualnego dostosowywania cen na podstawie profilowania. W przypadku ogłoszenia obniżki ceny produktu, obok ceny promocyjnej zawsze prezentowana jest najniższa cena z 30 dni przed wprowadzeniem obniżki.
                   </p>
                 </div>
               </section>
@@ -180,7 +231,7 @@ export default function PrivacyPolicy() {
                 </div>
                 <div className="space-y-4 text-sm sm:text-base">
                   <p>
-                    1. Administrator stosuje zaawansowane środki techniczne i organizacyjne chroniące dane osobowe.
+                    1. Administrator stosuje środki techniczne i organizacyjne zapewniające ochronę przetwarzanych danych osobowych (w tym szyfrowanie połączeń SSL/TLS).
                   </p>
                   <p>
                     2. Niniejsza Polityka Prywatności jest na bieżąco weryfikowana i w razie potrzeby aktualizowana.
