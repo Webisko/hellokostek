@@ -460,7 +460,6 @@ class PaymentSessionService
         try {
             $client = $this->stripeApiClient->getClient();
             $stripeSession = $client->checkout->sessions->create([
-                'payment_method_types' => ['card', 'blik', 'p24'],
                 'customer_email' => $order->customer_email ?: null,
                 'line_items' => [[
                     'price_data' => [

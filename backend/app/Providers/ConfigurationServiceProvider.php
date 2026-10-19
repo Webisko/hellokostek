@@ -60,10 +60,18 @@ class ConfigurationServiceProvider extends ServiceProvider
             config(['shop.abandoned_cart.hours_threshold' => (int) data_get($model->metadata, 'abandoned_cart_hours_threshold', 2)]);
 
             // Stripe
-            config(['services.stripe.enabled' => (bool) data_get($model->metadata, 'stripe_enabled', true)]);
-            config(['services.stripe.key' => data_get($model->metadata, 'stripe_key')]);
-            config(['services.stripe.secret' => data_get($model->metadata, 'stripe_secret')]);
-            config(['services.stripe.webhook_secret' => data_get($model->metadata, 'stripe_webhook_secret')]);
+            if (data_get($model->metadata, 'stripe_enabled') !== null) {
+                config(['services.stripe.enabled' => (bool) data_get($model->metadata, 'stripe_enabled')]);
+            }
+            if (filled(data_get($model->metadata, 'stripe_key'))) {
+                config(['services.stripe.key' => data_get($model->metadata, 'stripe_key')]);
+            }
+            if (filled(data_get($model->metadata, 'stripe_secret'))) {
+                config(['services.stripe.secret' => data_get($model->metadata, 'stripe_secret')]);
+            }
+            if (filled(data_get($model->metadata, 'stripe_webhook_secret'))) {
+                config(['services.stripe.webhook_secret' => data_get($model->metadata, 'stripe_webhook_secret')]);
+            }
 
             // Przelewy24
             config(['services.przelewy24.enabled' => (bool) data_get($model->metadata, 'przelewy24_enabled', true)]);
