@@ -25,11 +25,22 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(initialOrderDetails || null);
   const [retryPaymentUrl, setRetryPaymentUrl] = useState<string | null>(null);
   const [isRetryingPayment, setIsRetryingPayment] = useState(false);
+  const [reservationLabel, setReservationLabel] = useState("3 dni robocze");
 
   useEffect(() => {
     if (isPurchase) {
       // Clear the cart on mount for successful purchase
       clearCart();
+
+      const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
+      fetch(`${apiBase}/store-settings`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.bank_transfer_reservation_label) {
+            setReservationLabel(data.bank_transfer_reservation_label);
+          }
+        })
+        .catch(() => {});
 
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
@@ -125,7 +136,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
       return "Twoje zamówienie zostało już zapisane w systemie, jednak płatność w bramce Stripe została przerwana. Nie musisz składać zamówienia ponownie – w wiadomości potwierdzającej wysłanej na Twój adres e-mail znajdziesz bezpośredni link do dokończenia płatności.";
     }
     if (isTransfer) {
-      return "Twoje zamówienie zostało przekazane do Pracowni Artystycznej hellokostek. Dane do przelewu tradycyjnego znajdziesz poniżej oraz w wiadomości potwierdzającej na Twoim adresie e-mail. Wybraną pracę rezerwujemy na 3 dni robocze.";
+      return `Twoje zamówienie zostało przekazane do Pracowni Artystycznej hellokostek. Dane do przelewu tradycyjnego znajdziesz poniżej oraz w wiadomości potwierdzającej na Twoim adresie e-mail. Wybraną pracę rezerwujemy dla Ciebie na ${reservationLabel}.`;
     }
     if (isPending) {
       return "Twoje zamówienie zostało pomyślnie zarejestrowane i przekazane do Pracowni Artystycznej hellokostek. Potwierdzenie wraz ze szczegółami płatności wysłaliśmy na Twój adres e-mail.";

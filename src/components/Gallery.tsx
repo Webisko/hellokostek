@@ -349,21 +349,21 @@ export default function Gallery() {
       {/* Lightbox Modal (True Full-Screen Responsive Layout) */}
       {isMounted && selectedImageIndex !== null && currentArtwork && createPortal(
         <div 
-          className="fixed inset-0 w-screen h-screen z-50 flex flex-col xl:flex-row bg-neutral-950 text-white transition-opacity duration-300 overflow-hidden"
+          className="fixed inset-0 w-full h-[100dvh] z-50 flex flex-col xl:flex-row bg-neutral-950 text-white transition-opacity duration-300 overflow-hidden"
           onClick={handleCloseLightbox}
         >
-          {/* Global Close Button (Float top right, highly accessible) */}
+          {/* Global Close Button (Float top right, safe area compliant) */}
           <button
             onClick={handleCloseLightbox}
-            className="absolute top-4 right-4 md:top-6 md:right-6 text-neutral-400 hover:text-white bg-black/40 backdrop-blur-md hover:bg-white/10 p-2.5 rounded-full transition-all duration-300 cursor-pointer z-56 border-none"
+            className="absolute top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))] md:top-6 md:right-6 text-neutral-400 hover:text-white bg-black/40 backdrop-blur-md hover:bg-white/10 p-2.5 rounded-full transition-all duration-300 cursor-pointer z-56 border-none"
             aria-label="Zamknij podgląd"
           >
             <X className="w-5 h-5" />
           </button>
 
-          {/* Main Image Area (Left/Center) */}
+          {/* Main Image Area (Top on mobile, Left on desktop) */}
           <div 
-            className="flex-grow flex items-center justify-center p-6 md:p-8 xl:p-12 relative h-[60vh] xl:h-screen bg-black"
+            className="flex-grow flex items-center justify-center p-4 sm:p-6 md:p-8 xl:p-12 relative h-[50dvh] sm:h-[55dvh] xl:h-full bg-black min-h-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
@@ -378,39 +378,39 @@ export default function Gallery() {
             {/* Navigation buttons overlaid on the image area */}
             <button
               onClick={handlePrevImage}
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none z-55 cursor-pointer border-none"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none z-55 cursor-pointer border-none"
               aria-label="Poprzednie zdjęcie"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <button
               onClick={handleNextImage}
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none z-55 cursor-pointer border-none"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white hover:bg-gray-55 text-gray-900 shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110 hover:text-[#E0115F] hover:shadow-[0_0_15px_rgba(196,240,19,0.45)] focus:outline-none z-55 cursor-pointer border-none"
               aria-label="Następne zdjęcie"
             >
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-          {/* Sidebar Area (Right) */}
+          {/* Sidebar Area (Bottom on mobile, Right on desktop) */}
           <div 
-            className="w-full xl:w-[420px] shrink-0 bg-neutral-900 border-t xl:border-t-0 xl:border-l border-white/10 p-6 xl:p-10 flex flex-col justify-between h-[40vh] xl:h-screen relative z-55 overflow-y-auto"
+            className="w-full xl:w-[420px] shrink-0 bg-neutral-900 border-t xl:border-t-0 xl:border-l border-white/10 p-4 sm:p-6 xl:p-10 flex flex-col justify-between h-[50dvh] sm:h-[45dvh] xl:h-full relative z-55 overflow-y-auto min-h-0"
             onClick={(e) => e.stopPropagation()}
           >
 
             {/* Details Section */}
-            <div className="space-y-6 pt-6 xl:pt-10 font-sans">
+            <div className="space-y-4 sm:space-y-6 pt-2 xl:pt-10 font-sans">
               <div className="flex justify-between items-baseline text-xs text-neutral-400 font-mono">
                 <span>Rok powstania: {currentArtwork.year}</span>
                 <span>Praca {selectedImageIndex + 1} z {filteredArtworks.length}</span>
               </div>
               
-              <h2 className="font-display text-2xl md:text-3xl font-normal tracking-tight text-white leading-tight">
+              <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-normal tracking-tight text-white leading-tight">
                 {currentArtwork.title}
               </h2>
 
-              <div className="space-y-2.5 text-xs text-neutral-400 leading-relaxed">
+              <div className="space-y-2 text-xs text-neutral-400 leading-relaxed">
                 {currentArtwork.technique && (
                   <p className="text-stone-200 font-medium">• Technika: <span className="text-neutral-300 font-normal">{currentArtwork.technique}</span></p>
                 )}
@@ -447,19 +447,19 @@ export default function Gallery() {
             </div>
 
             {/* Actions Section */}
-            <div className="pt-6 border-t border-white/5">
+            <div className="pt-4 sm:pt-6 pb-[max(0.5rem,calc(env(safe-area-inset-bottom)+0.25rem))] border-t border-white/5 shrink-0">
               <a
                 href={`${basePath}/#kontakt-sekcja`}
-                className="button button--full cursor-pointer text-center"
+                className="button button--full cursor-pointer text-center min-h-[50px] h-auto py-3 px-4"
               >
                 <div className="button__blobs">
                   <div></div>
                   <div></div>
                   <div></div>
                 </div>
-                <div className="button__text font-bold">
+                <div className="button__text font-bold whitespace-normal text-center leading-snug">
                   Chcę podobny portret
-                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                  <ArrowRight className="w-4 h-4 ml-1.5 shrink-0" />
                 </div>
               </a>
             </div>

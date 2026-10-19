@@ -97,10 +97,19 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   const [isDynamicLoading, setIsDynamicLoading] = useState(false);
   const [isProductNotFound, setIsProductNotFound] = useState(false);
+  const [reservationLabel, setReservationLabel] = useState("3 dni robocze");
 
   // Fetch fresh product details from API on mount (supports new CMS products via URL slug)
   useEffect(() => {
     const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    fetch(`${apiBase}/store-settings`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.bank_transfer_reservation_label) {
+          setReservationLabel(data.bank_transfer_reservation_label);
+        }
+      })
+      .catch(() => {});
     const pathSegments = window.location.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
     const urlSlug = pathSegments[pathSegments.length - 1] || product.id;
     const isDifferentSlug = urlSlug !== product.id && urlSlug !== "sklep";
@@ -927,7 +936,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     {paymentMethod === "transfer" && (
                       <div className="p-4 bg-stone-50 border border-gray-150 rounded-xl space-y-2 animate-fadeIn">
                         <p className="text-xs text-gray-650 leading-relaxed font-sans">
-                          Dane do przelewu tradycyjnego wyślemy na Twój e-mail po potwierdzeniu zamówienia. Wybraną pracę rezerwujemy na 3 dni robocze.
+                          Dane do przelewu tradycyjnego wyślemy na Twój e-mail po potwierdzeniu zamówienia. Wybraną pracę rezerwujemy dla Ciebie na <strong>{reservationLabel}</strong>.
                         </p>
                       </div>
                     )}
@@ -979,7 +988,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             </div>
             
             {/* Footer (Sticky) */}
-            <div className="p-6 border-t border-gray-100 bg-gray-55 space-y-3">
+            <div className="p-4 sm:p-6 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.75rem))] border-t border-gray-100 bg-gray-55 space-y-3 shrink-0">
               {errorMessage && (
                 <div className="p-3 mb-2 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
                   {errorMessage}
@@ -989,7 +998,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 <button
                   type="submit"
                   disabled={!isKrok1Valid()}
-                  className="button button--full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                  className="button button--full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed w-full min-h-[52px] h-auto py-3 px-4"
                 >
                   <div className="button__blobs">
                     <div></div>
@@ -1006,14 +1015,14 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   <button
                     type="submit"
                     disabled={!isKrok2Valid() || isSubmitting}
-                    className="button button--full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                    className="button button--full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed w-full min-h-[52px] h-auto py-3 px-4"
                   >
                     <div className="button__blobs">
                       <div></div>
                       <div></div>
                       <div></div>
                     </div>
-                    <div className="button__text">
+                    <div className="button__text whitespace-normal sm:whitespace-nowrap text-center leading-snug py-1">
                       {isSubmitting ? (
                         <>
                           <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1024,8 +1033,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                         </>
                       ) : (
                         <>
-                          <Lock className="w-3.5 h-3.5" />
-                          {paymentMethod === "transfer" ? "Zamawiam z obowiązkiem zapłaty" : "Zamawiam i płacę"} ({Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0)) + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł)
+                          <Lock className="w-3.5 h-3.5 shrink-0" />
+                          <span>{paymentMethod === "transfer" ? "Zamawiam z obowiązkiem zapłaty" : "Zamawiam i płacę"} ({Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0)) + (deliveryOptions.find(opt => opt.id === selectedDelivery)?.price || 0)} zł)</span>
                         </>
                       )}
                     </div>
@@ -1052,22 +1061,22 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       {/* Lightbox Modal */}
       {isLightboxOpen && (
         <div 
-          className="fixed inset-0 bg-off-black/90 backdrop-blur-md z-50 flex items-center justify-center p-2 md:p-4 cursor-zoom-out animate-fadeIn"
+          className="fixed inset-0 bg-off-black/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] cursor-zoom-out animate-fadeIn"
           onClick={() => setIsLightboxOpen(false)}
         >
           <button 
-            className="absolute top-6 right-6 text-white hover:text-magenta-accent transition-colors p-2 cursor-pointer z-51 border-none bg-transparent"
+            className="absolute top-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] right-[max(1rem,calc(env(safe-area-inset-right)+0.5rem))] text-white hover:text-magenta-accent transition-colors p-2.5 cursor-pointer z-51 border-none bg-black/40 backdrop-blur-md rounded-full"
             onClick={() => setIsLightboxOpen(false)}
             aria-label="Zamknij"
           >
-            <X className="w-8 h-8" />
+            <X className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
           
           <img
             src={currentProduct.imageUrl}
             alt={currentProduct.title}
             referrerPolicy="no-referrer"
-            className="w-full xl:w-auto max-w-[98vw] md:max-w-[96vw] lg:max-w-[95vw] xl:max-w-[85vw] max-h-[95vh] md:max-h-[93vh] lg:max-h-[92vh] xl:max-h-[90vh] object-contain rounded-lg shadow-2xl select-none animate-scaleIn"
+            className="w-full xl:w-auto max-w-[98vw] md:max-w-[96vw] lg:max-w-[95vw] xl:max-w-[85vw] max-h-[90dvh] md:max-h-[92dvh] object-contain rounded-lg shadow-2xl select-none animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           />
         </div>

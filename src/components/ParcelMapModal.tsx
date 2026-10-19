@@ -354,7 +354,7 @@ export default function ParcelMapModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/65 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-black/65 backdrop-blur-sm animate-fadeIn">
       {/* Modal Container */}
       <div 
         className={`relative w-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col animate-scaleUp ${
@@ -482,7 +482,7 @@ export default function ParcelMapModal({
         ) : (
           /* ORLEN Paczka View */
           <>
-            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto font-sans">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1 min-h-0 font-sans">
               <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-[#E0115F] shrink-0 mt-0.5 shadow-2xs">
