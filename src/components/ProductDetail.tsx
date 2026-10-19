@@ -928,7 +928,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     {paymentMethod === "online" && (
                       <div className="p-4 bg-stone-50 border border-gray-150 rounded-xl space-y-2 animate-fadeIn">
                         <p className="text-xs text-gray-650 leading-relaxed font-sans">
-                          Po kliknięciu przycisku poniżej przejdziesz do bezpiecznej bramki <strong>Stripe</strong>, gdzie wybierzesz wygodną metodę płatności: <strong>BLIK, karta płatnicza, Apple Pay, Google Pay, Revolut Pay lub Klarna</strong>.
+                          Po kliknięciu przycisku poniżej przejdziesz do bezpiecznej bramki <strong>Stripe</strong>, gdzie wygodnie opłacisz zamówienie (m.in. <strong>BLIK, szybki przelew lub karta płatnicza</strong>).
                         </p>
                       </div>
                     )}
