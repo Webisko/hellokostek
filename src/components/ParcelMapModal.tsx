@@ -357,7 +357,11 @@ export default function ParcelMapModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/65 backdrop-blur-sm animate-fadeIn">
       {/* Modal Container */}
       <div 
-        className="relative w-full max-w-4xl bg-white rounded-2xl sm:rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col h-[90dvh] sm:h-[85dvh] max-h-[760px] animate-scaleUp"
+        className={`relative w-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col animate-scaleUp ${
+          isInPost 
+            ? "max-w-4xl h-[90dvh] sm:h-[85dvh] max-h-[760px]" 
+            : "max-w-2xl h-auto max-h-[90dvh]"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -477,111 +481,113 @@ export default function ParcelMapModal({
           </>
         ) : (
           /* ORLEN Paczka View */
-          <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 font-sans">
-            <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-[#E0115F] shrink-0 mt-0.5 shadow-2xs">
-                  <MapPin className="w-5 h-5" />
+          <>
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto font-sans">
+              <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-[#E0115F] shrink-0 mt-0.5 shadow-2xs">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-semibold text-sm sm:text-base text-gray-900">
+                      1. Znajdź punkt na oficjalnej mapie ORLEN Paczki
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                      Otwórz mapę, aby zlokalizować najbliższy automat lub punkt partnerski i skopiować jego nagłówek.
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-semibold text-sm sm:text-base text-gray-900">
-                    1. Znajdź punkt na oficjalnej mapie ORLEN Paczki
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                    Otwórz mapę, aby zlokalizować najbliższy automat lub punkt partnerski i skopiować jego nagłówek.
-                  </p>
-                </div>
+
+                <a
+                  href="https://www.orlenpaczka.pl/pokaz-punkty/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 text-gray-900 font-semibold text-xs sm:text-sm shadow-xs transition-all cursor-pointer group"
+                >
+                  <span>Otwórz oficjalną mapę ORLEN Paczka</span>
+                  <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-transform" />
+                </a>
               </div>
 
-              <a
-                href="https://www.orlenpaczka.pl/pokaz-punkty/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white hover:bg-gray-55 border border-gray-300 hover:border-gray-400 text-gray-900 font-semibold text-xs sm:text-sm shadow-xs transition-all cursor-pointer group"
-              >
-                <span>Otwórz oficjalną mapę ORLEN Paczka</span>
-                <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-transform" />
-              </a>
+              <form onSubmit={handleConfirmOrlen} className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-700 shrink-0 mt-0.5 shadow-2xs">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-semibold text-sm sm:text-base text-gray-900">
+                      2. Wklej nagłówek lub kod punktu
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+                      Wskazówka: Kodem docelowym jest numer w nagłówku (np. w <strong>Punkt Partnerski 913861</strong> kodem jest <strong>913861</strong>). Możesz wkleić cały nagłówek lub sam numer — system automatycznie wyodrębni właściwy kod.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      value={orlenCode}
+                      onChange={(e) => {
+                        setOrlenCode(e.target.value);
+                        if (orlenError) setOrlenError("");
+                      }}
+                      placeholder="np. Punkt Partnerski 913861 lub 913861"
+                      className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-sm sm:text-base bg-white text-gray-900 transition-all placeholder:text-gray-400"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!orlenCode.trim()}
+                      className="inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-xl bg-gray-900 hover:bg-[#E0115F] text-white font-medium text-xs sm:text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0 shadow-xs"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Zatwierdź punkt</span>
+                    </button>
+                  </div>
+
+                  {parsedOrlen && parsedOrlen.id && (
+                    <div className="p-3 bg-emerald-50/90 border border-emerald-200 rounded-xl text-xs font-sans text-emerald-900 flex items-center justify-between gap-3 animate-fadeIn">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                          ✓
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-emerald-950">Kod: {parsedOrlen.id}</span>
+                            <span className="text-emerald-700 font-medium font-mono text-[11px] bg-emerald-100/60 px-1.5 py-0.5 rounded">
+                              {parsedOrlen.name}
+                            </span>
+                          </div>
+                          {parsedOrlen.address && parsedOrlen.address !== `Punkt odbioru ${parsedOrlen.id}` && (
+                            <p className="text-emerald-700 text-xs mt-0.5">{parsedOrlen.address}</p>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-semibold text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
+                        Gotowy
+                      </span>
+                    </div>
+                  )}
+
+                  {orlenError && (
+                    <p className="text-xs text-red-600 font-medium">{orlenError}</p>
+                  )}
+                </div>
+              </form>
             </div>
 
-            <form onSubmit={handleConfirmOrlen} className="p-4 sm:p-5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-700 shrink-0 mt-0.5 shadow-2xs">
-                  <Search className="w-4 h-4" />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-semibold text-sm sm:text-base text-gray-900">
-                    2. Wklej nagłówek lub kod punktu
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                    Wskazówka: Kodem docelowym jest numer w nagłówku (np. w <strong>Punkt Partnerski 913861</strong> kodem jest <strong>913861</strong>). Możesz wkleić cały nagłówek lub sam numer — system automatycznie wyodrębni właściwy kod.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2 pt-1">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="text"
-                    value={orlenCode}
-                    onChange={(e) => {
-                      setOrlenCode(e.target.value);
-                      if (orlenError) setOrlenError("");
-                    }}
-                    placeholder="np. Punkt Partnerski 913861 lub 913861"
-                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-sm sm:text-base bg-white text-gray-900 transition-all placeholder:text-gray-400"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!orlenCode.trim()}
-                    className="inline-flex items-center justify-center gap-1.5 px-5 py-3 rounded-xl bg-gray-900 hover:bg-[#E0115F] text-white font-medium text-xs sm:text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0 shadow-xs"
-                  >
-                    <Check className="w-4 h-4" />
-                    <span>Zatwierdź punkt</span>
-                  </button>
-                </div>
-
-                {parsedOrlen && parsedOrlen.id && (
-                  <div className="p-3 bg-emerald-50/90 border border-emerald-200 rounded-xl text-xs font-sans text-emerald-900 flex items-center justify-between gap-3 animate-fadeIn">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                        ✓
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-emerald-950">Kod: {parsedOrlen.id}</span>
-                          <span className="text-emerald-700 font-medium font-mono text-[11px] bg-emerald-100/60 px-1.5 py-0.5 rounded">
-                            {parsedOrlen.name}
-                          </span>
-                        </div>
-                        {parsedOrlen.address && parsedOrlen.address !== `Punkt odbioru ${parsedOrlen.id}` && (
-                          <p className="text-emerald-700 text-xs mt-0.5">{parsedOrlen.address}</p>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-semibold text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
-                      Gotowy
-                    </span>
-                  </div>
-                )}
-
-                {orlenError && (
-                  <p className="text-xs text-red-600 font-medium">{orlenError}</p>
-                )}
-              </div>
-            </form>
-
-            <div className="p-3 sm:p-4 px-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs font-sans text-gray-500 mt-auto">
+            <div className="p-3 sm:p-4 px-4 sm:px-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs font-sans text-gray-500 shrink-0">
               <span className="hidden sm:inline">Kod punktu zostanie automatycznie dodany do zamówienia.</span>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-black rounded-xl font-medium transition-all text-center cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-black rounded-xl font-medium transition-all text-center cursor-pointer shadow-2xs"
               >
                 Anuluj i zamknij
               </button>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
