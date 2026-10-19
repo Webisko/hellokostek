@@ -485,11 +485,11 @@ class PaymentSessionService
             if ($isLiveAccount) {
                 $brandingSettings['icon'] = [
                     'type' => 'file',
-                    'file' => 'file_1USDjCEMroq1kI0hUPIqoZpt',
+                    'file' => 'file_1USFUwEMroq1kI0hSkmIFsEO',
                 ];
                 $brandingSettings['logo'] = [
                     'type' => 'file',
-                    'file' => 'file_1USDjCEMroq1kI0hnbgxnHNy',
+                    'file' => 'file_1USFUwEMroq1kI0hjMlwzbLT',
                 ];
             }
 
