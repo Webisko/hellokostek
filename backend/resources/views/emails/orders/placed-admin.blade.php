@@ -29,8 +29,12 @@
     <h3 style="font-size: 14px; text-transform: uppercase; color: #57534e; margin: 16px 0 8px 0;">Pozycje zamówienia:</h3>
     <ul style="font-size: 14px; margin: 0; padding-left: 20px;">
         @foreach ($order->items as $item)
+            @php
+                $rawName = is_array($item->name) ? ($item->name['pl'] ?? reset($item->name)) : (string) $item->name;
+                $cleanName = str_replace(['(Reprodukcja (Wydruk))', '((Wydruk))', '(Wydruk (Reprodukcja))'], '(Wydruk)', $rawName);
+            @endphp
             <li>
-                <strong>{{ is_array($item->name) ? ($item->name['pl'] ?? reset($item->name)) : $item->name }}</strong>
+                <strong>{{ $cleanName }}</strong>
                 ({{ $item->sku ?? 'brak SKU' }}) × {{ $item->quantity }} —
                 {{ number_format($item->total_amount / 100, 2, ',', ' ') }} {{ $order->currency }}
             </li>

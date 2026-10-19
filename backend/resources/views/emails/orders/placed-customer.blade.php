@@ -9,9 +9,12 @@
     $sellerAddress = $storeSettings->invoiceSellerAddress() !== 'ul. Testowa 1, 00-001 Warszawa'
         ? $storeSettings->invoiceSellerAddress()
         : 'Rynek 33, 42-470 Siewierz';
-    $bankAccount = $storeSettings->invoiceSellerBankAccount() ?: 'PL 74 1050 1227 1000 0090 8312 8604';
+    $cleanNameFn = function ($rawName) {
+        $str = is_array($rawName) ? ($rawName['pl'] ?? reset($rawName)) : (string) $rawName;
+        return str_replace(['(Reprodukcja (Wydruk))', '((Wydruk))', '(Wydruk (Reprodukcja))'], '(Wydruk)', $str);
+    };
     $productNames = $order->items
-        ->map(fn ($item) => is_array($item->name) ? ($item->name['pl'] ?? reset($item->name)) : $item->name)
+        ->map(fn ($item) => $cleanNameFn($item->name))
         ->filter()
         ->implode(', ');
     $transferTitle = $productNames !== '' ? $productNames : ('Zamówienie ' . $order->number);
@@ -38,7 +41,7 @@
             @foreach ($order->items as $item)
                 <tr>
                     <td style="padding: 6px 0; border-bottom: 1px solid #f5f5f4;">
-                        <strong>{{ is_array($item->name) ? ($item->name['pl'] ?? reset($item->name)) : $item->name }}</strong>
+                        <strong>{{ $cleanNameFn($item->name) }}</strong>
                         <span style="color: #78716c;">× {{ $item->quantity }}</span>
                     </td>
                     <td style="padding: 6px 0; border-bottom: 1px solid #f5f5f4; text-align: right; font-family: monospace; font-weight: bold;">

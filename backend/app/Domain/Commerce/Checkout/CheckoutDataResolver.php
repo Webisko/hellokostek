@@ -316,8 +316,16 @@ class CheckoutDataResolver
         $name = $product->name;
         
         if ($variant) {
-            $optionsStr = $variant->optionValues->map(fn($val) => $val->value)->implode(', ');
+            $optionsStr = $variant->optionValues->map(function ($val) {
+                $v = trim((string) $val->value);
+                if (in_array($v, ['Reprodukcja (Wydruk)', 'Wydruk (Reprodukcja)'], true)) {
+                    return 'Wydruk';
+                }
+                return $v;
+            })->implode(', ');
+
             if ($optionsStr !== '') {
+                $optionsStr = preg_replace('/^\((.*)\)$/', '$1', $optionsStr);
                 $name .= ' (' . $optionsStr . ')';
             }
         }

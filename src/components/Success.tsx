@@ -136,7 +136,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
 
                 <span className="text-gray-500">Typ zakupu:</span>
                 <strong className="text-gray-900 text-right">
-                  {orderDetails.purchaseType === "original" ? "Oryginał" : "Reprodukcja (Wydruk)"}
+                  {orderDetails.purchaseType === "original" ? "Oryginał" : "Wydruk"}
                 </strong>
 
                 <span className="text-gray-500">Cena pracy:</span>

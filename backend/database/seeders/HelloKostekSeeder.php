@@ -288,7 +288,7 @@ class HelloKostekSeeder extends Seeder
             );
 
             $valPrint = ProductOptionValue::query()->updateOrCreate(
-                ['product_option_id' => $option->id, 'value' => 'Reprodukcja (Wydruk)'],
+                ['product_option_id' => $option->id, 'value' => 'Wydruk'],
                 []
             );
 
@@ -305,7 +305,7 @@ class HelloKostekSeeder extends Seeder
             );
             $variantOriginal->optionValues()->sync([$valOriginal->id]);
 
-            // 2. Wariant: Reprodukcja (Wydruk)
+            // 2. Wariant: Wydruk
             $variantPrint = ProductVariant::query()->updateOrCreate(
                 ['product_id' => $product->id, 'sku' => $product->sku . '-PR'],
                 [
