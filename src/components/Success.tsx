@@ -78,12 +78,12 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
       return "Twoje zamówienie zostało zapisane w systemie, jednak płatność w bramce Stripe nie została sfinalizowana. Szczegóły zamówienia wysłaliśmy na Twój adres e-mail.";
     }
     if (isTransfer) {
-      return "Twoje zamówienie zostało przekazane do mojej Pracowni Artystycznej w Łodzi. Dane do przelewu tradycyjnego wysłaliśmy w wiadomości potwierdzającej na Twój adres e-mail. Wybraną pracę rezerwujemy na 3 dni robocze.";
+      return "Twoje zamówienie zostało przekazane do Pracowni Artystycznej hellokostek. Dane do przelewu tradycyjnego znajdziesz poniżej oraz w wiadomości potwierdzającej na Twoim adresie e-mail. Wybraną pracę rezerwujemy na 3 dni robocze.";
     }
     if (isPending) {
-      return "Twoje zamówienie zostało pomyślnie zarejestrowane i przekazane do mojej Pracowni Artystycznej w Łodzi. Potwierdzenie wraz ze szczegółami płatności wysłaliśmy na Twój adres e-mail.";
+      return "Twoje zamówienie zostało pomyślnie zarejestrowane i przekazane do Pracowni Artystycznej hellokostek. Potwierdzenie wraz ze szczegółami płatności wysłaliśmy na Twój adres e-mail.";
     }
-    return "Twoja transakcja została pomyślnie autoryzowana przez Stripe. Zamówienie uwieczniające wyjątkowe kadry zostało przekazane do mojej Pracowni Artystycznej w Łodzi.";
+    return "Twoja transakcja została pomyślnie autoryzowana przez Stripe. Zamówienie zostało przekazane do realizacji w Pracowni Artystycznej hellokostek.";
   };
 
   return (
@@ -144,6 +144,36 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
                 <strong className="text-magenta-accent font-bold font-mono text-right border-t border-gray-200/60 pt-2 text-base">
                   {orderDetails.price + (orderDetails.shippingPrice || 0)} zł
                 </strong>
+              </div>
+            </div>
+          )}
+
+          {isTransfer && orderDetails && (
+            <div className="bg-rose-50/70 rounded-2xl p-6 border border-rose-200 text-left space-y-3 font-sans text-gray-800">
+              <div className="flex items-center gap-2 border-b border-rose-200/70 pb-3">
+                <span className="font-mono text-xs uppercase tracking-wider text-[#E0115F] font-bold">Dane do przelewu tradycyjnego</span>
+              </div>
+              <div className="space-y-1.5 text-xs sm:text-sm font-mono">
+                <div>
+                  <span className="text-gray-500 font-sans">Odbiorca: </span>
+                  <strong className="text-gray-900">hellokostek Maciej Kosteczka</strong>
+                </div>
+                <div>
+                  <span className="text-gray-500 font-sans">Adres: </span>
+                  <strong className="text-gray-900">Rynek 33, 42-470 Siewierz</strong>
+                </div>
+                <div>
+                  <span className="text-gray-500 font-sans">Konto firmowe IBAN: </span>
+                  <strong className="text-gray-900 select-all">PL 74 1050 1227 1000 0090 8312 8604</strong>
+                </div>
+                <div>
+                  <span className="text-gray-500 font-sans">Tytuł przelewu: </span>
+                  <strong className="text-gray-900 select-all">{orderDetails.productTitle} - {orderDetails.purchaseType === "original" ? "Oryginał" : "Wydruk"}</strong>
+                </div>
+                <div>
+                  <span className="text-gray-500 font-sans">Kwota: </span>
+                  <strong className="text-[#E0115F]">{orderDetails.price + (orderDetails.shippingPrice || 0)} zł</strong>
+                </div>
               </div>
             </div>
           )}

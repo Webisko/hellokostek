@@ -6,7 +6,15 @@
     $sellerName = $storeSettings->invoiceSellerName() !== 'Firma testowa sp. z o.o.'
         ? $storeSettings->invoiceSellerName()
         : 'hellokostek Maciej Kosteczka';
-    $bankAccount = $storeSettings->invoiceSellerBankAccount();
+    $sellerAddress = $storeSettings->invoiceSellerAddress() !== 'ul. Testowa 1, 00-001 Warszawa'
+        ? $storeSettings->invoiceSellerAddress()
+        : 'Rynek 33, 42-470 Siewierz';
+    $bankAccount = $storeSettings->invoiceSellerBankAccount() ?: 'PL 74 1050 1227 1000 0090 8312 8604';
+    $productNames = $order->items
+        ->map(fn ($item) => is_array($item->name) ? ($item->name['pl'] ?? reset($item->name)) : $item->name)
+        ->filter()
+        ->implode(', ');
+    $transferTitle = $productNames !== '' ? $productNames : ('Zamówienie ' . $order->number);
 @endphp
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1a1a; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #eee; border-radius: 16px;">
     <p style="font-family: monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #E0115F; font-weight: bold; margin: 0 0 8px 0;">
@@ -85,14 +93,13 @@
                 Płatność przelewem tradycyjnym
             </h3>
             <p style="margin: 0 0 8px 0;">
-                Wybraną pracę rezerwujemy dla Ciebie na <strong>3 dni robocze</strong>. Prosimy o dokonanie przelewu ze wskazaniem numeru zamówienia w tytule:
+                Wybraną pracę rezerwujemy dla Ciebie na <strong>3 dni robocze</strong>. Prosimy o dokonanie przelewu na poniższe dane:
             </p>
             <p style="margin: 0; font-family: monospace; font-size: 13px;">
                 <strong>Odbiorca:</strong> {{ $sellerName }}<br>
-                @if (!empty($bankAccount))
-                    <strong>Numer konta:</strong> {{ $bankAccount }}<br>
-                @endif
-                <strong>Tytuł przelewu:</strong> Zamówienie {{ $order->number }}<br>
+                <strong>Adres:</strong> {{ $sellerAddress }}<br>
+                <strong>Konto firmowe IBAN:</strong> {{ $bankAccount }}<br>
+                <strong>Tytuł przelewu:</strong> {{ $transferTitle }}<br>
                 <strong>Kwota:</strong> {{ number_format($order->total_amount / 100, 2, ',', ' ') }} {{ $order->currency }}
             </p>
         </div>

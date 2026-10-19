@@ -143,7 +143,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Hello Kostek — Nowe Zapytanie o Portret</h1>
+            <h1>hellokostek — Nowe Zapytanie o Portret</h1>
             <p>Formularz wyceny i kontaktu ze strony hellokostek.pl</p>
         </div>
 
@@ -220,7 +220,7 @@
         </div>
 
         <div class="footer">
-            Wiadomość wygenerowana automatycznie przez system Hello Kostek.<br>
+            Wiadomość wygenerowana automatycznie przez system hellokostek.<br>
             Możesz odpowiedzieć bezpośrednio na ten e-mail, aby napisać do klienta ({{ $inquiry->email }}).
         </div>
     </div>

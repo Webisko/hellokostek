@@ -19,7 +19,7 @@ class MinimalPdfGenerator
         $sellerNip = $metadata['invoice_seller_nip'] ?? '6252363656';
         $sellerEmail = $storeSettings->supportEmail() ?? 'kontakt@hellokostek.pl';
         $sellerAddress = $metadata['invoice_seller_address'] ?? 'Rynek 33, 42-470 Siewierz';
-        $sellerBankAccount = $metadata['invoice_seller_bank_account'] ?? '';
+        $sellerBankAccount = $metadata['invoice_seller_bank_account'] ?? 'PL 74 1050 1227 1000 0090 8312 8604';
 
         $buyerName = $order->billing_company_name ?? ($order->customer_first_name . ' ' . $order->customer_last_name);
         $buyerNip = $order->billing_nip ? 'NIP: ' . $order->billing_nip : '';

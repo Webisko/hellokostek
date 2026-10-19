@@ -462,7 +462,7 @@ class PaymentSessionService
             $isLiveAccount = str_starts_with((string) config('services.stripe.secret'), 'sk_live_51TiVyUEMroq1kI0h');
 
             $brandingSettings = [
-                'display_name' => 'Hello Kostek',
+                'display_name' => 'hellokostek',
                 'background_color' => '#FAF9F6',
                 'button_color' => '#181716',
                 'border_style' => 'rounded',

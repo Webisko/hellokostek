@@ -531,7 +531,7 @@ class StoreSettings
                 'media_max_height' => 1080,
                 'media_generate_responsive' => true,
                 'media_responsive_widths' => '360,720,1200',
-                'admin_brand_name' => 'Hello Kostek CMS',
+                'admin_brand_name' => 'hellokostek CMS',
                 'navigation_groups' => [
                     ['name' => 'Sprzedaż & zapytania', 'label' => 'Sprzedaż & zapytania', 'sort_order' => 10],
                     ['name' => 'Oferta & galeria', 'label' => 'Oferta & galeria', 'sort_order' => 20],
