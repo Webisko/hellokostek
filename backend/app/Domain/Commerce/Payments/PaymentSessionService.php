@@ -459,8 +459,31 @@ class PaymentSessionService
 
         try {
             $client = $this->stripeApiClient->getClient();
+            $isLiveAccount = str_starts_with((string) config('services.stripe.secret'), 'sk_live_51TiVyUEMroq1kI0h');
+
+            $brandingSettings = [
+                'display_name' => 'Hello Kostek',
+                'background_color' => '#FAF9F6',
+                'button_color' => '#181716',
+                'border_style' => 'rounded',
+                'font_family' => 'montserrat',
+            ];
+
+            if ($isLiveAccount) {
+                $brandingSettings['icon'] = [
+                    'type' => 'file',
+                    'file' => 'file_1USDjCEMroq1kI0hUPIqoZpt',
+                ];
+                $brandingSettings['logo'] = [
+                    'type' => 'file',
+                    'file' => 'file_1USDjCEMroq1kI0hnbgxnHNy',
+                ];
+            }
+
             $stripeSession = $client->checkout->sessions->create([
                 'customer_email' => $order->customer_email ?: null,
+                'locale' => 'pl',
+                'branding_settings' => $brandingSettings,
                 'line_items' => [[
                     'price_data' => [
                         'currency' => strtolower($order->currency),
