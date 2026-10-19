@@ -380,6 +380,7 @@ class PaymentSessionService
             'price' => $price,
             'shippingMethod' => $shippingMethod,
             'shippingPrice' => $shippingPrice,
+            'email' => $order->customer_email,
         ]);
 
         return $storefrontUrl . '/sukces-zakup?' . $query;

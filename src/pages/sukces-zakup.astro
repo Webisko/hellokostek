@@ -8,6 +8,7 @@ const purchaseType = Astro.url.searchParams.get("purchaseType") as "original" | 
 const price = parseFloat(Astro.url.searchParams.get("price") || "0");
 const shippingMethod = Astro.url.searchParams.get("shippingMethod") || undefined;
 const shippingPrice = Astro.url.searchParams.get("shippingPrice") ? parseFloat(Astro.url.searchParams.get("shippingPrice") || "0") : undefined;
+const email = Astro.url.searchParams.get("email") || undefined;
 
 const orderDetails = orderNumber && productTitle ? {
   orderNumber,
@@ -16,6 +17,7 @@ const orderDetails = orderNumber && productTitle ? {
   price,
   shippingMethod,
   shippingPrice,
+  email,
 } : null;
 ---
 

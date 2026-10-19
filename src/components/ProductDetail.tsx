@@ -336,7 +336,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         const discountedItemsPrice = Math.max(0, currentPrice * quantity - (appliedCoupon?.discount_amount || 0));
         const isTransfer = paymentMethodCode === "bank_transfer";
         const paymentPending = !isTransfer;
-        window.location.href = `${basePath}/sukces-zakup?orderNumber=${encodeURIComponent(orderData.number)}&productTitle=${encodeURIComponent(currentProduct.title)}&purchaseType=${selectedType}&price=${discountedItemsPrice}&shippingMethod=${encodeURIComponent(deliveryOpt.name)}&shippingPrice=${deliveryOpt.price}&isTransfer=${isTransfer}&paymentPending=${paymentPending}`;
+        window.location.href = `${basePath}/sukces-zakup?orderNumber=${encodeURIComponent(orderData.number)}&productTitle=${encodeURIComponent(currentProduct.title)}&purchaseType=${selectedType}&price=${discountedItemsPrice}&shippingMethod=${encodeURIComponent(deliveryOpt.name)}&shippingPrice=${deliveryOpt.price}&isTransfer=${isTransfer}&paymentPending=${paymentPending}&email=${encodeURIComponent(email)}`;
       }
     } catch (err: any) {
       setIsSubmitting(false);

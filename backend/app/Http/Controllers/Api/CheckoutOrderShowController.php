@@ -29,7 +29,7 @@ class CheckoutOrderShowController extends Controller
         } else {
             // Guest: email must match
             $providedEmail = mb_strtolower(trim(
-                (string) ($request->header('X-Order-Email') ?? $request->query('email', ''))
+                (string) ($request->header('X-Order-Email') ?? $request->query('email') ?? $request->input('email', ''))
             ));
 
             if (blank($providedEmail) || $providedEmail !== mb_strtolower($order->customer_email)) {

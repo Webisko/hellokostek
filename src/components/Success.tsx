@@ -17,11 +17,14 @@ interface OrderDetails {
   isTransfer?: boolean;
   paymentPending?: boolean;
   stripeStatus?: string | null;
+  email?: string;
 }
 
 export default function Success({ mode, orderDetails: initialOrderDetails }: SuccessProps) {
   const isPurchase = mode === "purchase";
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(initialOrderDetails || null);
+  const [retryPaymentUrl, setRetryPaymentUrl] = useState<string | null>(null);
+  const [isRetryingPayment, setIsRetryingPayment] = useState(false);
 
   useEffect(() => {
     if (isPurchase) {
@@ -39,6 +42,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
         const isTransfer = params.get("isTransfer") === "true";
         const paymentPending = params.get("paymentPending") === "true";
         const stripeStatus = params.get("stripe_status");
+        const email = params.get("email") || undefined;
 
         if (orderNumber) {
           setOrderDetails({
@@ -51,6 +55,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
             isTransfer,
             paymentPending,
             stripeStatus,
+            email,
           });
         }
       }
@@ -62,6 +67,48 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
   const isCancelled = isPurchase && orderDetails?.stripeStatus === "cancelled";
   const isTransfer = isPurchase && orderDetails?.isTransfer;
   const isPending = isPurchase && orderDetails?.paymentPending && orderDetails?.stripeStatus !== "success";
+
+  useEffect(() => {
+    if (isCancelled && orderDetails?.orderNumber) {
+      const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
+      const emailQuery = orderDetails.email ? `?email=${encodeURIComponent(orderDetails.email)}` : "";
+      fetch(`${apiBase}/checkout/orders/${encodeURIComponent(orderDetails.orderNumber)}${emailQuery}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          const redirectUrl = data?.data?.payment_session?.redirect_url;
+          if (redirectUrl) {
+            setRetryPaymentUrl(redirectUrl);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isCancelled, orderDetails?.orderNumber, orderDetails?.email]);
+
+  const handleRetryPayment = async () => {
+    if (retryPaymentUrl) {
+      window.location.href = retryPaymentUrl;
+      return;
+    }
+    if (!orderDetails?.orderNumber) return;
+    setIsRetryingPayment(true);
+    try {
+      const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
+      const res = await fetch(`${apiBase}/checkout/orders/${encodeURIComponent(orderDetails.orderNumber)}/payment-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ email: orderDetails.email }),
+      });
+      const data = await res.json();
+      const redirectUrl = data?.data?.payment_session?.redirect_url;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsRetryingPayment(false);
+    }
+  };
 
   const renderHeading = () => {
     if (!isPurchase) return "Wiadomość wysłana!";
@@ -111,13 +158,32 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
         {/* Symmetrical Informational Bullet Axis / Order Summary */}
         <div className="space-y-4">
           {isCancelled && (
-            <div className="bg-amber-50/90 rounded-2xl p-6 border border-amber-200 text-left space-y-2 font-sans text-gray-800">
-              <strong className="font-mono text-xs uppercase tracking-wider text-amber-900 font-bold block">
-                Jak dokończyć płatność?
-              </strong>
-              <p className="text-xs sm:text-sm leading-relaxed text-amber-950">
-                <strong>Nie składaj tego samego zamówienia ponownie.</strong> Sprawdź swoją skrzynkę odbiorczą – w wysłanym przed chwilą mailu potwierdzającym zamówienie znajdziesz przycisk <strong>„Opłać zamówienie online”</strong>, którym bezpiecznie dokończysz płatność w dowolnym momencie.
-              </p>
+            <div className="bg-amber-50/90 rounded-2xl p-6 border border-amber-200 text-left space-y-4 font-sans text-gray-800">
+              <div>
+                <strong className="font-mono text-xs uppercase tracking-wider text-amber-900 font-bold block mb-1">
+                  Jak dokończyć płatność?
+                </strong>
+                <p className="text-xs sm:text-sm leading-relaxed text-amber-950">
+                  <strong>Nie musisz składać tego samego zamówienia ponownie.</strong> Możesz wrócić do bezpiecznej płatności Stripe od razu, klikając poniższy przycisk. Bezpośredni link do płatności wysłaliśmy także na Twój adres e-mail, więc możesz dokończyć zamówienie również w późniejszym czasie.
+                </p>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={handleRetryPayment}
+                  disabled={isRetryingPayment}
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 bg-[#181716] hover:bg-[#E0115F] active:bg-black text-white font-semibold text-sm rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  {isRetryingPayment ? (
+                    "Otwieranie bramki płatności..."
+                  ) : (
+                    <>
+                      Wróć do płatności online (Stripe) →
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           )}
 
