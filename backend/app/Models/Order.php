@@ -161,6 +161,9 @@ class Order extends Model
                                 $product->increment('stock_quantity', $item->quantity);
                             }
                         }
+                        if ($product) {
+                            \App\Models\Product::flushCatalogCache($product->slug);
+                        }
                     }
 
                     $metadata = $order->metadata ?? [];
@@ -176,14 +179,9 @@ class Order extends Model
             }
 
             if ($order->wasChanged('payment_status') && $order->payment_status === 'paid') {
-                // Generate Invoice PDF
+                // Dispatch OrderPaid Event for billing integrations (generates DomPDF invoice if invoicing_enabled is true)
                 try {
-                    $pdfContent = \App\Support\MinimalPdfGenerator::generateInvoice($order);
-                    $pdfPath = storage_path('app/invoices/' . $order->number . '.pdf');
-                    if (!file_exists(dirname($pdfPath))) {
-                        mkdir(dirname($pdfPath), 0755, true);
-                    }
-                    file_put_contents($pdfPath, $pdfContent);
+                    event(new \App\Events\OrderPaid($order));
                 } catch (\Exception $e) {
                 }
 
@@ -192,9 +190,6 @@ class Order extends Model
                     app(\App\Domain\Communication\TransactionalEmailService::class)->sendOrderPaidEmail($order);
                 } catch (\Exception $e) {
                 }
-
-                // Dispatch OrderPaid Event for billing integrations
-                event(new \App\Events\OrderPaid($order));
             }
 
             if ($order->wasChanged('status') && $order->status === 'shipped') {

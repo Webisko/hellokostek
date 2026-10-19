@@ -498,13 +498,17 @@ class Product extends Model
             ? (int) $data['print_stock_quantity']
             : 999;
 
+        $option = $product->options()->firstOrCreate(['name' => 'Wersja']);
+        $printOptionValue = $option->values()->firstOrCreate(['value' => 'Wydruk']);
+        $originalOptionValue = $option->values()->firstOrCreate(['value' => 'Oryginał']);
+
         if ($printPrice !== null && $printPrice > 0) {
             $product->updateQuietly([
                 'regular_price_amount' => $printPrice,
             ]);
 
             $printSku = Str::endsWith($sku, '-PR') ? $sku : "{$sku}-PR";
-            $product->variants()->updateOrCreate(
+            $printVariant = $product->variants()->updateOrCreate(
                 ['sku' => $printSku],
                 [
                     'regular_price_amount' => $printPrice,
@@ -514,6 +518,7 @@ class Product extends Model
                     'is_active' => true,
                 ]
             );
+            $printVariant->optionValues()->sync([$printOptionValue->id]);
         }
 
         // 2. Praca Oryginalna (-OR)
@@ -530,7 +535,7 @@ class Product extends Model
                 : 1;
 
             if ($originalPrice > 0) {
-                $product->variants()->updateOrCreate(
+                $origVariant = $product->variants()->updateOrCreate(
                     ['sku' => $originalSku],
                     [
                         'regular_price_amount' => $originalPrice,
@@ -540,6 +545,7 @@ class Product extends Model
                         'is_active' => true,
                     ]
                 );
+                $origVariant->optionValues()->sync([$originalOptionValue->id]);
             }
         } else {
             $product->variants()->where('sku', $originalSku)->update([

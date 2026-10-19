@@ -266,7 +266,7 @@ class StoreSettingForm
                                 ->schema([
                                     Toggle::make('metadata.invoicing_enabled')
                                         ->label('Włącz automatyczne generowanie faktur PDF')
-                                        ->default(true)
+                                        ->default(false)
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.invoice_seller_name')
                                         ->label('Pełna nazwa firmy sprzedawcy')
@@ -306,7 +306,7 @@ class StoreSettingForm
                                 ->schema([
                                     Toggle::make('metadata.abandoned_cart_enabled')
                                         ->label('Włącz odzyskiwanie porzuconych koszyków')
-                                        ->default(true),
+                                        ->default(false),
                                     TextInput::make('metadata.abandoned_cart_hours_threshold')
                                         ->label('Czas wysyłki przypomnienia (w godzinach)')
                                         ->numeric()

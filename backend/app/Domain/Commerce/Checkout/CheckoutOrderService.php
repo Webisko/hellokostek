@@ -332,6 +332,7 @@ class CheckoutOrderService
                         }
                         $product->decrement('stock_quantity', $quoteItem->quantity);
                     }
+                    \App\Models\Product::flushCatalogCache($quoteItem->slug);
                 }
 
                 OrderItem::query()->create([

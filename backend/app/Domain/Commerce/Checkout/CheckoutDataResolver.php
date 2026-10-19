@@ -324,6 +324,14 @@ class CheckoutDataResolver
                 return $v;
             })->implode(', ');
 
+            if ($optionsStr === '') {
+                if (str_ends_with((string) $variant->sku, '-PR')) {
+                    $optionsStr = 'Wydruk';
+                } elseif (str_ends_with((string) $variant->sku, '-OR')) {
+                    $optionsStr = 'Oryginał';
+                }
+            }
+
             if ($optionsStr !== '') {
                 $optionsStr = preg_replace('/^\((.*)\)$/', '$1', $optionsStr);
                 $name .= ' (' . $optionsStr . ')';

@@ -74,15 +74,14 @@ class TransactionalEmailService
 
     public function sendOrderPaidEmail(Order $order): void
     {
-        $order->loadMissing(['items']);
-        $pdfPath = storage_path('app/invoices/' . $order->number . '.pdf');
+        $order->loadMissing(['items', 'invoices']);
 
         $this->deliver(
             emailType: 'order_paid_customer',
             recipient: $order->customer_email,
             order: $order,
             mailable: new \App\Mail\OrderPaidCustomerMail($order),
-            attachmentPath: file_exists($pdfPath) ? $pdfPath : null,
+            attachmentPath: null,
         );
     }
 
