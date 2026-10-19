@@ -75,7 +75,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
       return "Twój formularz kontaktowy został pomyślnie wysłany i dostarczony. Wkrótce zapoznam się z Twoim zapytaniem i wrócę z odpowiedzią.";
     }
     if (isCancelled) {
-      return "Twoje zamówienie zostało zapisane w systemie, jednak płatność w bramce Stripe nie została sfinalizowana. Szczegóły zamówienia wysłaliśmy na Twój adres e-mail.";
+      return "Twoje zamówienie zostało już zapisane w systemie, jednak płatność w bramce Stripe została przerwana. Nie musisz składać zamówienia ponownie – w wiadomości potwierdzającej wysłanej na Twój adres e-mail znajdziesz bezpośredni link do dokończenia płatności.";
     }
     if (isTransfer) {
       return "Twoje zamówienie zostało przekazane do Pracowni Artystycznej hellokostek. Dane do przelewu tradycyjnego znajdziesz poniżej oraz w wiadomości potwierdzającej na Twoim adresie e-mail. Wybraną pracę rezerwujemy na 3 dni robocze.";
@@ -110,6 +110,17 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
 
         {/* Symmetrical Informational Bullet Axis / Order Summary */}
         <div className="space-y-4">
+          {isCancelled && (
+            <div className="bg-amber-50/90 rounded-2xl p-6 border border-amber-200 text-left space-y-2 font-sans text-gray-800">
+              <strong className="font-mono text-xs uppercase tracking-wider text-amber-900 font-bold block">
+                Jak dokończyć płatność?
+              </strong>
+              <p className="text-xs sm:text-sm leading-relaxed text-amber-950">
+                <strong>Nie składaj tego samego zamówienia ponownie.</strong> Sprawdź swoją skrzynkę odbiorczą – w wysłanym przed chwilą mailu potwierdzającym zamówienie znajdziesz przycisk <strong>„Opłać zamówienie online”</strong>, którym bezpiecznie dokończysz płatność w dowolnym momencie.
+              </p>
+            </div>
+          )}
+
           {isPurchase && orderDetails && (
             <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 text-left space-y-3 font-sans text-gray-750">
               <div className="flex items-center gap-2 border-b border-gray-150 pb-3">
@@ -184,7 +195,9 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
               <div>
                 <strong className="text-gray-900 font-semibold block">Skrzynka Odbiorcza</strong>
                 <span>
-                  {isPurchase
+                  {isCancelled
+                    ? "Wysłaliśmy na Twój e-mail podsumowanie zamówienia wraz z bezpośrednim przyciskiem do dokończenia płatności online."
+                    : isPurchase
                     ? "Potwierdzenie zamówienia wraz z podsumowaniem parametrów wysłaliśmy na Twój adres e-mail."
                     : "Potwierdzenie wysłania formularza wraz z kopią wiadomości zostało wysłane na podany adres e-mail."}
                 </span>

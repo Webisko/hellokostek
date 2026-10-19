@@ -365,8 +365,6 @@ class CheckoutOrderService
             return $order->load('items');
         });
         if ($placeOrder) {
-            $this->transactionalEmailService->sendOrderPlacedEmails($order);
-
             if (in_array($selectedPaymentMethod, ['stripe', 'przelewy24'], true)) {
                 try {
                     $transaction = $this->paymentSessionService->initiate($order);
@@ -378,6 +376,10 @@ class CheckoutOrderService
                     // Gateway error or configuration required - keep redirect_url null
                 }
             }
+
+            $order->unsetRelation('latestPaymentTransaction');
+            $order->load('latestPaymentTransaction');
+            $this->transactionalEmailService->sendOrderPlacedEmails($order);
         }
 
         return [

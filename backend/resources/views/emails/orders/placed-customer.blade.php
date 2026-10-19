@@ -15,6 +15,7 @@
         ->filter()
         ->implode(', ');
     $transferTitle = $productNames !== '' ? $productNames : ('Zamówienie ' . $order->number);
+    $paymentUrl = $order->latestPaymentTransaction?->redirect_url;
 @endphp
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1a1a; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #eee; border-radius: 16px;">
     <p style="font-family: monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #E0115F; font-weight: bold; margin: 0 0 8px 0;">
@@ -86,6 +87,22 @@
             @endif
         </p>
     </div>
+
+    @if (in_array($paymentProvider, ['stripe', 'przelewy24'], true) && $order->payment_status !== 'paid' && !empty($paymentUrl))
+        <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 18px; margin-bottom: 20px; font-size: 14px;">
+            <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #E0115F; margin: 0 0 8px 0;">
+                Płatność online za zamówienie
+            </h3>
+            <p style="margin: 0 0 14px 0; color: #44403c;">
+                Jeśli Twoje zamówienie zostało już opłacone – dziękujemy! W przypadku gdy płatność w bramce Stripe została przerwana lub chcesz opłacić zamówienie w innym momencie, <strong>nie musisz składać zamówienia ponownie</strong>. Wystarczy kliknąć poniższy przycisk, aby przejść bezpośrednio do płatności:
+            </p>
+            <p style="margin: 0; text-align: center;">
+                <a href="{{ $paymentUrl }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #181716; color: #ffffff; font-weight: bold; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-size: 14px;">
+                    Opłać zamówienie online ({{ number_format($order->total_amount / 100, 2, ',', ' ') }} {{ $order->currency }}) →
+                </a>
+            </p>
+        </div>
+    @endif
 
     @if ($paymentProvider === 'bank_transfer')
         <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 16px; margin-bottom: 20px; font-size: 14px;">
