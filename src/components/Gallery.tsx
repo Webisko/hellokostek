@@ -61,7 +61,7 @@ export default function Gallery() {
     setIsMounted(true);
 
     // Fetch gallery artworks from API
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     fetch(`${apiBase}/gallery`)
       .then((res) => {
         if (!res.ok) throw new Error("API response error");

@@ -47,7 +47,7 @@ export default function FaqSection() {
   const [openId, setOpenId] = useState<number | null>(1);
 
   useEffect(() => {
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     fetch(`${apiBase}/faq`)
       .then((res) => {
         if (!res.ok) throw new Error("Network response failed");

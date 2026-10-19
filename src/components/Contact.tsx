@@ -112,7 +112,7 @@ export default function Contact() {
     setIsSubmitting(true);
     setErrorMessage("");
 
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     const body = new FormData();
     body.append("name", formData.name);
     body.append("email", formData.email);

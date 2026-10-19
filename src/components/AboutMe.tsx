@@ -46,7 +46,7 @@ export default function AboutMe() {
   const [imageUrl, setImageUrl] = useState<string>(DEFAULT_IMAGE);
 
   useEffect(() => {
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     fetch(`${apiBase}/content/pages/o-mnie`)
       .then((res) => {
         if (!res.ok) throw new Error("API network error");

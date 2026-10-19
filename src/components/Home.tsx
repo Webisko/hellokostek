@@ -136,7 +136,7 @@ export default function Home() {
     setIsSubmitting(true);
     setErrorMessage("");
 
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     const body = new FormData();
     body.append("name", emailForm.name);
     body.append("email", emailForm.email);

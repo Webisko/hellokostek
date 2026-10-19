@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
   useEffect(() => {
     setIsMounted(true);
 
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     fetch(`${apiBase}/content/pages/polityka-prywatnosci`)
       .then((res) => {
         if (!res.ok) throw new Error("API network error");

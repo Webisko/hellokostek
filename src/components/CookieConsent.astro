@@ -4,7 +4,7 @@ interface Props {
 }
 const { defaultEnabled = false } = Astro.props;
 const basePath = "";
-const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
 ---
 
 <div
@@ -47,7 +47,7 @@ const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
   const announcementBar = document.getElementById('cms-announcement-bar');
 
   if (banner && acceptBtn) {
-    const apiBase = banner.getAttribute('data-api-base') || 'http://localhost:8000/api';
+    const apiBase = banner.getAttribute('data-api-base') || 'https://panel.hellokostek.pl/api';
     const defaultEnabled = banner.getAttribute('data-default-enabled') === 'true';
     const alreadyAccepted = localStorage.getItem('hellokostek_cookies') === 'true';
 

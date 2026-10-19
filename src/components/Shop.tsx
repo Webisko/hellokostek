@@ -52,7 +52,7 @@ export default function Shop() {
     setIsMounted(true);
     
     // Fetch products dynamically from backend API
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     fetch(`${apiBase}/catalog`)
       .then((res) => {
         if (!res.ok) throw new Error("API response error");

@@ -49,7 +49,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     setIsApplyingCoupon(true);
     setCouponError(null);
     try {
-      const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+      const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
       const subtotal = currentPrice * quantity;
       const res = await fetch(`${apiBase}/coupons/validate`, {
         method: "POST",
@@ -101,7 +101,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
   // Fetch fresh product details from API on mount (supports new CMS products via URL slug)
   useEffect(() => {
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     fetch(`${apiBase}/store-settings`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -250,7 +250,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     setIsSubmitting(true);
     setErrorMessage("");
 
-    const apiBase = import.meta.env.PUBLIC_API_URL || "http://localhost:8000/api";
+    const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     
     const variantId = selectedType === "original" 
       ? currentProduct.originalVariantId 
@@ -349,7 +349,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       }
     } catch (err: any) {
       setIsSubmitting(false);
-      setErrorMessage(err.message || "Połączenie z serwerem płatności nie powiodło się. Spróbuj ponownie.");
+      const rawMessage = err?.message || "";
+      const friendlyMessage = rawMessage === "Failed to fetch" || rawMessage.includes("NetworkError")
+        ? "Połączenie z serwerem sklepu nie powiodło się. Sprawdź połączenie z internetem i spróbuj ponownie."
+        : (rawMessage || "Połączenie z serwerem płatności nie powiodło się. Spróbuj ponownie.");
+      setErrorMessage(friendlyMessage);
     }
   };
 
