@@ -131,7 +131,7 @@ class Order extends Model
 
         static::updated(function (Order $order): void {
             if ($order->wasChanged('status') && $order->status === 'cancelled') {
-                if (!data_get($order->metadata, 'stock_restored')) {
+                if (data_get($order->metadata, 'stock_deducted') && !data_get($order->metadata, 'stock_restored')) {
                     $order->loadMissing('items.variant', 'items.product');
                     foreach ($order->items as $item) {
                         $product = $item->product;
@@ -155,6 +155,11 @@ class Order extends Model
                             $variant = $item->variant;
                             if ($variant && $variant->manages_stock) {
                                 $variant->increment('stock_quantity', $item->quantity);
+                                if (str_ends_with((string) $variant->sku, '-OR') && $product) {
+                                    $prodMeta = is_array($product->metadata) ? $product->metadata : [];
+                                    $prodMeta['original_available'] = true;
+                                    $product->updateQuietly(['metadata' => $prodMeta]);
+                                }
                             }
                         } else {
                             if ($product && $product->manages_stock) {
@@ -179,6 +184,71 @@ class Order extends Model
             }
 
             if ($order->wasChanged('payment_status') && $order->payment_status === 'paid') {
+                // Deduct stock upon payment confirmation ("first to pay gets the original")
+                if (!data_get($order->metadata, 'stock_deducted')) {
+                    $order->loadMissing('items.variant', 'items.product');
+                    foreach ($order->items as $item) {
+                        $product = $item->product;
+                        if ($item->product_variant_id) {
+                            $variant = \App\Models\ProductVariant::query()->lockForUpdate()->find($item->product_variant_id);
+                            if ($variant && $variant->manages_stock) {
+                                $newStock = max(0, (int) $variant->stock_quantity - (int) $item->quantity);
+                                $variant->update(['stock_quantity' => $newStock]);
+
+                                if (str_ends_with((string) $variant->sku, '-OR') && $newStock <= 0) {
+                                    if ($product) {
+                                        $prodMeta = is_array($product->metadata) ? $product->metadata : [];
+                                        $prodMeta['original_available'] = false;
+                                        $product->updateQuietly(['metadata' => $prodMeta]);
+                                    }
+
+                                    // Expire competing unpaid orders & Stripe sessions for the same Original
+                                    $competingOrders = self::query()
+                                        ->where('id', '!=', $order->id)
+                                        ->where('payment_status', '!=', 'paid')
+                                        ->where('status', '!=', 'cancelled')
+                                        ->whereHas('items', fn ($q) => $q->where('product_variant_id', $variant->id))
+                                        ->with('paymentTransactions')
+                                        ->get();
+
+                                    foreach ($competingOrders as $competingOrder) {
+                                        foreach ($competingOrder->paymentTransactions as $tx) {
+                                            if ($tx->provider === 'stripe' && str_starts_with((string) $tx->external_session_id, 'cs_')) {
+                                                try {
+                                                    app(\App\Domain\Commerce\Payments\StripeApiClient::class)
+                                                        ->getClient()
+                                                        ->checkout
+                                                        ->sessions
+                                                        ->expire($tx->external_session_id);
+                                                } catch (\Throwable $e) {
+                                                }
+                                            }
+                                        }
+                                        $compMeta = $competingOrder->metadata ?? [];
+                                        $compMeta['cancelled_reason'] = 'Praca oryginalna została opłacona wcześniej w zamówieniu ' . $order->number;
+                                        $competingOrder->forceFill([
+                                            'status' => 'cancelled',
+                                            'payment_status' => 'failed',
+                                            'metadata' => $compMeta,
+                                        ])->saveQuietly();
+                                    }
+                                }
+                            }
+                        } elseif ($product && $product->manages_stock) {
+                            $newStock = max(0, (int) $product->stock_quantity - (int) $item->quantity);
+                            $product->updateQuietly(['stock_quantity' => $newStock]);
+                        }
+
+                        if ($product) {
+                            \App\Models\Product::flushCatalogCache($product->slug);
+                        }
+                    }
+
+                    $metadata = $order->metadata ?? [];
+                    $metadata['stock_deducted'] = true;
+                    $order->forceFill(['metadata' => $metadata])->saveQuietly();
+                }
+
                 // Dispatch OrderPaid Event for billing integrations (generates DomPDF invoice if invoicing_enabled is true)
                 try {
                     event(new \App\Events\OrderPaid($order));

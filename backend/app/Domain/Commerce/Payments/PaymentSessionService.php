@@ -23,7 +23,7 @@ class PaymentSessionService
 
     public function initiate(Order $order, ?string $blikCode = null): PaymentTransaction
     {
-        $order->loadMissing('latestPaymentTransaction');
+        $order->loadMissing(['latestPaymentTransaction', 'items.variant']);
 
         if ($order->status !== 'placed') {
             $this->recordRejectedAttempt(
@@ -42,6 +42,18 @@ class PaymentSessionService
             throw ValidationException::withMessages([
                 'order' => 'Sesje platnosci mozna utworzyc tylko dla zlozonego zamowienia.',
             ]);
+        }
+
+        if (!data_get($order->metadata, 'stock_deducted')) {
+            foreach ($order->items as $item) {
+                if ($item->product_variant_id && $item->variant && $item->variant->manages_stock) {
+                    if ($item->variant->stock_quantity < $item->quantity) {
+                        throw ValidationException::withMessages([
+                            'order' => 'Wybrany wariant pracy (np. Oryginał) został już w międzyczasie opłacony i kupiony przez inną osobę.',
+                        ]);
+                    }
+                }
+            }
         }
 
         $provider = (string) data_get($order->metadata, 'payment.provider');

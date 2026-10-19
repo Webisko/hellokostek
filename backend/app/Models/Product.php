@@ -524,13 +524,14 @@ class Product extends Model
         // 2. Praca Oryginalna (-OR)
         $hasOriginal = !empty($data['has_original']);
         $originalSku = Str::endsWith($sku, '-OR') ? $sku : "{$sku}-OR";
+        $existingOrig = $product->variants()->where('sku', $originalSku)->first();
+
+        $originalPrice = isset($data['original_regular_price']) && $data['original_regular_price'] !== null && $data['original_regular_price'] !== ''
+            ? (int) round(((float) $data['original_regular_price']) * 100)
+            : ($existingOrig ? (int) $existingOrig->regular_price_amount : 30000);
 
         if ($hasOriginal) {
-            $originalPrice = isset($data['original_regular_price']) && $data['original_regular_price'] !== null && $data['original_regular_price'] !== ''
-                ? (int) round(((float) $data['original_regular_price']) * 100)
-                : 0;
-
-            $originalStock = isset($data['original_stock_quantity']) && $data['original_stock_quantity'] !== null && $data['original_stock_quantity'] !== ''
+            $originalStock = isset($data['original_stock_quantity']) && $data['original_stock_quantity'] !== null && $data['original_stock_quantity'] !== '' && (int) $data['original_stock_quantity'] > 0
                 ? (int) $data['original_stock_quantity']
                 : 1;
 
@@ -548,14 +549,21 @@ class Product extends Model
                 $origVariant->optionValues()->sync([$originalOptionValue->id]);
             }
         } else {
-            $product->variants()->where('sku', $originalSku)->update([
-                'is_active' => false,
-                'stock_quantity' => 0,
-            ]);
+            $origVariant = $product->variants()->updateOrCreate(
+                ['sku' => $originalSku],
+                [
+                    'regular_price_amount' => $originalPrice > 0 ? $originalPrice : 30000,
+                    'vat_rate' => $product->vat_rate ?? 23,
+                    'stock_quantity' => 0,
+                    'manages_stock' => true,
+                    'is_active' => true,
+                ]
+            );
+            $origVariant->optionValues()->sync([$originalOptionValue->id]);
         }
 
         $metadata = is_array($product->metadata) ? $product->metadata : [];
-        $metadata['original_available'] = $hasOriginal && (($originalStock ?? 1) > 0);
+        $metadata['original_available'] = $hasOriginal;
         if ($printPrice !== null && $printPrice > 0) {
             $metadata['print_price_cents'] = $printPrice;
         }

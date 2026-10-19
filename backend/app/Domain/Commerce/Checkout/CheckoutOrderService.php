@@ -288,51 +288,42 @@ class CheckoutOrderService
                 
                 if ($placeOrder) {
                     if ($variant && $variant->manages_stock) {
-                        $variant = \App\Models\ProductVariant::query()->lockForUpdate()->find($variant->id);
                         if ($variant->stock_quantity < $quoteItem->quantity) {
                             throw ValidationException::withMessages([
                                 'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego dla wybranego wariantu: ' . $variant->sku,
                             ]);
                         }
-                        $variant->decrement('stock_quantity', $quoteItem->quantity);
                     } elseif ($product && $product->isBundle()) {
                         foreach ($product->bundleItems as $bundleItem) {
                             if ($bundleItem->product_variant_id) {
                                 $component = $bundleItem->variant;
                                 if ($component && $component->manages_stock) {
-                                    $component = \App\Models\ProductVariant::query()->lockForUpdate()->find($component->id);
                                     $neededQty = $bundleItem->quantity * $quoteItem->quantity;
                                     if ($component->stock_quantity < $neededQty) {
                                         throw ValidationException::withMessages([
                                             'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego wariantu ' . $component->sku . ' dla zestawu: ' . $product->name,
                                         ]);
                                     }
-                                    $component->decrement('stock_quantity', $neededQty);
                                 }
                             } else {
                                 $component = $bundleItem->product;
                                 if ($component && $component->manages_stock) {
-                                    $component = \App\Models\Product::query()->lockForUpdate()->find($component->id);
                                     $neededQty = $bundleItem->quantity * $quoteItem->quantity;
                                     if ($component->stock_quantity < $neededQty) {
                                         throw ValidationException::withMessages([
                                             'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego składnika ' . $component->name . ' dla zestawu: ' . $product->name,
                                         ]);
                                     }
-                                    $component->decrement('stock_quantity', $neededQty);
                                 }
                             }
                         }
                     } elseif ($product && $product->manages_stock) {
-                        $product = \App\Models\Product::query()->lockForUpdate()->find($product->id);
                         if ($product->stock_quantity < $quoteItem->quantity) {
                             throw ValidationException::withMessages([
                                 'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego dla produktu: ' . $product->name,
                             ]);
                         }
-                        $product->decrement('stock_quantity', $quoteItem->quantity);
                     }
-                    \App\Models\Product::flushCatalogCache($quoteItem->slug);
                 }
 
                 OrderItem::query()->create([

@@ -83,31 +83,40 @@ class ProductsTable
                         $printPrice = $printVariant ? ($printVariant->regular_price_amount / 100) : ($record->regular_price_amount / 100);
                         $html = '<div><span class="font-bold text-gray-800 dark:text-gray-200">Wydruk: ' . number_format($printPrice, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
 
-                        if ($origVariant && $origVariant->is_active) {
-                            if ($origVariant->stock_quantity > 0) {
-                                $origPrice = $origVariant->regular_price_amount / 100;
-                                $html .= '<div><span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Oryginał: ' . number_format($origPrice, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
-                            } else {
-                                $html .= '<div><span class="text-xs text-gray-400 line-through">Oryginał: Sprzedany</span></div>';
-                            }
+                        if ($origVariant && $origVariant->is_active && $origVariant->stock_quantity > 0) {
+                            $origPrice = $origVariant->regular_price_amount / 100;
+                            $html .= '<div><span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Oryginał: ' . number_format($origPrice, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
+                        } else {
+                            $html .= '<div><span class="text-xs text-gray-400 line-through">Oryginał: Sprzedany</span></div>';
                         }
 
                         return $html;
                     })
                     ->sortable(query: fn ($query, string $direction) => $query->orderByRaw('COALESCE(sale_price_amount, regular_price_amount) ' . $direction)),
-                TextColumn::make('stock_quantity')
-                    ->label('Stan')
+                TextColumn::make('original_availability')
+                    ->label('Dostępność oryginału')
                     ->badge()
-                    ->color(fn (Product $record): string => $record->manages_stock 
-                        ? ($record->stock_quantity <= 0 ? 'danger' : ($record->stock_quantity <= 5 ? 'warning' : 'success'))
-                        : 'gray'
-                    )
-                    ->icon(fn (Product $record): ?string => $record->manages_stock 
-                        ? ($record->stock_quantity <= 0 ? 'heroicon-o-x-circle' : ($record->stock_quantity <= 5 ? 'heroicon-o-exclamation-circle' : 'heroicon-o-check-circle'))
-                        : null
-                    )
-                    ->state(fn (Product $record): string => $record->manages_stock ? (string) ($record->stock_quantity ?? 0) : 'N/A')
-                    ->toggleable(),
+                    ->state(function (Product $record): string {
+                        $record->loadMissing('variants');
+                        $origVariant = $record->variants->firstWhere(fn ($v) => str_ends_with($v->sku ?? '', '-OR'));
+                        return ($origVariant && $origVariant->is_active && $origVariant->stock_quantity > 0)
+                            ? 'Oryginał dostępny (1 szt.)'
+                            : 'Tylko wydruk (Oryginał sprzedany)';
+                    })
+                    ->color(function (Product $record): string {
+                        $record->loadMissing('variants');
+                        $origVariant = $record->variants->firstWhere(fn ($v) => str_ends_with($v->sku ?? '', '-OR'));
+                        return ($origVariant && $origVariant->is_active && $origVariant->stock_quantity > 0)
+                            ? 'success'
+                            : 'gray';
+                    })
+                    ->icon(function (Product $record): string {
+                        $record->loadMissing('variants');
+                        $origVariant = $record->variants->firstWhere(fn ($v) => str_ends_with($v->sku ?? '', '-OR'));
+                        return ($origVariant && $origVariant->is_active && $origVariant->stock_quantity > 0)
+                            ? 'heroicon-o-check-circle'
+                            : 'heroicon-o-x-circle';
+                    }),
                 IconColumn::make('is_active')
                     ->label('Aktywny')
                     ->boolean(),
@@ -122,6 +131,15 @@ class ProductsTable
                     ->toggleable(),
             ])
             ->filters([
+                TernaryFilter::make('original_available')
+                    ->label('Dostępność oryginału')
+                    ->placeholder('Wszystkie prace')
+                    ->trueLabel('Oryginał dostępny w sprzedaży')
+                    ->falseLabel('Tylko wydruk (oryginał sprzedany)')
+                    ->queries(
+                        true: fn ($query) => $query->whereHas('variants', fn ($vq) => $vq->where('sku', 'like', '%-OR')->where('is_active', true)->where('stock_quantity', '>', 0)),
+                        false: fn ($query) => $query->whereDoesntHave('variants', fn ($vq) => $vq->where('sku', 'like', '%-OR')->where('is_active', true)->where('stock_quantity', '>', 0)),
+                    ),
                 SelectFilter::make('type')
                     ->label('Typ produktu')
                     ->options(ProductResource::typeOptions()),

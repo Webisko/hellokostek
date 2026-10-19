@@ -114,6 +114,66 @@ class ProductForm
                                             ->rows(2)
                                             ->columnSpanFull(),
                                     ]),
+                                Section::make('Warianty i Ceny w Sklepie (Wydruk oraz Oryginał)')
+                                    ->description('Każda dodana praca jest dostępna jako wydruk kolekcjonerski. Poniżej zdecyduj, czy fizyczny oryginał tej pracy jest również dostępny w sprzedaży, czy został już sprzedany.')
+                                    ->columns(2)
+                                    ->schema([
+                                        Group::make()
+                                            ->schema([
+                                                Section::make('Wariant 1: Wydruk kolekcjonerski (zawsze dostępny)')
+                                                    ->schema([
+                                                        TextInput::make('print_regular_price')
+                                                            ->label('Cena wydruku (PLN)')
+                                                            ->placeholder('np. 30 (akwarela) lub 20 (rysunek)')
+                                                            ->helperText('Domyślnie: 30 zł dla akwareli, 20 zł dla rysunku.')
+                                                            ->numeric()
+                                                            ->default(30)
+                                                            ->required()
+                                                            ->minValue(0)
+                                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                                if ($record) {
+                                                                    $printVariant = $record->variants()->where('sku', 'like', '%-PR')->first();
+                                                                    $price = $printVariant ? $printVariant->regular_price_amount : $record->regular_price_amount;
+                                                                    $component->state($price ? $price / 100 : null);
+                                                                }
+                                                            }),
+                                                        \Filament\Forms\Components\Hidden::make('print_stock_quantity')
+                                                            ->default(999),
+                                                    ]),
+                                            ]),
+                                        Group::make()
+                                            ->schema([
+                                                Section::make('Wariant 2: Praca Oryginalna (1 szt.)')
+                                                    ->schema([
+                                                        Toggle::make('has_original')
+                                                            ->label('Oryginał dostępny w sprzedaży (1 szt.)')
+                                                            ->helperText('Włącz, jeśli fizyczny oryginał jest dostępny do kupienia. Wyłącz, jeśli oryginał został już sprzedany (wtedy w sklepie widoczny jest status „Oryginał sprzedany” i można zamówić tylko wydruk).')
+                                                            ->live()
+                                                            ->default(true)
+                                                            ->afterStateHydrated(function (Toggle $component, $record) {
+                                                                if ($record) {
+                                                                    $origVariant = $record->variants()->where('sku', 'like', '%-OR')->first();
+                                                                    $component->state($origVariant ? ($origVariant->is_active && $origVariant->stock_quantity > 0) : false);
+                                                                }
+                                                            }),
+                                                        TextInput::make('original_regular_price')
+                                                            ->label('Cena pracy oryginalnej (PLN)')
+                                                            ->placeholder('np. 300 (akwarela) lub 200 (rysunek)')
+                                                            ->helperText('Domyślnie: 300 zł dla akwareli, 200 zł dla rysunku.')
+                                                            ->numeric()
+                                                            ->default(300)
+                                                            ->minValue(0)
+                                                            ->visible(fn (Get $get) => (bool) $get('has_original'))
+                                                            ->required(fn (Get $get) => (bool) $get('has_original'))
+                                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                                if ($record) {
+                                                                    $origVariant = $record->variants()->where('sku', 'like', '%-OR')->first();
+                                                                    $component->state($origVariant && $origVariant->regular_price_amount > 0 ? $origVariant->regular_price_amount / 100 : 300);
+                                                                }
+                                                            }),
+                                                    ]),
+                                            ]),
+                                    ]),
                                 Group::make()
                                     ->columns(3)
                                     ->schema([
@@ -130,84 +190,6 @@ class ProductForm
                                         Toggle::make('is_purchasable')
                                             ->label('Możliwy do zakupu')
                                             ->default(true),
-                                    ]),
-                            ]),
-                        Tabs\Tab::make('Ceny i Warianty')
-                            ->schema([
-                                Section::make('Warianty Sklepu (Wydruk & Praca Oryginalna)')
-                                    ->description('Wprowadź ceny i dostępność dla wydruku kolekcjonerskiego oraz oryginalnej pracy artystycznej.')
-                                    ->columns(2)
-                                    ->schema([
-                                        Group::make()
-                                            ->schema([
-                                                Section::make('Wariant 1: Wydruk')
-                                                    ->schema([
-                                                        TextInput::make('print_regular_price')
-                                                            ->label('Cena wydruku (PLN)')
-                                                            ->placeholder('np. 30 (akwarela) lub 20 (rysunek)')
-                                                            ->numeric()
-                                                            ->default(30)
-                                                            ->required()
-                                                            ->minValue(0)
-                                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                                if ($record) {
-                                                                    $printVariant = $record->variants()->where('sku', 'like', '%-PR')->first();
-                                                                    $price = $printVariant ? $printVariant->regular_price_amount : $record->regular_price_amount;
-                                                                    $component->state($price ? $price / 100 : null);
-                                                                }
-                                                            }),
-                                                        TextInput::make('print_stock_quantity')
-                                                            ->label('Dostępna pula wydruków')
-                                                            ->numeric()
-                                                            ->default(999)
-                                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                                if ($record) {
-                                                                    $printVariant = $record->variants()->where('sku', 'like', '%-PR')->first();
-                                                                    $component->state($printVariant ? ($printVariant->stock_quantity ?? 999) : ($record->stock_quantity ?? 999));
-                                                                }
-                                                            }),
-                                                    ]),
-                                            ]),
-                                        Group::make()
-                                            ->schema([
-                                                Section::make('Wariant 2: Praca Oryginalna')
-                                                    ->schema([
-                                                        Toggle::make('has_original')
-                                                            ->label('Praca oryginalna dostępna w sprzedaży')
-                                                            ->live()
-                                                            ->default(false)
-                                                            ->afterStateHydrated(function (Toggle $component, $record) {
-                                                                if ($record) {
-                                                                    $origVariant = $record->variants()->where('sku', 'like', '%-OR')->first();
-                                                                    $component->state($origVariant ? ($origVariant->is_active && ($origVariant->stock_quantity > 0 || $origVariant->regular_price_amount > 0)) : false);
-                                                                }
-                                                            }),
-                                                        TextInput::make('original_regular_price')
-                                                            ->label('Cena pracy oryginalnej (PLN)')
-                                                            ->placeholder('np. 300 (akwarela) lub 200 (rysunek)')
-                                                            ->numeric()
-                                                            ->minValue(0)
-                                                            ->visible(fn (Get $get) => (bool) $get('has_original'))
-                                                            ->required(fn (Get $get) => (bool) $get('has_original'))
-                                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                                if ($record) {
-                                                                    $origVariant = $record->variants()->where('sku', 'like', '%-OR')->first();
-                                                                    $component->state($origVariant ? $origVariant->regular_price_amount / 100 : null);
-                                                                }
-                                                            }),
-                                                        TextInput::make('original_stock_quantity')
-                                                            ->label('Stan pracy oryginalnej (1 = dostępna, 0 = sprzedana)')
-                                                            ->numeric()
-                                                            ->default(1)
-                                                            ->visible(fn (Get $get) => (bool) $get('has_original'))
-                                                            ->afterStateHydrated(function (TextInput $component, $record) {
-                                                                if ($record) {
-                                                                    $origVariant = $record->variants()->where('sku', 'like', '%-OR')->first();
-                                                                    $component->state($origVariant ? ($origVariant->stock_quantity ?? 1) : 1);
-                                                                }
-                                                            }),
-                                                    ]),
-                                            ]),
                                     ]),
                                 Section::make('Zaawansowane ustawienia księgowe')
                                     ->collapsible()
