@@ -58,24 +58,24 @@ class MediaForm
                 ->columns(2)
                 ->schema([
                     TextInput::make('title')
-                        ->label('Tytuł / Nazwa pliku')
+                        ->label('Tytuł / nazwa pliku')
                         ->required()
                         ->maxLength(255),
 
                     Select::make('category')
-                        ->label('Kategoria / Przeznaczenie')
+                        ->label('Kategoria / przeznaczenie')
                         ->options([
                             'general' => 'Ogólne',
                             'products' => 'Produkty',
                             'gallery' => 'Galeria',
-                            'branding' => 'System / Branding',
+                            'branding' => 'System / wizerunek marki',
                         ])
                         ->default('general')
                         ->required(),
 
                     TextInput::make('alt_text')
                         ->label('Tekst alternatywny (ALT)')
-                        ->placeholder('Opis pliku dla SEO i czytników ekrany')
+                        ->placeholder('Opis pliku dla SEO i czytników ekranu')
                         ->columnSpanFull()
                         ->maxLength(255),
 

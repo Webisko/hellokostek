@@ -30,7 +30,7 @@ class MediaTable
                     ->size(60),
 
                 TextColumn::make('title')
-                    ->label('Tytuł / Nazwa')
+                    ->label('Tytuł / nazwa')
                     ->searchable()
                     ->sortable()
                     ->description(fn (Media $record): string => $record->file_name ?? ''),
@@ -41,7 +41,7 @@ class MediaTable
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'products' => 'Produkty',
                         'gallery' => 'Galeria',
-                        'branding' => 'System / Branding',
+                        'branding' => 'System / wizerunek marki',
                         default => 'Ogólne',
                     })
                     ->color(fn (string $state): string => match ($state) {
@@ -68,7 +68,7 @@ class MediaTable
                         'general' => 'Ogólne',
                         'products' => 'Produkty',
                         'gallery' => 'Galeria',
-                        'branding' => 'System / Branding',
+                        'branding' => 'System / wizerunek marki',
                     ]),
             ])
             ->recordActions([

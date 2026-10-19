@@ -24,12 +24,12 @@ class OrderInfolist
                 Grid::make(3)
                     ->schema([
                         Group::make([
-                            Section::make('Wymagane działanie - Faktura Korygująca')->columnSpanFull()
+                            Section::make('Wymagane działanie – faktura korygująca')->columnSpanFull()
                                 ->visible(fn (Order $record): bool => $record->status === 'cancelled' || $record->payment_status === 'refunded')
                                 ->schema([
                                     TextEntry::make('corrective_invoice_notice')
                                         ->label('')
-                                        ->state(fn () => 'Status tego zamówienia to Anulowane lub płatność została zwrócona. W świetle polskiego prawa wymagane jest wystawienie Faktury Korygującej (korekty). Korektę należy wystawić bezpośrednio w swoim połączonym systemie księgowym (np. Fakturownia, iFirma, inFakt, wFirma), do którego dane z tego zamówienia zostały przesłane automatycznie.'),
+                                        ->state(fn () => 'Status tego zamówienia to anulowane lub płatność została zwrócona. W świetle polskiego prawa wymagane jest wystawienie faktury korygującej (korekty). Korektę należy wystawić bezpośrednio w swoim połączonym systemie księgowym (np. Fakturownia, iFirma, inFakt, wFirma), do którego dane z tego zamówienia zostały przesłane automatycznie.'),
                                 ]),
                             Section::make('Podsumowanie')->columnSpanFull()
                                 ->columns(3)
@@ -84,6 +84,13 @@ class OrderInfolist
                                     TextEntry::make('customer_segment')
                                         ->label('Segment klienta')
                                         ->formatStateUsing(fn ($state): string => OrderResource::formatStateLabel($state)),
+                                    TextEntry::make('reservation_expires_at')
+                                        ->label('Rezerwacja przelewu do')
+                                        ->state(fn (Order $record): ?string => data_get($record->metadata, 'reservation_expires_at'))
+                                        ->dateTime('Y-m-d H:i')
+                                        ->badge()
+                                        ->color('warning')
+                                        ->visible(fn (Order $record): bool => $record->payment_status !== 'paid' && $record->status !== 'cancelled' && filled(data_get($record->metadata, 'reservation_expires_at'))),
                                     TextEntry::make('notes')
                                         ->label('Uwagi')
                                         ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-')->columnSpanFull(),
@@ -350,10 +357,10 @@ class OrderInfolist
                                             default => 'danger'
                                         })
                                         ->formatStateUsing(fn ($state) => match ($state) {
-                                            'valid' => 'Zweryfikowany (Aktywny)',
-                                            'vies_disabled' => 'Pominięto (Wyłączona walidacja)',
-                                            'vies_down_fallback' => 'Zaakceptowano (Brak serwera VIES)',
-                                            default => 'Nieaktywny / Błąd'
+                                            'valid' => 'Zweryfikowany (aktywny)',
+                                            'vies_disabled' => 'Pominięto (wyłączona walidacja)',
+                                            'vies_down_fallback' => 'Zaakceptowano (brak serwera VIES)',
+                                            default => 'Nieaktywny / błąd'
                                         })
                                         ->visible(fn (Order $record): bool => !empty(data_get($record->metadata, 'vies_status'))),
                                     TextEntry::make('vies_trader_name')

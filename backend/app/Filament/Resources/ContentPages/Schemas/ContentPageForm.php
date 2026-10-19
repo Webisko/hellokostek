@@ -57,14 +57,14 @@ class ContentPageForm
                     DateTimePicker::make('published_at')
                         ->label('Data publikacji'),
                     TextInput::make('metadata.subtitle')
-                        ->label('Etykieta nad nazwiskiem / Podtytuł (np. na stronie O mnie)')
+                        ->label('Etykieta nad nazwiskiem / podtytuł (np. na stronie „O mnie”)')
                         ->placeholder('np. Aktor • Tancerz • Malarz • Rocznik ‘88')
                         ->maxLength(255)
                         ->visible(fn (Get $get): bool => $get('template') === 'about'),
                     Textarea::make('excerpt')
                         ->label(fn (Get $get): string => $get('template') === 'about'
                             ? 'Cytat wyróżniony pod tytułem (np. o improwizacji i wolności w sztuce)'
-                            : 'Krótki opis / Zajawka')
+                            : 'Krótki opis / zajawka')
                         ->placeholder('„Wydawać się może, że klasyczne malarstwo i sztuka figuratywna bardzo ograniczają twórcę..."')
                         ->rows(3)
                         ->columnSpanFull(),
@@ -97,13 +97,13 @@ class ContentPageForm
                         ->columnSpanFull()
                         ->visible(fn (Get $get): bool => $get('template') === 'about'),
                 ]),
-            Section::make('Struktura Paragrafów i Sekcji (np. Regulamin, Polityka Prywatności)')
+            Section::make('Struktura paragrafów i sekcji (np. regulamin, polityka prywatności)')
                 ->columnSpanFull()
                 ->hidden(fn (Get $get): bool => $get('template') === 'about')
                 ->description('Możesz dodać wyodrębnione paragrafy dla stron prawnych. Każdy paragraf tworzy sekcję w spisie treści oraz kotwicę URL.')
                 ->schema([
                     \Filament\Forms\Components\Repeater::make('metadata.sections')
-                        ->label('Paragrafy / Sekcje strony')
+                        ->label('Paragrafy i sekcje strony')
                         ->columns(2)
                         ->schema([
                             TextInput::make('label')
@@ -121,7 +121,7 @@ class ContentPageForm
                                 ->required()
                                 ->maxLength(100),
                             \Filament\Forms\Components\RichEditor::make('content')
-                                ->label('Treść paragrafu (WYSIWYG)')
+                                ->label('Treść paragrafu (edytor tekstu)')
                                 ->columnSpanFull()
                                 ->required(),
                         ])
@@ -130,10 +130,10 @@ class ContentPageForm
                         ->reorderable()
                         ->itemLabel(fn (array $state): ?string => $state['label'] ?? 'Nowy paragraf'),
                 ]),
-            Section::make('Obrazek wyróżniający i Media')->columnSpanFull()
+            Section::make('Obrazek wyróżniający i multimedia')->columnSpanFull()
                 ->schema([
                     FileUpload::make('hero_image_path')
-                        ->label('Obrazek wyróżniający strony / Nagłówek')
+                        ->label('Obrazek wyróżniający strony / nagłówek')
                         ->disk('public')
                         ->directory('content-pages')
                         ->visibility('public')
@@ -146,21 +146,21 @@ class ContentPageForm
                         ->maxSize(15360)
                         ->columnSpanFull(),
                 ]),
-            Section::make('Ustawienia SEO i Metadane wyszukiwarki')->columnSpanFull()
+            Section::make('Ustawienia SEO i metadane wyszukiwarki')->columnSpanFull()
                 ->schema([
                     TextInput::make('seo_title')
-                        ->label('Tytuł SEO (Meta Title)')
+                        ->label('Tytuł SEO (meta title)')
                         ->placeholder('Tytuł wyświetlany w wynikach Google')
                         ->maxLength(255),
                     Textarea::make('seo_description')
-                        ->label('Opis SEO (Meta Description)')
+                        ->label('Opis SEO (meta description)')
                         ->placeholder('Zwięzły opis zawartości strony dla wyszukiwarek')
                         ->rows(3),
                     Toggle::make('is_noindex')
                         ->label('Ukryj przed wyszukiwarkami (noindex)')
                         ->default(false),
                     FileUpload::make('metadata.og_image_path')
-                        ->label('Dedykowany obrazek Social Media (og:image)')
+                        ->label('Obrazek udostępniania w mediach społecznościowych (og:image)')
                         ->disk('public')
                         ->directory('seo/og')
                         ->visibility('public')

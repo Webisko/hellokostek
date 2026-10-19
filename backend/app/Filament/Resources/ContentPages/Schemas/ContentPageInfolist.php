@@ -15,7 +15,7 @@ class ContentPageInfolist
             Section::make('Strona')->columnSpanFull()
                 ->columns(3)
                 ->schema([
-                    TextEntry::make('title')->label('Tytul'),
+                    TextEntry::make('title')->label('Tytuł'),
                     TextEntry::make('slug')->label('Adres URL (slug)'),
                     TextEntry::make('template')->label('Szablon'),
                     TextEntry::make('is_active')
@@ -26,24 +26,24 @@ class ContentPageInfolist
                         ->dateTime('Y-m-d H:i')
                         ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
                     TextEntry::make('excerpt')
-                        ->label('Lead')
+                        ->label('Krótki opis / zajawka')
                         ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-')
                         ->columnSpanFull(),
                     TextEntry::make('content')
-                        ->label('Tresc')
+                        ->label('Treść')
                         ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-')
                         ->columnSpanFull(),
                 ]),
-            Section::make('Media')->columnSpanFull()
+            Section::make('Multimedia')->columnSpanFull()
                 ->schema([
                     TextEntry::make('hero_image_path')
-                        ->label('Hero / obraz strony')
+                        ->label('Obraz wyróżniający strony')
                         ->formatStateUsing(fn ($state, $record): string => filled($record->heroImageUrl()) ? (string) $record->heroImageUrl() : '-'),
                 ]),
-            Section::make('SEO i metadata')->columnSpanFull()
+            Section::make('SEO i metadane')->columnSpanFull()
                 ->schema([
                     TextEntry::make('seo_title')
-                        ->label('Tytul SEO')
+                        ->label('Tytuł SEO')
                         ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
                     TextEntry::make('seo_description')
                         ->label('Opis SEO')

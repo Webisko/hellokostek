@@ -41,7 +41,7 @@ class ProductAttributeForm
                         \Filament\Forms\Components\Hidden::make('sort_order')
                             ->default(fn () => (\App\Models\ProductAttribute::max('sort_order') ?? 0) + 10),
                         TextInput::make('value_type')
-                            ->label('Typ wartosci')
+                            ->label('Typ wartości')
                             ->datalist(array_values(ProductAttributeResource::valueTypeOptions()))
                             ->default('text')
                             ->required()
@@ -53,7 +53,7 @@ class ProductAttributeForm
                 Section::make('Kategorie')->columnSpanFull()
                     ->schema([
                         CheckboxList::make('categories')
-                            ->label('Dostepne w kategoriach')
+                            ->label('Dostępne w kategoriach')
                             ->relationship(titleAttribute: 'name')
                             ->searchable()
                             ->columns(2)

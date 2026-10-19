@@ -55,7 +55,7 @@ class ProductCategoryForm
                 Section::make('SEO')->columnSpanFull()
                     ->schema([
                         TextInput::make('seo_title')
-                            ->label('Tytul SEO')
+                            ->label('Tytuł SEO')
                             ->maxLength(255),
                         Textarea::make('seo_description')
                             ->label('Opis SEO')
@@ -67,7 +67,7 @@ class ProductCategoryForm
                 Section::make('Atrybuty kategorii')->columnSpanFull()
                     ->schema([
                         CheckboxList::make('attributes')
-                            ->label('Dostepne atrybuty')
+                            ->label('Dostępne atrybuty')
                             ->relationship(
                                 name: 'attributes',
                                 titleAttribute: 'name',

@@ -19,14 +19,14 @@ class OrderForm
     {
         return $schema
             ->components([
-                Section::make('Wymagane działanie - Faktura Korygująca')->columnSpanFull()
+                Section::make('Wymagane działanie – faktura korygująca')->columnSpanFull()
                     ->visible(fn ($record): bool => $record && ($record->status === 'cancelled' || $record->payment_status === 'refunded'))
                     ->schema([
                         Placeholder::make('corrective_invoice_notice')
                             ->label('')
-                            ->content('Status tego zamówienia to Anulowane lub płatność została zwrócona. W świetle polskiego prawa wymagane jest wystawienie Faktury Korygującej (korekty). Korektę należy wystawić bezpośrednio w swoim połączonym systemie księgowym (np. Fakturownia, iFirma, inFakt, wFirma), do którego dane z tego zamówienia zostały przesłane automatycznie.'),
+                            ->content('Status tego zamówienia to anulowane lub płatność została zwrócona. W świetle polskiego prawa wymagane jest wystawienie faktury korygującej (korekty). Korektę należy wystawić bezpośrednio w swoim połączonym systemie księgowym (np. Fakturownia, iFirma, inFakt, wFirma), do którego dane z tego zamówienia zostały przesłane automatycznie.'),
                     ]),
-                Section::make('Obsluga zamowienia')->columnSpanFull()
+                Section::make('Obsługa zamówienia')->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         TextInput::make('number')
@@ -66,12 +66,12 @@ class OrderForm
                             ->label('Przedsiębiorca uprzywilejowany')
                             ->default(false),
                         Select::make('status')
-                            ->label('Status zamowienia')
+                            ->label('Status zamówienia')
                             ->options(OrderResource::statusOptions())
                             ->required()
                             ->native(false),
                         Select::make('payment_status')
-                            ->label('Status platnosci')
+                            ->label('Status płatności')
                             ->options(OrderResource::paymentStatusOptions())
                             ->required()
                             ->native(false),
@@ -81,7 +81,7 @@ class OrderForm
                             ->required()
                             ->native(false),
                         DateTimePicker::make('placed_at')
-                            ->label('Data zlozenia')
+                            ->label('Data złożenia')
                             ->default(now()),
                         Textarea::make('notes')
                             ->label('Notatki operacyjne')
@@ -200,7 +200,7 @@ class OrderForm
                             ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
                             ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null),
                     ]),
-                Section::make('Wysyłka i Śledzenie')->columnSpanFull()
+                Section::make('Wysyłka i śledzenie')->columnSpanFull()
                     ->columns(3)
                     ->schema([
                         TextInput::make('carrier')
@@ -212,7 +212,7 @@ class OrderForm
                         DateTimePicker::make('shipped_at')
                             ->label('Data wysłania paczki'),
                     ]),
-                Section::make('Akcje fulfillmentu')->columnSpanFull()
+                Section::make('Akcje realizacji')->columnSpanFull()
                     ->schema([
                         Repeater::make('fulfillmentActions')
                             ->relationship()
@@ -230,13 +230,13 @@ class OrderForm
                                     ->required()
                                     ->native(false),
                                 TextInput::make('title')
-                                    ->label('Tytul')
+                                    ->label('Tytuł')
                                     ->required()
                                     ->maxLength(255),
                                 DateTimePicker::make('due_at')
                                     ->label('Termin'),
                                 DateTimePicker::make('completed_at')
-                                    ->label('Zakonczono'),
+                                    ->label('Zakończono'),
                                 Textarea::make('instructions')
                                     ->label('Instrukcje')
                                     ->rows(3)

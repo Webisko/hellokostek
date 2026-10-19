@@ -44,9 +44,9 @@ class FaqItemForm
                         ->label('Aktywne')
                         ->default(true),
                     KeyValue::make('metadata')
-                        ->label('Metadata')
+                        ->label('Metadane')
                         ->keyLabel('Klucz')
-                        ->valueLabel('Wartosc')
+                        ->valueLabel('Wartość')
                         ->columnSpanFull(),
                 ]),
         ]);

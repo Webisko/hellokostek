@@ -73,7 +73,7 @@ class ProductsTable
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('current_price_amount')
-                    ->label('Cena (Wydruk / Oryginał)')
+                    ->label('Cena (wydruk / oryginał)')
                     ->html()
                     ->state(function (Product $record): string {
                         $record->loadMissing('variants');
@@ -87,7 +87,7 @@ class ProductsTable
                             $origPrice = $origVariant->regular_price_amount / 100;
                             $html .= '<div><span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Oryginał: ' . number_format($origPrice, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
                         } else {
-                            $html .= '<div><span class="text-xs text-gray-400 line-through">Oryginał: Sprzedany</span></div>';
+                            $html .= '<div><span class="text-xs text-gray-400 line-through">Oryginał: sprzedany</span></div>';
                         }
 
                         return $html;
@@ -100,8 +100,8 @@ class ProductsTable
                         $record->loadMissing('variants');
                         $origVariant = $record->variants->firstWhere(fn ($v) => str_ends_with($v->sku ?? '', '-OR'));
                         return ($origVariant && $origVariant->is_active && $origVariant->stock_quantity > 0)
-                            ? 'Oryginał dostępny (1 szt.)'
-                            : 'Tylko wydruk (Oryginał sprzedany)';
+                            ? 'Oryginał dostępny'
+                            : 'Tylko wydruk (oryginał sprzedany)';
                     })
                     ->color(function (Product $record): string {
                         $record->loadMissing('variants');

@@ -37,7 +37,7 @@ class ProductReviewInfolist
                         ->formatStateUsing(fn ($state) => $state ? 'Zatwierdzona' : 'Oczekująca')
                         ->color(fn ($state) => $state ? 'success' : 'warning'),
                     TextEntry::make('comment')
-                        ->label('Komentarz / Recenzja')
+                        ->label('Komentarz / recenzja')
                         ->columnSpanFull()
                         ->formatStateUsing(fn ($state) => filled($state) ? $state : '-'),
                     TextEntry::make('created_at')

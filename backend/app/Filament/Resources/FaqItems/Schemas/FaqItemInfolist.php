@@ -17,10 +17,10 @@ class FaqItemInfolist
                 ->schema([
                     TextEntry::make('question')->label('Pytanie')->columnSpanFull(),
                     TextEntry::make('group_name')->label('Grupa')->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
-                    TextEntry::make('sort_order')->label('Kolejnosc'),
+                    TextEntry::make('sort_order')->label('Kolejność'),
                     TextEntry::make('is_active')->label('Aktywne')->formatStateUsing(fn (bool $state): string => $state ? 'Tak' : 'Nie'),
-                    TextEntry::make('answer')->label('Odpowiedz')->columnSpanFull(),
-                    KeyValueEntry::make('metadata')->label('Metadata')->columnSpanFull(),
+                    TextEntry::make('answer')->label('Odpowiedź')->columnSpanFull(),
+                    KeyValueEntry::make('metadata')->label('Metadane')->columnSpanFull(),
                 ]),
         ]);
     }

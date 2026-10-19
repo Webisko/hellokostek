@@ -22,7 +22,7 @@ class ContactInquiryForm
                         ->label('Imię i nazwisko')
                         ->disabled(),
                     TextInput::make('email')
-                        ->label('Adres E-mail')
+                        ->label('Adres e-mail')
                         ->disabled(),
                     TextInput::make('phone')
                         ->label('Numer telefonu')
@@ -61,7 +61,7 @@ class ContactInquiryForm
                 ])
                 ->visible(fn ($record) => !empty($record?->payload['attachments'] ?? null)),
 
-            Section::make('Dodatkowe dane (Formularz zapytania / Brief)')->columnSpanFull()
+            Section::make('Dodatkowe dane (formularz zapytania / brief)')->columnSpanFull()
                 ->schema([
                     KeyValue::make('scalar_payload')
                         ->label('Przesłane parametry')
@@ -101,7 +101,7 @@ class ContactInquiryForm
                         ->label('Adres IP')
                         ->disabled(),
                     TextInput::make('user_agent')
-                        ->label('Przeglądarka (User Agent)')
+                        ->label('Przeglądarka (user agent)')
                         ->disabled(),
                 ])
                 ->collapsed(),

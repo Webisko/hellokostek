@@ -422,6 +422,26 @@ class StoreSettings
         return (int) data_get($this->model()->metadata, 'invoice_payment_days', 14);
     }
 
+    public function bankTransferReservationDays(): int
+    {
+        $days = (int) data_get($this->model()->metadata, 'bank_transfer_reservation_days', 3);
+
+        return max(1, min(30, $days > 0 ? $days : 3));
+    }
+
+    public function bankTransferReservationLabel(): string
+    {
+        $days = $this->bankTransferReservationDays();
+        if ($days === 1) {
+            return '1 dzień roboczy';
+        }
+        if ($days >= 2 && $days <= 4) {
+            return $days . ' dni robocze';
+        }
+
+        return $days . ' dni roboczych';
+    }
+
     public function abandonedCartRecoveryEnabled(): bool
     {
         return (bool) data_get($this->model()->metadata, 'abandoned_cart_recovery_enabled', false);

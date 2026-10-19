@@ -31,9 +31,9 @@ class AnalyticsOverview extends Page
     public function overviewStats(): array
     {
         return [
-            $this->statCard('Odslony 7 dni', $this->sumReport(AnalyticsDailyAggregate::REPORT_PAGEVIEWS_TOTAL), 'Laczna liczba odslon w ostatnich 7 dniach.', $this->aggregationContext()),
-            $this->statCard('Wizyty 7 dni', $this->sumReport(AnalyticsDailyAggregate::REPORT_VISITS_TOTAL), 'Unikalne wizyty liczone po visit_id.', $this->aggregationContext()),
-            $this->statCard('Zakupy 7 dni', $this->sumReport(AnalyticsDailyAggregate::REPORT_PURCHASES_TOTAL), 'Zdarzenia purchase z nowego storefrontu.', $this->aggregationContext()),
+            $this->statCard('Odsłony (7 dni)', $this->sumReport(AnalyticsDailyAggregate::REPORT_PAGEVIEWS_TOTAL), 'Łączna liczba odsłon w ostatnich 7 dniach.', $this->aggregationContext()),
+            $this->statCard('Wizyty (7 dni)', $this->sumReport(AnalyticsDailyAggregate::REPORT_VISITS_TOTAL), 'Unikalne wizyty liczone po identyfikatorze wizyty.', $this->aggregationContext()),
+            $this->statCard('Zakupy (7 dni)', $this->sumReport(AnalyticsDailyAggregate::REPORT_PURCHASES_TOTAL), 'Sfinalizowane zakupy w sklepie.', $this->aggregationContext()),
         ];
     }
 
@@ -46,7 +46,7 @@ class AnalyticsOverview extends Page
         $purchases = $this->sumReport(AnalyticsDailyAggregate::REPORT_PURCHASES_TOTAL);
 
         return [
-            $this->statCard('Kasa -> Zakup', $this->formatRate($purchases, $checkoutStarts), 'Konwersja rozpoczętych płatności do sfinalizowanych zakupów.', sprintf('%s / %s', number_format($purchases, 0, ',', ' '), number_format($checkoutStarts, 0, ',', ' '))),
+            $this->statCard('Kasa -> zakup', $this->formatRate($purchases, $checkoutStarts), 'Konwersja rozpoczętych płatności do sfinalizowanych zakupów.', sprintf('%s / %s', number_format($purchases, 0, ',', ' '), number_format($checkoutStarts, 0, ',', ' '))),
         ];
     }
 

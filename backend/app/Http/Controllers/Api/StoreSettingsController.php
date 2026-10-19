@@ -32,6 +32,8 @@ class StoreSettingsController extends Controller
             'global_noindex' => $this->storeSettings->globalNoindex(),
             'maintenance_mode_enabled' => $this->storeSettings->maintenanceModeEnabled(),
             'maintenance_mode_message' => $this->storeSettings->maintenanceModeMessage(),
+            'bank_transfer_reservation_days' => $this->storeSettings->bankTransferReservationDays(),
+            'bank_transfer_reservation_label' => $this->storeSettings->bankTransferReservationLabel(),
         ]);
     }
 }

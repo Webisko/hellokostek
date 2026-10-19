@@ -86,20 +86,20 @@ class IntegrationLog extends Model
             'stripe_webhook_signature_invalid' => 'Niepoprawny podpis webhooka Stripe',
             'stripe_payment_session_initiated' => 'Sesja płatności Stripe utworzona',
             'stripe_payment_session_failed' => 'Inicjalizacja płatności Stripe nie powiodła się',
-            'payment_session_initiated' => 'Sesja platnosci utworzona',
-            'payment_session_configuration_required' => 'Brak konfiguracji sesji platnosci',
-            'payment_session_registration_failed' => 'Rejestracja sesji platnosci nie powiodla sie',
-            'payment_session_reused' => 'Uzyto istniejacej sesji platnosci',
-            'payment_session_rejected_invalid_order_status' => 'Odrzucono probe dla niepoprawnego statusu zamowienia',
-            'payment_session_rejected_provider_mismatch' => 'Odrzucono probe dla niezgodnego providera platnosci',
-            'payment_callback_confirmed' => 'Callback potwierdzil platnosc',
-            'payment_callback_failed' => 'Callback oznaczyl platnosc jako nieudana',
-            'payment_callback_replayed' => 'Odebrano ponowny callback dla tej samej transakcji',
-            'payment_callback_unauthorized' => 'Odrzucono nieautoryzowany callback platnosci',
-            'payment_callback_rejected_transaction_not_found' => 'Odrzucono callback bez znalezionej transakcji',
-            'payment_callback_rejected_order_mismatch' => 'Odrzucono callback z niezgodnym numerem zamowienia',
-            'payment_callback_rejected_conflicting_status' => 'Odrzucono callback ze sprzecznym statusem transakcji',
-            'payment_callback_verification_failed' => 'Weryfikacja callbacku platnosci nie powiodla sie',
+            'payment_session_initiated' => 'Sesja płatności utworzona',
+            'payment_session_configuration_required' => 'Brak konfiguracji sesji płatności',
+            'payment_session_registration_failed' => 'Rejestracja sesji płatności nie powiodła się',
+            'payment_session_reused' => 'Użyto istniejącej sesji płatności',
+            'payment_session_rejected_invalid_order_status' => 'Odrzucono próbę dla niepoprawnego statusu zamówienia',
+            'payment_session_rejected_provider_mismatch' => 'Odrzucono próbę dla niezgodnego operatora płatności',
+            'payment_callback_confirmed' => 'Powiadomienie zwrotne potwierdziło płatność',
+            'payment_callback_failed' => 'Powiadomienie zwrotne oznaczyło płatność jako nieudaną',
+            'payment_callback_replayed' => 'Odebrano ponowne powiadomienie zwrotne dla tej samej transakcji',
+            'payment_callback_unauthorized' => 'Odrzucono nieautoryzowane powiadomienie zwrotne płatności',
+            'payment_callback_rejected_transaction_not_found' => 'Odrzucono powiadomienie zwrotne bez znalezionej transakcji',
+            'payment_callback_rejected_order_mismatch' => 'Odrzucono powiadomienie zwrotne z niezgodnym numerem zamówienia',
+            'payment_callback_rejected_conflicting_status' => 'Odrzucono powiadomienie zwrotne ze sprzecznym statusem transakcji',
+            'payment_callback_verification_failed' => 'Weryfikacja powiadomienia zwrotnego płatności nie powiodła się',
             default => filled($event) ? (string) $event : '-',
         };
     }
@@ -107,8 +107,8 @@ class IntegrationLog extends Model
     public static function directionLabel(?string $direction): string
     {
         return match ($direction) {
-            self::DIRECTION_OUTGOING => 'Wychodzacy',
-            self::DIRECTION_INCOMING => 'Przychodzacy',
+            self::DIRECTION_OUTGOING => 'Wychodzący',
+            self::DIRECTION_INCOMING => 'Przychodzący',
             default => filled($direction) ? (string) $direction : '-',
         };
     }
@@ -117,8 +117,8 @@ class IntegrationLog extends Model
     {
         return match ($status) {
             self::STATUS_SUCCESS => 'Sukces',
-            self::STATUS_WARNING => 'Ostrzezenie',
-            self::STATUS_ERROR => 'Blad',
+            self::STATUS_WARNING => 'Ostrzeżenie',
+            self::STATUS_ERROR => 'Błąd',
             default => filled($status) ? (string) $status : '-',
         };
     }

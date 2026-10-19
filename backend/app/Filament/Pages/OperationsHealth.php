@@ -94,23 +94,23 @@ class OperationsHealth extends Page
             [
                 'label' => 'Nieudane zadania',
                 'value' => $failedJobsCount,
-                'description' => 'Joby wymagajace retry lub analizy.',
-                'context' => $this->dateContext('Ostatni blad', $lastFailedJobAt, 'Brak zarejestrowanych nieudanych zadan.'),
+                'description' => 'Zadania w kolejce wymagające ponowienia lub analizy.',
+                'context' => $this->dateContext('Ostatni błąd', $lastFailedJobAt, 'Brak zarejestrowanych nieudanych zadań.'),
                 'url' => '/admin/failed-jobs',
                 'tone' => $failedJobsCount > 0 ? 'danger' : 'success',
             ],
             [
-                'label' => 'Bledy maili transakcyjnych',
+                'label' => 'Błędy wiadomości transakcyjnych',
                 'value' => $failedEmailsCount,
-                'description' => 'Nieudane wysylki widoczne w logach maili.',
-                'context' => $this->dateContext('Ostatni blad', $lastFailedEmailAt, 'Brak nieudanych wysylek.'),
+                'description' => 'Nieudane wysyłki widoczne w dzienniku wiadomości e-mail.',
+                'context' => $this->dateContext('Ostatni błąd', $lastFailedEmailAt, 'Brak nieudanych wysyłek.'),
                 'url' => $this->transactionalEmailLogsUrl(status: 'failed'),
                 'tone' => $failedEmailsCount > 0 ? 'danger' : 'success',
             ],
             [
                 'label' => 'Alerty integracyjne',
                 'value' => $integrationAlertsCount,
-                'description' => 'Logi integracji ze statusem innym niz success.',
+                'description' => 'Wpisy w dzienniku integracji ze statusem innym niż sukces.',
                 'context' => $this->integrationAlertContext($lastIntegrationAlert),
                 'url' => $this->integrationLogsUrl(
                     tableFilters: [
@@ -120,17 +120,17 @@ class OperationsHealth extends Page
                 'tone' => $integrationAlertsCount > 0 ? 'warning' : 'success',
             ],
             [
-                'label' => 'Gotowosc integracji',
+                'label' => 'Gotowość integracji',
                 'value' => $integrationReadinessIssuesCount,
-                'description' => 'Integracje wymagajace uzupelnienia sekretow lub URL-i srodowiskowych.',
+                'description' => 'Integracje wymagające uzupełnienia kluczy lub adresów środowiskowych.',
                 'context' => $integrationReadiness->summaryContext(),
                 'url' => '/admin/store-settings',
                 'tone' => $integrationReadinessIssuesCount > 0 ? 'warning' : 'success',
             ],
             [
-                'label' => 'Problemy Stripe',
+                'label' => 'Problemy ze Stripe',
                 'value' => $stripeIssuesCount,
-                'description' => 'Bledy rejestracji sesji lub webhooka Stripe.',
+                'description' => 'Błędy rejestracji sesji lub komunikacji z webhookiem Stripe.',
                 'context' => $this->stripeIssueContext($lastStripeIssue),
                 'url' => $this->integrationLogsUrl(
                     null,
@@ -141,9 +141,9 @@ class OperationsHealth extends Page
                 'tone' => $stripeIssuesCount > 0 ? 'warning' : 'success',
             ],
             [
-                'label' => 'Problemy sesji platnosci',
+                'label' => 'Problemy sesji płatności',
                 'value' => $paymentSessionIssuesCount,
-                'description' => 'Bledy, braki konfiguracji albo odrzucone proby utworzenia sesji Przelewy24.',
+                'description' => 'Błędy, braki konfiguracji albo odrzucone próby utworzenia sesji Przelewy24.',
                 'context' => $this->paymentSessionIssueContext($lastPaymentSessionIssue),
                 'url' => $this->integrationLogsUrl(
                     tableFilters: [
@@ -153,9 +153,9 @@ class OperationsHealth extends Page
                 'tone' => $paymentSessionIssuesCount > 0 ? 'warning' : 'success',
             ],
             [
-                'label' => 'Problemy callbackow platnosci',
+                'label' => 'Problemy powiadomień zwrotnych płatności',
                 'value' => $paymentCallbackAlertsCount,
-                'description' => 'Nieautoryzowane lub odrzucone callbacki Przelewy24 wymagajace sprawdzenia integracji.',
+                'description' => 'Nieautoryzowane lub odrzucone powiadomienia zwrotne Przelewy24 wymagające sprawdzenia integracji.',
                 'context' => $this->paymentCallbackAlertContext($lastPaymentCallbackAlert),
                 'url' => $this->integrationLogsUrl(
                     tableFilters: [
@@ -197,7 +197,7 @@ class OperationsHealth extends Page
     private function integrationAlertContext(?IntegrationLog $log): string
     {
         if ($log === null) {
-            return 'Brak alertow integracyjnych.';
+            return 'Brak alertów integracyjnych.';
         }
 
         return sprintf(
@@ -211,7 +211,7 @@ class OperationsHealth extends Page
     private function paymentCallbackAlertContext(?IntegrationLog $log): string
     {
         if ($log === null) {
-            return 'Brak problematycznych callbackow platnosci.';
+            return 'Brak problematycznych powiadomień zwrotnych płatności.';
         }
 
         return sprintf(
@@ -225,7 +225,7 @@ class OperationsHealth extends Page
     private function stripeIssueContext(?IntegrationLog $log): string
     {
         if ($log === null) {
-            return 'Brak problemow ze Stripe.';
+            return 'Brak problemów ze Stripe.';
         }
 
         return sprintf(
@@ -239,7 +239,7 @@ class OperationsHealth extends Page
     private function paymentSessionIssueContext(?IntegrationLog $log): string
     {
         if ($log === null) {
-            return 'Brak problemow z tworzeniem sesji platnosci.';
+            return 'Brak problemów z tworzeniem sesji płatności.';
         }
 
         return sprintf(

@@ -14,7 +14,7 @@ class RedirectRuleForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Redirect')->columnSpanFull()
+            Section::make('Przekierowanie')->columnSpanFull()
                 ->columns(2)
                 ->schema([
                     TextInput::make('source_path')
@@ -30,8 +30,8 @@ class RedirectRuleForm
                     Select::make('status_code')
                         ->label('Status HTTP')
                         ->options([
-                            301 => '301 Permanent',
-                            302 => '302 Temporary',
+                            301 => '301 Stałe (Permanent)',
+                            302 => '302 Tymczasowe (Temporary)',
                         ])
                         ->required()
                         ->default(301)
@@ -40,9 +40,9 @@ class RedirectRuleForm
                         ->label('Aktywny')
                         ->default(true),
                     KeyValue::make('metadata')
-                        ->label('Metadata')
+                        ->label('Metadane')
                         ->keyLabel('Klucz')
-                        ->valueLabel('Wartosc')
+                        ->valueLabel('Wartość')
                         ->columnSpanFull(),
                 ]),
         ]);

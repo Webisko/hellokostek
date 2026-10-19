@@ -62,7 +62,7 @@ class IntegrationReadiness
             ->all();
 
         if ($missing !== []) {
-            return 'Do uzupelnienia: ' . implode('; ', $missing);
+            return 'Do uzupełnienia: ' . implode('; ', $missing);
         }
 
         $disabled = $statuses
@@ -72,10 +72,10 @@ class IntegrationReadiness
             ->all();
 
         if ($disabled !== []) {
-            return 'Wylaczone: ' . implode(', ', $disabled);
+            return 'Wyłączone: ' . implode(', ', $disabled);
         }
 
-        return 'Przelewy24 i Stripe maja komplet konfiguracji.';
+        return 'Przelewy24 i Stripe mają komplet konfiguracji.';
     }
 
     /**
@@ -145,7 +145,7 @@ class IntegrationReadiness
             'status' => $status,
             'label' => match ($status) {
                 'ready' => 'Gotowa',
-                'disabled' => 'Wylaczona',
+                'disabled' => 'Wyłączona',
                 default => 'Wymaga konfiguracji',
             },
             'missing_fields' => $missingFields,

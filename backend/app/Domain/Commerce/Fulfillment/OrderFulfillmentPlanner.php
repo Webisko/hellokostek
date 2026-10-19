@@ -78,20 +78,20 @@ class OrderFulfillmentPlanner
         return match ($item->product_type) {
             ProductType::Digital => [
                 'action_type' => 'digital_delivery',
-                'title' => 'Wyslij dostep cyfrowy: ' . $item->name,
-                'instructions' => 'Przygotuj i wyslij klientowi email z linkiem do pobrania lub dostepem do materialu cyfrowego.',
+                'title' => 'Wyślij dostęp cyfrowy: ' . $item->name,
+                'instructions' => 'Przygotuj i wyślij klientowi wiadomość e-mail z linkiem do pobrania lub dostępem do materiału cyfrowego.',
                 'due_at' => now()->addHour(),
             ],
             ProductType::Service => [
                 'action_type' => 'service_followup',
-                'title' => 'Rozpocznij obsluge uslugi: ' . $item->name,
-                'instructions' => 'Wyslij klientowi instrukcje startowe i zaplanuj reczny fulfillment uslugi w oknie 5-10 dni roboczych.',
+                'title' => 'Rozpocznij obsługę usługi: ' . $item->name,
+                'instructions' => 'Wyślij klientowi instrukcje startowe i zaplanuj ręczną realizację usługi w oknie 5-10 dni roboczych.',
                 'due_at' => now()->addDay(),
             ],
             default => [
                 'action_type' => 'physical_shipping',
-                'title' => 'Przygotuj wysylke: ' . $item->name,
-                'instructions' => 'Spakuj pozycje fizyczne i przygotuj nadanie wedlug wybranej metody wysylki: ' . ($order->shipping_method_name ?? 'brak'),
+                'title' => 'Przygotuj wysyłkę: ' . $item->name,
+                'instructions' => 'Spakuj pozycje fizyczne i przygotuj nadanie według wybranej metody wysyłki: ' . ($order->shipping_method_name ?? 'brak'),
                 'due_at' => now()->addDay(),
             ],
         };

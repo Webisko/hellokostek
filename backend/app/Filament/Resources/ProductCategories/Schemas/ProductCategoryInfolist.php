@@ -20,7 +20,7 @@ class ProductCategoryInfolist
                         TextEntry::make('slug')
                             ->label('Adres URL (slug)'),
                         TextEntry::make('sort_order')
-                            ->label('Kolejnosc'),
+                            ->label('Kolejność'),
                         TextEntry::make('is_active')
                             ->label('Aktywna')
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Tak' : 'Nie'),
@@ -32,7 +32,7 @@ class ProductCategoryInfolist
                 Section::make('SEO i produkty')->columnSpanFull()
                     ->schema([
                         TextEntry::make('seo_title')
-                            ->label('Tytul SEO')
+                            ->label('Tytuł SEO')
                             ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
                         TextEntry::make('seo_description')
                             ->label('Opis SEO')

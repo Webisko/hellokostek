@@ -19,7 +19,7 @@ class CustomerForm
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')
-                            ->label('Imie i nazwisko')
+                            ->label('Imię i nazwisko')
                             ->required()
                             ->maxLength(255),
                         TextInput::make('email')
@@ -49,13 +49,13 @@ class CustomerForm
                             ->label('Telefon')
                             ->maxLength(50),
                         TextInput::make('completed_orders_count')
-                            ->label('Zakonczone zamowienia')
+                            ->label('Zakończone zamówienia')
                             ->numeric()
                             ->required()
                             ->minValue(0)
                             ->default(0),
                         DateTimePicker::make('last_order_at')
-                            ->label('Ostatnie zamowienie'),
+                            ->label('Ostatnie zamówienie'),
                         DateTimePicker::make('marketing_consent_at')
                             ->label('Zgoda marketingowa od')
                             ->columnSpanFull(),

@@ -288,10 +288,61 @@ class CheckoutOrderService
                 
                 if ($placeOrder) {
                     if ($variant && $variant->manages_stock) {
-                        if ($variant->stock_quantity < $quoteItem->quantity) {
+                        $lockedVariant = $selectedPaymentMethod === 'bank_transfer'
+                            ? \App\Models\ProductVariant::query()->lockForUpdate()->find($variant->id)
+                            : $variant;
+
+                        if (! $lockedVariant || $lockedVariant->stock_quantity < $quoteItem->quantity) {
                             throw ValidationException::withMessages([
                                 'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego dla wybranego wariantu: ' . $variant->sku,
                             ]);
+                        }
+
+                        if ($selectedPaymentMethod === 'bank_transfer') {
+                            $newStock = max(0, (int) $lockedVariant->stock_quantity - (int) $quoteItem->quantity);
+                            $lockedVariant->update(['stock_quantity' => $newStock]);
+
+                            if (str_ends_with((string) $lockedVariant->sku, '-OR') && $newStock <= 0) {
+                                if ($product) {
+                                    $prodMeta = is_array($product->metadata) ? $product->metadata : [];
+                                    $prodMeta['original_available'] = false;
+                                    $product->updateQuietly(['metadata' => $prodMeta]);
+                                }
+
+                                $competingOrders = Order::query()
+                                    ->where('id', '!=', $order->id)
+                                    ->where('payment_status', '!=', 'paid')
+                                    ->where('status', '!=', 'cancelled')
+                                    ->whereHas('items', fn ($q) => $q->where('product_variant_id', $lockedVariant->id))
+                                    ->with('paymentTransactions')
+                                    ->get();
+
+                                foreach ($competingOrders as $competingOrder) {
+                                    foreach ($competingOrder->paymentTransactions as $tx) {
+                                        if ($tx->provider === 'stripe' && str_starts_with((string) $tx->external_session_id, 'cs_')) {
+                                            try {
+                                                app(\App\Domain\Commerce\Payments\StripeApiClient::class)
+                                                    ->getClient()
+                                                    ->checkout
+                                                    ->sessions
+                                                    ->expire($tx->external_session_id);
+                                            } catch (\Throwable $e) {
+                                            }
+                                        }
+                                    }
+                                    $compMeta = $competingOrder->metadata ?? [];
+                                    $compMeta['cancelled_reason'] = 'Praca oryginalna została zarezerwowana w zamówieniu ' . $order->number;
+                                    $competingOrder->forceFill([
+                                        'status' => 'cancelled',
+                                        'payment_status' => 'failed',
+                                        'metadata' => $compMeta,
+                                    ])->saveQuietly();
+                                }
+                            }
+
+                            if ($product) {
+                                \App\Models\Product::flushCatalogCache($product->slug);
+                            }
                         }
                     } elseif ($product && $product->isBundle()) {
                         foreach ($product->bundleItems as $bundleItem) {
@@ -323,6 +374,11 @@ class CheckoutOrderService
                                 'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego dla produktu: ' . $product->name,
                             ]);
                         }
+                        if ($selectedPaymentMethod === 'bank_transfer') {
+                            $newStock = max(0, (int) $product->stock_quantity - (int) $quoteItem->quantity);
+                            $product->updateQuietly(['stock_quantity' => $newStock]);
+                            \App\Models\Product::flushCatalogCache($product->slug);
+                        }
                     }
                 }
 
@@ -344,6 +400,15 @@ class CheckoutOrderService
                         'vat_rate' => $vatRates[$index] ?? 23,
                     ],
                 ]);
+            }
+
+            if ($placeOrder && $selectedPaymentMethod === 'bank_transfer') {
+                $reservationDays = app(\App\Support\StoreSettings::class)->bankTransferReservationDays();
+                $orderMeta = $order->metadata ?? [];
+                $orderMeta['stock_deducted'] = true;
+                $orderMeta['reservation_days'] = $reservationDays;
+                $orderMeta['reservation_expires_at'] = now()->addWeekdays($reservationDays)->toIso8601String();
+                $order->forceFill(['metadata' => $orderMeta])->saveQuietly();
             }
 
             if ($placeOrder && $customerUser) {
@@ -385,13 +450,13 @@ class CheckoutOrderService
     {
         if (! $paymentMethod) {
             throw ValidationException::withMessages([
-                'payment_method' => 'Wybierz metode platnosci.',
+                'payment_method' => 'Wybierz metodę płatności.',
             ]);
         }
 
         if (! in_array($paymentMethod, $quoteResult->availablePaymentMethods, true)) {
             throw ValidationException::withMessages([
-                'payment_method' => 'Wybrana metoda platnosci nie jest dostepna dla tego koszyka.',
+                'payment_method' => 'Wybrana metoda płatności nie jest dostępna dla tego koszyka.',
             ]);
         }
 

@@ -29,7 +29,7 @@ class CouponInfolist
                             ->formatStateUsing(fn ($state): string => CouponResource::formatDiscountTypeLabel($state))
                             ->color(fn ($state): string => CouponResource::discountTypeColor($state)),
                         TextEntry::make('value')
-                            ->label('Wartosc')
+                            ->label('Wartość')
                             ->formatStateUsing(fn ($state, $record): string => CouponResource::formatDiscountValue($record->discount_type, $state, $record->currency)),
                         TextEntry::make('currency')
                             ->label('Waluta'),
@@ -41,10 +41,10 @@ class CouponInfolist
                     ->columns(3)
                     ->schema([
                         TextEntry::make('minimum_subtotal_amount')
-                            ->label('Minimalny subtotal')
+                            ->label('Minimalna kwota koszyka')
                             ->formatStateUsing(fn ($state, $record): string => $state !== null ? CouponResource::formatDiscountValue('fixed_cart', $state, $record->currency) : '-'),
                         TextEntry::make('usage_limit')
-                            ->label('Limit uzyc')
+                            ->label('Limit użyć')
                             ->formatStateUsing(fn ($state): string => $state !== null ? (string) $state : '-'),
                         TextEntry::make('usage_limit_per_customer')
                             ->label('Limit na klienta')
@@ -58,12 +58,12 @@ class CouponInfolist
                             ->dateTime('Y-m-d H:i')
                             ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
                         TextEntry::make('orders_count')
-                            ->label('Zastosowany w zamowieniach'),
+                            ->label('Zastosowany w zamówieniach'),
                     ]),
-                Section::make('Metadata')->columnSpanFull()
+                Section::make('Metadane')->columnSpanFull()
                     ->schema([
                         KeyValueEntry::make('metadata')
-                            ->label('Metadata'),
+                            ->label('Metadane'),
                     ]),
             ]);
     }

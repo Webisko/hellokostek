@@ -113,7 +113,7 @@
                 Płatność przelewem tradycyjnym
             </h3>
             <p style="margin: 0 0 8px 0;">
-                Wybraną pracę rezerwujemy dla Ciebie na <strong>3 dni robocze</strong>. Prosimy o dokonanie przelewu na poniższe dane:
+                Wybraną pracę rezerwujemy dla Ciebie na <strong>{{ $storeSettings->bankTransferReservationLabel() }}</strong>. Prosimy o dokonanie przelewu na poniższe dane:
             </p>
             <p style="margin: 0; font-family: monospace; font-size: 13px;">
                 <strong>Odbiorca:</strong> {{ $sellerName }}<br>

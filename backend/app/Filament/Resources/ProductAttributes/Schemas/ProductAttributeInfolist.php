@@ -21,17 +21,17 @@ class ProductAttributeInfolist
                         TextEntry::make('slug')
                             ->label('Adres URL (slug)'),
                         TextEntry::make('value_type')
-                            ->label('Typ wartosci')
+                            ->label('Typ wartości')
                             ->formatStateUsing(fn (?string $state): string => ProductAttributeResource::valueTypeOptions()[$state] ?? (string) $state),
                         TextEntry::make('sort_order')
-                            ->label('Kolejnosc'),
+                            ->label('Kolejność'),
                         TextEntry::make('is_active')
                             ->label('Aktywny')
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Tak' : 'Nie'),
                         TextEntry::make('product_values_count')
-                            ->label('Przypisania do produktow'),
+                            ->label('Przypisania do produktów'),
                     ]),
-                Section::make('Powiazania')->columnSpanFull()
+                Section::make('Powiązania')->columnSpanFull()
                     ->schema([
                         TextEntry::make('categories.name')
                             ->label('Kategorie')

@@ -34,7 +34,7 @@ class EmailTemplateForm
                         ->required()
                         ->columnSpanFull(),
                 ]),
-            Section::make('Dostępne zmienne (Placeholders)')->columnSpanFull()
+            Section::make('Dostępne zmienne (znaczniki)')->columnSpanFull()
                 ->description('Użyj poniższych kluczy w temacie lub treści wiadomości, a zostaną one automatycznie zastąpione odpowiednimi wartościami.')
                 ->schema([
                     KeyValue::make('placeholders')

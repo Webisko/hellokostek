@@ -76,17 +76,17 @@ class CouponForm
                             ->maxLength(3)
                             ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper(trim($state)) : null),
                         TextInput::make('minimum_subtotal_amount')
-                            ->label('Minimalny subtotal (PLN)')
+                            ->label('Minimalna kwota koszyka (PLN)')
                             ->numeric()
                             ->minValue(0)
                             ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
                             ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null),
                         TextInput::make('usage_limit')
-                            ->label('Limit uzyc lacznie')
+                            ->label('Limit użyć łącznie')
                             ->numeric()
                             ->minValue(1),
                         TextInput::make('usage_limit_per_customer')
-                            ->label('Limit uzyc na klienta')
+                            ->label('Limit użyć na klienta')
                             ->numeric()
                             ->minValue(1),
                         DateTimePicker::make('starts_at')
@@ -98,12 +98,12 @@ class CouponForm
                             ->label('Aktywny')
                             ->default(true),
                     ]),
-                Section::make('Metadata')->columnSpanFull()
+                Section::make('Metadane')->columnSpanFull()
                     ->schema([
                         KeyValue::make('metadata')
-                            ->label('Metadata')
+                            ->label('Metadane')
                             ->keyLabel('Klucz')
-                            ->valueLabel('Wartosc'),
+                            ->valueLabel('Wartość'),
                     ]),
             ]);
     }

@@ -15,14 +15,14 @@ class ContentPage extends Model
     public static function templateOptions(): array
     {
         return [
-            'default' => 'Domyslna strona',
-            'home' => 'Strona glowna',
+            'default' => 'Domyślna strona',
+            'home' => 'Strona główna',
             'about' => 'O marce / o nas',
             'offer' => 'Strona ofertowa',
             'faq' => 'FAQ',
             'contact' => 'Kontakt',
             'legal' => 'Strona prawna',
-            'landing' => 'Landing page',
+            'landing' => ' Strona docelowa (landing page)',
         ];
     }
 

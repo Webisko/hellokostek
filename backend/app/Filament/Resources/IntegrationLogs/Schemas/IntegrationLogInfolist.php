@@ -34,13 +34,13 @@ class IntegrationLogInfolist
                         ->badge()
                         ->formatStateUsing(fn (?string $state): string => IntegrationLog::directionLabel($state))
                         ->color(fn (?string $state): string => IntegrationLog::directionColor($state)),
-                    TextEntry::make('order.number')->label('Zamowienie')->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
+                    TextEntry::make('order.number')->label('Zamówienie')->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
                     TextEntry::make('external_reference')->label('Referencja')->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
                     TextEntry::make('occurred_at')->label('Zdarzenie')->dateTime('Y-m-d H:i')->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
-                    TextEntry::make('error_message')->label('Blad')->columnSpanFull()->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
-                    KeyValueEntry::make('request_payload')->label('Request payload')->columnSpanFull(),
-                    KeyValueEntry::make('response_payload')->label('Response payload')->columnSpanFull(),
-                    KeyValueEntry::make('metadata')->label('Metadata')->columnSpanFull(),
+                    TextEntry::make('error_message')->label('Błąd')->columnSpanFull()->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
+                    KeyValueEntry::make('request_payload')->label('Treść żądania')->columnSpanFull(),
+                    KeyValueEntry::make('response_payload')->label('Treść odpowiedzi')->columnSpanFull(),
+                    KeyValueEntry::make('metadata')->label('Metadane')->columnSpanFull(),
                 ]),
         ]);
     }

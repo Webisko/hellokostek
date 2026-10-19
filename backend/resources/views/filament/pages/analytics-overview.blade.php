@@ -31,7 +31,7 @@
     <div style="display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 1.25rem;">
 
         <div class="shop-dashboard-panel shop-dashboard-side">
-            <h3 class="shop-section-title">Najlepsze landing pages</h3>
+            <h3 class="shop-section-title">Najczęściej odwiedzane strony wejściowe</h3>
             <div style="display: grid; gap: 0.5rem;">
                 @forelse ($this->topLandingPages() as $row)
                     <div class="shop-analytics-table-row">
@@ -39,7 +39,7 @@
                         <span class="shop-analytics-table-value">{{ $row['value'] }}</span>
                     </div>
                 @empty
-                    <p class="shop-dashboard-metric-copy">Brak zagregowanych landing pages.</p>
+                    <p class="shop-dashboard-metric-copy">Brak zagregowanych stron wejściowych.</p>
                 @endforelse
             </div>
         </div>
@@ -59,7 +59,7 @@
         </div>
 
         <div class="shop-dashboard-panel shop-dashboard-side">
-            <h3 class="shop-section-title">Najważniejsze hosty odsyłające</h3>
+            <h3 class="shop-section-title">Najważniejsze źródła odesłań</h3>
             <div style="display: grid; gap: 0.5rem;">
                 @forelse ($this->topReferrerHosts() as $row)
                     <div class="shop-analytics-table-row">
@@ -67,7 +67,7 @@
                         <span class="shop-analytics-table-value">{{ $row['value'] }}</span>
                     </div>
                 @empty
-                    <p class="shop-dashboard-metric-copy">Brak zagregowanych referrerów.</p>
+                    <p class="shop-dashboard-metric-copy">Brak zagregowanych źródeł odesłań.</p>
                 @endforelse
             </div>
         </div>
@@ -92,8 +92,8 @@
     <div class="shop-page-scope">
         <p class="shop-page-scope-title">Zakres strony</p>
         <p class="shop-page-scope-text">
-            Ten widok pokazuje lekki odczyt first-party analytics z dziennych agregatów: ruch, wejścia, podstawowe konwersje,
-            najważniejsze landing pages, strony produktowe, referrery i kampanie UTM bez budowania ciężkiego BI.
+            Ten widok prezentuje statystyki ruchu w sklepie na podstawie dziennych agregatów: odsłony, wizyty, konwersje zakupowe,
+            najczęściej odwiedzane podstrony, źródła ruchu oraz kampanie UTM.
         </p>
     </div>
 </x-filament-panels::page>

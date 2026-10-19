@@ -235,12 +235,12 @@ class Product extends Model
     public function marketingBadgeLabels(): array
     {
         return collect([
-            'Nowosc' => $this->is_new,
+            'Nowość' => $this->is_new,
             'Bestseller' => $this->is_bestseller,
             'Polecany' => $this->is_recommended,
             'Promocja' => $this->is_promoted,
             'Sezonowy' => $this->is_seasonal,
-            'Wyprzedaz' => $this->is_clearance,
+            'Wyprzedaż' => $this->is_clearance,
         ])
             ->filter(fn (bool $enabled): bool => $enabled)
             ->keys()
@@ -251,9 +251,9 @@ class Product extends Model
     public function homepagePlacementLabels(): array
     {
         return collect([
-            'Strona glowna' => $this->show_on_homepage,
-            'Sekcja bestsellerow' => $this->show_in_bestsellers,
-            'Sekcja nowosci' => $this->show_in_new_arrivals,
+            'Strona główna' => $this->show_on_homepage,
+            'Sekcja bestsellerów' => $this->show_in_bestsellers,
+            'Sekcja nowości' => $this->show_in_new_arrivals,
             'Sekcja polecanych' => $this->show_in_recommended,
         ])
             ->filter(fn (bool $enabled): bool => $enabled)

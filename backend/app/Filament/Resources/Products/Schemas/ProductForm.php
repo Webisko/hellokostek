@@ -40,7 +40,7 @@ class ProductForm
                                         \Filament\Forms\Components\Hidden::make('type')
                                             ->default(\App\Domain\Commerce\Enums\ProductType::Physical->value),
                                         TextInput::make('name')
-                                            ->label('Tytuł pracy / Nazwa produktu')
+                                            ->label('Tytuł pracy / nazwa produktu')
                                             ->placeholder('np. Obiekt 2')
                                             ->required()
                                             ->maxLength(255)
@@ -61,7 +61,7 @@ class ProductForm
                                             })
                                             ->columnSpanFull(),
                                         Select::make('categories')
-                                            ->label('Kategoria (Akwarela / Rysunek)')
+                                            ->label('Kategoria (akwarela / rysunek)')
                                             ->multiple()
                                             ->relationship(titleAttribute: 'name')
                                             ->preload()
@@ -84,7 +84,7 @@ class ProductForm
                                             ])
                                             ->maxLength(255),
                                         TextInput::make('metadata.format')
-                                            ->label('Format / Wymiary')
+                                            ->label('Format / wymiary')
                                             ->placeholder('np. A4 (21 x 29,7 cm)')
                                             ->datalist([
                                                 'A4 (21 x 29,7 cm)',
@@ -114,13 +114,13 @@ class ProductForm
                                             ->rows(2)
                                             ->columnSpanFull(),
                                     ]),
-                                Section::make('Warianty i Ceny w Sklepie (Wydruk oraz Oryginał)')
+                                Section::make('Warianty i ceny w sklepie (wydruk oraz oryginał)')
                                     ->description('Każda dodana praca jest dostępna jako wydruk kolekcjonerski. Poniżej zdecyduj, czy fizyczny oryginał tej pracy jest również dostępny w sprzedaży, czy został już sprzedany.')
                                     ->columns(2)
                                     ->schema([
                                         Group::make()
                                             ->schema([
-                                                Section::make('Wariant 1: Wydruk kolekcjonerski (zawsze dostępny)')
+                                                Section::make('Wariant 1: wydruk kolekcjonerski (zawsze dostępny)')
                                                     ->schema([
                                                         TextInput::make('print_regular_price')
                                                             ->label('Cena wydruku (PLN)')
@@ -143,10 +143,10 @@ class ProductForm
                                             ]),
                                         Group::make()
                                             ->schema([
-                                                Section::make('Wariant 2: Praca Oryginalna (1 szt.)')
+                                                Section::make('Wariant 2: praca oryginalna')
                                                     ->schema([
                                                         Toggle::make('has_original')
-                                                            ->label('Oryginał dostępny w sprzedaży (1 szt.)')
+                                                            ->label('Oryginał dostępny w sprzedaży')
                                                             ->helperText('Włącz, jeśli fizyczny oryginał jest dostępny do kupienia. Wyłącz, jeśli oryginał został już sprzedany (wtedy w sklepie widoczny jest status „Oryginał sprzedany” i można zamówić tylko wydruk).')
                                                             ->live()
                                                             ->default(true)

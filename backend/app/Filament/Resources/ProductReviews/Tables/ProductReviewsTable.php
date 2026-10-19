@@ -29,7 +29,7 @@ class ProductReviewsTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('meta')
-                    ->label('Opis / Kontekst')
+                    ->label('Opis / kontekst')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('comment')

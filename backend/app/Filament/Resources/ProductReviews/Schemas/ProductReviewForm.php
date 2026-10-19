@@ -19,7 +19,7 @@ class ProductReviewForm
                     \Filament\Forms\Components\Hidden::make('sort_order')
                         ->default(fn () => (\App\Models\ProductReview::max('sort_order') ?? 0) + 10),
                     TextInput::make('emoji')
-                        ->label('Wybór Emoji')
+                        ->label('Wybór ikony emoji')
                         ->placeholder('np. 🐶, ✨, ❤️, 🎨')
                         ->maxLength(16),
                     Select::make('rating')
@@ -49,7 +49,7 @@ class ProductReviewForm
                         ->required()
                         ->maxLength(255),
                     TextInput::make('meta')
-                        ->label('Opis / Kontekst')
+                        ->label('Opis / kontekst')
                         ->placeholder('np. Portret z trzema psami')
                         ->maxLength(255),
                     Textarea::make('comment')

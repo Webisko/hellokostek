@@ -16,7 +16,7 @@ class StoreSettingInfolist
     {
         return $schema->components([
             // 1. BRANDING I WYGLAD PANELU (Wspólne)
-            Section::make('Branding i Wygląd Panelu')->columnSpanFull()
+            Section::make('Wygląd i marka panelu')->columnSpanFull()
                 ->columns(2)
                 ->schema([
                     TextEntry::make('metadata.admin_brand_name')->label('Nazwa w panelu administratora'),
@@ -26,10 +26,10 @@ class StoreSettingInfolist
                 ]),
 
             // 2. DYNAMICZNE MENU (Wspólne)
-            Section::make('Zarządzanie Menu i Nawigacją')->columnSpanFull()
+            Section::make('Zarządzanie menu i nawigacją')->columnSpanFull()
                 ->schema([
                     RepeatableEntry::make('metadata.resources_navigation')
-                        ->label('Zarządzanie zakładkami (Zasobami)')
+                        ->label('Zarządzanie zakładkami (zasobami)')
                         ->schema([
                             TextEntry::make('resource')->label('Klasa zasobu'),
                             TextEntry::make('label')->label('Etykieta w menu'),
@@ -43,7 +43,7 @@ class StoreSettingInfolist
                 ]),
 
             // 3. BEZPIECZEŃSTWO I SYSTEM (Wspólne)
-            Section::make('Bezpieczeństwo i System')->columnSpanFull()
+            Section::make('Bezpieczeństwo i system')->columnSpanFull()
                 ->columns(2)
                 ->schema([
                     TextEntry::make('metadata.admin_path')->label('Ścieżka panelu administratora (URL)'),
@@ -51,7 +51,7 @@ class StoreSettingInfolist
                         ->label('Nagłówki bezpieczeństwa HTTP')
                         ->formatStateUsing(fn ($state): string => $state ? 'Tak' : 'Nie'),
                     TextEntry::make('metadata.content_security_policy')
-                        ->label('Content Security Policy (CSP)')
+                        ->label('Polityka bezpieczeństwa treści (CSP)')
                         ->columnSpanFull(),
                     TextEntry::make('global_noindex')
                         ->label('Blokuj indeksowanie (noindex)')
@@ -68,7 +68,7 @@ class StoreSettingInfolist
                 ]),
 
             // 4. POCZTA I E-MAIL (Wspólne)
-            Section::make('Poczta i E-mail')->columnSpanFull()
+            Section::make('Poczta i e-mail')->columnSpanFull()
                 ->columns(2)
                 ->schema([
                     TextEntry::make('support_email')->label('E-mail wsparcia'),
@@ -76,11 +76,11 @@ class StoreSettingInfolist
                     TextEntry::make('mail_from_name')->label('Nazwa nadawcy e-mail'),
                     TextEntry::make('mail_from_address')->label('Adres nadawcy e-mail'),
                     TextEntry::make('metadata.resend_key')->label('Klucz API Resend'),
-                    TextEntry::make('metadata.mail_safety_redirect')->label('Przekierowanie e-maili (Tryb testowy)'),
+                    TextEntry::make('metadata.mail_safety_redirect')->label('Przekierowanie e-maili (tryb testowy)'),
                 ]),
 
             // 5. SEO I ANALITYKA (Wspólne)
-            Section::make('SEO i Analityka')->columnSpanFull()
+            Section::make('SEO i analityka')->columnSpanFull()
                 ->columns(2)
                 ->schema([
                     KeyValueEntry::make('seo')
@@ -99,7 +99,7 @@ class StoreSettingInfolist
                 ]),
 
             // 6. USTAWIENIA BLOGA (Wspólne)
-            Section::make('Ustawienia Bloga / Wpisów')->columnSpanFull()
+            Section::make('Ustawienia bloga i wpisów')->columnSpanFull()
                 ->columns(2)
                 ->schema([
                     TextEntry::make('metadata.blog_posts_per_page')->label('Liczba wpisów na stronie'),
@@ -118,7 +118,7 @@ class StoreSettingInfolist
                 ]),
 
             // 7. GŁÓWNE E-COMMERCE (Tylko Ecommerce i LMS)
-            Section::make('Ustawienia Sklepu (E-commerce)')
+            Section::make('Ustawienia sklepu (e-commerce)')
                 ->visible(fn () => app(\App\Support\StoreSettings::class)->isEcommerce())
                 ->columnSpanFull()
                 ->columns(2)
@@ -141,7 +141,7 @@ class StoreSettingInfolist
                 ]),
 
             // 8. ODZYSKIWANIE KOSZYKÓW (Tylko Ecommerce i LMS)
-            Section::make('Odzyskiwanie koszyków (Abandoned Carts)')
+            Section::make('Odzyskiwanie porzuconych koszyków')
                 ->visible(fn () => app(\App\Support\StoreSettings::class)->isEcommerce())
                 ->columnSpanFull()
                 ->columns(2)
@@ -173,63 +173,63 @@ class StoreSettingInfolist
                 ->columnSpanFull()
                 ->columns(2)
                 ->schema([
-                    TextEntry::make('metadata.google_places_api_key')->label('Google Places API Key'),
-                    TextEntry::make('metadata.google_places_place_id')->label('Google Places Place ID'),
+                    TextEntry::make('metadata.google_places_api_key')->label('Klucz API Google Places'),
+                    TextEntry::make('metadata.google_places_place_id')->label('ID miejsca Google Places'),
                     TextEntry::make('metadata.google_places_business_name')->label('Nazwa firmy Google Places')->columnSpanFull(),
                 ]),
 
             // 11. BRAMKI PŁATNOŚCI (Tylko Ecommerce i LMS)
-            Section::make('Bramki Płatności')
+            Section::make('Bramki płatności')
                 ->visible(fn () => app(\App\Support\StoreSettings::class)->isEcommerce())
                 ->columnSpanFull()
                 ->schema([
                     TextEntry::make('metadata.stripe_enabled')
                         ->label('Stripe włączony')
                         ->formatStateUsing(fn ($state): string => $state ? 'Tak' : 'Nie'),
-                    TextEntry::make('metadata.stripe_key')->label('Stripe Public Key'),
-                    TextEntry::make('metadata.stripe_secret')->label('Stripe Secret Key'),
-                    TextEntry::make('metadata.stripe_webhook_secret')->label('Stripe Webhook Secret'),
+                    TextEntry::make('metadata.stripe_key')->label('Klucz publiczny Stripe'),
+                    TextEntry::make('metadata.stripe_secret')->label('Klucz prywatny Stripe'),
+                    TextEntry::make('metadata.stripe_webhook_secret')->label('Sekret webhooka Stripe'),
 
                     TextEntry::make('metadata.przelewy24_enabled')
                         ->label('Przelewy24 włączone')
                         ->formatStateUsing(fn ($state): string => $state ? 'Tak' : 'Nie'),
-                    TextEntry::make('metadata.przelewy24_merchant_id')->label('Przelewy24 Merchant ID'),
-                    TextEntry::make('metadata.przelewy24_pos_id')->label('Przelewy24 POS ID'),
+                    TextEntry::make('metadata.przelewy24_merchant_id')->label('ID sprzedawcy Przelewy24 (Merchant ID)'),
+                    TextEntry::make('metadata.przelewy24_pos_id')->label('ID punktu Przelewy24 (POS ID)'),
                 ]),
 
             // 12. INTEGRACJE KURIERSKIE (Tylko Ecommerce i LMS)
-            Section::make('Wysyłka i Kurierzy')
+            Section::make('Wysyłka i kurierzy')
                 ->visible(fn () => app(\App\Support\StoreSettings::class)->isEcommerce())
                 ->columnSpanFull()
                 ->schema([
-                    TextEntry::make('metadata.inpost_organization_id')->label('InPost ID organizacji'),
-                    TextEntry::make('metadata.inpost_sender_email')->label('Email nadawcy Paczkomat'),
+                    TextEntry::make('metadata.inpost_organization_id')->label('ID organizacji InPost'),
+                    TextEntry::make('metadata.inpost_sender_email')->label('E-mail nadawcy Paczkomat'),
                     TextEntry::make('metadata.inpost_sender_phone')->label('Telefon nadawcy Paczkomat'),
                     TextEntry::make('metadata.inpost_sender_name')->label('Nazwa nadawcy Paczkomat'),
 
-                    TextEntry::make('metadata.orlen_partner_id')->label('Orlen Paczka Partner ID'),
-                    TextEntry::make('metadata.orlen_sender_email')->label('Email nadawcy Orlen Paczka'),
-                    TextEntry::make('metadata.orlen_sender_phone')->label('Telefon nadawcy Orlen Paczka'),
-                    TextEntry::make('metadata.orlen_sender_name')->label('Nazwa nadawcy Orlen Paczka'),
+                    TextEntry::make('metadata.orlen_partner_id')->label('ID partnera ORLEN Paczka'),
+                    TextEntry::make('metadata.orlen_sender_email')->label('E-mail nadawcy ORLEN Paczka'),
+                    TextEntry::make('metadata.orlen_sender_phone')->label('Telefon nadawcy ORLEN Paczka'),
+                    TextEntry::make('metadata.orlen_sender_name')->label('Nazwa nadawcy ORLEN Paczka'),
                 ]),
 
             // 13. KSIĘGOWOŚĆ I FAKTUROWANIE (Tylko Ecommerce i LMS)
-            Section::make('Księgowość i Faktury')
+            Section::make('Księgowość i faktury')
                 ->visible(fn () => app(\App\Support\StoreSettings::class)->isEcommerce())
                 ->columnSpanFull()
                 ->columns(2)
                 ->schema([
                     TextEntry::make('metadata.active_accounting_driver')->label('Aktywna platforma księgowości')->columnSpanFull(),
                     TextEntry::make('metadata.fakturownia_domain')
-                        ->label('Fakturownia Domena')
+                        ->label('Domena Fakturowni')
                         ->visible(fn ($get) => $get('metadata.active_accounting_driver') === 'fakturownia'),
                     TextEntry::make('metadata.ifirma_username')
-                        ->label('iFirma Email logowania')
+                        ->label('E-mail logowania iFirma')
                         ->visible(fn ($get) => $get('metadata.active_accounting_driver') === 'ifirma'),
                 ]),
 
             // 14. LMS / KURSY (Tylko LMS)
-            Section::make('Ustawienia LMS / Kursów')
+            Section::make('Ustawienia LMS i kursów')
                 ->visible(fn () => app(\App\Support\StoreSettings::class)->isLms())
                 ->columnSpanFull()
                 ->columns(2)
@@ -244,7 +244,7 @@ class StoreSettingInfolist
                 ]),
 
             // Pozostałe Metadane
-            Section::make('Pozostałe Metadane')->columnSpanFull()
+            Section::make('Pozostałe metadane')->columnSpanFull()
                 ->schema([
                     KeyValueEntry::make('metadata')
                         ->label('Metadane zaawansowane')

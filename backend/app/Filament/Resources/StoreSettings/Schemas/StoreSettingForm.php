@@ -76,7 +76,7 @@ class StoreSettingForm
                                                 ->extraAttributes(['class' => 'fi-login-bg-upload flex-1 flex flex-col h-full']),
                                         ]),
                                 ]),
-                            Section::make('Pasek ogłoszeń sklepu (Announcement Banner)')
+                            Section::make('Pasek ogłoszeń sklepu')
                                 ->description('Pasek informacyjny na samej górze sklepu (np. darmowa dostawa lub informacje o promocjach).')
                                 ->schema([
                                     Toggle::make('announcement_enabled')
@@ -93,7 +93,7 @@ class StoreSettingForm
 
                     Tabs\Tab::make('System i poczta')
                         ->schema([
-                            Section::make('Bezpieczeństwo i Dostęp')
+                            Section::make('Bezpieczeństwo i dostęp')
                                 ->description('Konfiguracja adresu URL panelu, nagłówków HTTP i indeksowania.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
@@ -110,7 +110,7 @@ class StoreSettingForm
                                         ->label('Zablokuj indeksowanie całej strony (noindex)')
                                         ->default(false),
                                     Textarea::make('metadata.content_security_policy')
-                                        ->label('Content Security Policy (CSP)')
+                                        ->label('Polityka bezpieczeństwa treści (CSP)')
                                         ->placeholder("np. default-src 'self'; script-src 'self' 'unsafe-inline';")
                                         ->rows(3)
                                         ->columnSpanFull(),
@@ -121,7 +121,7 @@ class StoreSettingForm
                                         ->columnSpanFull(),
                                 ]),
 
-                            Section::make('Tryb Konserwacji i Integracje')
+                            Section::make('Tryb konserwacji i integracje')
                                 ->description('Zarządzanie niedostępnością serwisu i zewnętrznymi powiadomieniami.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
@@ -139,13 +139,13 @@ class StoreSettingForm
                                         ->rows(2)
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.newsletter_webhook_url')
-                                        ->label('Webhook URL subskrypcji newslettera (np. Make, Zapier, Mailerlite)')
+                                        ->label('Adres URL webhooka subskrypcji newslettera (np. Make, Zapier, Mailerlite)')
                                         ->url()
                                         ->placeholder('https://...')
                                         ->columnSpanFull(),
                                 ]),
 
-                            Section::make('Poczta E-mail i Serwer')
+                            Section::make('Poczta e-mail i serwer')
                                 ->description('Dane nadawcy wiadomości wychodzących oraz klucze API poczty.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
@@ -171,7 +171,7 @@ class StoreSettingForm
                                         ->revealable()
                                         ->maxLength(255),
                                     TextInput::make('metadata.mail_safety_redirect')
-                                        ->label('Przekierowanie e-maili (Tryb testowy)')
+                                        ->label('Przekierowanie e-maili (tryb testowy)')
                                         ->email()
                                         ->helperText('Jeśli podasz tutaj adres e-mail, wszystkie wiadomości wychodzące ze strony zostaną przekierowane na ten adres.')
                                         ->maxLength(255),
@@ -180,7 +180,7 @@ class StoreSettingForm
 
                     Tabs\Tab::make('SEO')
                         ->schema([
-                            Section::make('Analityka i Śledzenie Ruchu')
+                            Section::make('Analityka i śledzenie ruchu')
                                 ->description('Klucze integracyjne dla Google Tag Manager, Google Analytics oraz Meta Pixel.')
                                 ->columns(['lg' => 3, 'default' => 1])
                                 ->schema([
@@ -198,7 +198,7 @@ class StoreSettingForm
                                         ->maxLength(50),
                                 ]),
 
-                            Section::make('Zgoda na Cookies (RODO)')
+                            Section::make('Zgoda na pliki cookie (RODO)')
                                 ->description('Ustawienia wyświetlania i treści baneru informacyjnego o plikach cookie.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
@@ -218,7 +218,7 @@ class StoreSettingForm
                                         ->columnSpanFull(),
                                 ]),
 
-                            Section::make('Domyślne Meta Tagi i Skrypty Nagłówka')
+                            Section::make('Domyślne tagi meta i skrypty nagłówka')
                                 ->description('Dodatkowa konfiguracja SEO oraz osadzanie skryptów w sekcji <head>.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
@@ -236,7 +236,7 @@ class StoreSettingForm
                     Tabs\Tab::make('E-commerce')
                         ->visible($isEcommerce)
                         ->schema([
-                            Section::make('Podstawowe Ustawienia Sklepu')
+                            Section::make('Podstawowe ustawienia sklepu')
                                 ->description('Nazwa, waluta, zakupy bez rejestracji i przewalutowania.')
                                 ->columns(['lg' => 3, 'default' => 1])
                                 ->schema([
@@ -260,8 +260,8 @@ class StoreSettingForm
                                         ->columnSpanFull(),
                                 ]),
 
-                            Section::make('Dane Sprzedawcy i Faktury VAT')
-                                ->description('Konfiguracja danych firmy umieszczanych na automatycznie generowanych fakturach VAT PDF.')
+                            Section::make('Dane sprzedawcy, przelewy i faktury VAT')
+                                ->description('Konfiguracja danych firmy do przelewów tradycyjnych i automatycznie generowanych faktur VAT PDF.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.invoicing_enabled')
@@ -286,21 +286,30 @@ class StoreSettingForm
                                         ->maxLength(255),
                                     TextInput::make('metadata.invoice_seller_bank_account')
                                         ->label('Numer rachunku bankowego (IBAN)')
-                                        ->placeholder('np. PL 00 0000 0000 0000 0000 0000 0000')
+                                        ->placeholder('np. PL 74 1050 1227 1000 0090 8312 8604')
+                                        ->default('PL 74 1050 1227 1000 0090 8312 8604')
                                         ->maxLength(64),
+                                    TextInput::make('metadata.bank_transfer_reservation_days')
+                                        ->label('Czas rezerwacji pracy przy przelewie tradycyjnym (dni robocze)')
+                                        ->helperText('Przez ile dni roboczych od złożenia zamówienia oryginał pracy jest zarezerwowany w oczekiwaniu na przelew tradycyjny (zalecane: 3 dni robocze).')
+                                        ->numeric()
+                                        ->default(3)
+                                        ->minValue(1)
+                                        ->maxValue(14)
+                                        ->dehydrateStateUsing(fn ($state) => filled($state) ? (int) $state : 3),
                                     TextInput::make('metadata.invoice_number_prefix')
                                         ->label('Prefiks numeracji faktur')
                                         ->placeholder('FV/')
                                         ->default('FV/')
                                         ->maxLength(32),
                                     TextInput::make('metadata.invoice_payment_days')
-                                        ->label('Domyślny termin płatności (dni)')
+                                        ->label('Domyślny termin płatności na fakturze (dni)')
                                         ->numeric()
                                         ->default(14)
                                         ->minValue(1),
                                 ]),
 
-                            Section::make('Odzyskiwanie Porzuconych Koszyków')
+                            Section::make('Odzyskiwanie porzuconych koszyków')
                                 ->description('Automatyczne przypomnienia e-mail po porzuceniu procesu zakupowego.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
@@ -314,7 +323,7 @@ class StoreSettingForm
                                         ->dehydrateStateUsing(fn ($state) => filled($state) ? (int) $state : 2),
                                 ]),
 
-                            Section::make('Strefy i Metody Wysyłki')
+                            Section::make('Strefy i metody wysyłki')
                                 ->description('Definicje krajów dostawy oraz opcji dostarczenia paczki.')
                                 ->schema([
                                     Repeater::make('shipping_zones')
@@ -372,7 +381,7 @@ class StoreSettingForm
                         ->visible($isEcommerce)
                         ->schema([
                             Section::make('Stripe')
-                                ->description('Płatności kartą płatniczą i portfelami cyfrowymi (Apple Pay / Google Pay).')
+                                ->description('Płatności kartą płatniczą, BLIK i portfelami cyfrowymi (Apple Pay / Google Pay).')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.stripe_enabled')
@@ -380,17 +389,17 @@ class StoreSettingForm
                                         ->default(true)
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.stripe_key')
-                                        ->label('Stripe Public Key (Publishable)')
+                                        ->label('Klucz publiczny Stripe (publishable key)')
                                         ->placeholder('pk_live_...')
                                         ->maxLength(255),
                                     TextInput::make('metadata.stripe_secret')
-                                        ->label('Stripe Secret Key')
+                                        ->label('Klucz prywatny Stripe (secret key)')
                                         ->placeholder('sk_live_...')
                                         ->password()
                                         ->revealable()
                                         ->maxLength(255),
                                     TextInput::make('metadata.stripe_webhook_secret')
-                                        ->label('Stripe Webhook Secret')
+                                        ->label('Sekret webhooka Stripe (webhook secret)')
                                         ->placeholder('whsec_...')
                                         ->password()
                                         ->revealable()
@@ -407,50 +416,50 @@ class StoreSettingForm
                                         ->default(true)
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.przelewy24_merchant_id')
-                                        ->label('Przelewy24 Merchant ID')
+                                        ->label('ID sprzedawcy Przelewy24 (Merchant ID)')
                                         ->maxLength(50),
                                     TextInput::make('metadata.przelewy24_pos_id')
-                                        ->label('Przelewy24 POS ID')
+                                        ->label('ID punktu Przelewy24 (POS ID)')
                                         ->maxLength(50),
                                     TextInput::make('metadata.przelewy24_crc')
-                                        ->label('Przelewy24 CRC Key')
+                                        ->label('Klucz CRC Przelewy24')
                                         ->password()
                                         ->revealable()
                                         ->maxLength(255),
                                     TextInput::make('metadata.przelewy24_api_key')
-                                        ->label('Przelewy24 API Key')
+                                        ->label('Klucz API Przelewy24')
                                         ->password()
                                         ->revealable()
                                         ->maxLength(255),
                                     TextInput::make('metadata.przelewy24_api_base_url')
-                                        ->label('Przelewy24 API Base URL')
+                                        ->label('Bazowy adres URL API Przelewy24')
                                         ->placeholder('https://secure.przelewy24.pl/api/v1')
                                         ->maxLength(255),
                                     TextInput::make('metadata.przelewy24_redirect_base_url')
-                                        ->label('Przelewy24 Redirect Base URL')
+                                        ->label('Bazowy adres URL przekierowania Przelewy24')
                                         ->placeholder('https://secure.przelewy24.pl')
                                         ->maxLength(255),
                                     TextInput::make('metadata.przelewy24_callback_token')
-                                        ->label('Przelewy24 Callback Token')
+                                        ->label('Token wywołania zwrotnego Przelewy24')
                                         ->password()
                                         ->revealable()
                                         ->maxLength(255)
                                         ->columnSpanFull(),
                                 ]),
 
-                            Section::make('InPost Paczkomaty i Kurier')
+                            Section::make('InPost Paczkomaty i kurier')
                                 ->description('Klucze API i dane nadawcy dla przesyłek InPost.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.inpost_sandbox')
-                                        ->label('Tryb testowy (Sandbox)')
+                                        ->label('Tryb testowy (sandbox)')
                                         ->default(true)
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.inpost_organization_id')
-                                        ->label('InPost Organization ID')
+                                        ->label('ID organizacji InPost')
                                         ->maxLength(50),
                                     TextInput::make('metadata.inpost_token')
-                                        ->label('InPost API Token')
+                                        ->label('Token API InPost')
                                         ->password()
                                         ->revealable()
                                         ->maxLength(255),
@@ -458,7 +467,7 @@ class StoreSettingForm
                                         ->columns(['lg' => 2, 'default' => 1])
                                         ->columnSpanFull()
                                         ->schema([
-                                            TextInput::make('metadata.inpost_sender_name')->label('Imię i Nazwisko nadawcy')->maxLength(255),
+                                            TextInput::make('metadata.inpost_sender_name')->label('Imię i nazwisko nadawcy')->maxLength(255),
                                             TextInput::make('metadata.inpost_sender_company')->label('Nazwa firmy nadawcy')->maxLength(255),
                                             TextInput::make('metadata.inpost_sender_email')->label('E-mail nadawcy')->email()->maxLength(255),
                                             TextInput::make('metadata.inpost_sender_phone')->label('Telefon nadawcy')->maxLength(50),
@@ -469,27 +478,27 @@ class StoreSettingForm
                                         ]),
                                 ]),
 
-                            Section::make('Orlen Paczka')
-                                ->description('Klucze API i dane nadawcy dla przesyłek Orlen Paczka.')
+                            Section::make('ORLEN Paczka')
+                                ->description('Klucze API i dane nadawcy dla przesyłek ORLEN Paczka.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.orlen_sandbox')
-                                        ->label('Tryb testowy (Sandbox)')
+                                        ->label('Tryb testowy (sandbox)')
                                         ->default(true)
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.orlen_partner_id')
-                                        ->label('Orlen Paczka Partner ID')
+                                        ->label('ID partnera ORLEN Paczka')
                                         ->maxLength(50),
                                     TextInput::make('metadata.orlen_partner_key')
-                                        ->label('Orlen Paczka Partner Key')
+                                        ->label('Klucz partnera ORLEN Paczka')
                                         ->password()
                                         ->revealable()
                                         ->maxLength(255),
-                                    Section::make('Dane nadawcy Orlen Paczka')
+                                    Section::make('Dane nadawcy ORLEN Paczka')
                                         ->columns(['lg' => 2, 'default' => 1])
                                         ->columnSpanFull()
                                         ->schema([
-                                            TextInput::make('metadata.orlen_sender_name')->label('Imię i Nazwisko nadawcy')->maxLength(255),
+                                            TextInput::make('metadata.orlen_sender_name')->label('Imię i nazwisko nadawcy')->maxLength(255),
                                             TextInput::make('metadata.orlen_sender_company')->label('Nazwa firmy nadawcy')->maxLength(255),
                                             TextInput::make('metadata.orlen_sender_email')->label('E-mail nadawcy')->email()->maxLength(255),
                                             TextInput::make('metadata.orlen_sender_phone')->label('Telefon nadawcy')->maxLength(50),
