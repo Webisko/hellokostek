@@ -39,6 +39,8 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="only light" />
+    <meta name="supported-color-schemes" content="light" />
     <link rel="canonical" href={canonicalURL} />
     {noindex && (
       <meta name="robots" content="noindex, nofollow" />

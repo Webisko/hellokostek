@@ -47,7 +47,13 @@
   --text-8xl: clamp(3.5rem, 4.5vw + 2.375rem, 8rem);             /* 56px -> 128px */
 }
 
+:root {
+  color-scheme: only light;
+  supported-color-schemes: light;
+}
+
 html, body {
+  color-scheme: only light;
   background-color: #FFFFFF;
   color: #181716;
   font-family: var(--font-sans);

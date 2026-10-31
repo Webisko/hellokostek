@@ -1,4 +1,7 @@
-# 0. SECURITY & SENSITIVE FILE PROTECTION
+# 0. ERROR DOCUMENTS & FALLBACKS
+ErrorDocument 404 /404.html
+
+# 0.1 SECURITY & SENSITIVE FILE PROTECTION
 Options -Indexes
 
 <FilesMatch "^\.(env|git|svn|sqlite|log)|(composer\.(json|lock)|package(-lock)?\.json)$">
