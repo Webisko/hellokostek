@@ -70,7 +70,7 @@ export default function Gallery() {
       .then((data) => {
         const payload = data.data || data;
         const items = Array.isArray(payload) ? payload : (payload.items || []);
-        if (Array.isArray(items) && items.length > 0) {
+        if (Array.isArray(items)) {
           const mapped = items.map(mapGalleryArtwork);
           // Defensywna deduplikacja po nazwie pliku graficznego
           const seen = new Set<string>();

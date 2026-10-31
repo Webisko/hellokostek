@@ -55,7 +55,7 @@ export default function FaqSection() {
       })
       .then((payload) => {
         const fetchedItems = payload.data?.items;
-        if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
+        if (Array.isArray(fetchedItems)) {
           setItems(fetchedItems);
           setOpenId(fetchedItems[0].id);
         }

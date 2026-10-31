@@ -279,6 +279,14 @@ class Product extends Model
 
     protected static function booted(): void
     {
+        static::saving(function (Product $product): void {
+            if ($product->isDirty('metadata') && $product->exists) {
+                $originalMetadata = is_array($product->getOriginal('metadata')) ? $product->getOriginal('metadata') : [];
+                $newMetadata = is_array($product->metadata) ? $product->metadata : [];
+                $product->metadata = array_replace_recursive($originalMetadata, $newMetadata);
+            }
+        });
+
         static::updating(function (Product $product): void {
             if ($product->isDirty('slug')) {
                 $oldSlug = $product->getOriginal('slug');
@@ -556,7 +564,7 @@ class Product extends Model
                     'vat_rate' => $product->vat_rate ?? 23,
                     'stock_quantity' => 0,
                     'manages_stock' => true,
-                    'is_active' => true,
+                    'is_active' => false,
                 ]
             );
             $origVariant->optionValues()->sync([$originalOptionValue->id]);

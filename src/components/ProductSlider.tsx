@@ -57,7 +57,7 @@ export default function ProductSlider() {
       .then((data) => {
         const payload = data.data || data;
         const items = Array.isArray(payload) ? payload : (payload.products || []);
-        if (Array.isArray(items) && items.length > 0) {
+        if (Array.isArray(items)) {
           const mapped = items.map(mapProduct);
           setProducts(mapped);
           setProdIndex(mapped.length); // Reset index to the dynamic length

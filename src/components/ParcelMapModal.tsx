@@ -74,6 +74,20 @@ export function parseOrlenPointInput(input: string): {
   };
 }
 
+export function formatCityName(input: string): string {
+  if (!input) return "";
+  return input
+    .trim()
+    .split(/\s+/)
+    .map((word) =>
+      word
+        .split("-")
+        .map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : ""))
+        .join("-")
+    )
+    .join(" ");
+}
+
 export default function ParcelMapModal({
   isOpen,
   onClose,
@@ -132,7 +146,9 @@ export default function ParcelMapModal({
     try {
       let url = "https://api-shipx-pl.easypack24.net/v1/points?type=parcel_locker&limit=40";
       if (query && query.trim().length > 0) {
-        url += `&query=${encodeURIComponent(query.trim())}`;
+        const cleanQuery = query.trim();
+        const formatted = !/\d/.test(cleanQuery) ? formatCityName(cleanQuery) : cleanQuery;
+        url += `&query=${encodeURIComponent(formatted)}`;
       } else if (lat !== undefined && lng !== undefined) {
         url += `&relative_point=${lat},${lng}`;
       } else {

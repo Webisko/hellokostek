@@ -253,6 +253,7 @@ export default function Contact() {
           <h3 className="font-display text-2xl text-gray-900 border-b border-gray-100 pb-4">Wypełnij formularz kontaktowy</h3>
 
           <form onSubmit={handleSubmit} className="space-y-6 font-sans">
+            <input type="text" name="website_url" style={{ display: "none" }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <label htmlFor="contact-name" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Imię *</label>

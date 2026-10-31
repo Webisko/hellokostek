@@ -98,12 +98,12 @@ class ProductForm
                                             ->label('Adres URL (slug)')
                                             ->required()
                                             ->maxLength(255)
-                                            ->unique(ignoreRecord: true),
+                                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                                         TextInput::make('sku')
                                             ->label('Kod bazowy SKU')
                                             ->placeholder('Generowany automatycznie z nazwy')
                                             ->maxLength(255)
-                                            ->unique(ignoreRecord: true),
+                                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                                         Textarea::make('description')
                                             ->label('Opis pracy (wyświetlany na karcie produktu i w sklepie)')
                                             ->placeholder('np. Rogue planet')

@@ -1,106 +1,139 @@
-# Plan Wdrożenia Poprawek – Feedback 04 (`2026.09 feedback 04.pdf`)
+# Raport 4-Stopniowego Audytu Projektu i Plan Naprawy (Project Audit Master)
 
-Dokument zawiera szczegółową analizę wszystkich punktów z pliku `2026.09 feedback 04.pdf` (wraz z odniesieniem do `2026 06 feedback 02.pdf`) oraz plan zmian w kodzie frontendu (Astro/React), backendu (Laravel/Filament CMS) i bazie danych.
-
----
-
-## 1. Strona „O mnie / Bio” (`/o-mnie`) – edycja w CMS oraz docelowe treści z Feedback 02
-
-### Analiza zgłoszenia klienta:
-1. Klient poprosił o możliwość **samodzielnej edycji tekstu i zdjęcia** na podstronie `/o-mnie` w panelu administracyjnym.
-2. Na zrzucie ekranu klient przekreślił obecny cytat (*„Teatr daje możliwość...”*), oba akapity tekstu oraz boks pod zdjęciem (*„Dlaczego malarstwo tradycyjne?”*) i dopisał: **„jest w pliku Feedback 02”**.
-3. W pliku `2026 06 feedback 02.pdf` (str. 11, pkt 13 „O mnie”) znajdują się docelowe treści:
-   - **Nagłówek (zostaje):** `Artysta • Malarz • Łódź` oraz `Kostek Maciej Kosteczka`
-   - **Cytat:**
-     > „Wydawać się może, że klasyczne malarstwo i sztuka figuratywna bardzo ograniczają twórcę, ale stosując zasady z improwizacji w teatrze, że: „gdzie są ograniczenia, tam jest najwięcej wolności”, szukam wolności w malarstwie realistycznym.”
-   - **Treść biogramu:**
-     > Aktor, tancerz, malarz  
-     > Rocznik ‘88.  
-     > Ukończył Państwową Wyższą Szkołę Teatralną w Krakowie na Wydziale Teatru Tańca w Bytomiu. Kulturoznawca po UŚ w Katowicach. Uczestnik International Summer Program – stypendium Roberta Wilsona w Watermill Center w Nowym Jorku. Pracował w Teatrze Tańca i Ruchu Rozbark, a w ramach Festiwalu Maltaw przy projekcie „Ksenofonia Symfonia dla Innego” oraz współtworzył spektakl „A co gdyby” na rezydencji Gdańskiego Festiwalu Tańca. Od lat współpracuje z Teatrem w Ruchu grając spektakle dla dzieci w całym kraju. Ex-pracownik korporacji.  
-     > Równolegle: malarz, grafik i twórca rękodzieła – od 2023 roku prowadzi własną działalność: hellokostek tworząc obrazy olejne na zamówienie i ucząc aktorstwa, i rysunku. Od 2020 roku szkoli się pod okiem Pauliny Kwietniewskiej (malarstwo) i Macieja Kusa (rzeźba).  
-     > Wystawy indywidualne: „SIEWIERZ-513W13R2”, 2017, Hotel Natura Residence, Siewierz; „Rogue Planet”, 2022, Klubokawiarnia KIPISZ, Łódź.  
-     > Wystawy zbiorowe: „Spotkanie na czerwonej kanapie - jak rzeźba wrocławska czuje się w Łodzi”, 2025, OFF Piotrkowska, Łódź.  
-     > Prace artysty dostępne są w galerii Two Of Art w Amsterdamie oraz na aukcjach organizowanych przez galerię Pragaleria w Warszawie.
-   - **Elementy do usunięcia:** Karta *„Dlaczego malarstwo tradycyjne?”* pod zdjęciem (dolny pasek CTA *„Podoba Ci się moja twórczość?”* zostaje).
-
-### Plan wdrożenia:
-- **Backend / Filament CMS ([`ContentPageForm.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/app/Filament/Resources/ContentPages/Schemas/ContentPageForm.php), [`HelloKostekSeeder.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/database/seeders/HelloKostekSeeder.php)):**
-  - Utworzenie w tabeli `content_pages` strony o slugu `o-mnie` i szablonie `about` (`Strona & wygląd -> Strony -> O mnie`).
-  - Dostosowanie formularza [`ContentPageForm.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/app/Filament/Resources/ContentPages/Schemas/ContentPageForm.php), aby dla szablonu `about` wyświetlał przejrzyste pola:
-    - **Nadtytuł** (`metadata.subtitle` – np. `Artysta • Malarz • Łódź`),
-    - **Tytuł / Imię i nazwisko** (`title` – `Kostek Maciej Kosteczka`),
-    - **Cytat wyróżniony** (`excerpt`),
-    - **Treść biogramu** (`content` – edytor tekstu / akapity),
-    - **Zdjęcie portretowe** (`hero_image_path` – upload zdjęcia z edytorem kadrowania),
-    - Ukrycie sekcji paragrafów prawnych (`metadata.sections`), gdy wybrany jest szablon `about`, aby formularz był prosty i czytelny dla klienta.
-- **Frontend ([`AboutMe.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/AboutMe.tsx)):**
-  - Wpisanie docelowego tekstu z `Feedback 02` jako domyślnej treści statycznej (brak efektu mignięcia przy ładowaniu).
-  - Usunięcie boksu *„Dlaczego malarstwo tradycyjne?”*.
-  - Podpięcie pobierania danych z endpointu `GET /api/content/pages/o-mnie`, dzięki czemu każda zmiana tekstu, cytatu lub zdjęcia w panelu CMS będzie od razu widoczna na stronie.
+Data audytu: **31 października 2026 r.**  
+Projekt: **Hello Kostek (Pracownia Artystyczna & Sklep – Maciej Kosteczka)**  
+Technologie: **Astro v7 + React Islands v19 + Tailwind CSS v4 | Laravel 13 + Filament CMS v5.6 + SQLite/MySQL**  
+Standard audytu: **`project-audit-master` (Protokół 4-stopniowy)**
 
 ---
 
-## 2. Strona „Kontakt” (`/kontakt`) – zamiana ikonek social media
+## 1. Podsumowanie Wynikowe Audytu
 
-### Analiza zgłoszenia klienta:
-- Klient poprosił o zamianę prostokątnych przycisków z podpisami (`Instagram`, `Facebook`, `TikTok`, `YouTube`) w sekcji `MEDIA SPOŁECZNOŚCIOWE` na podstronie `/kontakt` na okrągłe ikonki bez tekstu (identyczne jak te w stopce strony).
-
-### Plan wdrożenia:
-- **Frontend ([`Contact.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Contact.tsx#L207-L244)):**
-  - Zastąpienie prostokątnych przycisków czterema okrągłymi ikonkami (`w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-stone-650`) z kolorowym efektem najechania (`hover:bg-[#E0115F]`, `hover:bg-[#1877F2]`, `hover:bg-black`, `hover:bg-[#FF0000]` i `hover:text-white`), dokładnie tak jak w [`Footer.astro`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Footer.astro#L96-L133).
-
----
-
-## 3. Wyjaśnienie błędu `{"PL":"OLEJ","EN":"OIL"}` w Galerii (`/galeria`)
-
-### Przyczyna problemu (odpowiedź dla klienta):
-- Problem **nie wynikał z niedoczytania strony w przeglądarce**, lecz z wcześniejszej struktury bazy danych. Przed ujednoliceniem serwisu wyłącznie do języka polskiego, nazwy kategorii i tytuły prac były zapisane w bazie danych jako surowe obiekty JSON: `{"pl":"Olej","en":"Oil"}` oraz `{"pl":"Portret Kobiety","en":""}`.
-- Komponent [`Gallery.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Gallery.tsx#L16-L43) oczekiwał zdekodowanego obiektu lub zwykłego tekstu, a otrzymując z API tekst zawierający JSON, wyświetlał go dosłownie na przyciskach kategorii i w lightboxie.
-- Baza produkcyjna została już przeczyszczona (obecnie API zwraca czyste polskie nazwy `Olej`, `Akwarela`, `Akryl`, `Rysunek`).
-
-### Plan wdrożenia (dodatkowe zabezpieczenie):
-- Dodanie funkcji obronnej `parseLocalizedString()` w [`Gallery.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Gallery.tsx), [`Shop.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Shop.tsx), [`ProductDetail.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/ProductDetail.tsx) oraz w [`GalleryArtworkResource.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/app/Http/Resources/GalleryArtworkResource.php), która automatycznie wyciąga wartość `.pl`, jeśli kiedykolwiek natrafi na ciąg znaków w formacie `{"pl":...}`.
+| Kategoria | Sprawdzonych obszarów | 🔴 Krytyczne | 🟠 Ważne | 🟡 Optymalizacyjne | Wynik bramki |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **Stopień 1: Bezpieczeństwo, Płatności & Zero-Trust** | 8 | 2 | 2 | 0 | ❌ Wymaga naprawy |
+| **Stopień 2: Synchronizacja 5 Warstw (CMS-API-Front)** | 7 | 1 | 5 | 0 | ❌ Wymaga naprawy |
+| **Stopień 3: Produkcja, RODO Zero-Leak & SEO** | 6 | 0 | 1 | 4 | ⚠️ Wymaga naprawy |
+| **Stopień 4: Twarda Bramka Terminala** | 2 | 5 błędów w testach | - | - | ❌ 5 failed / 135 passed |
 
 ---
 
-## 4. Edycja danych w pokazywarce obrazów w Galerii (`/galeria`) + korekta obrazu „Portret siedmiolatki”
+## 2. Szczegółowy Wykaz Wykrytych Błędów
 
-### Analiza zgłoszenia klienta:
-1. Klient chce móc edytować dane w pokazywarce (lightboxie) galerii: **rok powstania**, **tytuł** oraz **bullet points (wypunktowanie)**.
-2. Dlaczego dotychczas nie mógł edytować wypunktowania (bullet points)?
-   - W panelu CMS (`Strona & wygląd -> Galeria`) znajdują się pola `Tytuł`, `Rok powstania`, `Kategoria`, `Technika wykonania` i `Format`, natomiast 4 punkty wypunktowania (np. *„• Tradycyjne malarstwo olejne na płótnie bawełnianym”*, *„• Naciąg na krosna sosnowe”*, *„• Zabezpieczony werniksem końcowym”*, *„• Wykonany ręcznie na zamówienie ze zdjęcia”*) były **zaszyte na sztywno w kodzie [`Gallery.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Gallery.tsx#L412-L445)**.
-3. Na zrzucie ekranu klient wskazał również konkretny obraz (`01-portret-edited.webp` – dziewczynka z białym kwiatkiem we włosach):
-   - Na prawej krawędzi obecnego pliku `01-portret-edited.webp` widać ucięty fragment monitora ze zdjęciem referencyjnym (adnotacja klienta: **„złe wykadrowanie”**).
-   - Prawidłowe dane tego obrazu wskazane przez klienta:
-     - Kategoria: **Akryl**
-     - Tytuł: **Portret siedmiolatki** (obecnie w bazie: *„Portret dziewczynki w kapeluszu”*)
-     - Rok powstania: **2013**
+### 🔴 Błędy Krytyczne (Blokery transakcyjne / ryzyko oversellingu / utraty spójności)
 
-### Plan wdrożenia:
-1. **Edycja bullet points w panelu CMS (`Strona & wygląd -> Galeria`):**
-   - Rozszerzenie [`GalleryArtworkForm.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/app/Filament/Resources/GalleryArtworks/Schemas/GalleryArtworkForm.php) o pole **„Punkty opisu w pokazywarce (bullet points)”** (`metadata.bullet_points` – pole wieloliniowe `Textarea`, gdzie każda linia to osobny punkt w pokazywarce).
-   - Przekazanie pola `bullet_points` w [`GalleryArtworkResource.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/app/Http/Resources/GalleryArtworkResource.php) do API `/api/gallery`.
-   - Modyfikacja [`Gallery.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Gallery.tsx#L405-L446): wyświetlanie w pokazywarce punktów zdefiniowanych w CMS (oraz techniki/formatu, jeśli podano), z pominięciem sztywnych tekstów z kodu, gdy praca pochodzi z CMS.
-2. **Poprawa kadrowania i danych obrazu `01-portret` (`gallery-26`):**
-   - Wykadrowanie na czysto oryginalnego pliku [`01-portret.jpg`](file:///D:/Projekty/_KLIENCI/Hello%20Kostek/kopia_zapasowa/nowa/hellokostek.pl_wpvivid-uploads/uploads/2022/03/01-portret.jpg) z kopii zapasowej (sam obraz na płótnie w kwadracie, bez monitora po prawej stronie i bez sztalugi) i zapisanie jako `01-portret-edited.webp`.
-   - Zmiana tytułu na `Portret siedmiolatki`, kategorii na `Akryl` i roku na `2013` w [`src/data/gallery.ts`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/data/gallery.ts), [`HelloKostekSeeder.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/database/seeders/HelloKostekSeeder.php) oraz w lokalnej bazie danych.
+1. **Brak redukcji stanu magazynowego (`stock_quantity`) przy zamówieniach opłacanych kartą/Stripe/P24:**
+   - **Plik:** `backend/app/Domain/Commerce/Checkout/CheckoutOrderService.php` (linie 291–304 i 371–382).
+   - **Problem:** Warunek `$selectedPaymentMethod === 'bank_transfer'` ograniczał odejmowanie stanu magazynowego (`stock_quantity`) produktów unikatowych oraz wariantów wyłącznie do tradycyjnego przelewu bankowego. Przy płatnościach Stripe lub Przelewy24 stan magazynowy unikatowych oryginałów w ogóle nie był odejmowany w transakcji złożenia zamówienia. Powodowało to wywrotkę testu `Tests\Feature\CommerceVerificationTest` i ryzyko podwójnej sprzedaży unikatowego obrazu 1/1.
+   - **Zestawy (Bundles):** W liniach 347–370 dla zestawów (`isBundle()`) brakowało faktycznej dekrementacji stanów magazynowych składników zestawu (`bundleItems`), co wywracało test `ProductBundlesTest > checkout validation and stock reduction for bundles`.
+
+2. **Brak automatycznego restockingu komponentów zestawu przy anulowaniu zamówienia oraz brak obsługi zestawów przy potwierdzeniu wpłaty:**
+   - **Plik:** `backend/app/Models/Order.php` (linie 133–185 i 186–250).
+   - **Problem:** W zdarzeniu `Order::updated` przy `status === 'cancelled'`, restock odpalał się wyłącznie, gdy w metadanych zamówienia istniała flaga `metadata['stock_deducted']`. Ponieważ zamówienia Stripe nie ustawiały tej flagi w serwisie checkoutu, anulowanie zamówienia nie przywracało stanów magazynowych (`ProductBundlesTest > restocking bundle components on cancellation`). Dodatkowo w bloku obsługi `payment_status === 'paid'` brakowało pętli dekrementującej stan komponentów zestawów.
+
+3. **Stripe Webhook — brak blokady `lockForUpdate()` i weryfikacja pustego secretu:**
+   - **Plik:** `backend/app/Http/Controllers/Api/StripePaymentCallbackController.php`.
+   - **Problem:** Brak jawnego sprawdzenia `if (empty($webhookSecret)) { abort(500); }` oraz brak blokady pesymistycznej `lockForUpdate()` na modelu zamówienia/transakcji w trakcie potwierdzania płatności, co w warunkach wielokrotnego równoległego webhooka Stripe stwarza ryzyko race condition.
 
 ---
 
-## 5 i 5a. Sklep (`/sklep`) – prezentacja cen (Oryginał vs Wydruk) oraz edycja nazw i opisów
+### 🟠 Błędy Ważne (Logika biznesowa, synchronizacja CMS, RODO, integracje kurierskie)
 
-### Uzgodniony wariant wdrożenia (wyłącznie lokalnie):
-1. **Czytelna prezentacja cen i wariantów na karcie produktu w [`Shop.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Shop.tsx):**
-   - Plakietka w lewym górnym rogu zdjęcia: **`AKWARELA / WYDRUK`** (lub **`RYSUNEK / WYDRUK`**, a gdy oryginał jest sprzedany – samo **`WYDRUK`**).
-   - Sekcja cenowa pod zdjęciem: zamiast mylącego `od 30 zł` wyświetlamy przejrzyste rozbicie:
-     - Gdy oryginał jest dostępny: **`Oryginał: 300 zł • Wydruk: 30 zł`** (dla rysunków: `Oryginał: 200 zł • Wydruk: 20 zł`).
-     - Gdy oryginał został sprzedany: **`Wydruk: 30 zł`** (z oznaczeniem `Oryginał sprzedany`).
-   - Dodanie czytelnej informacji na dole sekcji sklepu o cenach startowych (Wydruki: 20–30 zł, Rysunki: 200 zł, Akwarele: 300 zł).
-2. **Aktualizacja nazw i opisów cyklu akwareli ([`src/data.ts`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/data.ts), [`HelloKostekSeeder.php`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/database/seeders/HelloKostekSeeder.php), lokalna baza danych):**
-   - Zmiana rzymskich numerów na arabskie: `Obiekt 2`, `Obiekt 7`, `Obiekt 8`, `Obiekt 9`, `Obiekt 13 (Sygnowany)`.
-   - Zastąpienie wygenerowanych przez AI opisów nazwą cyklu: `Rogue planet`.
-3. **Pełna obsługa edycji opisów w CMS ([`ProductDetail.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/ProductDetail.tsx), [`Shop.tsx`](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/src/components/Shop.tsx)):**
-   - Usunięcie błędnego fallbacku do statycznego `product.description` w `ProductDetail.tsx` (linia 142), dzięki czemu każda zmiana lub wyczyszczenie opisu w panelu CMS (`/admin/products` – `Produkty & sklep -> Produkty`) będzie od razu widoczna zarówno na liście sklepu, jak i na karcie produktu.
+4. **Błąd w `Product::syncVariantsFromData` przy deaktywacji pracy oryginalnej w CMS:**
+   - **Plik:** `backend/app/Models/Product.php` (linia 559).
+   - **Problem:** Gdy użytkownik w panelu Filament CMS odznacza „Dostępność oryginału” (`has_original == false`), kod aktualizował wariant oryginału `-OR` ze stanem `'is_active' => true` zamiast `'is_active' => false`. Skutkowało to tym, że wyłączony oryginał wciąż figurował w API jako aktywny wariant (`ComprehensiveCmsCrudAndSyncTest > products cms crud syncs with catalog...` fail).
 
-> [!IMPORTANT]
-> **Zakres prac:** Wszystkie zmiany (kod Astro/React, panel Filament CMS, kadrowanie grafik oraz migracje/seedowanie bazy SQLite) zostaną wykonane **wyłącznie lokalnie** w środowisku deweloperskim, bez wypychania na serwer produkcyjny.
+5. **Niezgodność adresu URL API ustawień sklepu między frontendem a backendem:**
+   - **Pliki:** `src/components/ProductDetail.tsx` (linia 105), `src/components/Success.tsx` (linia 36).
+   - **Problem:** Frontend odpytuje endpoint `${apiBase}/store-settings`, podczas gdy w `backend/routes/api.php` zdefiniowana jest trasa `/store/settings`. W rezultacie zapytania w przeglądarce kończyły się błędem 404, uniemożliwiając wczytanie dynamicznej konfiguracji sklepu (np. etykiety rezerwacji przelewu).
+
+6. **Złamanie reguły czyszczenia danych CMS na frontendzie (`if (items.length > 0)`):**
+   - **Pliki:** `src/components/Shop.tsx` (linia 64), `src/components/ProductSlider.tsx` (linia 60), `src/components/Gallery.tsx` (linia 73), `src/components/FaqSection.tsx` (linia 58), `src/components/Testimonials.tsx` (linia 142).
+   - **Problem:** Sprawdzenie `if (Array.isArray(items) && items.length > 0)` blokuje ustawienie stanu `setProducts([])`, gdy w CMS administrator wyłączy lub usunie wszystkie wpisy. Na stronie głównej i w sklepie pozostawały wówczas stare, statyczne dane testowe.
+
+7. **Naruszenie wytycznych RODO i EROD w banerze cookies:**
+   - **Plik:** `src/components/CookieConsent.astro`.
+   - **Problem:** Baner posiada wyłącznie jeden przycisk „Zgadzam się”, bez symetrycznego przycisku „Odrzuć opcjonalne” / „Tylko niezbędne”. Zgodnie z prawem UE i wytycznymi UODO/EROD, użytkownik musi mieć możliwość odrzucenia plików cookie o równej wadze wizualnej.
+
+8. **Brak zadania Cron zwalniającego wygasłe rezerwacje przelewowe:**
+   - **Plik:** `backend/routes/console.php`.
+   - **Problem:** Zamówienia z metodą `bank_transfer` posiadają metadane `reservation_expires_at`, jednak w harmonogramie zadań brakowało komendy Cron zwalniającej nieopłacone rezerwacje po upływie terminu (z przywróceniem stanów magazynowych dzieł).
+
+9. **Krytyczny błąd mapowania adresu kurierskiego w InPost ShipX i Orlen Paczka:**
+   - **Pliki:** `backend/app/Domain/Commerce/Logistics/InPostService.php` (linia 196), `backend/app/Domain/Commerce/Logistics/OrlenPaczkaService.php` (linia 180).
+   - **Problem:** Metoda `parseAddressFields` poszukiwała adresu wyłącznie w kluczu `line_1` / `line1`. Formularz zamówienia oraz testy przekazują adres w kluczu `street`. Ponieważ `line_1` było puste, serwis wysyłał do API InPost i Orlen Paczka zahardkodowaną ulicę `Przykładowa` z numerem budynku `1`!
+
+10. **Brak ochrony kolumny `metadata` (JSON) w modelu `Product` przed częściowym nadpisaniem:**
+    - **Plik:** `backend/app/Models/Product.php`.
+    - **Problem:** Edycja formularza w Filament przesyła wybrane klucze `metadata` (np. `year`, `technique`), co grozi wymazaniem innych kluczy (np. `original_available`, metadane systemowe) przy zapisie. Wymagane: `array_replace_recursive` w `saving`.
+
+11. **Brak `withoutTrashed()` w regułach unikalności formularza Filament:**
+    - **Plik:** `backend/app/Filament/Resources/Products/Schemas/ProductForm.php` (linie 101, 106).
+    - **Problem:** Pola `slug` i `sku` używają standardowego `unique(ignoreRecord: true)` bez `withoutTrashed()`, co uniemożliwia ponowne utworzenie produktu o identycznym slugu po jego usunięciu do kosza (`SoftDeletes`).
+
+12. **Brak podwójnego Honeypota i zaawansowanej walidacji antyspamowej w formularzu kontaktowym:**
+    - **Pliki:** `backend/app/Http/Controllers/Api/ContactInquiryController.php`, `src/components/Contact.tsx`.
+    - **Problem:** Formularz kontaktowy nie posiadał ukrytego pola honeypot ani ścisłej walidacji `email:rfc,dns` oraz limitów `max` na wiadomości.
+
+---
+
+### 🟡 Błędy Optymalizacyjne (SEO, Omnibus, Apache, testy)
+
+13. **Brak strony błędu `404.astro` w frontendzie Astro:**
+    - Ruch na nieistniejące podstrony w trybie statycznym nie posiada dedykowanej strony 404.
+14. **Brak tagu `<meta name="robots" content="noindex, nofollow" />` na stronach transakcyjnych:**
+    - Pliki `src/pages/sukces-zakup.astro` oraz `src/pages/sukces-kontakt.astro` nie blokowały indeksowania przez roboty Google.
+15. **Brak reguł bezpieczeństwa w `public/.htaccess`:**
+    - Brak `Options -Indexes` oraz brak blokady odczytu wrażliwych plików `.env`, `.sqlite`, `.log`, `.git`.
+16. **Brak prezentacji najniższej ceny z 30 dni (Omnibus) w karcie produktu:**
+    - `src/components/ProductDetail.tsx` nie prezentował pola `lowest_price_last_30_days` zwracanego przez backend przy cenach promocyjnych.
+17. **Nieaktualna asercja w teście `StoreSettingsTest`:**
+    - `backend/tests/Feature/Api/StoreSettingsTest.php`: endpoint wzbogacono o konfigurację rezerwacji bankowej, co wymaga zaktualizowania asercji `assertExactJson`.
+
+---
+
+## 3. Plan Implementacji Napraw
+
+### Faza 1: Backend — Magazyn, Zestawy, Płatności i Modele
+1. W `backend/app/Domain/Commerce/Checkout/CheckoutOrderService.php`:
+   - Przebudować blok dekrementacji magazynu: stan wariantów, produktów pojedynczych oraz komponentów zestawów (`bundleItems`) jest redukowany przy `placeOrder === true` z blokadą `lockForUpdate()` w transakcji DB, a w `metadata` zamówienia zapisywana jest flaga `'stock_deducted' => true`.
+2. W `backend/app/Models/Order.php`:
+   - W zdarzeniu `updated` (`cancelled`): zapewnić pełny restock dla wariantów, produktów oraz komponentów zestawów (`bundleItems`).
+   - W zdarzeniu `updated` (`payment_status === 'paid'`): dodać obsługę zestawów oraz sprawdzenie, czy stan nie został już odjęty (`stock_deducted`).
+3. W `backend/app/Models/Product.php`:
+   - W metodzie `syncVariantsFromData`: poprawić linię 559 z `'is_active' => true` na `'is_active' => false` dla wariantu oryginału, gdy `has_original == false`.
+   - W metodzie `booted`: dodać listener `saving` chroniący `metadata` za pomocą `array_replace_recursive`.
+4. W `backend/app/Http/Controllers/Api/StripePaymentCallbackController.php`:
+   - Dodać jawne sprawdzenie `if (empty($webhookSecret)) { abort(500, 'Stripe webhook secret is not configured.'); }`.
+   - Dodać blokadę `lockForUpdate()` i sprawdzenie idempotencji przy zmianie statusu na `paid`.
+5. W `backend/app/Domain/Commerce/Logistics/InPostService.php` i `OrlenPaczkaService.php`:
+   - Zaktualizować `parseAddressFields`, aby prawidłowo obsługiwało klucze `street`, `line_1`, `address_line_1` oraz bezpośrednie `building_number` i `flat_number`.
+6. W `backend/app/Filament/Resources/Products/Schemas/ProductForm.php`:
+   - Dodać `modifyRuleUsing: fn ($rule) => $rule->withoutTrashed()` na polach `slug` i `sku`.
+7. W `backend/routes/console.php`:
+   - Utworzyć komendę `app:expire-unpaid-orders` anulującą zamówienia `bank_transfer` po upływie terminu rezerwacji i zarejestrować ją w `Schedule`.
+8. W `backend/routes/api.php` oraz `StoreSettingsTest.php`:
+   - Dodać alias `Route::get('/store-settings', StoreSettingsController::class)`.
+   - Zaktualizować asercję `assertExactJson` w `StoreSettingsTest.php`.
+
+### Faza 2: Frontend — Komponenty, RODO, SEO i Apache
+9. W `src/components/Shop.tsx`, `ProductSlider.tsx`, `Gallery.tsx`, `FaqSection.tsx`, `Testimonials.tsx`:
+   - Zastąpić warunek `if (Array.isArray(items) && items.length > 0)` czystym `if (Array.isArray(items))`, umożliwiając renderowanie pustego katalogu CMS.
+10. W `src/components/ProductDetail.tsx` i `Success.tsx`:
+    - Poprawić ścieżkę fetch z `/store-settings` na `/store/settings`.
+    - W `ProductDetail.tsx`: dodać obsługę i wyświetlanie najniższej ceny z 30 dni (Omnibus).
+11. W `src/components/CookieConsent.astro`:
+    - Dodać przycisk „Tylko niezbędne / Odrzuć” o identycznej klasie wizualnej jak przycisk zgody, z zapisem wyboru w `localStorage`.
+12. W `src/components/Contact.tsx` oraz `ContactInquiryController.php`:
+    - Dodać ukryte pole Honeypot (`website_url`) z detekcją botów i walidacją `email:rfc,dns`.
+13. W `src/layouts/Layout.astro` oraz stronach sukcesu:
+    - Dodać obsługę propsa `noindex?: boolean` i wstrzykiwanie `<meta name="robots" content="noindex, nofollow" />`.
+    - Dodać `noindex={true}` w `sukces-zakup.astro` oraz `sukces-kontakt.astro`.
+14. W `src/pages/404.astro`:
+    - Utworzyć dedykowaną, estetyczną stronę błędu 404 w stylistyce Hello Kostek z przyciskiem powrotu do sklepu.
+15. W `public/.htaccess`:
+    - Dodać `Options -Indexes` oraz regułę blokady dostępu do plików `.env`, `.sqlite`, `.log`, `.git`, `composer.json`.
+
+### Faza 3: Twarda Weryfikacja Końcowa (Bramka Stopnia 4)
+16. Uruchomienie pełnego zestawu testów backendu: `cd backend; php artisan test`. Cel: **100% testów zdanych (0 failed)**.
+17. Uruchomienie kompilacji frontendu: `npm run build`. Cel: **kod wyjścia 0, poprawna generacja wszystkich 23+ podstron i sitemap**.

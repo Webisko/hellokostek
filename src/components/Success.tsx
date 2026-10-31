@@ -33,7 +33,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
       clearCart();
 
       const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
-      fetch(`${apiBase}/store-settings`)
+      fetch(`${apiBase}/store/settings`)
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data?.bank_transfer_reservation_label) {

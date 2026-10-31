@@ -27,6 +27,10 @@ class StripePaymentCallbackController extends Controller
         $sigHeader = $request->header('STRIPE_SIGNATURE');
         $webhookSecret = config('services.stripe.webhook_secret');
 
+        if (blank($webhookSecret)) {
+            abort(500, 'Stripe webhook secret is not configured.');
+        }
+
         try {
             $event = Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
         } catch (\UnexpectedValueException $e) {
@@ -94,6 +98,13 @@ class StripePaymentCallbackController extends Controller
 
             if ($isPaid) {
                 DB::transaction(function () use ($transaction, $order, $session, $event) {
+                    $transaction = PaymentTransaction::query()->lockForUpdate()->find($transaction->id);
+                    $order = Order::query()->lockForUpdate()->find($order->id);
+
+                    if ($transaction->status === 'confirmed' || $order->payment_status === 'paid') {
+                        return;
+                    }
+
                     $responsePayload = $transaction->response_payload ?? [];
                     $responsePayload['callback'] = [
                         'event_type' => $event->type,

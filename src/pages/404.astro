@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404: Nie odnaleziono strony | hellokostek" noindex={true}>
+  <div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 py-16">
+    <span class="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold mb-3">
+      Błąd 404 • Dzieło nie zostało odnalezione
+    </span>
+    <h1 class="font-display text-4xl sm:text-6xl text-gray-950 font-normal mb-4">
+      Pusta Sztaluga
+    </h1>
+    <p class="text-gray-600 max-w-md text-base leading-relaxed mb-8">
+      Strona, której szukasz, mogła zostać przeniesiona, sprzedana lub jej adres URL uległ zmianie.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <a 
+        href="/sklep" 
+        class="px-6 py-3 bg-off-black text-white hover:bg-lime-accent hover:text-off-black transition-all duration-300 rounded-xl text-xs font-mono uppercase tracking-wider font-bold"
+      >
+        Zobacz Galerię i Sklep
+      </a>
+      <a 
+        href="/" 
+        class="px-6 py-3 bg-neutral-100 text-gray-800 hover:bg-neutral-200 border border-neutral-300 transition-all duration-300 rounded-xl text-xs font-mono uppercase tracking-wider font-bold"
+      >
+        Strona Główna
+      </a>
+    </div>
+  </div>
+</Layout>

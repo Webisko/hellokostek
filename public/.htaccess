@@ -1,3 +1,10 @@
+# 0. SECURITY & SENSITIVE FILE PROTECTION
+Options -Indexes
+
+<FilesMatch "^\.(env|git|svn|sqlite|log)|(composer\.(json|lock)|package(-lock)?\.json)$">
+  Require all denied
+</FilesMatch>
+
 # ====================================================================
 # HELLOKOSTEK.PL - HIGH PERFORMANCE APACHE HTACCESS FOR LH.PL
 # ====================================================================

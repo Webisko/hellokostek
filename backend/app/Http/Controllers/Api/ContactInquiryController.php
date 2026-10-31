@@ -18,12 +18,23 @@ class ContactInquiryController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
+        // Honeypot bot protection: if filled, return silent success
+        if (filled($request->input('website_url')) || filled($request->input('hp_field'))) {
+            return response()->json([
+                'data' => [
+                    'message' => 'Dziękujemy za wiadomość.',
+                    'id' => 0,
+                ],
+            ], 200);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'email:rfc', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'subject' => ['nullable', 'string', 'max:255'],
-            'message' => ['required', 'string'],
+            'message' => ['required', 'string', 'max:5000'],
+            'website_url' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {

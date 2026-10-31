@@ -139,7 +139,7 @@ export default function Testimonials() {
       })
       .then((payload) => {
         const items = payload.data || payload;
-        if (Array.isArray(items) && items.length > 0) {
+        if (Array.isArray(items)) {
           setTestimonials(items);
           setReviewsIndex(items.length * 2);
         }

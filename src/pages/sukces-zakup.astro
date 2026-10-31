@@ -21,6 +21,6 @@ const orderDetails = orderNumber && productTitle ? {
 } : null;
 ---
 
-<Layout title="Transakcja zakończona pomyślnie | hellokostek" hideHeaderFooter={true}>
+<Layout title="Transakcja zakończona pomyślnie | hellokostek" hideHeaderFooter={true} noindex={true}>
   <Success mode="purchase" orderDetails={orderDetails} client:load />
 </Layout>

@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\SiteReviewsController;
 
 Route::get('/health', HealthController::class)->name('api.health');
 Route::get('/store/settings', StoreSettingsController::class)->name('api.store.settings');
+Route::get('/store-settings', StoreSettingsController::class)->name('api.store.settings.alias');
 Route::get('/reviews/site', SiteReviewsController::class)->name('api.reviews.site');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('api.catalog.index');
 Route::get('/catalog/search/suggest', [CatalogController::class, 'suggest'])->name('api.catalog.search.suggest');

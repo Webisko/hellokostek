@@ -28,9 +28,17 @@ const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/
     >
       Więcej w polityce prywatności
     </a>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap sm:flex-nowrap gap-2">
+      <button
+        id="reject-cookies"
+        type="button"
+        class="px-4 py-2.5 bg-neutral-100 text-stone-700 hover:bg-neutral-200 border border-neutral-300 transition-all duration-300 rounded-lg text-xs font-mono uppercase tracking-wider leading-none cursor-pointer"
+      >
+        Tylko niezbędne
+      </button>
       <button
         id="accept-cookies"
+        type="button"
         class="px-4 py-2.5 bg-off-black text-white hover:bg-lime-accent hover:text-off-black active:bg-magenta-accent active:text-white transition-all duration-300 rounded-lg text-xs font-mono uppercase tracking-wider leading-none cursor-pointer"
       >
         Zgadzam się
@@ -42,6 +50,7 @@ const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/
 <script>
   const banner = document.getElementById('cookie-banner');
   const acceptBtn = document.getElementById('accept-cookies');
+  const rejectBtn = document.getElementById('reject-cookies');
   const titleEl = document.getElementById('cookie-banner-title');
   const descEl = document.getElementById('cookie-banner-desc');
   const announcementBar = document.getElementById('cms-announcement-bar');
@@ -49,9 +58,10 @@ const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/
   if (banner && acceptBtn) {
     const apiBase = banner.getAttribute('data-api-base') || 'https://panel.hellokostek.pl/api';
     const defaultEnabled = banner.getAttribute('data-default-enabled') === 'true';
-    const alreadyAccepted = localStorage.getItem('hellokostek_cookies') === 'true';
+    const cookieConsentState = localStorage.getItem('hellokostek_cookies');
+    const hasConsentDecided = cookieConsentState === 'true' || cookieConsentState === 'essential_only';
 
-    if (defaultEnabled && !alreadyAccepted) {
+    if (defaultEnabled && !hasConsentDecided) {
       banner.classList.remove('hidden');
     }
 
@@ -59,6 +69,13 @@ const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/
       localStorage.setItem('hellokostek_cookies', 'true');
       banner.classList.add('hidden');
     });
+
+    if (rejectBtn) {
+      rejectBtn.addEventListener('click', () => {
+        localStorage.setItem('hellokostek_cookies', 'essential_only');
+        banner.classList.add('hidden');
+      });
+    }
 
     fetch(`${apiBase}/store/settings`)
       .then((res) => (res.ok ? res.json() : null))

@@ -29,6 +29,7 @@ export interface Product {
   printVariantId?: number;
   technique?: string;
   format?: string;
+  lowestPrice30Days?: number;
 }
 
 export interface CartItem {

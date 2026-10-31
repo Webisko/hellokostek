@@ -102,7 +102,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   // Fetch fresh product details from API on mount (supports new CMS products via URL slug)
   useEffect(() => {
     const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
-    fetch(`${apiBase}/store-settings`)
+    fetch(`${apiBase}/store/settings`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.bank_transfer_reservation_label) {
@@ -167,6 +167,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             printVariantId: printVariant?.id,
             technique: parseLocalizedString(apiProd.metadata?.technique) || product.technique || undefined,
             format: parseLocalizedString(apiProd.metadata?.format) || product.format || undefined,
+            lowestPrice30Days: apiProd.lowest_price_last_30_days ? apiProd.lowest_price_last_30_days / 100 : undefined,
           });
 
           if (title) {
@@ -445,6 +446,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               <span className="text-3xl font-bold font-mono text-[#E0115F]">
                 {currentPrice} zł
               </span>
+              {currentProduct.lowestPrice30Days && (
+                <span className="text-xs font-mono text-gray-500 block">
+                  Najniższa cena z 30 dni: {currentProduct.lowestPrice30Days} zł
+                </span>
+              )}
               {selectedType === "original" && (
                 <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">
                   Zawiera bezpłatną dostawę

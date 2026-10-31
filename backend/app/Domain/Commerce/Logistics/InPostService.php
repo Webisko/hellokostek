@@ -193,17 +193,23 @@ class InPostService
      */
     private function parseAddressFields(array $address): array
     {
-        $line1 = trim($address['line_1'] ?? $address['line1'] ?? '');
-        
-        $street = $line1;
-        $building = '1';
-        $flat = '';
+        $explicitBuilding = trim((string) ($address['building_number'] ?? $address['building'] ?? ''));
+        $explicitFlat = trim((string) ($address['flat_number'] ?? $address['flat'] ?? ''));
 
-        // Match Polish format: "Street Name 12a/4" or "Street Name 12 lok. 4" or "Street Name 12"
-        if (preg_match('/^(.*?)\s*(\d+[a-zA-Z]?)(?:\s*(?:\/|lok\.|lokal)\s*(\d+))?$/ui', $line1, $matches)) {
-            $street = trim($matches[1]);
-            $building = trim($matches[2]);
-            $flat = trim($matches[3] ?? '');
+        $line1 = trim((string) ($address['street'] ?? $address['line_1'] ?? $address['line1'] ?? $address['address_line_1'] ?? ''));
+
+        $street = $line1;
+        $building = $explicitBuilding;
+        $flat = $explicitFlat;
+
+        if (empty($building)) {
+            if (preg_match('/^(.*?)\s*(\d+[a-zA-Z]?)(?:\s*(?:\/|lok\.|lokal)\s*(\d+))?$/ui', $line1, $matches)) {
+                $street = trim($matches[1]);
+                $building = trim($matches[2]);
+                if (empty($flat)) {
+                    $flat = trim($matches[3] ?? '');
+                }
+            }
         }
 
         return [

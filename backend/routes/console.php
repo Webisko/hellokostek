@@ -237,6 +237,33 @@ Artisan::command('app:cleanup-price-history', function () {
     return self::SUCCESS;
 })->purpose('Usuwa archiwalne wpisy historii cen Omnibus starsze niż 90 dni');
 
+Artisan::command('app:expire-unpaid-orders', function () {
+    $expiredOrders = Order::query()
+        ->where('status', 'placed')
+        ->where('payment_status', 'awaiting_payment')
+        ->whereNotNull('metadata->reservation_expires_at')
+        ->get();
+
+    $count = 0;
+    foreach ($expiredOrders as $order) {
+        $expiresAt = data_get($order->metadata, 'reservation_expires_at');
+        if ($expiresAt && now()->greaterThan($expiresAt)) {
+            $metadata = $order->metadata ?? [];
+            $metadata['cancelled_reason'] = 'Wygasł czas na dokonanie przelewu bankowego (' . data_get($metadata, 'reservation_days', 3) . ' dni)';
+            $order->forceFill([
+                'status' => 'cancelled',
+                'payment_status' => 'failed',
+                'metadata' => $metadata,
+            ])->save();
+            $count++;
+        }
+    }
+
+    $this->info("Anulowano {$count} przeterminowanych rezerwacji bankowych.");
+
+    return self::SUCCESS;
+})->purpose('Anuluje nieopłacone zamówienia przelewowe, dla których upłynął termin rezerwacji');
+
 Artisan::command('app:generate-sitemap', function () {
     $this->info('Rozpoczynanie generowania mapy witryny sitemap.xml...');
     $generator = new \App\Support\SEO\SitemapGenerator();
@@ -259,6 +286,10 @@ Schedule::command('app:cleanup-price-history')
     ->withoutOverlapping();
 
 
+
+Schedule::command('app:expire-unpaid-orders')
+    ->hourly()
+    ->withoutOverlapping();
 
 Schedule::command('app:cleanup-abandoned-carts')
     ->daily()

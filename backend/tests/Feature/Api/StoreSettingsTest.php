@@ -39,6 +39,8 @@ class StoreSettingsTest extends TestCase
                 'allow_guest_checkout' => false,
                 'announcement_enabled' => false,
                 'announcement_text' => null,
+                'bank_transfer_reservation_days' => 3,
+                'bank_transfer_reservation_label' => '3 dni robocze',
                 'cookie_banner_enabled' => true,
                 'google_tag_manager_id' => 'GTM-ABCDEF',
                 'google_analytics_id' => 'G-XYZ123',

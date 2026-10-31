@@ -1,3 +1,10 @@
+# Security & Sensitive File Protection
+Options -Indexes
+
+<FilesMatch "^\.(env|git|svn|sqlite|log)|(composer\.(json|lock)|package(-lock)?\.json)$">
+    Require all denied
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 

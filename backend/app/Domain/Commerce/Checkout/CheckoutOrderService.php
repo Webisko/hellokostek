@@ -288,9 +288,7 @@ class CheckoutOrderService
                 
                 if ($placeOrder) {
                     if ($variant && $variant->manages_stock) {
-                        $lockedVariant = $selectedPaymentMethod === 'bank_transfer'
-                            ? \App\Models\ProductVariant::query()->lockForUpdate()->find($variant->id)
-                            : $variant;
+                        $lockedVariant = \App\Models\ProductVariant::query()->lockForUpdate()->find($variant->id);
 
                         if (! $lockedVariant || $lockedVariant->stock_quantity < $quoteItem->quantity) {
                             throw ValidationException::withMessages([
@@ -298,87 +296,88 @@ class CheckoutOrderService
                             ]);
                         }
 
-                        if ($selectedPaymentMethod === 'bank_transfer') {
-                            $newStock = max(0, (int) $lockedVariant->stock_quantity - (int) $quoteItem->quantity);
-                            $lockedVariant->update(['stock_quantity' => $newStock]);
+                        $newStock = max(0, (int) $lockedVariant->stock_quantity - (int) $quoteItem->quantity);
+                        $lockedVariant->update(['stock_quantity' => $newStock]);
 
-                            if (str_ends_with((string) $lockedVariant->sku, '-OR') && $newStock <= 0) {
-                                if ($product) {
-                                    $prodMeta = is_array($product->metadata) ? $product->metadata : [];
-                                    $prodMeta['original_available'] = false;
-                                    $product->updateQuietly(['metadata' => $prodMeta]);
-                                }
+                        if (str_ends_with((string) $lockedVariant->sku, '-OR') && $newStock <= 0) {
+                            if ($product) {
+                                $prodMeta = is_array($product->metadata) ? $product->metadata : [];
+                                $prodMeta['original_available'] = false;
+                                $product->updateQuietly(['metadata' => $prodMeta]);
+                            }
 
-                                $competingOrders = Order::query()
-                                    ->where('id', '!=', $order->id)
-                                    ->where('payment_status', '!=', 'paid')
-                                    ->where('status', '!=', 'cancelled')
-                                    ->whereHas('items', fn ($q) => $q->where('product_variant_id', $lockedVariant->id))
-                                    ->with('paymentTransactions')
-                                    ->get();
+                            $competingOrders = Order::query()
+                                ->where('id', '!=', $order->id)
+                                ->where('payment_status', '!=', 'paid')
+                                ->where('status', '!=', 'cancelled')
+                                ->whereHas('items', fn ($q) => $q->where('product_variant_id', $lockedVariant->id))
+                                ->with('paymentTransactions')
+                                ->get();
 
-                                foreach ($competingOrders as $competingOrder) {
-                                    foreach ($competingOrder->paymentTransactions as $tx) {
-                                        if ($tx->provider === 'stripe' && str_starts_with((string) $tx->external_session_id, 'cs_')) {
-                                            try {
-                                                app(\App\Domain\Commerce\Payments\StripeApiClient::class)
-                                                    ->getClient()
-                                                    ->checkout
-                                                    ->sessions
-                                                    ->expire($tx->external_session_id);
-                                            } catch (\Throwable $e) {
-                                            }
+                            foreach ($competingOrders as $competingOrder) {
+                                foreach ($competingOrder->paymentTransactions as $tx) {
+                                    if ($tx->provider === 'stripe' && str_starts_with((string) $tx->external_session_id, 'cs_')) {
+                                        try {
+                                            app(\App\Domain\Commerce\Payments\StripeApiClient::class)
+                                                ->getClient()
+                                                ->checkout
+                                                ->sessions
+                                                ->expire($tx->external_session_id);
+                                        } catch (\Throwable $e) {
                                         }
                                     }
-                                    $compMeta = $competingOrder->metadata ?? [];
-                                    $compMeta['cancelled_reason'] = 'Praca oryginalna została zarezerwowana w zamówieniu ' . $order->number;
-                                    $competingOrder->forceFill([
-                                        'status' => 'cancelled',
-                                        'payment_status' => 'failed',
-                                        'metadata' => $compMeta,
-                                    ])->saveQuietly();
                                 }
+                                $compMeta = $competingOrder->metadata ?? [];
+                                $compMeta['cancelled_reason'] = 'Praca oryginalna została zarezerwowana w zamówieniu ' . $order->number;
+                                $competingOrder->forceFill([
+                                    'status' => 'cancelled',
+                                    'payment_status' => 'failed',
+                                    'metadata' => $compMeta,
+                                ])->saveQuietly();
                             }
+                        }
 
-                            if ($product) {
-                                \App\Models\Product::flushCatalogCache($product->slug);
-                            }
+                        if ($product) {
+                            \App\Models\Product::flushCatalogCache($product->slug);
                         }
                     } elseif ($product && $product->isBundle()) {
                         foreach ($product->bundleItems as $bundleItem) {
+                            $neededQty = $bundleItem->quantity * $quoteItem->quantity;
                             if ($bundleItem->product_variant_id) {
-                                $component = $bundleItem->variant;
-                                if ($component && $component->manages_stock) {
-                                    $neededQty = $bundleItem->quantity * $quoteItem->quantity;
-                                    if ($component->stock_quantity < $neededQty) {
-                                        throw ValidationException::withMessages([
-                                            'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego wariantu ' . $component->sku . ' dla zestawu: ' . $product->name,
-                                        ]);
-                                    }
+                                $componentVariant = \App\Models\ProductVariant::query()->lockForUpdate()->find($bundleItem->product_variant_id);
+                                if (! $componentVariant || ($componentVariant->manages_stock && $componentVariant->stock_quantity < $neededQty)) {
+                                    throw ValidationException::withMessages([
+                                        'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego wariantu ' . ($componentVariant?->sku ?? '') . ' dla zestawu: ' . $product->name,
+                                    ]);
+                                }
+                                if ($componentVariant->manages_stock) {
+                                    $newStock = max(0, (int) $componentVariant->stock_quantity - $neededQty);
+                                    $componentVariant->update(['stock_quantity' => $newStock]);
                                 }
                             } else {
-                                $component = $bundleItem->product;
-                                if ($component && $component->manages_stock) {
-                                    $neededQty = $bundleItem->quantity * $quoteItem->quantity;
-                                    if ($component->stock_quantity < $neededQty) {
-                                        throw ValidationException::withMessages([
-                                            'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego składnika ' . $component->name . ' dla zestawu: ' . $product->name,
-                                        ]);
-                                    }
+                                $componentProd = \App\Models\Product::query()->lockForUpdate()->find($bundleItem->product_id);
+                                if (! $componentProd || ($componentProd->manages_stock && $componentProd->stock_quantity < $neededQty)) {
+                                    throw ValidationException::withMessages([
+                                        'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego składnika ' . ($componentProd?->name ?? '') . ' dla zestawu: ' . $product->name,
+                                    ]);
+                                }
+                                if ($componentProd->manages_stock) {
+                                    $newStock = max(0, (int) $componentProd->stock_quantity - $neededQty);
+                                    $componentProd->updateQuietly(['stock_quantity' => $newStock]);
+                                    \App\Models\Product::flushCatalogCache($componentProd->slug);
                                 }
                             }
                         }
                     } elseif ($product && $product->manages_stock) {
-                        if ($product->stock_quantity < $quoteItem->quantity) {
+                        $lockedProduct = \App\Models\Product::query()->lockForUpdate()->find($product->id);
+                        if (! $lockedProduct || $lockedProduct->stock_quantity < $quoteItem->quantity) {
                             throw ValidationException::withMessages([
                                 'items.' . $index . '.quantity' => 'Brak wystarczającego stanu magazynowego dla produktu: ' . $product->name,
                             ]);
                         }
-                        if ($selectedPaymentMethod === 'bank_transfer') {
-                            $newStock = max(0, (int) $product->stock_quantity - (int) $quoteItem->quantity);
-                            $product->updateQuietly(['stock_quantity' => $newStock]);
-                            \App\Models\Product::flushCatalogCache($product->slug);
-                        }
+                        $newStock = max(0, (int) $lockedProduct->stock_quantity - (int) $quoteItem->quantity);
+                        $lockedProduct->updateQuietly(['stock_quantity' => $newStock]);
+                        \App\Models\Product::flushCatalogCache($product->slug);
                     }
                 }
 
@@ -402,12 +401,16 @@ class CheckoutOrderService
                 ]);
             }
 
-            if ($placeOrder && $selectedPaymentMethod === 'bank_transfer') {
-                $reservationDays = app(\App\Support\StoreSettings::class)->bankTransferReservationDays();
+            if ($placeOrder) {
                 $orderMeta = $order->metadata ?? [];
                 $orderMeta['stock_deducted'] = true;
-                $orderMeta['reservation_days'] = $reservationDays;
-                $orderMeta['reservation_expires_at'] = now()->addWeekdays($reservationDays)->toIso8601String();
+
+                if ($selectedPaymentMethod === 'bank_transfer') {
+                    $reservationDays = app(\App\Support\StoreSettings::class)->bankTransferReservationDays();
+                    $orderMeta['reservation_days'] = $reservationDays;
+                    $orderMeta['reservation_expires_at'] = now()->addWeekdays($reservationDays)->toIso8601String();
+                }
+
                 $order->forceFill(['metadata' => $orderMeta])->saveQuietly();
             }
 

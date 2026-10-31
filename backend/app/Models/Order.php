@@ -234,6 +234,22 @@ class Order extends Model
                                     }
                                 }
                             }
+                        } elseif ($product && $product->isBundle()) {
+                            foreach ($product->bundleItems as $bundleItem) {
+                                $neededQty = $bundleItem->quantity * $item->quantity;
+                                if ($bundleItem->product_variant_id) {
+                                    $compVariant = \App\Models\ProductVariant::query()->lockForUpdate()->find($bundleItem->product_variant_id);
+                                    if ($compVariant && $compVariant->manages_stock) {
+                                        $compVariant->update(['stock_quantity' => max(0, (int) $compVariant->stock_quantity - $neededQty)]);
+                                    }
+                                } else {
+                                    $compProd = \App\Models\Product::query()->lockForUpdate()->find($bundleItem->product_id);
+                                    if ($compProd && $compProd->manages_stock) {
+                                        $compProd->updateQuietly(['stock_quantity' => max(0, (int) $compProd->stock_quantity - $neededQty)]);
+                                        \App\Models\Product::flushCatalogCache($compProd->slug);
+                                    }
+                                }
+                            }
                         } elseif ($product && $product->manages_stock) {
                             $newStock = max(0, (int) $product->stock_quantity - (int) $item->quantity);
                             $product->updateQuietly(['stock_quantity' => $newStock]);

@@ -61,7 +61,7 @@ export default function Shop() {
       .then((data) => {
         const payload = data.data || data;
         const items = Array.isArray(payload) ? payload : (payload.products || []);
-        if (Array.isArray(items) && items.length > 0) {
+        if (Array.isArray(items)) {
           const mapped = items.map(mapProduct);
           setProducts(mapped);
         }
