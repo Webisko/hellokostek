@@ -22,22 +22,28 @@ class HelloKostekSeeder extends Seeder
 
         // 0. ADMIN USER
         $admin = \App\Models\User::query()->where('email', 'admin@hellokostek.pl')->firstOrNew();
-        $admin->forceFill([
+        $adminData = [
             'name' => 'Hello Kostek Admin',
             'email' => 'admin@hellokostek.pl',
-            'password' => \Illuminate\Support\Facades\Hash::make('Admin1234!'),
             'is_admin' => true,
             'role' => \App\Domain\Commerce\Enums\UserRole::Admin,
-        ])->save();
+        ];
+        if (! $admin->exists) {
+            $adminData['password'] = \Illuminate\Support\Facades\Hash::make(env('ADMIN_PASSWORD', 'Admin1234!'));
+        }
+        $admin->forceFill($adminData)->save();
 
         $adminFallback = \App\Models\User::query()->where('email', 'admin@genericshop.local')->firstOrNew();
-        $adminFallback->forceFill([
+        $adminFallbackData = [
             'name' => 'Shop Admin',
             'email' => 'admin@genericshop.local',
-            'password' => \Illuminate\Support\Facades\Hash::make('Admin1234!'),
             'is_admin' => true,
             'role' => \App\Domain\Commerce\Enums\UserRole::Admin,
-        ])->save();
+        ];
+        if (! $adminFallback->exists) {
+            $adminFallbackData['password'] = \Illuminate\Support\Facades\Hash::make(env('ADMIN_PASSWORD', 'Admin1234!'));
+        }
+        $adminFallback->forceFill($adminFallbackData)->save();
 
         // 0.1 STORE SETTINGS EMAILS
         $settings = \App\Models\StoreSetting::query()->first();
@@ -80,7 +86,7 @@ class HelloKostekSeeder extends Seeder
 
         $categories = [];
         foreach ($categoriesData as $cat) {
-            $categories[$cat['slug']] = ProductCategory::query()->updateOrCreate(
+            $categories[$cat['slug']] = ProductCategory::query()->firstOrCreate(
                 ['slug' => $cat['slug']],
                 [
                     'name' => $cat['name'],
@@ -243,7 +249,7 @@ class HelloKostekSeeder extends Seeder
         ];
 
         foreach ($productsData as $index => $prod) {
-            $product = Product::query()->updateOrCreate(
+            $product = Product::query()->firstOrCreate(
                 ['slug' => $prod['id']],
                 [
                     'type' => ProductType::Physical,
@@ -272,28 +278,28 @@ class HelloKostekSeeder extends Seeder
 
             // Powiązanie z kategorią
             if (isset($categories[$prod['category']])) {
-                $product->categories()->sync([$categories[$prod['category']]->id]);
+                $product->categories()->syncWithoutDetaching([$categories[$prod['category']]->id]);
             }
 
             // Opcje wariantów
-            $option = ProductOption::query()->updateOrCreate(
+            $option = ProductOption::query()->firstOrCreate(
                 ['product_id' => $product->id, 'name' => 'Wariant'],
                 []
             );
 
             // Wartości opcji
-            $valOriginal = ProductOptionValue::query()->updateOrCreate(
+            $valOriginal = ProductOptionValue::query()->firstOrCreate(
                 ['product_option_id' => $option->id, 'value' => 'Oryginał'],
                 []
             );
 
-            $valPrint = ProductOptionValue::query()->updateOrCreate(
+            $valPrint = ProductOptionValue::query()->firstOrCreate(
                 ['product_option_id' => $option->id, 'value' => 'Wydruk'],
                 []
             );
 
             // 1. Wariant: Oryginał
-            $variantOriginal = ProductVariant::query()->updateOrCreate(
+            $variantOriginal = ProductVariant::query()->firstOrCreate(
                 ['product_id' => $product->id, 'sku' => $product->sku . '-OR'],
                 [
                     'regular_price_amount' => $prod['originalPrice'] * 100,
@@ -303,10 +309,10 @@ class HelloKostekSeeder extends Seeder
                     'vat_rate' => 23,
                 ]
             );
-            $variantOriginal->optionValues()->sync([$valOriginal->id]);
+            $variantOriginal->optionValues()->syncWithoutDetaching([$valOriginal->id]);
 
             // 2. Wariant: Wydruk
-            $variantPrint = ProductVariant::query()->updateOrCreate(
+            $variantPrint = ProductVariant::query()->firstOrCreate(
                 ['product_id' => $product->id, 'sku' => $product->sku . '-PR'],
                 [
                     'regular_price_amount' => $prod['printPrice'] * 100,
@@ -316,7 +322,7 @@ class HelloKostekSeeder extends Seeder
                     'vat_rate' => 23,
                 ]
             );
-            $variantPrint->optionValues()->sync([$valPrint->id]);
+            $variantPrint->optionValues()->syncWithoutDetaching([$valPrint->id]);
         }
 
         // 3. OPINIE KLIENCKIE (ProductReview dla strony głównej)
@@ -373,7 +379,7 @@ class HelloKostekSeeder extends Seeder
         ];
 
         foreach ($testimonials as $t) {
-            \App\Models\ProductReview::query()->updateOrCreate(
+            \App\Models\ProductReview::query()->firstOrCreate(
                 ['customer_name' => $t['author'], 'comment' => $t['text']],
                 [
                     'customer_email' => strtolower(Str::slug($t['author'])) . '@klient.hellokostek.pl',
@@ -388,7 +394,7 @@ class HelloKostekSeeder extends Seeder
         }
 
         // 5. STRONY TREŚCI (ContentPage - Regulamin i Polityka Prywatności)
-        \App\Models\ContentPage::query()->updateOrCreate(
+        \App\Models\ContentPage::query()->firstOrCreate(
             ['slug' => 'regulamin'],
             [
                 'title' => 'Regulamin Sklepu',
@@ -455,7 +461,7 @@ class HelloKostekSeeder extends Seeder
             ]
         );
 
-        \App\Models\ContentPage::query()->updateOrCreate(
+        \App\Models\ContentPage::query()->firstOrCreate(
             ['slug' => 'polityka-prywatnosci'],
             [
                 'title' => 'Polityka Prywatności i Cookies',
@@ -507,7 +513,7 @@ class HelloKostekSeeder extends Seeder
             ]
         );
 
-        \App\Models\ContentPage::query()->updateOrCreate(
+        \App\Models\ContentPage::query()->firstOrCreate(
             ['slug' => 'o-mnie'],
             [
                 'title' => 'Kostek Maciej Kosteczka',
@@ -565,7 +571,7 @@ class HelloKostekSeeder extends Seeder
         ];
 
         foreach ($faqItems as $item) {
-            \App\Models\FaqItem::query()->updateOrCreate(
+            \App\Models\FaqItem::query()->firstOrCreate(
                 ['question' => $item['question']],
                 [
                     'answer' => $item['answer'],
@@ -935,9 +941,8 @@ class HelloKostekSeeder extends Seeder
             $record = $existing->first();
             $targetImagePath = $record ? $record->image_path : $artwork['image_path'];
 
-            GalleryArtwork::query()->updateOrCreate(
-                ['image_path' => $targetImagePath],
-                [
+            if (! $record) {
+                GalleryArtwork::query()->create([
                     'category_id' => $catId,
                     'title' => $artwork['title'],
                     'technique' => $artwork['technique'],
@@ -947,8 +952,8 @@ class HelloKostekSeeder extends Seeder
                     'original_url' => $artwork['original_url'],
                     'sort_order' => $artwork['sort_order'],
                     'is_active' => true,
-                ]
-            );
+                ]);
+            }
         }
     }
 }

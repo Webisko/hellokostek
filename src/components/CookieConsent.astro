@@ -95,7 +95,10 @@ const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/
           descEl.textContent = data.cookie_banner_description;
         }
 
-        if (data.cookie_banner_enabled && localStorage.getItem('hellokostek_cookies') !== 'true') {
+        const latestConsentState = localStorage.getItem('hellokostek_cookies');
+        const isDecided = latestConsentState === 'true' || latestConsentState === 'essential_only';
+
+        if (data.cookie_banner_enabled && !isDecided) {
           banner.classList.remove('hidden');
         } else if (data.cookie_banner_enabled === false && !defaultEnabled) {
           banner.classList.add('hidden');
