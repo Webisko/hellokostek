@@ -48,3 +48,6 @@ scratch/
 *.local.md
 credentials.local.*
 *credentials*
+
+# Local SSH skills (credentials protection)
+.agents/skills/*-ssh/
