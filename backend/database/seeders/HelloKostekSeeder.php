@@ -33,18 +33,6 @@ class HelloKostekSeeder extends Seeder
         }
         $admin->forceFill($adminData)->save();
 
-        $adminFallback = \App\Models\User::query()->where('email', 'admin@genericshop.local')->firstOrNew();
-        $adminFallbackData = [
-            'name' => 'Shop Admin',
-            'email' => 'admin@genericshop.local',
-            'is_admin' => true,
-            'role' => \App\Domain\Commerce\Enums\UserRole::Admin,
-        ];
-        if (! $adminFallback->exists) {
-            $adminFallbackData['password'] = \Illuminate\Support\Facades\Hash::make(env('ADMIN_PASSWORD', 'Admin1234!'));
-        }
-        $adminFallback->forceFill($adminFallbackData)->save();
-
         // 0.1 STORE SETTINGS EMAILS
         $settings = \App\Models\StoreSetting::query()->first();
         if ($settings) {

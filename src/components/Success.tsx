@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CheckCircle2, ChevronRight, Mail, CalendarCheck, Home, FileText } from "lucide-react";
+import { CheckCircle2, ChevronRight, Mail, CalendarCheck, Home, FileText, AlertTriangle, Clock } from "lucide-react";
 import { clearCart } from "../stores/cartStore";
 
 interface SuccessProps {
@@ -26,6 +26,8 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
   const [retryPaymentUrl, setRetryPaymentUrl] = useState<string | null>(null);
   const [isRetryingPayment, setIsRetryingPayment] = useState(false);
   const [reservationLabel, setReservationLabel] = useState("3 dni robocze");
+  const [realPaymentStatus, setRealPaymentStatus] = useState<string | null>(null);
+  const [isVerifyingOrder, setIsVerifyingOrder] = useState(false);
 
   useEffect(() => {
     if (isPurchase) {
@@ -75,25 +77,68 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
 
   const basePath = "";
 
-  const isCancelled = isPurchase && orderDetails?.stripeStatus === "cancelled";
+  const isFailed = isPurchase && (
+    orderDetails?.stripeStatus === "cancelled" ||
+    realPaymentStatus === "failed" ||
+    realPaymentStatus === "cancelled"
+  );
+  const isCancelled = isFailed;
   const isTransfer = isPurchase && orderDetails?.isTransfer;
-  const isPending = isPurchase && orderDetails?.paymentPending && orderDetails?.stripeStatus !== "success";
+  const isPending = isPurchase && (
+    orderDetails?.paymentPending ||
+    realPaymentStatus === "pending"
+  ) && !isFailed && realPaymentStatus !== "paid";
+  const isPaid = isPurchase && (
+    realPaymentStatus === "paid" ||
+    (orderDetails?.stripeStatus === "success" && !isTransfer && !isPending && !isFailed)
+  );
 
   useEffect(() => {
-    if (isCancelled && orderDetails?.orderNumber) {
-      const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
-      const emailQuery = orderDetails.email ? `?email=${encodeURIComponent(orderDetails.email)}` : "";
-      fetch(`${apiBase}/checkout/orders/${encodeURIComponent(orderDetails.orderNumber)}${emailQuery}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          const redirectUrl = data?.data?.payment_session?.redirect_url;
-          if (redirectUrl) {
-            setRetryPaymentUrl(redirectUrl);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [isCancelled, orderDetails?.orderNumber, orderDetails?.email]);
+    if (!isPurchase || !orderDetails?.orderNumber) return;
+
+    let isSubscribed = true;
+    let pollCount = 0;
+    const maxPolls = 3;
+
+    const verifyOrder = async () => {
+      try {
+        setIsVerifyingOrder(true);
+        const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
+        const emailQuery = orderDetails.email ? `?email=${encodeURIComponent(orderDetails.email)}` : "";
+        const res = await fetch(`${apiBase}/checkout/orders/${encodeURIComponent(orderDetails.orderNumber)}${emailQuery}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!isSubscribed) return;
+
+        const order = data?.data?.order;
+        if (order?.payment_status) {
+          setRealPaymentStatus(order.payment_status);
+        }
+
+        const redirectUrl = data?.data?.payment_session?.redirect_url;
+        if (redirectUrl) {
+          setRetryPaymentUrl(redirectUrl);
+        }
+
+        if (order?.payment_status === "pending" && !orderDetails.isTransfer && pollCount < maxPolls) {
+          pollCount++;
+          setTimeout(verifyOrder, 3000);
+        }
+      } catch (err) {
+        console.warn("Could not verify order status:", err);
+      } finally {
+        if (isSubscribed) {
+          setIsVerifyingOrder(false);
+        }
+      }
+    };
+
+    verifyOrder();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [isPurchase, orderDetails?.orderNumber, orderDetails?.email, orderDetails?.isTransfer]);
 
   const handleRetryPayment = async () => {
     if (retryPaymentUrl) {
@@ -123,8 +168,9 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
 
   const renderHeading = () => {
     if (!isPurchase) return "Wiadomość wysłana!";
-    if (isCancelled) return "Płatność została przerwana";
-    if (isTransfer || isPending) return "Zamówienie zostało przyjęte!";
+    if (isFailed) return "Płatność została przerwana";
+    if (isTransfer) return "Zamówienie zostało przyjęte!";
+    if (isPending) return "Oczekiwanie na potwierdzenie płatności";
     return "Płatność powiodła się!";
   };
 
@@ -132,16 +178,16 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
     if (!isPurchase) {
       return "Twój formularz kontaktowy został pomyślnie wysłany i dostarczony. Wkrótce zapoznam się z Twoim zapytaniem i wrócę z odpowiedzią.";
     }
-    if (isCancelled) {
-      return "Twoje zamówienie zostało już zapisane w systemie, jednak płatność w bramce Stripe została przerwana. Nie musisz składać zamówienia ponownie – w wiadomości potwierdzającej wysłanej na Twój adres e-mail znajdziesz bezpośredni link do dokończenia płatności.";
+    if (isFailed) {
+      return "Twoje zamówienie zostało zapisane w systemie, jednak płatność nie została sfinalizowana. Nie musisz składać zamówienia ponownie – poniżej oraz w wiadomości e-mail znajdziesz bezpośredni link do dokończenia płatności.";
     }
     if (isTransfer) {
       return `Twoje zamówienie zostało przekazane do Pracowni Artystycznej hellokostek. Dane do przelewu tradycyjnego znajdziesz poniżej oraz w wiadomości potwierdzającej na Twoim adresie e-mail. Wybraną pracę rezerwujemy dla Ciebie na ${reservationLabel}.`;
     }
     if (isPending) {
-      return "Twoje zamówienie zostało pomyślnie zarejestrowane i przekazane do Pracowni Artystycznej hellokostek. Potwierdzenie wraz ze szczegółami płatności wysłaliśmy na Twój adres e-mail.";
+      return "Twoje zamówienie zostało zarejestrowane. Trwa oczekiwanie na autoryzację z bramki płatności. Jak tylko otrzymamy potwierdzenie, status zaktualizuje się automatycznie.";
     }
-    return "Twoja transakcja została pomyślnie autoryzowana przez Stripe. Zamówienie zostało przekazane do realizacji w Pracowni Artystycznej hellokostek.";
+    return "Twoja transakcja została pomyślnie autoryzowana. Zamówienie zostało przekazane do realizacji w Pracowni Artystycznej hellokostek.";
   };
 
   return (
@@ -149,8 +195,20 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
       <div className="animate-fadeIn py-12 px-6 max-w-xl w-full text-center space-y-10">
         {/* Premium Visual Celebration Icon */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center text-green-600 border border-green-100 animate-scaleIn">
-            <CheckCircle2 className="w-10 h-10" />
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center border animate-scaleIn ${
+            isFailed
+              ? "bg-amber-50 text-amber-600 border-amber-200"
+              : isPending && !isTransfer
+              ? "bg-blue-50 text-blue-600 border-blue-200"
+              : "bg-green-50 text-green-600 border-green-100"
+          }`}>
+            {isFailed ? (
+              <AlertTriangle className="w-10 h-10" />
+            ) : isPending && !isTransfer ? (
+              <Clock className="w-10 h-10 animate-pulse" />
+            ) : (
+              <CheckCircle2 className="w-10 h-10" />
+            )}
           </div>
         </div>
 
@@ -190,7 +248,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
                     "Otwieranie bramki płatności..."
                   ) : (
                     <>
-                      Wróć do płatności online (Stripe) →
+                      Wróć do płatności online →
                     </>
                   )}
                 </button>

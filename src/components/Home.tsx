@@ -339,7 +339,7 @@ export default function Home() {
                     placeholder="np. Anna"
                     value={emailForm.name}
                     onChange={(e) => setEmailForm({...emailForm, name: e.target.value})}
-                    className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"
+                    className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
                   />
                 </div>
                 <div className="space-y-1">
@@ -352,7 +352,7 @@ export default function Home() {
                     placeholder="np. anna@gmail.com"
                     value={emailForm.email}
                     onChange={(e) => setEmailForm({...emailForm, email: e.target.value})}
-                    className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"
+                    className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
                   />
                 </div>
               </div>
@@ -412,7 +412,7 @@ export default function Home() {
                   placeholder="Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
                   value={emailForm.message}
                   onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
-                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all resize-none leading-relaxed"
+                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all resize-none leading-relaxed"
                 />
               </div>
               <div className="space-y-2">

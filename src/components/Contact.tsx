@@ -265,7 +265,7 @@ export default function Contact() {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="np. Anna"
-                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"
+                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
                 />
               </div>
 
@@ -279,7 +279,7 @@ export default function Contact() {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="np. anna@gmail.com"
-                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all"
+                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
                 />
               </div>
             </div>
@@ -395,7 +395,7 @@ export default function Contact() {
                 value={formData.message}
                 onChange={handleInputChange}
                 placeholder={getMessageFieldDetails().placeholder}
-                className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all resize-none leading-relaxed"
+                className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all resize-none leading-relaxed"
               />
             </div>
 

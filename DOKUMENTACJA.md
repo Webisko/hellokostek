@@ -1,7 +1,7 @@
 # Dokumentacja Projektu Hello Kostek (Pracownia Artystyczna & Sklep)
 
-Data ostatniej aktualizacji: **31 października 2026 r.**  
-Status audytu i testów: **140/140 passed (782 assertions), npm run build: PASS (23 podstrony)**
+Data ostatniej aktualizacji: **4 listopada 2026 r.**  
+Status audytu i testów: **7-Stopniowy Audyt Produkcyjny (project-audit-master): 140/140 passed (782 assertions), npm run build: PASS (23 podstrony, kod wyjścia 0)**
 
 ---
 
@@ -141,3 +141,15 @@ W pliku `backend/routes/console.php` zdefiniowano zadania cron (wszystkie z flag
   * `APP_LOCALE=pl`
   * `ALLOWED_ORIGINS=https://hellokostek.pl`
   * `FRONTEND_URL=https://hellokostek.pl`
+
+---
+
+## 11. Dziennik Zmian (Changelog)
+
+### 4 listopada 2026 r. – Pełny 7-Stopniowy Audyt Produkcyjny (project-audit-master)
+* **Weryfikacja statusu zamówienia w `Success.tsx`:** Dodano automatyczne odpytywanie endpointu `GET /api/checkout/orders/{number}?email=...` oraz polling dla płatności elektronicznych. Wyeliminowano prezentowanie fałszywego sukcesu w ciemno w przypadku przerwanych lub oczekujących transakcji Przelewy24 / Stripe.
+* **Ergonomia mobilna (iOS Safari):** Zmieniono klasy pól `<input>` oraz `<textarea>` z `text-sm` na `text-base` w formularzach kontaktowych i wyceny (`Home.tsx`, `Contact.tsx`), eliminując niechciany wymuszony Auto-Zoom widoku na iPhone.
+* **Izolacja efektów hover na ekranach dotykowych (`global.css`):** Zamknięto reguły `.button:not(:disabled):hover` oraz animacje bąbli `.button__blobs div` w zapytaniu `@media (hover: hover) and (pointer: fine)`, zapobiegając zjawisku przyklejonego zielonego podświetlenia po dotknięciu ekranu smartfona.
+* **Pełna symetria RODO (Zero Dark Patterns):** Wyrównano wagę wizualną przycisków „Tylko niezbędne” oraz „Zgadzam się” w `CookieConsent.astro` zgodnie z wytycznymi UODO/EROD.
+* **Higiena bazy danych i seederów:** Usunięto deweloperskie konto `admin@genericshop.local` z pliku `HelloKostekSeeder.php`.
+* **Stan twardej bramki testowej:** `php artisan test`: 140/140 passed (782 assertions), `npm run build`: kod wyjścia 0 (23 strony).

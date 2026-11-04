@@ -100,8 +100,10 @@ h1, h2, h3, h4, h5, h6 {
 .zoom-wrapper img {
   transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
 }
-.zoom-wrapper:hover img {
-  transform: scale(1.06);
+@media (hover: hover) and (pointer: fine) {
+  .zoom-wrapper:hover img {
+    transform: scale(1.06);
+  }
 }
 
 /* Soft text effects */
@@ -158,10 +160,16 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-.button:not(:disabled):hover {
-  color: #181716; /* Clean off-black for clear contrast on Lime background */
-  background-color: #C4F013; /* Transitions to Lime to cover corners perfectly */
-  transition: background-color 500ms ease 500ms, color 400ms ease 100ms;
+@media (hover: hover) and (pointer: fine) {
+  .button:not(:disabled):hover {
+    color: #181716; /* Clean off-black for clear contrast on Lime background */
+    background-color: #C4F013; /* Transitions to Lime to cover corners perfectly */
+    transition: background-color 500ms ease 500ms, color 400ms ease 100ms;
+  }
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .button:disabled {
@@ -224,8 +232,17 @@ h1, h2, h3, h4, h5, h6 {
   transition-delay: 50ms;
 }
 
-.button:not(:disabled):hover .button__blobs div {
-  transform: scale(1.8) translateY(0) translateZ(0);
+@media (hover: hover) and (pointer: fine) {
+  .button:not(:disabled):hover .button__blobs div {
+    transform: scale(1.8) translateY(0) translateZ(0);
+  }
+
+  .button--secondary:hover,
+  .button--hero-white:hover {
+    color: #181716 !important;
+    background-color: #C4F013 !important;
+    border: none !important;
+  }
 }
 
 .button--secondary,
@@ -233,13 +250,6 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #ffffff !important;
   color: #E0115F !important;
   box-shadow: 0 4px 14px rgba(224, 17, 95, 0.08) !important;
-  border: none !important;
-}
-
-.button--secondary:hover,
-.button--hero-white:hover {
-  color: #181716 !important;
-  background-color: #C4F013 !important;
   border: none !important;
 }
 
