@@ -19,7 +19,7 @@ class GalleryArtworkResource extends Resource
 
     protected static ?string $model = GalleryArtwork::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquares2x2;
 
     protected static ?string $modelLabel = 'dzieło sztuki';
 
