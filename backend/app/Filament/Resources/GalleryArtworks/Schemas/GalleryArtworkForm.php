@@ -98,8 +98,8 @@ class GalleryArtworkForm
 
                             Textarea::make('metadata.bullet_points')
                                 ->label('Dodatkowe podpunkty opisu (w powiększeniu zdjęcia)')
+                                ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Wpisz każdy podpunkt w nowej linii. Jeśli pole jest puste, wyświetlone zostanie tylko pole „Technika wykonania” powyżej.')
                                 ->placeholder("Każda nowa linia to osobny punkt pod zdjęciem.\nZostaw puste, jeśli chcesz wyświetlić tylko technikę wykonania (lub domyślne punkty kategorii).")
-                                ->helperText('Wpisz każdy podpunkt w nowej linii. Jeśli pole jest puste, wyświetlone zostanie tylko pole „Technika wykonania” powyżej.')
                                 ->rows(3)
                                 ->columnSpanFull(),
 
@@ -117,7 +117,7 @@ class GalleryArtworkForm
 
                             FileUpload::make('image_path')
                                 ->label('Zdjęcie pracy')
-                                ->helperText('Kliknij ikonę ołówka na zdjęciu, aby przyciąć lub obrócić kadr.')
+                                ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Kliknij ikonę ołówka na podglądzie, aby przyciąć lub obrócić kadr.')
                                 ->disk('public')
                                 ->directory('gallery')
                                 ->visibility('public')

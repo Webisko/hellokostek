@@ -74,7 +74,6 @@ class CouponForm
                             ->disabled()
                             ->dehydrated()
                             ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
-                            ->helperText('Kupony obsługują wyłącznie walutę PLN.')
                             ->default(app(StoreSettings::class)->currency())
                             ->minLength(3)
                             ->maxLength(3)

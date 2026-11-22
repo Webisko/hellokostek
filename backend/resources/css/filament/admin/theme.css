@@ -2065,3 +2065,39 @@ html.fi-sidebar-collapsed .fi-sidebar-item-icon {
     background: #18181b;
 }
 
+/* Keep field labels cleanly unwrapped with subtle inline ? tooltip icon right beside label text */
+.fi-panel-admin .fi-fo-field-label-ctn {
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.fi-panel-admin .fi-fo-field-label-ctn > .fi-fo-field-label {
+    flex: 0 1 auto;
+}
+
+.fi-panel-admin .fi-fo-field-label-ctn > .fi-sc {
+    flex: 0 0 auto !important;
+    width: auto !important;
+}
+
+.fi-panel-admin .fi-fo-field-label-ctn > .fi-sc .fi-icon {
+    color: var(--shop-muted-text);
+    width: 1rem;
+    height: 1rem;
+    cursor: help;
+    transition: color 0.15s ease;
+}
+
+.fi-panel-admin .fi-fo-field-label-ctn > .fi-sc .fi-icon:hover {
+    color: var(--shop-text);
+}
+
+/* Keep section header inline controls (e.g. Variant 2 toggle) strictly single-line */
+.fi-panel-admin .fi-section-header-after-ctn {
+    flex-shrink: 0;
+}
+
+.fi-panel-admin .fi-section-header-after-ctn .fi-fo-field-label-content {
+    white-space: nowrap;
+}
+

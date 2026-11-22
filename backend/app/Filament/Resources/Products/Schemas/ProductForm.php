@@ -163,13 +163,13 @@ class ProductForm
                                             ->schema([
                                                 FileUpload::make('featured_image_path')
                                                     ->label('Główny obraz pracy')
-                                                    ->helperText('Kliknij ikonę ołówka, aby przyciąć lub obrócić kadr.')
+                                                    ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Główne zdjęcie widoczne na karcie pracy w sklepie. Kliknij ikonę ołówka na podglądzie, aby przyciąć lub obrócić kadr.')
                                                     ->disk('public')
                                                     ->directory('products')
                                                     ->visibility('public')
                                                     ->image()
                                                     ->imageEditor()
-                                                    ->imagePreviewHeight('260')
+                                                    ->imagePreviewHeight('300')
                                                     ->imageResizeMode('contain')
                                                     ->imageResizeTargetWidth('1920')
                                                     ->imageResizeTargetHeight('1920')
@@ -178,7 +178,7 @@ class ProductForm
                                                     ->extraAttributes(['class' => 'fi-artwork-featured-upload']),
                                                 FileUpload::make('gallery_image_paths')
                                                     ->label('Dodatkowe zdjęcia pracy (detale, oprawa)')
-                                                    ->helperText('Zdjęcia układają się w siatkę miniatur. Przeciągnij kafelek, aby zmienić kolejność.')
+                                                    ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Dodatkowe zdjęcia układają się w siatkę miniatur. Przeciągnij kafelek, aby zmienić kolejność.')
                                                     ->disk('public')
                                                     ->directory('products/gallery')
                                                     ->visibility('public')
@@ -197,7 +197,6 @@ class ProductForm
                                             ]),
                                     ]),
                                 Section::make('Warianty i ceny w sklepie (wydruk oraz oryginał)')
-                                    ->description('Każda dodana praca jest dostępna jako wydruk kolekcjonerski. Poniżej zdecyduj, czy fizyczny oryginał tej pracy jest również dostępny w sprzedaży, czy został już sprzedany.')
                                     ->columns(2)
                                     ->schema([
                                         Group::make()
@@ -206,8 +205,8 @@ class ProductForm
                                                     ->schema([
                                                         TextInput::make('print_regular_price')
                                                             ->label('Cena regularna wydruku (PLN)')
+                                                            ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Domyślnie: 30 zł dla akwareli, 20 zł dla rysunku.')
                                                             ->placeholder('np. 30 (akwarela) lub 20 (rysunek)')
-                                                            ->helperText('Domyślnie: 30 zł dla akwareli, 20 zł dla rysunku.')
                                                             ->numeric()
                                                             ->default(30)
                                                             ->required()
@@ -221,8 +220,8 @@ class ProductForm
                                                             }),
                                                         TextInput::make('print_sale_price')
                                                             ->label('Cena promocyjna wydruku (PLN)')
+                                                            ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Opcjonalnie. Cena niższa niż regularna włączy oznaczenie promocji i historię Omnibus.')
                                                             ->placeholder('Pozostaw puste, jeśli brak promocji')
-                                                            ->helperText('Opcjonalnie. Cena niższa niż regularna włączy oznaczenie promocji i historię Omnibus.')
                                                             ->numeric()
                                                             ->minValue(0)
                                                             ->lt('print_regular_price')
@@ -240,10 +239,13 @@ class ProductForm
                                         Group::make()
                                             ->schema([
                                                 Section::make('Wariant 2: praca oryginalna')
-                                                    ->schema([
+                                                    ->afterHeader([
                                                         Toggle::make('has_original')
-                                                            ->label('Oryginał dostępny w sprzedaży')
-                                                            ->helperText('Włącz, jeśli fizyczny oryginał jest dostępny do kupienia. Wyłącz, jeśli oryginał został już sprzedany (wtedy w sklepie widoczny jest status „Oryginał sprzedany” i można zamówić tylko wydruk).')
+                                                            ->label('Dostępny w sprzedaży')
+                                                            ->hintIcon(
+                                                                'heroicon-o-question-mark-circle',
+                                                                tooltip: 'Włącz, jeśli fizyczny oryginał jest dostępny do kupienia. Wyłącz, jeśli oryginał został już sprzedany (wtedy w sklepie widoczny jest status „Oryginał sprzedany” i można zamówić tylko wydruk).'
+                                                            )
                                                             ->live()
                                                             ->default(true)
                                                             ->afterStateHydrated(function (Toggle $component, $record) {
@@ -252,10 +254,12 @@ class ProductForm
                                                                     $component->state($origVariant ? ($origVariant->is_active && $origVariant->stock_quantity > 0) : false);
                                                                 }
                                                             }),
+                                                    ])
+                                                    ->schema([
                                                         TextInput::make('original_regular_price')
                                                             ->label('Cena regularna oryginału (PLN)')
+                                                            ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Domyślnie: 300 zł dla akwareli, 200 zł dla rysunku.')
                                                             ->placeholder('np. 300 (akwarela) lub 200 (rysunek)')
-                                                            ->helperText('Domyślnie: 300 zł dla akwareli, 200 zł dla rysunku.')
                                                             ->numeric()
                                                             ->default(300)
                                                             ->minValue(0)
@@ -269,8 +273,8 @@ class ProductForm
                                                             }),
                                                         TextInput::make('original_sale_price')
                                                             ->label('Cena promocyjna oryginału (PLN)')
+                                                            ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Opcjonalnie. Cena niższa niż regularna włączy promocję tylko dla oryginału oraz osobną historię Omnibus.')
                                                             ->placeholder('Pozostaw puste, jeśli brak promocji')
-                                                            ->helperText('Opcjonalnie. Cena niższa niż regularna włączy promocję tylko dla oryginału oraz osobną historię Omnibus.')
                                                             ->numeric()
                                                             ->minValue(0)
                                                             ->lt('original_regular_price')
@@ -314,7 +318,6 @@ class ProductForm
                                             ->required()
                                             ->disabled()
                                             ->dehydrated()
-                                            ->helperText('Produkty rozliczane są w PLN.')
                                             ->default(app(StoreSettings::class)->currency())
                                             ->minLength(3)
                                             ->maxLength(3),

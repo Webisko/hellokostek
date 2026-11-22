@@ -40,7 +40,7 @@ class StoreSettingForm
                                         ->schema([
                                             FileUpload::make('metadata.admin_logo_path')
                                                 ->label('Logo w panelu')
-                                                ->helperText('Opcjonalnie. Gdy puste, w lewym górnym rogu wyświetla się nazwa tekstowa.')
+                                                ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Opcjonalnie. Gdy puste, w lewym górnym rogu wyświetla się nazwa tekstowa.')
                                                 ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
@@ -49,7 +49,7 @@ class StoreSettingForm
                                                 ->extraAttributes(['class' => 'fi-settings-upload']),
                                             FileUpload::make('metadata.admin_favicon_path')
                                                 ->label('Favicon panelu')
-                                                ->helperText('Opcjonalnie. Gdy puste, używana jest domyślna ikona serwera (favicon.ico).')
+                                                ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Opcjonalnie. Gdy puste, używana jest domyślna ikona serwera (favicon.ico).')
                                                 ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
@@ -58,7 +58,7 @@ class StoreSettingForm
                                                 ->extraAttributes(['class' => 'fi-settings-upload']),
                                             FileUpload::make('metadata.admin_login_background_path')
                                                 ->label('Tło ekranu logowania')
-                                                ->helperText('Opcjonalnie. Tło graficzne wyświetlane na ekranie logowania.')
+                                                ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Opcjonalnie. Tło graficzne wyświetlane na ekranie logowania.')
                                                 ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
@@ -99,7 +99,6 @@ class StoreSettingForm
                                         ->disabled()
                                         ->dehydrated()
                                         ->visible(fn (): bool => self::isAdmin())
-                                        ->helperText('Sklep działa wyłącznie w walucie PLN.')
                                         ->minLength(3)
                                         ->maxLength(3)
                                         ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper(trim($state)) : null),
@@ -141,7 +140,7 @@ class StoreSettingForm
                                         ->maxLength(64),
                                     TextInput::make('metadata.bank_transfer_reservation_days')
                                         ->label('Czas rezerwacji pracy przy przelewie tradycyjnym (dni robocze)')
-                                        ->helperText('Przez ile dni roboczych od złożenia zamówienia oryginał pracy jest zarezerwowany w oczekiwaniu na przelew tradycyjny (zalecane: 3 dni robocze).')
+                                        ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Przez ile dni roboczych od złożenia zamówienia oryginał pracy jest zarezerwowany w oczekiwaniu na przelew tradycyjny (zalecane: 3 dni robocze).')
                                         ->numeric()
                                         ->default(3)
                                         ->minValue(1)
@@ -184,17 +183,17 @@ class StoreSettingForm
                                 ->schema([
                                     TextInput::make('free_shipping_threshold')
                                         ->label('Próg darmowej dostawy dla wydruków (PLN)')
+                                        ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Minimalna wartość wydruków w koszyku (po rabatach), od której wysyłka jest bezpłatna. Wpisz 0, aby wyłączyć.')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step(1)
                                         ->suffix('zł')
                                         ->placeholder('np. 200')
-                                        ->helperText('Minimalna wartość wydruków w koszyku (po rabatach), od której wysyłka jest bezpłatna. Wpisz 0, aby wyłączyć.')
                                         ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
                                         ->dehydrateStateUsing(fn ($state) => filled($state) ? (int) round((float) $state * 100) : 0),
                                     Repeater::make('shipping_methods')
                                         ->label('Metody wysyłki')
-                                        ->helperText('Zarządzaj dostępnymi metodami wysyłki oraz ich cenami bazowymi.')
+                                        ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Zarządzaj dostępnymi metodami wysyłki oraz ich cenami bazowymi.')
                                         ->columns(fn (): array => self::isAdmin() ? ['md' => 3, 'default' => 1] : ['md' => 2, 'default' => 1])
                                         ->collapsible()
                                         ->addable(fn (): bool => self::isAdmin())
@@ -397,7 +396,7 @@ class StoreSettingForm
                                 ->schema([
                                     Repeater::make('metadata.artwork_techniques')
                                         ->label('Techniki wykonania')
-                                        ->helperText('Lista dostępna w formularzach Produktów i Galerii. Możesz dodawać, edytować, usuwać oraz zmieniać kolejność pozycji.')
+                                        ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Lista dostępna w formularzach Produktów i Galerii. Możesz dodawać, edytować, usuwać oraz zmieniać kolejność pozycji.')
                                         ->simple(
                                             TextInput::make('name')
                                                 ->required()
@@ -409,7 +408,7 @@ class StoreSettingForm
                                         ->defaultItems(0),
                                     Repeater::make('metadata.artwork_formats')
                                         ->label('Formaty / wymiary')
-                                        ->helperText('Lista formatów dostępna w Produktach i Galerii.')
+                                        ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Lista formatów dostępna w Produktach i Galerii.')
                                         ->simple(
                                             TextInput::make('name')
                                                 ->required()
@@ -505,9 +504,9 @@ class StoreSettingForm
                                         ->maxLength(255),
                                     TextInput::make('metadata.mail_safety_redirect')
                                         ->label('Przekierowanie e-maili (tryb testowy)')
+                                        ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Jeśli podasz tutaj adres e-mail, wszystkie wiadomości wychodzące ze strony zostaną przekierowane na ten adres.')
                                         ->email()
                                         ->visible(fn (): bool => self::isAdmin())
-                                        ->helperText('Jeśli podasz tutaj adres e-mail, wszystkie wiadomości wychodzące ze strony zostaną przekierowane na ten adres.')
                                         ->maxLength(255)
                                         ->columnSpanFull(),
                                 ]),
