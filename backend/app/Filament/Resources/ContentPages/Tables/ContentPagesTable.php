@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\ContentPages\Tables;
 
 use App\Models\ContentPage;
+use App\Support\StoreSettings;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DeleteAction;
@@ -29,10 +31,13 @@ class ContentPagesTable
                 TextColumn::make('slug')
                     ->label('Adres URL (slug)')
                     ->searchable()
-                    ->prefix('/'),
+                    ->prefix('/')
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
+                    ->toggleable(),
                 TextColumn::make('template')
                     ->label('Szablon')
                     ->formatStateUsing(fn (?string $state): string => ContentPage::templateOptions()[$state] ?? (string) $state)
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                     ->sortable(),
                 IconColumn::make('is_active')
                     ->label('Aktywna')
@@ -44,14 +49,25 @@ class ContentPagesTable
             ])
             ->filters([])
             ->recordActions([
+                Action::make('preview_page')
+                    ->label('Podgląd na stronie')
+                    ->iconButton()
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->tooltip('Podgląd na stronie')
+                    ->color('gray')
+                    ->url(fn (ContentPage $record): string => app(StoreSettings::class)->storefrontUrl('/' . ltrim($record->slug, '/')))
+                    ->openUrlInNewTab()
+                    ->visible(fn (ContentPage $record): bool => filled($record->slug)),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()
                     ->modalWidth('3xl'),
-                DeleteAction::make()->iconButton()->tooltip('Usuń'),
+                DeleteAction::make()->iconButton()->tooltip('Usuń')
+                    ->visible(fn (ContentPage $record): bool => (bool) auth()->user()?->isAdmin() || ! $record->isSystemPage()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (): bool => (bool) auth()->user()?->isAdmin()),
                 ]),
             ]);
     }

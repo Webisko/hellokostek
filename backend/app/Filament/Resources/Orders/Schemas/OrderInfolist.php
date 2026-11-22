@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Orders\Schemas;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\IntegrationLog;
 use App\Models\Order;
+use App\Models\OrderItem;
+use Filament\Actions\Action;
 use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
@@ -13,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
+use Illuminate\Support\Str;
 
 class OrderInfolist
 {
@@ -83,6 +86,7 @@ class OrderInfolist
                                         ->label('Metoda dostawy'),
                                     TextEntry::make('customer_segment')
                                         ->label('Segment klienta')
+                                        ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                         ->formatStateUsing(fn ($state): string => OrderResource::formatStateLabel($state)),
                                     TextEntry::make('reservation_expires_at')
                                         ->label('Rezerwacja przelewu do')
@@ -100,34 +104,60 @@ class OrderInfolist
                                     RepeatableEntry::make('items')
                                         ->hiddenLabel()
                                         ->contained(false)
-                                        ->table([
-                                            TableColumn::make('Produkt'),
-                                            TableColumn::make('SKU'),
-                                            TableColumn::make('Typ'),
-                                            TableColumn::make('Ilość'),
-                                            TableColumn::make('Suma'),
-                                        ])
-                                        ->schema([
-                                            TextEntry::make('name')
-                                                ->label('Produkt')
-                                                ->weight('bold'),
-                                            TextEntry::make('sku')
-                                                ->label('SKU')
-                                                ->copyable()
-                                                ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
-                                            TextEntry::make('product_type')
-                                                ->label('Typ')
-                                                ->badge()
-                                                ->formatStateUsing(fn ($state): string => OrderResource::formatStateLabel($state)),
-                                            TextEntry::make('quantity')
+                                        ->table(function (): array {
+                                            $columns = [
+                                                TableColumn::make('Produkt'),
+                                                TableColumn::make('Wariant'),
+                                            ];
+
+                                            if (auth()->user()?->isAdmin()) {
+                                                $columns[] = TableColumn::make('SKU');
+                                                $columns[] = TableColumn::make('Typ');
+                                            }
+
+                                            $columns[] = TableColumn::make('Ilość');
+                                            $columns[] = TableColumn::make('Suma');
+
+                                            return $columns;
+                                        })
+                                        ->schema(function (): array {
+                                            $entries = [
+                                                TextEntry::make('name')
+                                                    ->label('Produkt')
+                                                    ->weight('bold'),
+                                                TextEntry::make('variant_label')
+                                                    ->label('Wariant')
+                                                    ->badge()
+                                                    ->state(fn (OrderItem $record): string => self::resolveItemVariantLabel($record))
+                                                    ->color(fn (string $state): string => match ($state) {
+                                                        'Oryginał' => 'warning',
+                                                        'Wydruk kolekcjonerski' => 'info',
+                                                        default => 'gray',
+                                                    }),
+                                            ];
+
+                                            if (auth()->user()?->isAdmin()) {
+                                                $entries[] = TextEntry::make('sku')
+                                                    ->label('SKU')
+                                                    ->copyable()
+                                                    ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-');
+                                                $entries[] = TextEntry::make('product_type')
+                                                    ->label('Typ')
+                                                    ->badge()
+                                                    ->formatStateUsing(fn ($state): string => OrderResource::formatStateLabel($state));
+                                            }
+
+                                            $entries[] = TextEntry::make('quantity')
                                                 ->label('Ilość')
                                                 ->numeric(decimalPlaces: 0)
-                                                ->weight('bold'),
-                                            TextEntry::make('total_amount')
+                                                ->weight('bold');
+                                            $entries[] = TextEntry::make('total_amount')
                                                 ->label('Suma')
                                                 ->money('PLN', divideBy: 100)
-                                                ->weight('bold'),
-                                        ]),
+                                                ->weight('bold');
+
+                                            return $entries;
+                                        }),
                                 ]),
                             Section::make('Dostawa')->columnSpanFull()
                                 ->schema([
@@ -196,6 +226,7 @@ class OrderInfolist
                                         ]),
                                     RepeatableEntry::make('fulfillmentActions')
                                         ->label('Akcje realizacji')
+                                        ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                         ->contained(false)
                                         ->table([
                                             TableColumn::make('Typ'),
@@ -230,6 +261,7 @@ class OrderInfolist
                                         ]),
                                 ]),
                             Section::make('Transakcje płatnicze')->columnSpanFull()
+                                ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                 ->schema([
                                     RepeatableEntry::make('paymentTransactions')
                                         ->hiddenLabel()
@@ -269,6 +301,7 @@ class OrderInfolist
                                         ]),
                                 ]),
                             Section::make('Historia zmian admina')->columnSpanFull()
+                                ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                 ->schema([
                                     RepeatableEntry::make('adminActivityLogs')
                                         ->hiddenLabel()
@@ -321,12 +354,31 @@ class OrderInfolist
                                     TextEntry::make('customer_email')
                                         ->label('E-mail')
                                         ->icon('heroicon-o-envelope')
-                                        ->copyable(),
+                                        ->copyable()
+                                        ->suffixAction(
+                                            Action::make('send_order_email')
+                                                ->label('Napisz e-mail do klienta')
+                                                ->icon('heroicon-o-paper-airplane')
+                                                ->tooltip('Napisz e-mail do klienta')
+                                                ->url(fn (Order $record): ?string => filled($record->customer_email)
+                                                    ? 'mailto:' . $record->customer_email . '?subject=' . rawurlencode('Zamówienie #' . $record->number . ' – hellokostek')
+                                                    : null)
+                                        ),
                                     TextEntry::make('customer_phone')
                                         ->label('Telefon')
                                         ->icon('heroicon-o-phone')
                                         ->copyable()
-                                        ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-'),
+                                        ->formatStateUsing(fn ($state): string => filled($state) ? (string) $state : '-')
+                                        ->suffixAction(
+                                            Action::make('call_order_customer')
+                                                ->label('Zadzwoń do klienta')
+                                                ->icon('heroicon-o-phone-arrow-up-right')
+                                                ->tooltip('Zadzwoń do klienta')
+                                                ->url(fn (Order $record): ?string => filled($record->customer_phone)
+                                                    ? 'tel:' . preg_replace('/\s+/', '', $record->customer_phone)
+                                                    : null)
+                                                ->visible(fn (Order $record): bool => filled($record->customer_phone))
+                                        ),
                                     TextEntry::make('wants_invoice')
                                         ->label('Chce fakturę')
                                         ->badge()
@@ -343,6 +395,7 @@ class OrderInfolist
                                         ->visible(fn ($record): bool => (bool) $record->wants_invoice),
                                     TextEntry::make('is_privileged_entrepreneur')
                                         ->label('Przedsiębiorca uprzywilejowany')
+                                        ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                         ->badge()
                                         ->formatStateUsing(fn ($state): string => $state ? 'Tak' : 'Nie')
                                         ->color(fn ($state): string => $state ? 'success' : 'gray'),
@@ -394,6 +447,7 @@ class OrderInfolist
                                  ]),
                             Section::make('Połączenia z zewnętrznymi systemami')
                                 ->description('Rejestr automatycznej wymiany informacji z zewnętrznymi usługami (np. generowanie faktury w Fakturowni czy zlecenie wysyłki kurierskiej).')
+                                ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                 ->columnSpanFull()
                                 ->schema([
                                     RepeatableEntry::make('integrationLogs')
@@ -462,5 +516,23 @@ class OrderInfolist
         ], fn ($value): bool => filled($value));
 
         return $parts === [] ? '-' : implode(', ', $parts);
+    }
+
+    private static function resolveItemVariantLabel(OrderItem $item): string
+    {
+        $sku = strtoupper((string) ($item->sku ?? ''));
+        if (Str::endsWith($sku, '-OR')) {
+            return 'Oryginał';
+        }
+        if (Str::endsWith($sku, '-PR')) {
+            return 'Wydruk kolekcjonerski';
+        }
+
+        $variantName = $item->variant?->name;
+        if (filled($variantName)) {
+            return (string) $variantName;
+        }
+
+        return '-';
     }
 }

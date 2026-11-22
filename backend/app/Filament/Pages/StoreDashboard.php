@@ -115,7 +115,7 @@ class StoreDashboard extends Page
                 'description' => 'Nowe wiadomości z formularza zamówień portretu.',
                 'tone' => $newInquiries > 0 ? 'warning' : 'success',
                 'badge' => $newInquiries > 0 ? 'Nowe' : 'OK',
-                'url' => '/admin/zapytania-kontaktowe',
+                'url' => '/admin/zapytania-kontaktowe?tab=nowe',
             ],
 
             [
@@ -124,7 +124,7 @@ class StoreDashboard extends Page
                 'description' => 'Zamówienia opłacone czekające na pakowanie i nadanie.',
                 'tone' => $pendingFulfillment > 0 ? 'warning' : 'success',
                 'badge' => $pendingFulfillment > 0 ? 'Do wysyłki' : 'OK',
-                'url' => '/admin/zamowienia',
+                'url' => '/admin/zamowienia?tab=do_wysylki',
             ],
 
             [

@@ -11,6 +11,12 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected function afterFill(): void
+    {
+        $this->data['password'] = $this->data['password'] ?? '';
+        $this->rememberData();
+    }
+
     protected function handleRecordCreation(array $data): Model
     {
         $role = $data['role'] ?? UserRole::Employee->value;

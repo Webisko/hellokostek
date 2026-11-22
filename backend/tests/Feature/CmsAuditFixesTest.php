@@ -423,4 +423,165 @@ class CmsAuditFixesTest extends TestCase
         $this->assertSame('regulamin-test', $page->fresh()->slug);
         $this->assertSame('wstep-kotwica', $page->fresh()->metadata['sections'][0]['id']);
     }
+
+    public function test_edit_user_and_create_user_initialize_password_as_empty_string_for_unsaved_changes_hash(): void
+    {
+        $admin = $this->createAdmin();
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $editComponent = \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Resources\Users\Pages\EditUser::class, [
+                'record' => $manager->getRouteKey(),
+            ]);
+
+        $editData = $editComponent->get('data');
+        $this->assertSame('', $editData['password']);
+        $this->assertSame(
+            md5(str_replace('\\', '', json_encode($editData, JSON_UNESCAPED_UNICODE))),
+            $editComponent->get('savedDataHash')
+        );
+
+        $createComponent = \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Resources\Users\Pages\CreateUser::class);
+
+        $createData = $createComponent->get('data');
+        $this->assertSame('', $createData['password']);
+        $this->assertSame(
+            md5(str_replace('\\', '', json_encode($createData, JSON_UNESCAPED_UNICODE))),
+            $createComponent->get('savedDataHash')
+        );
+    }
+
+    public function test_manager_cannot_delete_system_content_pages_but_can_delete_custom_pages(): void
+    {
+        $admin = $this->createAdmin();
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $systemPage = \App\Models\ContentPage::create([
+            'title' => 'Regulamin',
+            'slug' => 'regulamin',
+            'template' => 'legal',
+            'is_active' => true,
+        ]);
+
+        $customPage = \App\Models\ContentPage::create([
+            'title' => 'Nowa wystawa',
+            'slug' => 'nowa-wystawa',
+            'template' => 'default',
+            'is_active' => true,
+        ]);
+
+        $this->assertFalse($manager->can('delete', $systemPage));
+        $this->assertTrue($manager->can('delete', $customPage));
+        $this->assertFalse($manager->can('deleteAny', \App\Models\ContentPage::class));
+        $this->assertTrue($admin->can('delete', $systemPage));
+        $this->assertTrue($admin->can('deleteAny', \App\Models\ContentPage::class));
+    }
+
+    public function test_product_review_toggle_and_navigation_badge(): void
+    {
+        $admin = $this->createAdmin();
+
+        $draftReview = \App\Models\ProductReview::create([
+            'customer_name' => 'Anna',
+            'rating' => 5,
+            'comment' => 'Świetna praca!',
+            'status' => 'szkic',
+        ]);
+
+        $this->assertSame('1', \App\Filament\Resources\ProductReviews\ProductReviewResource::getNavigationBadge());
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Resources\ProductReviews\Pages\ListProductReviews::class)
+            ->call('updateTableColumnState', 'is_approved', (string) $draftReview->getKey(), true);
+
+        $fresh = $draftReview->fresh();
+        $this->assertTrue((bool) $fresh->is_approved);
+        $this->assertSame('publiczny', $fresh->status);
+        $this->assertNull(\App\Filament\Resources\ProductReviews\ProductReviewResource::getNavigationBadge());
+    }
+
+    public function test_manager_can_create_product_with_auto_generated_slug_when_slug_is_hidden(): void
+    {
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        \Livewire\Livewire::actingAs($manager)
+            ->test(\App\Filament\Resources\Products\Pages\ListProducts::class)
+            ->callAction('create', [
+                'name' => 'Kosmiczna Akwarela Test',
+                'print_regular_price' => 30,
+                'has_original' => true,
+                'original_regular_price' => 300,
+                'is_active' => true,
+                'is_visible' => true,
+                'is_purchasable' => true,
+            ])
+            ->assertHasNoActionErrors();
+
+        $product = \App\Models\Product::query()->where('name', 'Kosmiczna Akwarela Test')->first();
+        $this->assertNotNull($product);
+        $this->assertSame('kosmiczna-akwarela-test', $product->slug);
+        $this->assertSame('KOSMICZNA-AKWARELA-TEST', $product->sku);
+    }
+
+    public function test_order_tabs_and_dashboard_quickbar_and_storefront_link_render(): void
+    {
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $order = Order::create([
+            'number' => 'HK-TAB-1',
+            'customer_first_name' => 'Katarzyna',
+            'customer_last_name' => 'Testowa',
+            'customer_email' => 'kasia@example.com',
+            'currency' => 'PLN',
+            'subtotal_amount' => 5000,
+            'shipping_amount' => 0,
+            'discount_amount' => 0,
+            'total_amount' => 5000,
+            'status' => 'placed',
+            'payment_status' => 'pending',
+            'fulfillment_status' => 'pending',
+            'placed_at' => now(),
+        ]);
+
+        \Livewire\Livewire::actingAs($manager)
+            ->test(\App\Filament\Resources\Orders\Pages\ListOrders::class)
+            ->assertSee('Do wysyłki')
+            ->assertSee('Oczekują na płatność')
+            ->assertSee('Wysłane i zrealizowane');
+
+        $order->update(['payment_status' => 'paid']);
+        $this->assertSame('paid', $order->fresh()->payment_status);
+
+        $order->update([
+            'status' => 'shipped',
+            'fulfillment_status' => 'fulfilled',
+            'shipped_at' => now(),
+            'carrier' => 'InPost',
+        ]);
+        $this->assertSame('shipped', $order->fresh()->status);
+        $this->assertSame('InPost', $order->fresh()->carrier);
+
+        $dashboard = $this->actingAs($manager)->get('/admin/kokpit');
+        $dashboard->assertOk();
+        $dashboard->assertSee('Dodaj obraz do sklepu');
+        $dashboard->assertSee('Dodaj do galerii');
+        $dashboard->assertSee('Otwórz sklep');
+    }
 }

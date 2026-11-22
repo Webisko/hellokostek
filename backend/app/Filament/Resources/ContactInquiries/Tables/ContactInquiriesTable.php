@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\ContactInquiries\Tables;
 
 use App\Models\ContactInquiry;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -54,10 +54,26 @@ class ContactInquiriesTable
                     ->options(ContactInquiry::getStatuses()),
             ])
             ->recordActions([
+                Action::make('reply_email')
+                    ->label('Odpowiedz e-mailem')
+                    ->iconButton()
+                    ->icon('heroicon-o-envelope')
+                    ->tooltip('Odpowiedz e-mailem')
+                    ->color('info')
+                    ->url(fn (ContactInquiry $record): string => 'mailto:' . $record->email . '?subject=' . rawurlencode('Re: ' . ($record->subject ?: 'Zapytanie o portret – hellokostek')))
+                    ->visible(fn (ContactInquiry $record): bool => filled($record->email)),
                 EditAction::make()->iconButton()->tooltip('Obsłuż')->color('violet')
                     ->label('Obsłuż')
                     ->slideOver()
-                    ->modalWidth('3xl'),
+                    ->modalWidth('3xl')
+                    ->extraModalFooterActions([
+                        Action::make('reply_email_modal')
+                            ->label('Odpowiedz e-mailem')
+                            ->icon('heroicon-o-paper-airplane')
+                            ->color('info')
+                            ->url(fn (ContactInquiry $record): string => 'mailto:' . $record->email . '?subject=' . rawurlencode('Re: ' . ($record->subject ?: 'Zapytanie o portret – hellokostek')))
+                            ->visible(fn (ContactInquiry $record): bool => filled($record->email)),
+                    ]),
                 DeleteAction::make()->iconButton()->tooltip('Usuń'),
             ])
             ->toolbarActions([

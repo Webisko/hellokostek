@@ -2,6 +2,9 @@
     @php
         $heroStats = $this->heroStats();
         $operationalStats = $this->operationalStats();
+        $storefrontUrl = app(\App\Support\StoreSettings::class)->storefrontUrl();
+        $addProductUrl = \App\Filament\Resources\Products\ProductResource::getUrl('index', ['action' => 'create']);
+        $addGalleryUrl = \App\Filament\Resources\GalleryArtworks\GalleryArtworkResource::getUrl('index', ['action' => 'create']);
         $toneBadge = static fn (string $tone): string => match ($tone) {
             'success' => 'OK',
             'warning' => 'Do obsługi',
@@ -19,10 +22,32 @@
     @endphp
 
     <div class="shop-dashboard">
+        <!-- Pasek szybkich skrótów artysty -->
+        <nav class="shop-dashboard-quickbar" aria-label="Szybkie akcje">
+            <a href="{{ $addProductUrl }}" class="shop-dashboard-quickbtn shop-dashboard-quickbtn--primary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Dodaj obraz do sklepu</span>
+            </a>
+            <a href="{{ $addGalleryUrl }}" class="shop-dashboard-quickbtn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Dodaj do galerii</span>
+            </a>
+            <a href="{{ $storefrontUrl }}" target="_blank" rel="noopener noreferrer" class="shop-dashboard-quickbtn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+                <span>Zobacz stronę sklepu</span>
+            </a>
+        </nav>
+
         <!-- 1. Główne wskaźniki (Metric Cards) na samej górze -->
         <section class="shop-dashboard-metrics">
             @foreach ($heroStats as $stat)
-                <a href="{{ $stat['url'] }}" class="shop-dashboard-metric" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 140px; padding: 1.25rem 1.5rem; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shop-shadow-lg)'; this.style.borderColor='var(--shop-accent)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none'; this.style.borderColor='var(--shop-border)';">
+                <a href="{{ $stat['url'] }}" class="shop-dashboard-metric" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 140px; padding: 1.25rem 1.5rem; text-decoration: none;">
                     <p class="shop-dashboard-metric-label" style="margin: 0; line-height: 1.2; text-decoration: none;">{{ $stat['label'] }}</p>
                     <p class="shop-dashboard-metric-value" style="margin: auto 0; padding: 0.5rem 0; line-height: 1; font-size: 2rem; text-decoration: none;">{{ $stat['value'] }}</p>
                     <p class="shop-dashboard-metric-copy" style="margin: 0; line-height: 1.2; text-decoration: none;">{{ $stat['context'] }}</p>
@@ -67,22 +92,15 @@
                                 <!-- Kolumna 3: Status (wyśrodkowane) -->
                                 <div style="text-align: center; justify-self: center;">
                                     @php
-                                        $statusBadgeClass = match ($order->status) {
-                                            'placed' => 'shop-dashboard-badge shop-dashboard-badge--info',
-                                            'processing' => 'shop-dashboard-badge shop-dashboard-badge--warning',
-                                            'shipped' => 'shop-dashboard-badge shop-dashboard-badge--success',
-                                            'completed', 'fulfilled' => 'shop-dashboard-badge shop-dashboard-badge--success',
-                                            'cancelled' => 'shop-dashboard-badge shop-dashboard-badge--danger',
+                                        $displayColor = \App\Filament\Resources\Orders\OrderResource::displayStatusColor($order);
+                                        $statusBadgeClass = match ($displayColor) {
+                                            'info' => 'shop-dashboard-badge shop-dashboard-badge--info',
+                                            'warning' => 'shop-dashboard-badge shop-dashboard-badge--warning',
+                                            'success' => 'shop-dashboard-badge shop-dashboard-badge--success',
+                                            'danger' => 'shop-dashboard-badge shop-dashboard-badge--danger',
                                             default => 'shop-dashboard-badge',
                                         };
-                                        $statusLabel = match ($order->status) {
-                                            'placed' => 'Złożone',
-                                            'processing' => 'W realizacji',
-                                            'shipped' => 'Wysłane',
-                                            'completed', 'fulfilled' => 'Ukończone',
-                                            'cancelled' => 'Anulowane',
-                                            default => $order->status,
-                                        };
+                                        $statusLabel = \App\Filament\Resources\Orders\OrderResource::displayStatusLabel($order);
                                     @endphp
                                     <span class="{{ $statusBadgeClass }}">{{ $statusLabel }}</span>
                                 </div>

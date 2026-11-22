@@ -45,6 +45,19 @@ class StoreSettings
         return (string) $this->model()->store_name;
     }
 
+    public function storefrontUrl(string $path = ''): string
+    {
+        $configured = config('services.storefront.url');
+        $base = rtrim((string) (filled($configured) ? $configured : 'https://hellokostek.pl'), '/');
+        $base = (string) preg_replace('#^(https?://)panel\.#i', '$1', $base);
+
+        if ($path === '') {
+            return $base;
+        }
+
+        return $base . '/' . ltrim($path, '/');
+    }
+
     public function currency(): string
     {
         return (string) $this->model()->currency;

@@ -8,6 +8,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ProductReviewsTable
@@ -36,18 +38,33 @@ class ProductReviewsTable
                     ->label('Treść opinii')
                     ->limit(60)
                     ->searchable(),
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn ($state, ProductReview $record) => $state === 'publiczny' || $record->is_approved ? 'Publiczny' : 'Szkic')
-                    ->color(fn ($state, ProductReview $record) => $state === 'publiczny' || $record->is_approved ? 'emerald' : 'gray')
-                    ->sortable(),
+                ToggleColumn::make('is_approved')
+                    ->label('Opublikowana')
+                    ->getStateUsing(fn (ProductReview $record): bool => $record->status === 'publiczny' || (bool) $record->is_approved)
+                    ->updateStateUsing(function (ProductReview $record, bool $state): bool {
+                        $record->forceFill([
+                            'is_approved' => $state,
+                            'status' => $state ? 'publiczny' : 'szkic',
+                        ])->save();
+
+                        return $state;
+                    }),
                 TextColumn::make('created_at')
                     ->label('Data dodania')
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
             ])
-            ->filters([])
+            ->filters([
+                TernaryFilter::make('is_approved')
+                    ->label('Widoczność')
+                    ->placeholder('Wszystkie opinie')
+                    ->trueLabel('Opublikowane')
+                    ->falseLabel('Szkice (oczekujące)')
+                    ->queries(
+                        true: fn ($query) => $query->where(fn ($q) => $q->where('is_approved', true)->orWhere('status', 'publiczny')),
+                        false: fn ($query) => $query->where(fn ($q) => $q->where('is_approved', false)->where('status', '!=', 'publiczny')),
+                    ),
+            ])
             ->recordActions([
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()

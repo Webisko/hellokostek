@@ -88,6 +88,7 @@ class OrderResource extends Resource
             ])
             ->with([
                 'customer',
+                'items.variant',
                 'items.fulfillmentActions',
                 'paymentTransactions',
                 'integrationLogs',
@@ -223,6 +224,84 @@ class OrderResource extends Resource
             'service_followup' => 'warning',
             default => 'gray',
         };
+    }
+
+    public static function displayStatusLabel(Order $record): string
+    {
+        if ($record->status === 'cancelled') {
+            return 'Anulowane';
+        }
+        if ($record->status === 'draft') {
+            return 'Szkic';
+        }
+        if ($record->status === 'shipped') {
+            return 'Wysłane';
+        }
+        if ($record->status === 'completed') {
+            return 'Zrealizowane';
+        }
+        if (in_array($record->payment_status, ['failed', 'configuration_required'], true)) {
+            return 'Błąd płatności';
+        }
+        if ($record->payment_status === 'paid') {
+            return 'Opłacone';
+        }
+        if (in_array($record->payment_status, ['pending', 'awaiting_payment', 'initiated', 'pending_gateway', 'pending_collection'], true)) {
+            return 'Oczekuje na płatność';
+        }
+
+        return static::formatStateLabel($record->status, static::statusOptions());
+    }
+
+    public static function displayStatusColor(Order $record): string
+    {
+        if ($record->status === 'cancelled') {
+            return 'danger';
+        }
+        if ($record->status === 'draft') {
+            return 'gray';
+        }
+        if ($record->status === 'shipped') {
+            return 'info';
+        }
+        if ($record->status === 'completed') {
+            return 'success';
+        }
+        if (in_array($record->payment_status, ['failed', 'configuration_required'], true)) {
+            return 'danger';
+        }
+        if ($record->payment_status === 'paid') {
+            return 'success';
+        }
+        if (in_array($record->payment_status, ['pending', 'awaiting_payment', 'initiated', 'pending_gateway', 'pending_collection'], true)) {
+            return 'warning';
+        }
+
+        return static::orderStatusColor($record->status);
+    }
+
+    public static function displayStatusIcon(Order $record): string
+    {
+        if ($record->status === 'cancelled') {
+            return 'heroicon-o-x-circle';
+        }
+        if ($record->status === 'draft') {
+            return 'heroicon-o-pencil';
+        }
+        if ($record->status === 'shipped') {
+            return 'heroicon-o-truck';
+        }
+        if ($record->status === 'completed') {
+            return 'heroicon-o-check-circle';
+        }
+        if (in_array($record->payment_status, ['failed', 'configuration_required'], true)) {
+            return 'heroicon-o-exclamation-circle';
+        }
+        if ($record->payment_status === 'paid') {
+            return 'heroicon-o-check-circle';
+        }
+
+        return 'heroicon-o-clock';
     }
 }
 

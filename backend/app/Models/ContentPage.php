@@ -12,6 +12,17 @@ class ContentPage extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public const SYSTEM_SLUGS = [
+        'regulamin',
+        'polityka-prywatnosci',
+        'o-mnie',
+    ];
+
+    public function isSystemPage(): bool
+    {
+        return in_array($this->slug, self::SYSTEM_SLUGS, true);
+    }
+
     public static function templateOptions(): array
     {
         return [

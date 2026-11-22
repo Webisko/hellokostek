@@ -9,6 +9,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
@@ -24,6 +25,7 @@ class GalleryArtworkTable
             ->columns([
                 ImageColumn::make('image_path')
                     ->label('Zdjęcie')
+                    ->size(56)
                     ->rounded()
                     ->disk('public'),
 
@@ -55,6 +57,10 @@ class GalleryArtworkTable
                     ->label('Aktywny'),
             ])
             ->filters([
+                SelectFilter::make('category_id')
+                    ->label('Kategoria')
+                    ->relationship('category', 'name')
+                    ->preload(),
                 TernaryFilter::make('is_active')
                     ->label('Aktywny'),
             ])

@@ -6,8 +6,10 @@ use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
 use Carbon\CarbonInterface;
 use Filament\Notifications\Notification;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -43,78 +45,9 @@ class OrdersTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->state(function (Order $record): string {
-                        if ($record->status === 'cancelled') {
-                            return 'Anulowane';
-                        }
-                        if ($record->status === 'draft') {
-                            return 'Szkic';
-                        }
-                        if ($record->status === 'shipped') {
-                            return 'Wysłane';
-                        }
-                        if ($record->status === 'completed') {
-                            return 'Zrealizowane';
-                        }
-                        if (in_array($record->payment_status, ['failed', 'configuration_required'])) {
-                            return 'Błąd płatności';
-                        }
-                        if ($record->payment_status === 'paid') {
-                            return 'Opłacone';
-                        }
-                        if (in_array($record->payment_status, ['pending', 'awaiting_payment', 'initiated', 'pending_gateway', 'pending_collection'])) {
-                            return 'Oczekuje na płatność';
-                        }
-                        return OrderResource::formatStateLabel($record->status, OrderResource::statusOptions());
-                    })
-                    ->color(function (Order $record): string {
-                        if ($record->status === 'cancelled') {
-                            return 'danger';
-                        }
-                        if ($record->status === 'draft') {
-                            return 'gray';
-                        }
-                        if ($record->status === 'shipped') {
-                            return 'info';
-                        }
-                        if ($record->status === 'completed') {
-                            return 'success';
-                        }
-                        if (in_array($record->payment_status, ['failed', 'configuration_required'])) {
-                            return 'danger';
-                        }
-                        if ($record->payment_status === 'paid') {
-                            return 'success';
-                        }
-                        if (in_array($record->payment_status, ['pending', 'awaiting_payment', 'initiated', 'pending_gateway', 'pending_collection'])) {
-                            return 'warning';
-                        }
-                        return OrderResource::orderStatusColor($record->status);
-                    })
-                    ->icon(function (Order $record): ?string {
-                        if ($record->status === 'cancelled') {
-                            return 'heroicon-o-x-circle';
-                        }
-                        if ($record->status === 'draft') {
-                            return 'heroicon-o-pencil';
-                        }
-                        if ($record->status === 'shipped') {
-                            return 'heroicon-o-truck';
-                        }
-                        if ($record->status === 'completed') {
-                            return 'heroicon-o-check-circle';
-                        }
-                        if (in_array($record->payment_status, ['failed', 'configuration_required'])) {
-                            return 'heroicon-o-exclamation-circle';
-                        }
-                        if ($record->payment_status === 'paid') {
-                            return 'heroicon-o-check-circle';
-                        }
-                        if (in_array($record->payment_status, ['pending', 'awaiting_payment', 'initiated', 'pending_gateway', 'pending_collection'])) {
-                            return 'heroicon-o-clock';
-                        }
-                        return 'heroicon-o-clock';
-                    })
+                    ->state(fn (Order $record): string => OrderResource::displayStatusLabel($record))
+                    ->color(fn (Order $record): string => OrderResource::displayStatusColor($record))
+                    ->icon(fn (Order $record): string => OrderResource::displayStatusIcon($record))
                     ->sortable(),
                 TextColumn::make('total_amount')
                     ->label('Suma')
@@ -283,6 +216,62 @@ class OrdersTable
                             ->visible(fn (Order $record): bool => !empty($record->tracking_number) && $record->carrier === 'OrlenPaczka')
                             ->url(fn (Order $record): string => route('admin.orders.orlen-label', ['number' => $record->number]))
                             ->openUrlInNewTab(),
+                        Action::make('mark_as_paid')
+                            ->label('Oznacz jako opłacone')
+                            ->icon('heroicon-o-check-circle')
+                            ->color('success')
+                            ->visible(fn (Order $record): bool => $record->payment_status !== 'paid' && ! in_array($record->status, ['cancelled', 'draft'], true))
+                            ->requiresConfirmation()
+                            ->modalHeading('Oznaczyć zamówienie jako opłacone?')
+                            ->modalDescription('Zmiana statusu płatności na „Opłacone” automatycznie zaktualizuje stan magazynowy, wygeneruje fakturę (jeśli fakturowanie jest włączone) oraz wyśle klientowi e-mail z potwierdzeniem płatności.')
+                            ->action(function (Order $record): void {
+                                $record->update(['payment_status' => 'paid']);
+
+                                Notification::make()
+                                    ->title('Zamówienie oznaczono jako opłacone')
+                                    ->success()
+                                    ->send();
+                            }),
+
+                        Action::make('mark_as_shipped')
+                            ->label('Oznacz jako wysłane')
+                            ->icon('heroicon-o-paper-airplane')
+                            ->color('primary')
+                            ->visible(fn (Order $record): bool => ! in_array($record->status, ['shipped', 'completed', 'cancelled', 'draft'], true))
+                            ->modalHeading('Oznacz zamówienie jako wysłane')
+                            ->modalDescription('Status zamówienia zmieni się na „Wysłane”, a klient otrzyma e-mail z powiadomieniem o wysyłce.')
+                            ->form([
+                                TextInput::make('carrier')
+                                    ->label('Przewoźnik (opcjonalnie)')
+                                    ->datalist(['InPost', 'ORLEN Paczka', 'DPD', 'Poczta Polska', 'Odbiór osobisty'])
+                                    ->default(fn (Order $record): ?string => $record->carrier)
+                                    ->maxLength(100),
+                                TextInput::make('tracking_number')
+                                    ->label('Numer przesyłki (opcjonalnie)')
+                                    ->default(fn (Order $record): ?string => $record->tracking_number)
+                                    ->maxLength(100),
+                            ])
+                            ->action(function (Order $record, array $data): void {
+                                $updates = [
+                                    'status' => 'shipped',
+                                    'fulfillment_status' => 'fulfilled',
+                                    'shipped_at' => $record->shipped_at ?? now(),
+                                ];
+                                if (filled($data['carrier'] ?? null)) {
+                                    $updates['carrier'] = trim((string) $data['carrier']);
+                                }
+                                if (filled($data['tracking_number'] ?? null)) {
+                                    $updates['tracking_number'] = trim((string) $data['tracking_number']);
+                                }
+
+                                $record->update($updates);
+
+                                Notification::make()
+                                    ->title('Zamówienie oznaczono jako wysłane')
+                                    ->success()
+                                    ->send();
+                            }),
+
                         EditAction::make()
                             ->button()
                             ->label('Edytuj')

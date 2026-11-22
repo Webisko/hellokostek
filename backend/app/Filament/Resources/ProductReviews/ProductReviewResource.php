@@ -36,6 +36,21 @@ class ProductReviewResource extends Resource
 
     protected static ?int $navigationSort = 30;
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = ProductReview::query()
+            ->where('is_approved', false)
+            ->where('status', '!=', 'publiczny')
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProductReviewForm::configure($schema);

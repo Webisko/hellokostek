@@ -19,9 +19,9 @@ class ListProductReviews extends ListRecords
     {
         parent::mount();
 
-        if ($this->record) {
+        if ($this->record && \App\Models\ProductReview::query()->whereKey($this->record)->exists()) {
             $this->bootedInteractsWithTable();
-            $this->mountTableAction('view', $this->record);
+            $this->mountTableAction('edit', $this->record);
         }
     }
 

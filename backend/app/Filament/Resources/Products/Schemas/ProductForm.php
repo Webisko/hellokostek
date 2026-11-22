@@ -96,10 +96,10 @@ class ProductForm
                                             ->maxLength(100),
                                         TextInput::make('slug')
                                             ->label('Adres URL (slug)')
-                                            ->required()
-                                            ->maxLength(255)
-                                            ->hidden(fn (string $operation): bool => $operation === 'edit' && ! auth()->user()?->isAdmin())
+                                            ->required(fn (): bool => (bool) auth()->user()?->isAdmin())
+                                            ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
                                             ->dehydrated()
+                                            ->maxLength(255)
                                             ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                                         TextInput::make('sku')
                                             ->label('Kod bazowy SKU')

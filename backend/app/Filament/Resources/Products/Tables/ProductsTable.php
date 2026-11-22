@@ -4,14 +4,15 @@ namespace App\Filament\Resources\Products\Tables;
 
 use App\Filament\Resources\Products\ProductResource;
 use App\Models\Product;
+use App\Support\StoreSettings;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -28,6 +29,7 @@ class ProductsTable
             ->columns([
                 ImageColumn::make('featured_image_path')
                     ->label('Zdjęcie')
+                    ->size(56)
                     ->rounded()
                     ->disk('public'),
                 TextColumn::make('name')
@@ -38,13 +40,16 @@ class ProductsTable
                 TextColumn::make('slug')
                     ->label('Adres URL (slug)')
                     ->color('gray')
-                    ->searchable(),
+                    ->searchable()
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('sku')
                     ->label('SKU')
                     ->icon('heroicon-o-tag')
                     ->iconColor('gray')
                     ->searchable()
-                    ->toggleable(),
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('type')
                     ->label('Typ')
                     ->badge()
@@ -56,6 +61,8 @@ class ProductsTable
                         'service' => 'heroicon-o-wrench-screwdriver',
                         default => null,
                     })
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
                 TextColumn::make('categories.name')
                     ->label('Kategorie')
@@ -66,7 +73,8 @@ class ProductsTable
                     ->label('Atrybuty')
                     ->counts('attributeValues')
                     ->sortable()
-                    ->toggleable(),
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('marketingBadgeLabels')
                     ->label('Oznaczenia')
                     ->listWithLineBreaks()
@@ -131,18 +139,16 @@ class ProductsTable
                             ? 'heroicon-o-check-circle'
                             : 'heroicon-o-x-circle';
                     }),
-                IconColumn::make('is_active')
-                    ->label('Aktywny')
-                    ->boolean(),
-                IconColumn::make('is_visible')
+                ToggleColumn::make('is_active')
+                    ->label('Aktywny'),
+                ToggleColumn::make('is_visible')
                     ->label('Widoczny')
-                    ->boolean()
                     ->toggleable(),
                 TextColumn::make('published_at')
                     ->label('Publikacja')
                     ->dateTime('Y-m-d H:i')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TernaryFilter::make('original_available')
@@ -156,7 +162,8 @@ class ProductsTable
                     ),
                 SelectFilter::make('type')
                     ->label('Typ produktu')
-                    ->options(ProductResource::typeOptions()),
+                    ->options(ProductResource::typeOptions())
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin()),
                 SelectFilter::make('categories')
                     ->label('Kategoria')
                     ->relationship('categories', 'name')
@@ -177,6 +184,15 @@ class ProductsTable
                 \Filament\Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
+                Action::make('preview_in_store')
+                    ->label('Zobacz w sklepie')
+                    ->iconButton()
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->tooltip('Zobacz w sklepie')
+                    ->color('gray')
+                    ->url(fn (Product $record): string => app(StoreSettings::class)->storefrontUrl('/sklep/' . $record->slug))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Product $record): bool => filled($record->slug)),
                 EditAction::make()->iconButton()->tooltip('Edytuj')->color('violet')
                     ->slideOver()
                     ->modalWidth('7xl')

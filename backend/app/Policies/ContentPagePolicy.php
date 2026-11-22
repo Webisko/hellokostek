@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\ContentPage;
 use App\Models\User;
 
 class ContentPagePolicy
@@ -26,8 +27,17 @@ class ContentPagePolicy
         return $user->isAdmin() || $user->isManager();
     }
 
-    public function delete(User $user): bool
+    public function delete(User $user, ContentPage $contentPage): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->isManager() && ! $contentPage->isSystemPage();
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return $user->isAdmin();
     }
 }

@@ -3,15 +3,27 @@
 namespace App\Filament\Resources\ContactInquiries\Schemas;
 
 use App\Models\ContactInquiry;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\KeyValue;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class ContactInquiryForm
 {
+    private const PAYLOAD_LABELS = [
+        'shape' => 'Kształt / orientacja',
+        'size' => 'Rozmiar / format',
+        'technique' => 'Technika',
+        'people_count' => 'Liczba osób / zwierząt',
+        'frame' => 'Oprawa',
+        'deadline' => 'Preferowany termin',
+        'budget' => 'Budżet',
+    ];
+
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
@@ -23,10 +35,29 @@ class ContactInquiryForm
                         ->disabled(),
                     TextInput::make('email')
                         ->label('Adres e-mail')
-                        ->disabled(),
+                        ->disabled()
+                        ->suffixAction(
+                            Action::make('reply_email')
+                                ->label('Odpowiedz e-mailem')
+                                ->icon('heroicon-o-paper-airplane')
+                                ->tooltip('Odpowiedz e-mailem')
+                                ->url(fn (?ContactInquiry $record): ?string => filled($record?->email)
+                                    ? 'mailto:' . $record->email . '?subject=' . rawurlencode('Re: ' . ($record->subject ?: 'Zapytanie o portret – hellokostek'))
+                                    : null)
+                        ),
                     TextInput::make('phone')
                         ->label('Numer telefonu')
-                        ->disabled(),
+                        ->disabled()
+                        ->suffixAction(
+                            Action::make('call_phone')
+                                ->label('Zadzwoń')
+                                ->icon('heroicon-o-phone')
+                                ->tooltip('Zadzwoń')
+                                ->url(fn (?ContactInquiry $record): ?string => filled($record?->phone)
+                                    ? 'tel:' . preg_replace('/\s+/', '', $record->phone)
+                                    : null)
+                                ->visible(fn (?ContactInquiry $record): bool => filled($record?->phone))
+                        ),
                     TextInput::make('subject')
                         ->label('Temat')
                         ->disabled(),
@@ -65,16 +96,21 @@ class ContactInquiryForm
                 ->schema([
                     KeyValue::make('scalar_payload')
                         ->label('Przesłane parametry')
-                        ->valueLabel('Wartość')
-                        ->keyLabel('Klucz')
+                        ->keyLabel('Parametr')
+                        ->valueLabel('Wybrana opcja')
                         ->disabled()
                         ->afterStateHydrated(function (KeyValue $component, $record) {
-                            if (! $record || empty($record->payload)) return;
+                            if (! $record || empty($record->payload)) {
+                                return;
+                            }
                             $filtered = [];
                             foreach ($record->payload as $k => $v) {
-                                if ($k === 'attachments') continue;
+                                if ($k === 'attachments') {
+                                    continue;
+                                }
                                 if (is_scalar($v)) {
-                                    $filtered[$k] = (string) $v;
+                                    $label = self::PAYLOAD_LABELS[$k] ?? Str::headline((string) $k);
+                                    $filtered[$label] = (string) $v;
                                 }
                             }
                             $component->state($filtered);
@@ -90,11 +126,12 @@ class ContactInquiryForm
                         ->required()
                         ->native(false),
                     Textarea::make('admin_notes')
-                        ->label('Notatki administratora')
+                        ->label('Notatki wewnętrzne')
                         ->placeholder('Wpisz wewnętrzne notatki dotyczące kontaktu z tym klientem...')
                         ->rows(4),
                 ]),
             Section::make('Metadane połączenia')->columnSpanFull()
+                ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                 ->columns(2)
                 ->schema([
                     TextInput::make('ip_address')

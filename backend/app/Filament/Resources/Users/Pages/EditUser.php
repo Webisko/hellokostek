@@ -14,6 +14,25 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Password-revealable inputs hydrate null as '' in Alpine/Livewire, which triggers false unsaved-changes alerts.
+        $data['password'] = '';
+
+        return $data;
+    }
+
+    protected function afterFill(): void
+    {
+        $this->data['password'] = $this->data['password'] ?? '';
+        $this->rememberData();
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Dane użytkownika zostały zapisane';
+    }
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         if (($record->isAdmin() || $record->is_admin === true) && ! (auth()->user()?->isAdmin() || auth()->user()?->is_admin === true)) {
