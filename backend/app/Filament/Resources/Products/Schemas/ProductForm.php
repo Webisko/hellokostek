@@ -62,10 +62,9 @@ class ProductForm
                                             ->columnSpanFull(),
                                         Select::make('categories')
                                             ->label('Kategoria (akwarela / rysunek)')
-                                            ->multiple()
                                             ->relationship(titleAttribute: 'name')
                                             ->preload()
-                                            ->searchable(),
+                                            ->native(false),
                                         TextInput::make('metadata.year')
                                             ->label('Rok powstania')
                                             ->placeholder('np. 2024')

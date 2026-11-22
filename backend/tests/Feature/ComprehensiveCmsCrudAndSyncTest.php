@@ -68,7 +68,7 @@ class ComprehensiveCmsCrudAndSyncTest extends TestCase
                 'name' => 'Nowy Obraz Testowy CMS',
                 'slug' => 'nowy-obraz-testowy-cms',
                 'sku' => 'NOWY-CMS-01',
-                'categories' => [$category->id],
+                'categories' => $category->id,
                 'metadata.year' => '2026',
                 'short_description' => 'Krótki opis bez znaczników HTML',
                 'description' => 'Pełny opis nowego obrazu z CMS bez znaczników HTML.',
@@ -88,6 +88,7 @@ class ComprehensiveCmsCrudAndSyncTest extends TestCase
 
         $product = Product::where('slug', 'nowy-obraz-testowy-cms')->firstOrFail();
         $this->assertEquals('2026', $product->metadata['year'] ?? null);
+        $this->assertSame([$category->id], $product->categories()->pluck('product_categories.id')->all());
         $this->assertTrue($product->metadata['original_available'] ?? false);
 
         // Verify API synchronization (Catalog + Single Product endpoint)

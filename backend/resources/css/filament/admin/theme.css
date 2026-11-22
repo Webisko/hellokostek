@@ -639,7 +639,12 @@ html.fi-sidebar-collapsed .fi-panel-admin .fi-sidebar-header .fi-brand-name {
 }
 
 .fi-panel-admin .fi-input-wrp {
-    overflow: hidden !important;
+    overflow: visible !important;
+}
+
+.fi-panel-admin .fi-input-wrp .fi-select-input-search-ctn .fi-input {
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 .fi-panel-admin .fi-input {

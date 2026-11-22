@@ -24,8 +24,8 @@ class GalleryArtworkForm
                         ->label('Kategoria')
                         ->relationship('category', 'name')
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
-                        ->searchable()
-                        ->preload(),
+                        ->preload()
+                        ->native(false),
 
                     TextInput::make('title')
                         ->label('Tytuł')
