@@ -1,21 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { SHOP_PRODUCTS } from "../data";
 import type { Product } from "../types";
 import { parseLocalizedString } from "../utils/localization";
 import { ArrowRight, X, SlidersHorizontal } from "lucide-react";
 
+function normalizeProductCategory(rawSlug?: string, rawName?: string): { slug: string; label?: string } {
+  const normalizedSlug = (rawSlug || "").trim().toLowerCase();
+  const parsedName = rawName ? parseLocalizedString(rawName) : "";
+
+  if (normalizedSlug === "akwarela" || normalizedSlug === "watercolor") {
+    return { slug: "akwarela", label: parsedName || "Akwarela" };
+  }
+  if (normalizedSlug === "rysunek" || normalizedSlug === "drawing") {
+    return { slug: "rysunek", label: parsedName || "Rysunek" };
+  }
+  if (normalizedSlug !== "") {
+    return { slug: normalizedSlug, label: parsedName || rawSlug };
+  }
+
+  return { slug: "akwarela", label: parsedName || "Akwarela" };
+}
+
 function mapProduct(apiProduct: any): Product {
   const originalVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-OR'));
   const printVariant = apiProduct.variants?.find((v: any) => v.sku?.endsWith('-PR'));
 
-  let category: 'akwarela' | 'rysunek' = 'akwarela';
-  if (apiProduct.categories && apiProduct.categories.length > 0) {
-    const catSlug = apiProduct.categories[0].slug;
-    if (catSlug === 'akwarela' || catSlug === 'rysunek' || catSlug === 'watercolor' || catSlug === 'drawing') {
-      category = catSlug === 'watercolor' ? 'akwarela' : catSlug === 'drawing' ? 'rysunek' : catSlug;
-    }
-  }
+  const firstCat = apiProduct.categories?.[0];
+  const { slug: category, label: categoryLabel } = normalizeProductCategory(firstCat?.slug, firstCat?.name);
 
   const imageUrl = apiProduct.featured_image_url || '/images/placeholder.png';
   const rawDescription = apiProduct.description !== undefined && apiProduct.description !== null && String(parseLocalizedString(apiProduct.description)).trim() !== ""
@@ -30,6 +42,7 @@ function mapProduct(apiProduct: any): Product {
     title: parseLocalizedString(apiProduct.name),
     year: apiProduct.metadata?.year || "2022",
     category,
+    categoryLabel,
     originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProduct.regular_price_amount / 100),
     printPrice: printVariant ? (printVariant.regular_price_amount / 100) : (category === 'akwarela' ? 30 : 20),
     isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
@@ -44,9 +57,36 @@ function mapProduct(apiProduct: any): Product {
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>(SHOP_PRODUCTS);
-  const [activeCategory, setActiveCategory] = useState<"all" | "akwarela" | "rysunek" | "prints">("all");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+
+  const categoryFilters = useMemo(() => {
+    const map = new Map<string, string>();
+    products.forEach((p) => {
+      const slug = (p.category || "").toLowerCase();
+      if (!slug || slug === "custom_portrait") {
+        return;
+      }
+      if (!map.has(slug)) {
+        if (slug === "akwarela") {
+          map.set(slug, "Oryginały (akwarele)");
+        } else if (slug === "rysunek") {
+          map.set(slug, "Oryginały (rysunki)");
+        } else {
+          map.set(slug, p.categoryLabel || slug);
+        }
+      }
+    });
+
+    const list: { id: string; label: string }[] = [{ id: "all", label: "Wszystkie prace" }];
+    map.forEach((label, id) => {
+      list.push({ id, label });
+    });
+    list.push({ id: "prints", label: "Wydruki kolekcjonerskie" });
+
+    return list;
+  }, [products]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -83,10 +123,12 @@ export default function Shop() {
   }, [isFilterDrawerOpen]);
 
   const filteredProducts = products.filter((product) => {
-    // Category filter logic
-    if (activeCategory === "akwarela" && product.category !== "akwarela") return false;
-    if (activeCategory === "rysunek" && product.category !== "rysunek") return false;
-    if (activeCategory === "prints" && !product.printPrice) return false;
+    if (activeCategory === "prints") {
+      return Boolean(product.printPrice);
+    }
+    if (activeCategory !== "all" && (product.category || "").toLowerCase() !== activeCategory) {
+      return false;
+    }
 
     return true;
   });
@@ -142,15 +184,10 @@ export default function Shop() {
       {/* Desktop Filter Rail (Static, desktop only) */}
       <div className="hidden xl:flex xl:flex-row items-center justify-between gap-6 border-b border-gray-150 pb-6">
         <div className="flex flex-wrap items-center justify-start gap-3 w-auto">
-          {[
-            { id: "all", label: "Wszystkie prace" },
-            { id: "akwarela", label: "Oryginały (akwarele)" },
-            { id: "rysunek", label: "Oryginały (rysunki)" },
-            { id: "prints", label: "Wydruki kolekcjonerskie" }
-          ].map((cat) => (
+          {categoryFilters.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setActiveCategory(cat.id as any)}
+              onClick={() => setActiveCategory(cat.id)}
               className={`px-4 py-2.5 rounded-lg text-xs font-semibold tracking-wider transition-all uppercase cursor-pointer whitespace-nowrap ${
                 activeCategory === cat.id
                   ? "bg-gray-950 text-white shadow-sm"
@@ -173,10 +210,16 @@ export default function Shop() {
           <div className="columns-1 md:columns-2 lg:columns-3 gap-6 md:gap-8 lg:gap-10 xl:gap-16 pt-2 md:pt-4 xl:pt-6 [column-fill:_balance]">
             {filteredProducts.map((product, index) => {
               const printPriceVal = product.printPrice || (product.category === "akwarela" ? 30 : 20);
+              const categoryText = (
+                product.categoryLabel ||
+                (product.category === "akwarela"
+                  ? "Akwarela"
+                  : product.category === "rysunek"
+                    ? "Rysunek"
+                    : product.category)
+              ).toUpperCase();
               const badgeLabel = product.isOriginalAvailable
-                ? product.category === "akwarela"
-                  ? "AKWARELA / WYDRUK"
-                  : "RYSUNEK / WYDRUK"
+                ? `${categoryText} / WYDRUK`
                 : "WYDRUK";
 
               return (
@@ -287,15 +330,10 @@ export default function Shop() {
                 <div className="space-y-4">
                   <h3 className="text-xs font-mono uppercase tracking-widest text-[#E0115F] font-bold">Kategoria prac</h3>
                   <div className="flex flex-col gap-2">
-                    {[
-                      { id: "all", label: "Wszystkie prace" },
-                      { id: "akwarela", label: "Oryginały (akwarele)" },
-                      { id: "rysunek", label: "Oryginały (rysunki)" },
-                      { id: "prints", label: "Wydruki kolekcjonerskie" }
-                    ].map((cat) => (
+                    {categoryFilters.map((cat) => (
                       <button
                         key={cat.id}
-                        onClick={() => setActiveCategory(cat.id as any)}
+                        onClick={() => setActiveCategory(cat.id)}
                         className={`w-full text-left px-4 py-3.5 rounded-xl text-xs font-semibold tracking-wider transition-all uppercase cursor-pointer flex justify-between items-center ${
                           activeCategory === cat.id
                             ? "bg-gray-950 text-white"

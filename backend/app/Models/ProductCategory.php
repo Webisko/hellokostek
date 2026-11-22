@@ -30,6 +30,15 @@ class ProductCategory extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (ProductCategory $category): void {
+            if (blank($category->slug) && filled($category->name)) {
+                $category->slug = self::generateUniqueSlug((string) $category->name);
+            }
+            if ($category->sort_order === null) {
+                $category->sort_order = (int) (static::max('sort_order') ?? 0) + 10;
+            }
+        });
+
         static::updating(function (ProductCategory $category): void {
             if ($category->isDirty('slug')) {
                 $oldSlug = $category->getOriginal('slug');
@@ -54,6 +63,38 @@ class ProductCategory extends Model
                 }
             }
         });
+    }
+
+    public static function createQuickByName(string $name): self
+    {
+        $cleanName = trim($name);
+        $baseSlug = \Illuminate\Support\Str::slug($cleanName) ?: 'kategoria';
+
+        $existing = static::query()->where('slug', $baseSlug)->first();
+        if ($existing instanceof self) {
+            return $existing;
+        }
+
+        return static::create([
+            'name' => $cleanName,
+            'slug' => self::generateUniqueSlug($cleanName),
+            'is_active' => true,
+            'sort_order' => (int) (static::max('sort_order') ?? 0) + 10,
+        ]);
+    }
+
+    public static function generateUniqueSlug(string $name): string
+    {
+        $base = \Illuminate\Support\Str::slug($name) ?: 'kategoria';
+        $candidate = $base;
+        $suffix = 2;
+
+        while (static::query()->where('slug', $candidate)->exists()) {
+            $candidate = $base . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $candidate;
     }
 
     public function products(): BelongsToMany

@@ -617,4 +617,64 @@ class CmsAuditFixesTest extends TestCase
             'Mój profil i hasło',
         ]);
     }
+
+    public function test_manager_can_manage_artwork_dictionaries_and_create_quick_categories(): void
+    {
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $settingsModel = app(\App\Support\StoreSettings::class)->model();
+        if (! $settingsModel->exists) {
+            $settingsModel->save();
+        }
+        $metadata = is_array($settingsModel->metadata) ? $settingsModel->metadata : [];
+        $metadata['stripe_secret'] = 'sk_test_keep_me';
+        $settingsModel->forceFill(['metadata' => $metadata])->save();
+        app(\App\Support\StoreSettings::class)->purgeCache();
+
+        $addedTech = app(\App\Support\StoreSettings::class)->addArtworkTechnique('Pastel olejny na tekturze');
+        $addedFormat = app(\App\Support\StoreSettings::class)->addArtworkFormat('60x80 cm');
+        $this->assertSame('Pastel olejny na tekturze', $addedTech);
+        $this->assertSame('60x80 cm', $addedFormat);
+        $this->assertArrayHasKey('Pastel olejny na tekturze', app(\App\Support\StoreSettings::class)->artworkTechniqueOptions());
+        $this->assertArrayHasKey('60x80 cm', app(\App\Support\StoreSettings::class)->artworkFormatOptions());
+
+        \Livewire\Livewire::actingAs($manager)
+            ->test(\App\Filament\Resources\StoreSettings\Pages\EditStoreSetting::class)
+            ->set('data.metadata.artwork_techniques', [
+                'uuid-1' => ['name' => 'Olej na płótnie'],
+                'uuid-2' => ['name' => 'Pastel olejny na tekturze'],
+                'uuid-3' => ['name' => 'Gwasz na papierze'],
+            ])
+            ->set('data.metadata.artwork_formats', [
+                'uuid-4' => ['name' => '30x40 cm'],
+                'uuid-5' => ['name' => '70x100 cm'],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        app(\App\Support\StoreSettings::class)->purgeCache();
+        $freshSettings = StoreSetting::query()->firstOrFail();
+        $this->assertSame('sk_test_keep_me', $freshSettings->metadata['stripe_secret'] ?? null);
+        $this->assertSame(['Olej na płótnie', 'Pastel olejny na tekturze', 'Gwasz na papierze'], $freshSettings->metadata['artwork_techniques'] ?? null);
+        $this->assertSame(['30x40 cm', '70x100 cm'], $freshSettings->metadata['artwork_formats'] ?? null);
+
+        $quickCat = \App\Models\ProductCategory::createQuickByName('Pastel suchy');
+        $this->assertSame('pastel-suchy', $quickCat->slug);
+
+        \Livewire\Livewire::actingAs($manager)
+            ->test(\App\Filament\Resources\ProductCategories\Pages\ListProductCategories::class)
+            ->callAction('create', [
+                'name' => 'Grafika warsztatowa',
+                'is_active' => true,
+            ])
+            ->assertHasNoActionErrors();
+
+        $createdCat = \App\Models\ProductCategory::query()->where('name', 'Grafika warsztatowa')->first();
+        $this->assertNotNull($createdCat);
+        $this->assertSame('grafika-warsztatowa', $createdCat->slug);
+    }
 }

@@ -389,6 +389,39 @@ class StoreSettingForm
                                 ]),
                         ]),
 
+                    Tabs\Tab::make('Słowniki prac')
+                        ->schema([
+                            Section::make('Techniki wykonania i formaty prac')
+                                ->description('Zarządzaj listą technik i wymiarów wyświetlanych do wyboru przy dodawaniu i edycji produktów oraz prac w galerii.')
+                                ->columns(['lg' => 2, 'default' => 1])
+                                ->schema([
+                                    Repeater::make('metadata.artwork_techniques')
+                                        ->label('Techniki wykonania')
+                                        ->helperText('Lista dostępna w formularzach Produktów i Galerii. Możesz dodawać, edytować, usuwać oraz zmieniać kolejność pozycji.')
+                                        ->simple(
+                                            TextInput::make('name')
+                                                ->required()
+                                                ->maxLength(255)
+                                                ->placeholder('np. Olej na płótnie')
+                                        )
+                                        ->addActionLabel('Dodaj technikę')
+                                        ->reorderable()
+                                        ->defaultItems(0),
+                                    Repeater::make('metadata.artwork_formats')
+                                        ->label('Formaty / wymiary')
+                                        ->helperText('Lista formatów dostępna w Produktach i Galerii.')
+                                        ->simple(
+                                            TextInput::make('name')
+                                                ->required()
+                                                ->maxLength(100)
+                                                ->placeholder('np. 30x40 cm')
+                                        )
+                                        ->addActionLabel('Dodaj format')
+                                        ->reorderable()
+                                        ->defaultItems(0),
+                                ]),
+                        ]),
+
                     Tabs\Tab::make('SEO')
                         ->visible(fn (): bool => self::isAdmin())
                         ->schema([

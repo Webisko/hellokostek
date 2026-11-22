@@ -25,39 +25,55 @@ class GalleryArtworkForm
                         ->relationship('category', 'name')
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                         ->preload()
-                        ->native(false),
+                        ->native(false)
+                        ->createOptionForm([
+                            TextInput::make('name')
+                                ->label('Nazwa kategorii')
+                                ->placeholder('np. Pastel')
+                                ->required()
+                                ->maxLength(255),
+                        ])
+                        ->createOptionModalHeading('Dodaj nową kategorię')
+                        ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową kategorię'))
+                        ->createOptionUsing(fn (array $data): int => \App\Models\ProductCategory::createQuickByName((string) $data['name'])->getKey()),
 
                     TextInput::make('title')
                         ->label('Tytuł')
                         ->required()
                         ->maxLength(255),
 
-                    TextInput::make('technique')
+                    Select::make('technique')
                         ->label('Technika wykonania (pierwszy punkt w powiększeniu)')
-                        ->placeholder('np. Cienkopisy i akwarela na papierze')
-                        ->datalist([
-                            'Olej na płótnie',
-                            'Olej na płótnie owalnym',
-                            'Akryl na płótnie',
-                            'Rysunek ołówkiem na papierze',
-                            'Cienkopisy i akwarela na papierze',
-                            'Suchy pastel i ołówek na papierze',
-                            'Akwarela na papierze bawełnianym',
-                        ])
+                        ->placeholder('Wybierz technikę wykonania')
+                        ->options(fn ($state): array => app(\App\Support\StoreSettings::class)->artworkTechniqueOptions(is_string($state) ? $state : null))
+                        ->native(false)
                         ->dehydrateStateUsing(fn ($state) => $state ?? '')
-                        ->maxLength(255),
-
-                    TextInput::make('format')
-                        ->label('Format')
-                        ->placeholder('np. 30x40 cm')
-                        ->datalist([
-                            '30x40 cm',
-                            '40x50 cm',
-                            '50x70 cm',
-                            'A4',
-                            'A3 (297 x 420 mm)',
+                        ->createOptionForm([
+                            TextInput::make('name')
+                                ->label('Nazwa techniki')
+                                ->placeholder('np. Pastel suchy na papierze')
+                                ->required()
+                                ->maxLength(255),
                         ])
-                        ->maxLength(100),
+                        ->createOptionModalHeading('Dodaj nową technikę')
+                        ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową technikę do listy'))
+                        ->createOptionUsing(fn (array $data): string => app(\App\Support\StoreSettings::class)->addArtworkTechnique((string) $data['name'])),
+
+                    Select::make('format')
+                        ->label('Format')
+                        ->placeholder('Wybierz format')
+                        ->options(fn ($state): array => app(\App\Support\StoreSettings::class)->artworkFormatOptions(is_string($state) ? $state : null))
+                        ->native(false)
+                        ->createOptionForm([
+                            TextInput::make('name')
+                                ->label('Format / wymiary')
+                                ->placeholder('np. 60x80 cm')
+                                ->required()
+                                ->maxLength(100),
+                        ])
+                        ->createOptionModalHeading('Dodaj nowy format')
+                        ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nowy format do listy'))
+                        ->createOptionUsing(fn (array $data): string => app(\App\Support\StoreSettings::class)->addArtworkFormat((string) $data['name'])),
 
                     TextInput::make('year')
                         ->label('Rok powstania')

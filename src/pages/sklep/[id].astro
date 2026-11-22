@@ -23,11 +23,21 @@ export async function getStaticPaths() {
           const originalVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-OR'));
           const printVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-PR'));
 
-          let category: 'akwarela' | 'rysunek' = 'akwarela';
+          let category = 'akwarela';
+          let categoryLabel = 'Akwarela';
           if (apiProd.categories && apiProd.categories.length > 0) {
-            const catSlug = apiProd.categories[0].slug;
-            if (catSlug === 'akwarela' || catSlug === 'rysunek' || catSlug === 'watercolor' || catSlug === 'drawing') {
-              category = catSlug === 'watercolor' ? 'akwarela' : catSlug === 'drawing' ? 'rysunek' : catSlug;
+            const firstCat = apiProd.categories[0];
+            const catSlug = String(firstCat.slug || '').trim().toLowerCase();
+            const catName = firstCat.name ? parseLocalizedString(firstCat.name) : '';
+            if (catSlug === 'akwarela' || catSlug === 'watercolor') {
+              category = 'akwarela';
+              categoryLabel = catName || 'Akwarela';
+            } else if (catSlug === 'rysunek' || catSlug === 'drawing') {
+              category = 'rysunek';
+              categoryLabel = catName || 'Rysunek';
+            } else if (catSlug !== '') {
+              category = catSlug;
+              categoryLabel = catName || firstCat.slug;
             }
           }
 
@@ -57,6 +67,7 @@ export async function getStaticPaths() {
             title: parseLocalizedString(apiProd.name),
             year: apiProd.metadata?.year || "2022",
             category,
+            categoryLabel,
             originalPrice: originalActiveGrosze / 100,
             originalRegularPrice: originalRegularGrosze ? originalRegularGrosze / 100 : undefined,
             originalLowestPrice30Days: originalLowestBeforeGrosze ? originalLowestBeforeGrosze / 100 : undefined,

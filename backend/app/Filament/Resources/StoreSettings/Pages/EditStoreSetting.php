@@ -97,6 +97,18 @@ class EditStoreSetting extends EditRecord
             }
         }
 
+        $storeSettings = app(\App\Support\StoreSettings::class);
+        if (! is_array($metadata['artwork_techniques'] ?? null)) {
+            $metadata['artwork_techniques'] = $storeSettings->artworkTechniques();
+        } else {
+            $metadata['artwork_techniques'] = \App\Support\StoreSettings::normalizeDictionaryList($metadata['artwork_techniques']);
+        }
+        if (! is_array($metadata['artwork_formats'] ?? null)) {
+            $metadata['artwork_formats'] = $storeSettings->artworkFormats();
+        } else {
+            $metadata['artwork_formats'] = \App\Support\StoreSettings::normalizeDictionaryList($metadata['artwork_formats']);
+        }
+
         $data['metadata'] = $metadata;
         $data['seo'] = is_array($data['seo'] ?? null) ? $data['seo'] : [];
         $data['shipping_zones'] = is_array($data['shipping_zones'] ?? null) ? $data['shipping_zones'] : [];
@@ -106,6 +118,8 @@ class EditStoreSetting extends EditRecord
     }
 
     private const MANAGER_ALLOWED_METADATA_KEYS = [
+        'artwork_techniques',
+        'artwork_formats',
         'invoicing_enabled',
         'invoice_seller_name',
         'invoice_seller_nip',
@@ -124,6 +138,12 @@ class EditStoreSetting extends EditRecord
             foreach (self::SECRET_METADATA_KEYS as $key) {
                 if (($data['metadata'][$key] ?? null) === '') {
                     $data['metadata'][$key] = null;
+                }
+            }
+
+            foreach (['artwork_techniques', 'artwork_formats'] as $dictKey) {
+                if (array_key_exists($dictKey, $data['metadata']) && is_array($data['metadata'][$dictKey])) {
+                    $data['metadata'][$dictKey] = \App\Support\StoreSettings::normalizeDictionaryList($data['metadata'][$dictKey]);
                 }
             }
         }

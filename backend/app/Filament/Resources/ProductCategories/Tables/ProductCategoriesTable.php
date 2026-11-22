@@ -28,6 +28,7 @@ class ProductCategoriesTable
                 TextColumn::make('slug')
                     ->label('Adres URL (slug)')
                     ->color('gray')
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                     ->searchable(),
                 TextColumn::make('products_count')
                     ->label('Produkty')

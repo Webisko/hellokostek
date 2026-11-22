@@ -168,11 +168,21 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           const originalVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-OR'));
           const printVariant = apiProd.variants?.find((v: any) => v.sku?.endsWith('-PR'));
           
-          let category: 'akwarela' | 'rysunek' = 'akwarela';
+          let category = 'akwarela';
+          let categoryLabel = 'Akwarela';
           if (apiProd.categories && apiProd.categories.length > 0) {
-            const catSlug = apiProd.categories[0].slug;
-            if (catSlug === 'akwarela' || catSlug === 'rysunek' || catSlug === 'watercolor' || catSlug === 'drawing') {
-              category = catSlug === 'watercolor' ? 'akwarela' : catSlug === 'drawing' ? 'rysunek' : catSlug;
+            const firstCat = apiProd.categories[0];
+            const catSlug = String(firstCat.slug || '').trim().toLowerCase();
+            const catName = firstCat.name ? parseLocalizedString(firstCat.name) : '';
+            if (catSlug === 'akwarela' || catSlug === 'watercolor') {
+              category = 'akwarela';
+              categoryLabel = catName || 'Akwarela';
+            } else if (catSlug === 'rysunek' || catSlug === 'drawing') {
+              category = 'rysunek';
+              categoryLabel = catName || 'Rysunek';
+            } else if (catSlug !== '') {
+              category = catSlug;
+              categoryLabel = catName || firstCat.slug;
             }
           }
 
@@ -209,6 +219,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             title,
             year: apiProd.metadata?.year || product.year || "2022",
             category,
+            categoryLabel,
             originalPrice: originalActiveGrosze / 100,
             originalRegularPrice: originalRegularGrosze ? originalRegularGrosze / 100 : undefined,
             originalLowestPrice30Days: originalLowestBeforeGrosze ? originalLowestBeforeGrosze / 100 : undefined,
@@ -811,9 +822,17 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <div className="border-b border-gray-50 pb-2.5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4">
               <span className="font-semibold text-gray-900 sm:col-span-4">Nośnik bazowy</span>
               <span className="sm:col-span-8 mt-0.5 sm:mt-0">
-                {currentProduct.technique || (currentProduct.category === "akwarela" 
-                  ? "Gruby papier bawełniany Arches 300g/m²" 
-                  : "Wysokiej jakości papier graficzny Canson 220g/m²")}
+                {currentProduct.technique || (
+                  currentProduct.category === "akwarela"
+                    ? "Gruby papier bawełniany Arches 300g/m²"
+                    : currentProduct.category === "rysunek"
+                      ? "Wysokiej jakości papier graficzny Canson 220g/m²"
+                      : currentProduct.category === "olej"
+                        ? "Tradycyjne malarstwo olejne na płótnie"
+                        : currentProduct.category === "akryl"
+                          ? "Malarstwo akrylowe na płótnie"
+                          : (currentProduct.categoryLabel || "Technika autorska")
+                )}
               </span>
             </div>
             <div className="border-b border-gray-50 pb-2.5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4">

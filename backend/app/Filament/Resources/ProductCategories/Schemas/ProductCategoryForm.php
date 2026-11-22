@@ -23,11 +23,6 @@ class ProductCategoryForm
                 Section::make('Podstawowe')->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        TextInput::make('slug')
-                            ->label('Adres URL (slug)')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true),
                         TextInput::make('name')
                             ->label('Nazwa')
                             ->required()
@@ -37,11 +32,18 @@ class ProductCategoryForm
                                 if ($operation !== 'create') {
                                     return;
                                 }
-                                if (($get('slug') ?? '') !== Str::slug((string) $old)) {
+                                if (($get('slug') ?? '') !== '' && ($get('slug') ?? '') !== Str::slug((string) $old)) {
                                     return;
                                 }
                                 $set('slug', Str::slug((string) $state));
                             }),
+                        TextInput::make('slug')
+                            ->label('Adres URL (slug)')
+                            ->required(fn (): bool => (bool) auth()->user()?->isAdmin())
+                            ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
+                            ->dehydrated()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
                         \Filament\Forms\Components\Hidden::make('sort_order')
                             ->default(fn () => (\App\Models\ProductCategory::max('sort_order') ?? 0) + 10),
                         Toggle::make('is_active')
@@ -53,6 +55,7 @@ class ProductCategoryForm
                             ->columnSpanFull(),
                     ]),
                 Section::make('SEO')->columnSpanFull()
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                     ->schema([
                         TextInput::make('seo_title')
                             ->label('Tytuł SEO')
@@ -65,6 +68,7 @@ class ProductCategoryForm
                             ->default(false),
                     ]),
                 Section::make('Atrybuty kategorii')->columnSpanFull()
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                     ->schema([
                         CheckboxList::make('attributes')
                             ->label('Dostępne atrybuty')

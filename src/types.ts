@@ -17,7 +17,8 @@ export interface Product {
   id: string;
   title: string;
   year: string;
-  category: "akwarela" | "rysunek" | "custom_portrait";
+  category: string;
+  categoryLabel?: string;
   originalPrice: number;
   originalRegularPrice?: number;
   originalLowestPrice30Days?: number;
@@ -40,7 +41,7 @@ export interface CartItem {
   cartId: string;
   productId: string;
   title: string;
-  category: "akwarela" | "rysunek" | "custom_portrait";
+  category: string;
   purchaseType: "original" | "print";
   price: number;
   quantity: number;

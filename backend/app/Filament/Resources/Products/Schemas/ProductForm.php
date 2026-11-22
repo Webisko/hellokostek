@@ -64,35 +64,52 @@ class ProductForm
                                             ->label('Kategoria (akwarela / rysunek)')
                                             ->relationship(titleAttribute: 'name')
                                             ->preload()
-                                            ->native(false),
+                                            ->native(false)
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->label('Nazwa kategorii')
+                                                    ->placeholder('np. Pastel')
+                                                    ->required()
+                                                    ->maxLength(255),
+                                            ])
+                                            ->createOptionModalHeading('Dodaj nową kategorię')
+                                            ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową kategorię'))
+                                            ->createOptionUsing(fn (array $data): int => \App\Models\ProductCategory::createQuickByName((string) $data['name'])->getKey()),
                                         TextInput::make('metadata.year')
                                             ->label('Rok powstania')
                                             ->placeholder('np. 2024')
                                             ->default((string) date('Y'))
                                             ->maxLength(16),
-                                        TextInput::make('metadata.technique')
+                                        Select::make('metadata.technique')
                                             ->label('Technika wykonania')
-                                            ->placeholder('np. Akwarela na papierze bawełnianym')
-                                            ->datalist([
-                                                'Akwarela na papierze bawełnianym',
-                                                'Rysunek ołówkiem i cienkopisem',
-                                                'Ołówek na papierze',
-                                                'Cienkopis na papierze',
-                                                'Olej na płótnie',
-                                                'Akryl na płótnie',
+                                            ->placeholder('Wybierz technikę wykonania')
+                                            ->options(fn ($state): array => app(StoreSettings::class)->artworkTechniqueOptions(is_string($state) ? $state : null))
+                                            ->native(false)
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->label('Nazwa techniki')
+                                                    ->placeholder('np. Pastel suchy na papierze')
+                                                    ->required()
+                                                    ->maxLength(255),
                                             ])
-                                            ->maxLength(255),
-                                        TextInput::make('metadata.format')
+                                            ->createOptionModalHeading('Dodaj nową technikę')
+                                            ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową technikę do listy'))
+                                            ->createOptionUsing(fn (array $data): string => app(StoreSettings::class)->addArtworkTechnique((string) $data['name'])),
+                                        Select::make('metadata.format')
                                             ->label('Format / wymiary')
-                                            ->placeholder('np. A4 (21 x 29,7 cm)')
-                                            ->datalist([
-                                                'A4 (21 x 29,7 cm)',
-                                                'A3 (29,7 x 42 cm)',
-                                                '30x40 cm',
-                                                '40x50 cm',
-                                                '50x70 cm',
+                                            ->placeholder('Wybierz format')
+                                            ->options(fn ($state): array => app(StoreSettings::class)->artworkFormatOptions(is_string($state) ? $state : null))
+                                            ->native(false)
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->label('Format / wymiary')
+                                                    ->placeholder('np. 60x80 cm')
+                                                    ->required()
+                                                    ->maxLength(100),
                                             ])
-                                            ->maxLength(100),
+                                            ->createOptionModalHeading('Dodaj nowy format')
+                                            ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nowy format do listy'))
+                                            ->createOptionUsing(fn (array $data): string => app(StoreSettings::class)->addArtworkFormat((string) $data['name'])),
                                         TextInput::make('slug')
                                             ->label('Adres URL (slug)')
                                             ->required(fn (): bool => (bool) auth()->user()?->isAdmin())

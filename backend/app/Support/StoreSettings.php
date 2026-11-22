@@ -714,4 +714,175 @@ class StoreSettings
             ['resource' => 'FailedJobResource', 'label' => 'Nieudane zadania', 'group' => 'Ustawienia', 'sort_order' => 100, 'visible' => false],
         ];
     }
+
+    public const DEFAULT_ARTWORK_TECHNIQUES = [
+        'Olej na płótnie',
+        'Olej na płótnie owalnym',
+        'Akryl na płótnie',
+        'Akwarela na papierze bawełnianym',
+        'Rysunek ołówkiem na papierze',
+        'Cienkopisy i akwarela na papierze',
+        'Suchy pastel i ołówek na papierze',
+    ];
+
+    public const DEFAULT_ARTWORK_FORMATS = [
+        '30x40 cm',
+        '40x50 cm',
+        '50x70 cm',
+        'A4',
+        'A4 (21 x 29,7 cm)',
+        'A3 (29,7 x 42 cm)',
+    ];
+
+    /**
+     * @return list<string>
+     */
+    public function artworkTechniques(): array
+    {
+        $stored = data_get($this->model()->metadata, 'artwork_techniques');
+        if (is_array($stored)) {
+            return self::normalizeDictionaryList($stored);
+        }
+
+        $items = self::DEFAULT_ARTWORK_TECHNIQUES;
+        try {
+            $galleryValues = \App\Models\GalleryArtwork::query()
+                ->whereNotNull('technique')
+                ->where('technique', '!=', '')
+                ->distinct()
+                ->pluck('technique')
+                ->all();
+            $productValues = \App\Models\Product::query()
+                ->get(['metadata'])
+                ->map(fn ($product): ?string => is_array($product->metadata) ? ($product->metadata['technique'] ?? null) : null)
+                ->filter()
+                ->all();
+            $items = array_merge($items, $galleryValues, $productValues);
+        } catch (\Throwable $e) {
+            // Early boot or migrations not yet executed: fall back to defaults.
+        }
+
+        return self::normalizeDictionaryList($items);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function artworkFormats(): array
+    {
+        $stored = data_get($this->model()->metadata, 'artwork_formats');
+        if (is_array($stored)) {
+            return self::normalizeDictionaryList($stored);
+        }
+
+        $items = self::DEFAULT_ARTWORK_FORMATS;
+        try {
+            $galleryValues = \App\Models\GalleryArtwork::query()
+                ->whereNotNull('format')
+                ->where('format', '!=', '')
+                ->distinct()
+                ->pluck('format')
+                ->all();
+            $productValues = \App\Models\Product::query()
+                ->get(['metadata'])
+                ->map(fn ($product): ?string => is_array($product->metadata) ? ($product->metadata['format'] ?? null) : null)
+                ->filter()
+                ->all();
+            $items = array_merge($items, $galleryValues, $productValues);
+        } catch (\Throwable $e) {
+            // Early boot or migrations not yet executed: fall back to defaults.
+        }
+
+        return self::normalizeDictionaryList($items);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function artworkTechniqueOptions(?string $currentValue = null): array
+    {
+        return self::optionsMapWithCurrent($this->artworkTechniques(), $currentValue);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function artworkFormatOptions(?string $currentValue = null): array
+    {
+        return self::optionsMapWithCurrent($this->artworkFormats(), $currentValue);
+    }
+
+    public function addArtworkTechnique(string $value): string
+    {
+        return $this->appendDictionaryEntry('artwork_techniques', $this->artworkTechniques(), $value);
+    }
+
+    public function addArtworkFormat(string $value): string
+    {
+        return $this->appendDictionaryEntry('artwork_formats', $this->artworkFormats(), $value);
+    }
+
+    /**
+     * @param  array<mixed>  $items
+     * @return list<string>
+     */
+    public static function normalizeDictionaryList(array $items): array
+    {
+        $normalized = [];
+        foreach ($items as $item) {
+            if (! is_scalar($item)) {
+                continue;
+            }
+            $value = trim((string) $item);
+            if ($value === '' || in_array($value, $normalized, true)) {
+                continue;
+            }
+            $normalized[] = $value;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param  list<string>  $items
+     * @return array<string, string>
+     */
+    private static function optionsMapWithCurrent(array $items, ?string $currentValue): array
+    {
+        $current = trim((string) $currentValue);
+        if ($current !== '' && ! in_array($current, $items, true)) {
+            $items[] = $current;
+        }
+
+        return array_combine($items, $items);
+    }
+
+    /**
+     * @param  list<string>  $existingItems
+     */
+    private function appendDictionaryEntry(string $metadataKey, array $existingItems, string $value): string
+    {
+        $clean = trim($value);
+        if ($clean === '') {
+            return '';
+        }
+
+        if (! in_array($clean, $existingItems, true)) {
+            $existingItems[] = $clean;
+        }
+
+        $record = StoreSetting::query()->first() ?? $this->model();
+        if (! $record->exists) {
+            $record = StoreSetting::query()->create($this->defaults());
+        }
+
+        $metadata = is_array($record->metadata) ? $record->metadata : [];
+        $metadata[$metadataKey] = self::normalizeDictionaryList($existingItems);
+        $record->metadata = $metadata;
+        $record->save();
+
+        $this->purgeCache();
+
+        return $clean;
+    }
 }
