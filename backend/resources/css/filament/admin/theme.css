@@ -373,7 +373,10 @@ body.fi-body.fi-panel-admin > div:has(.fi-layout) {
     box-shadow: var(--shop-shadow);
 }
 
-.fi-panel-admin .fi-section,
+.fi-panel-admin .fi-section {
+    overflow: visible;
+}
+
 .fi-panel-admin .fi-wi-widget,
 .fi-panel-admin .fi-in-card {
     overflow: hidden;
@@ -1523,30 +1526,67 @@ body.fi-body.fi-panel-admin > div:has(.fi-layout) {
 }
 
 /* Clean flat styling for nested sections inside tabs to avoid "box-in-a-box" visual clutter */
-[role="tabpanel"] .fi-section {
+.fi-panel-admin [role="tabpanel"] {
+    overflow: visible !important;
+}
+
+.fi-panel-admin [role="tabpanel"] .fi-section:not(.fi-collapsible) {
     background-color: transparent !important;
     background: transparent !important;
     border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
     box-shadow: none !important;
     --tw-ring-color: transparent !important;
     --tw-ring-shadow: none !important;
     --tw-shadow: none !important;
     padding: 0 !important;
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 1.75rem !important;
 }
 
-[role="tabpanel"] .fi-section-header {
-    padding-inline: 0 !important;
-    padding-top: 0 !important;
+.fi-panel-admin [role="tabpanel"] .fi-section:not(.fi-collapsible) > .fi-section-header {
+    padding: 0 !important;
     border-bottom: none !important;
+    margin-bottom: 1rem !important;
+}
+
+.fi-panel-admin [role="tabpanel"] .fi-section:not(.fi-collapsible) > .fi-section-content-ctn {
+    border-top: none !important;
+    padding: 0 !important;
+}
+
+.fi-panel-admin [role="tabpanel"] .fi-section:not(.fi-collapsible) > .fi-section-content-ctn > .fi-section-content {
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+/* Collapsible accordion sections inside tabs */
+.fi-panel-admin [role="tabpanel"] .fi-section.fi-collapsible {
+    background: var(--shop-surface-soft) !important;
+    border: 1px solid var(--shop-border) !important;
+    border-radius: var(--shop-radius) !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-shadow: none !important;
+    --tw-shadow: none !important;
     margin-bottom: 0.75rem !important;
 }
 
-[role="tabpanel"] .fi-section-content-ctn,
-[role="tabpanel"] .fi-section-content {
-    padding-inline: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0.75rem !important;
+.fi-panel-admin [role="tabpanel"] .fi-section.fi-collapsible > .fi-section-header {
+    padding: 0.875rem 1.25rem !important;
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+
+.fi-panel-admin [role="tabpanel"] .fi-section.fi-collapsible > .fi-section-content-ctn {
+    border-top: 1px solid var(--shop-border) !important;
+    padding: 0 !important;
+}
+
+.fi-panel-admin [role="tabpanel"] .fi-section.fi-collapsible > .fi-section-content-ctn > .fi-section-content {
+    padding: 1.25rem !important;
+    overflow: visible !important;
 }
 
 /* Collapsed state item centering & reset */

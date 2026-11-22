@@ -38,7 +38,6 @@ class AdminPanelProvider extends PanelProvider
             ->passwordResetRouteSlug('reset')
             ->darkMode()
             ->defaultThemeMode(ThemeMode::Light)
-            ->favicon(asset('favicon.ico'))
             ->homeUrl(fn (): string => StoreDashboard::getUrl())
             ->renderHook(
                 PanelsRenderHook::STYLES_AFTER,
@@ -64,7 +63,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->brandName(fn (): string => app(\App\Support\StoreSettings::class)->adminBrandName())
             ->brandLogo(fn (): ?string => app(\App\Support\StoreSettings::class)->adminLogoUrl())
-            ->favicon(fn (): ?string => app(\App\Support\StoreSettings::class)->adminFaviconUrl())
+            ->favicon(fn (): ?string => app(\App\Support\StoreSettings::class)->adminFaviconUrl() ?: asset('favicon.ico'))
             ->maxContentWidth('full')
             ->breadcrumbs(false)
             ->unsavedChangesAlerts()

@@ -40,6 +40,7 @@ class StoreSettingForm
                                         ->schema([
                                             FileUpload::make('metadata.admin_logo_path')
                                                 ->label('Logo w panelu')
+                                                ->helperText('Opcjonalnie. Gdy puste, w lewym górnym rogu wyświetla się nazwa tekstowa.')
                                                 ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
@@ -48,6 +49,7 @@ class StoreSettingForm
                                                 ->extraAttributes(['class' => 'fi-settings-upload']),
                                             FileUpload::make('metadata.admin_favicon_path')
                                                 ->label('Favicon panelu')
+                                                ->helperText('Opcjonalnie. Gdy puste, używana jest domyślna ikona serwera (favicon.ico).')
                                                 ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
@@ -56,6 +58,7 @@ class StoreSettingForm
                                                 ->extraAttributes(['class' => 'fi-settings-upload']),
                                             FileUpload::make('metadata.admin_login_background_path')
                                                 ->label('Tło ekranu logowania')
+                                                ->helperText('Opcjonalnie. Tło graficzne wyświetlane na ekranie logowania.')
                                                 ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
