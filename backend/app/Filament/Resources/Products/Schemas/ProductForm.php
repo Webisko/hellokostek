@@ -98,10 +98,14 @@ class ProductForm
                                             ->label('Adres URL (slug)')
                                             ->required()
                                             ->maxLength(255)
+                                            ->hidden(fn (string $operation): bool => $operation === 'edit' && ! auth()->user()?->isAdmin())
+                                            ->dehydrated()
                                             ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                                         TextInput::make('sku')
                                             ->label('Kod bazowy SKU')
                                             ->placeholder('Generowany automatycznie z nazwy')
+                                            ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
+                                            ->dehydrated()
                                             ->maxLength(255)
                                             ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                                         Textarea::make('description')
@@ -220,6 +224,7 @@ class ProductForm
                                             ->default(true),
                                     ]),
                                 Section::make('Zaawansowane ustawienia księgowe')
+                                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                     ->collapsible()
                                     ->collapsed()
                                     ->columns(2)
@@ -307,6 +312,7 @@ class ProductForm
                                             ->rows(3),
                                         Toggle::make('is_noindex')
                                             ->label('Zablokuj indeksowanie tego produktu (noindex)')
+                                            ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                             ->default(false),
                                     ]),
                             ]),

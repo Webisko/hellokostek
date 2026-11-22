@@ -16,6 +16,10 @@ class EditUser extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
+        if (($record->isAdmin() || $record->is_admin === true) && ! (auth()->user()?->isAdmin() || auth()->user()?->is_admin === true)) {
+            abort(403);
+        }
+
         $role = $data['role'] ?? null;
         unset($data['role']);
 

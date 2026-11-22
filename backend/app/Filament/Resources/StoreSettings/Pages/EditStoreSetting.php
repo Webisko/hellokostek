@@ -105,6 +105,19 @@ class EditStoreSetting extends EditRecord
         return $data;
     }
 
+    private const MANAGER_ALLOWED_METADATA_KEYS = [
+        'invoicing_enabled',
+        'invoice_seller_name',
+        'invoice_seller_nip',
+        'invoice_seller_address',
+        'invoice_seller_bank_account',
+        'bank_transfer_reservation_days',
+        'invoice_number_prefix',
+        'invoice_payment_days',
+        'abandoned_cart_enabled',
+        'abandoned_cart_hours_threshold',
+    ];
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         if (is_array($data['metadata'] ?? null)) {
@@ -112,6 +125,54 @@ class EditStoreSetting extends EditRecord
                 if (($data['metadata'][$key] ?? null) === '') {
                     $data['metadata'][$key] = null;
                 }
+            }
+        }
+
+        if (! auth()->user()?->isAdmin()) {
+            /** @var \App\Models\StoreSetting $record */
+            $record = $this->getRecord();
+            $existingMeta = is_array($record->metadata) ? $record->metadata : [];
+            $incomingMeta = is_array($data['metadata'] ?? null) ? $data['metadata'] : [];
+
+            foreach (self::MANAGER_ALLOWED_METADATA_KEYS as $key) {
+                if (array_key_exists($key, $incomingMeta)) {
+                    $existingMeta[$key] = $incomingMeta[$key];
+                }
+            }
+            $data['metadata'] = $existingMeta;
+
+            $existingMethods = array_values(is_array($record->shipping_methods) ? $record->shipping_methods : []);
+            $incomingMethods = array_values(is_array($data['shipping_methods'] ?? null) ? $data['shipping_methods'] : []);
+            foreach ($existingMethods as $index => $existingMethod) {
+                if (isset($incomingMethods[$index]) && is_array($incomingMethods[$index])) {
+                    if (isset($incomingMethods[$index]['name'])) {
+                        $existingMethods[$index]['name'] = $incomingMethods[$index]['name'];
+                    }
+                    if (array_key_exists('amount', $incomingMethods[$index]) && $incomingMethods[$index]['amount'] !== null) {
+                        $existingMethods[$index]['amount'] = (int) $incomingMethods[$index]['amount'];
+                    }
+                }
+            }
+            $data['shipping_methods'] = $existingMethods;
+
+            $protectedTopLevelKeys = [
+                'currency',
+                'allow_guest_checkout',
+                'shipping_zones',
+                'google_tag_manager_id',
+                'google_analytics_id',
+                'facebook_pixel_id',
+                'cookie_banner_enabled',
+                'cookie_banner_title',
+                'cookie_banner_description',
+                'seo',
+                'custom_head_scripts',
+                'global_noindex',
+                'mail_from_name',
+                'mail_from_address',
+            ];
+            foreach ($protectedTopLevelKeys as $field) {
+                $data[$field] = $record->{$field};
             }
         }
 

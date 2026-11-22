@@ -17,12 +17,14 @@ class CustomUpdatePassword extends UpdatePassword
                     ->required()
                     ->password()
                     ->revealable()
+                    ->autocomplete('current-password')
                     ->rule('current_password')
                     ->visible(filament('filament-breezy')->getPasswordUpdateRequiresCurrent()),
                 TextInput::make('new_password')
                     ->label(__('filament-breezy::default.fields.new_password'))
                     ->password()
                     ->revealable()
+                    ->autocomplete('new-password')
                     ->helperText('Minimum 8 znaków.')
                     ->rules(filament('filament-breezy')->getPasswordUpdateRules())
                     ->required(),
@@ -30,6 +32,7 @@ class CustomUpdatePassword extends UpdatePassword
                     ->label(__('filament-breezy::default.fields.new_password_confirmation'))
                     ->password()
                     ->revealable()
+                    ->autocomplete('new-password')
                     ->same('new_password')
                     ->required(),
             ])

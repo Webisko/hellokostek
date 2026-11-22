@@ -31,6 +31,11 @@ class OperationsHealth extends Page
 
     protected string $view = 'filament.pages.operations-health';
 
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
     /**
      * @return array<int, array{label: string, value: int, description: string, context: string, url: string, tone: string}>
      */

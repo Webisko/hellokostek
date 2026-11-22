@@ -289,4 +289,138 @@ class CmsAuditFixesTest extends TestCase
 
         $this->assertSame('hellokostek-test-save', $settings->fresh()->store_name);
     }
+
+    public function test_manager_cannot_edit_or_delete_admin_user_and_sees_users_list(): void
+    {
+        $admin = $this->createAdmin();
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+        $employee = User::factory()->create([
+            'role' => UserRole::Employee,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        // Polityki UserPolicy
+        $policy = new \App\Policies\UserPolicy();
+        $this->assertTrue($policy->viewAny($manager));
+        $this->assertTrue($policy->view($manager, $admin));
+        $this->assertFalse($policy->update($manager, $admin));
+        $this->assertFalse($policy->delete($manager, $admin));
+        $this->assertFalse($policy->restore($manager, $admin));
+        $this->assertFalse($policy->forceDelete($manager, $admin));
+        $this->assertTrue($policy->update($manager, $employee));
+        $this->assertTrue($policy->delete($manager, $employee));
+        $this->assertTrue($policy->update($admin, $manager));
+
+        // Menedżer widzi listę użytkowników (w tym konto Admina), ale dostaje 403 przy próbie edycji Admina
+        $this->actingAs($manager)->get('/admin/uzytkownicy')
+            ->assertOk()
+            ->assertSee($admin->email);
+
+        $this->actingAs($manager)->get("/admin/uzytkownicy/{$admin->id}/edycja")
+            ->assertForbidden();
+    }
+
+    public function test_manager_cannot_access_operations_health_or_sidebar_sort(): void
+    {
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $this->actingAs($manager)->get('/admin/status-systemu')->assertForbidden();
+        $this->actingAs($manager)->postJson(route('admin.sidebar.save-order'), [
+            'groups' => ['Sprzedaż & zapytania'],
+        ])->assertForbidden();
+    }
+
+    public function test_manager_settings_ui_hides_technical_fields_and_preserves_protected_values_on_save(): void
+    {
+        $settings = app(\App\Support\StoreSettings::class)->model();
+        $meta = $settings->metadata ?? [];
+        $meta['stripe_secret'] = 'sk_test_protected_123';
+        $meta['admin_logo_path'] = 'branding/admin-logo.png';
+        $settings->forceFill([
+            'store_name' => 'hellokostek',
+            'free_shipping_threshold' => 20000,
+            'shipping_methods' => [
+                ['code' => 'flat_rate:courier', 'name' => 'Kurier', 'amount' => 1750, 'supports_cod' => false, 'requires_delivery_point' => false],
+            ],
+            'metadata' => $meta,
+        ])->save();
+        app(\App\Support\StoreSettings::class)->purgeCache();
+
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($manager)->get('/admin/ustawienia');
+        $response->assertOk();
+        $response->assertSee('Pasek ogłoszeń sklepu');
+        $response->assertSee('Próg darmowej dostawy dla wydruków (PLN)');
+        $response->assertSee('Tryb konserwacji');
+        $response->assertSee('Odzyskiwanie porzuconych koszyków');
+        $response->assertDontSee('Kod techniczny metody');
+        $response->assertDontSee('Zaawansowane ustawienia techniczne');
+        $response->assertDontSee('Klucz prywatny Stripe');
+
+        \Livewire\Livewire::actingAs($manager)
+            ->test(\App\Filament\Resources\StoreSettings\Pages\EditStoreSetting::class, [
+                'record' => $settings->getRouteKey(),
+            ])
+            ->set('data.free_shipping_threshold', 300)
+            ->set('data.announcement_enabled', true)
+            ->set('data.announcement_text', 'Nowa promocja')
+            ->set('data.metadata.stripe_secret', 'HACKED')
+            ->set('data.metadata.admin_logo_path', null)
+            ->callAction('save')
+            ->assertNotified('Ustawienia zostały zapisane');
+
+        $fresh = $settings->fresh();
+        $this->assertSame(30000, $fresh->free_shipping_threshold);
+        $this->assertTrue((bool) $fresh->announcement_enabled);
+        $this->assertSame('Nowa promocja', $fresh->announcement_text);
+        $this->assertSame('sk_test_protected_123', $fresh->metadata['stripe_secret']);
+        $this->assertSame('branding/admin-logo.png', $fresh->metadata['admin_logo_path']);
+        $this->assertSame('flat_rate:courier', $fresh->shipping_methods[0]['code']);
+    }
+
+    public function test_manager_can_update_product_and_page_without_losing_hidden_slug_or_anchors(): void
+    {
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+            'is_admin' => false,
+            'email_verified_at' => now(),
+        ]);
+
+        $page = \App\Models\ContentPage::create([
+            'title' => 'Regulamin test',
+            'slug' => 'regulamin-test',
+            'template' => 'legal',
+            'is_active' => true,
+            'metadata' => [
+                'sections' => [
+                    ['label' => '§ 1. Wstęp', 'id' => 'wstep-kotwica', 'content' => '<p>Treść</p>'],
+                ],
+            ],
+        ]);
+
+        $this->actingAs($manager)
+            ->get('/admin/strony-statyczne')
+            ->assertOk();
+
+        \Livewire\Livewire::actingAs($manager)
+            ->test(\App\Filament\Resources\ContentPages\Pages\ListContentPages::class)
+            ->assertTableActionExists('edit');
+
+        $this->assertSame('regulamin-test', $page->fresh()->slug);
+        $this->assertSame('wstep-kotwica', $page->fresh()->metadata['sections'][0]['id']);
+    }
 }

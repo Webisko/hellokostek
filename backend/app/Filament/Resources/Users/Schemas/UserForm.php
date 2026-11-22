@@ -35,17 +35,30 @@ class UserForm
                     ->schema([
                         Select::make('role')
                             ->label('Rola systemowa')
-                            ->options([
-                                UserRole::Admin->value => 'Administrator',
-                                UserRole::Manager->value => 'Menedżer',
-                                UserRole::Employee->value => 'Pracownik',
-                            ])
+                            ->options(function (): array {
+                                $options = [
+                                    UserRole::Manager->value => 'Menedżer',
+                                    UserRole::Employee->value => 'Pracownik',
+                                ];
+
+                                if (auth()->user()?->isAdmin()) {
+                                    $options = [UserRole::Admin->value => 'Administrator'] + $options;
+                                }
+
+                                return $options;
+                            })
                             ->required()
                             ->native(false),
                         TextInput::make('password')
                             ->label('Hasło')
                             ->password()
                             ->revealable()
+                            ->autocomplete('new-password')
+                            ->extraInputAttributes([
+                                'data-1p-ignore' => 'true',
+                                'data-lpignore' => 'true',
+                                'data-bwignore' => 'true',
+                            ])
                             ->helperText(fn (string $operation): ?string => $operation === 'edit'
                                 ? 'Pozostaw puste, aby nie zmieniać obecnego hasła.'
                                 : 'Minimum 8 znaków.')

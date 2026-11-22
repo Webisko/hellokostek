@@ -8,12 +8,12 @@ class StoreSettingPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->isManager();
     }
 
     public function view(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->isManager();
     }
 
     public function create(User $user): bool
@@ -23,7 +23,7 @@ class StoreSettingPolicy
 
     public function update(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->isManager();
     }
 
     public function delete(User $user): bool

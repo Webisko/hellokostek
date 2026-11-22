@@ -73,6 +73,7 @@ class CouponForm
                             ->required()
                             ->disabled()
                             ->dehydrated()
+                            ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                             ->helperText('Kupony obsługują wyłącznie walutę PLN.')
                             ->default(app(StoreSettings::class)->currency())
                             ->minLength(3)
@@ -102,6 +103,7 @@ class CouponForm
                             ->default(true),
                     ]),
                 Section::make('Metadane (zaawansowane)')->columnSpanFull()
+                    ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                     ->collapsible()
                     ->collapsed()
                     ->schema([

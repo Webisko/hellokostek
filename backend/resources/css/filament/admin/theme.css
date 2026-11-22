@@ -1838,8 +1838,27 @@ html.fi-sidebar-collapsed .fi-sidebar-item-icon {
     text-underline-offset: 2px;
 }
 
-.fi-panel-admin .fi-settings-upload .filepond--root {
+.fi-panel-admin .fi-settings-upload .filepond--root:not(:has(.filepond--item)) {
     min-height: 148px;
+}
+
+.fi-panel-admin .fi-settings-upload .filepond--root:has(.filepond--item) {
+    min-height: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.fi-panel-admin .fi-settings-upload .filepond--root:has(.filepond--item) .filepond--panel-root {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.fi-panel-admin .fi-settings-upload .filepond--root:has(.filepond--item) .filepond--list {
+    margin: 0 !important;
+}
+
+.fi-panel-admin .fi-settings-upload .filepond--root:has(.filepond--item) .filepond--item {
+    margin: 0 !important;
 }
 
 /* Fix Filament Breezy 2FA icons (vendor Blade uses w-6 / w-5 utilities not scanned by app Tailwind) */

@@ -40,6 +40,8 @@ class ContentPageForm
                     TextInput::make('slug')
                         ->label('Adres URL (slug)')
                         ->required()
+                        ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
+                        ->dehydrated()
                         ->maxLength(255)
                         ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                     Select::make('template')
@@ -47,6 +49,8 @@ class ContentPageForm
                         ->options(ContentPage::templateOptions())
                         ->default('default')
                         ->required()
+                        ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
+                        ->dehydrated()
                         ->live()
                         ->native(false),
                     Toggle::make('is_active')
@@ -119,6 +123,8 @@ class ContentPageForm
                             TextInput::make('id')
                                 ->label('Identyfikator kotwicy URL (id)')
                                 ->required()
+                                ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
+                                ->dehydrated()
                                 ->maxLength(100),
                             \Filament\Forms\Components\RichEditor::make('content')
                                 ->label('Treść paragrafu (edytor tekstu)')
@@ -158,6 +164,7 @@ class ContentPageForm
                         ->rows(3),
                     Toggle::make('is_noindex')
                         ->label('Ukryj przed wyszukiwarkami (noindex)')
+                        ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                         ->default(false),
                     FileUpload::make('metadata.og_image_path')
                         ->label('Obrazek udostępniania w mediach społecznościowych (og:image)')

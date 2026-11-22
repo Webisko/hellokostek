@@ -21,12 +21,12 @@ class HelloKostekSeeder extends Seeder
         $adminData = [
             'name' => 'hellokostek',
             'email' => 'admin@hellokostek.pl',
-            'is_admin' => true,
-            'role' => \App\Domain\Commerce\Enums\UserRole::Admin,
         ];
         if (! $admin->exists) {
             $password = env('ADMIN_PASSWORD') ?: Str::password(20);
             $adminData['password'] = \Illuminate\Support\Facades\Hash::make($password);
+            $adminData['is_admin'] = false;
+            $adminData['role'] = \App\Domain\Commerce\Enums\UserRole::Manager;
             if (! env('ADMIN_PASSWORD')) {
                 $this->command?->warn("Wygenerowano tymczasowe losowe hasło dla admin@hellokostek.pl (zmień przez app:make-admin-user lub panel).");
             }

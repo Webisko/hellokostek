@@ -11,7 +11,7 @@ class SidebarController extends Controller
 {
     public function saveOrder(Request $request): JsonResponse
     {
-        abort_unless(auth()->user()?->isStaff(), 403);
+        abort_unless(auth()->user()?->isAdmin(), 403);
 
         $validated = $request->validate([
             'groups' => ['sometimes', 'array', 'max:20'],

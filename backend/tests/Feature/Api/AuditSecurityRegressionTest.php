@@ -67,8 +67,15 @@ class AuditSecurityRegressionTest extends TestCase
         $this->actingAs($customer)->get(route('admin.orders.orlen-label', ['number' => $order->number]))
             ->assertStatus(403);
 
-        // Staff (allowed past authorization gate)
+        // Staff (Manager allowed on exports & shipping labels, sidebar sorting restricted to Admin)
+        $admin = User::factory()->create(['role' => UserRole::Admin, 'is_admin' => true]);
+
         $this->actingAs($staff)->postJson(route('admin.sidebar.save-order'), [
+            'groups' => ['Sprzedaż'],
+            'resources' => [['label' => 'Zamówienia', 'group' => 'Sprzedaż']],
+        ])->assertStatus(403);
+
+        $this->actingAs($admin)->postJson(route('admin.sidebar.save-order'), [
             'groups' => ['Sprzedaż'],
             'resources' => [['label' => 'Zamówienia', 'group' => 'Sprzedaż']],
         ])->assertOk();

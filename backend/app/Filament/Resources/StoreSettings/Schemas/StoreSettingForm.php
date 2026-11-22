@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\StoreSettings\Schemas;
 
-use App\Filament\Resources\StoreSettings\StoreSettingResource;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
@@ -29,6 +28,7 @@ class StoreSettingForm
                         ->schema([
                             Section::make('Identyfikacja panelu administratora')
                                 ->description('Nazwa, logotyp i oprawa graficzna ekranu logowania CMS.')
+                                ->visible(fn (): bool => self::isAdmin())
                                 ->schema([
                                     TextInput::make('metadata.admin_brand_name')
                                         ->label('Nazwa w panelu administratora')
@@ -45,7 +45,7 @@ class StoreSettingForm
                                                 ->image()
                                                 ->directory('branding')
                                                 ->visibility('public')
-                                                ->imagePreviewHeight('140')
+                                                ->imagePreviewHeight('148')
                                                 ->extraAttributes(['class' => 'fi-settings-upload']),
                                             FileUpload::make('metadata.admin_favicon_path')
                                                 ->label('Favicon panelu')
@@ -54,7 +54,7 @@ class StoreSettingForm
                                                 ->image()
                                                 ->directory('branding')
                                                 ->visibility('public')
-                                                ->imagePreviewHeight('140')
+                                                ->imagePreviewHeight('148')
                                                 ->extraAttributes(['class' => 'fi-settings-upload']),
                                             FileUpload::make('metadata.admin_login_background_path')
                                                 ->label('Tło ekranu logowania')
@@ -63,7 +63,7 @@ class StoreSettingForm
                                                 ->image()
                                                 ->directory('branding')
                                                 ->visibility('public')
-                                                ->imagePreviewHeight('140')
+                                                ->imagePreviewHeight('148')
                                                 ->extraAttributes(['class' => 'fi-settings-upload']),
                                         ]),
                                 ]),
@@ -85,18 +85,20 @@ class StoreSettingForm
                         ->visible($isEcommerce)
                         ->schema([
                             Section::make('Podstawowe ustawienia sklepu')
-                                ->description('Nazwa sklepu, waluta rozliczeń oraz tryb zakupów bez rejestracji.')
+                                ->description('Nazwa sklepu wyświetlana klientom oraz parametry techniczne koszyka.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     TextInput::make('store_name')
                                         ->label('Nazwa sklepu')
                                         ->required()
+                                        ->columnSpan(fn (): int|string => self::isAdmin() ? 1 : 'full')
                                         ->maxLength(255),
                                     TextInput::make('currency')
                                         ->label('Główna waluta')
                                         ->required()
                                         ->disabled()
                                         ->dehydrated()
+                                        ->visible(fn (): bool => self::isAdmin())
                                         ->helperText('Sklep działa wyłącznie w walucie PLN.')
                                         ->minLength(3)
                                         ->maxLength(3)
@@ -104,6 +106,7 @@ class StoreSettingForm
                                     Toggle::make('allow_guest_checkout')
                                         ->label('Zezwalaj na zakupy jako gość')
                                         ->default(true)
+                                        ->visible(fn (): bool => self::isAdmin())
                                         ->columnSpanFull(),
                                 ]),
 
@@ -192,8 +195,11 @@ class StoreSettingForm
                                     Repeater::make('shipping_methods')
                                         ->label('Metody wysyłki')
                                         ->helperText('Zarządzaj dostępnymi metodami wysyłki oraz ich cenami bazowymi.')
-                                        ->columns(['md' => 3, 'default' => 1])
+                                        ->columns(fn (): array => self::isAdmin() ? ['md' => 3, 'default' => 1] : ['md' => 2, 'default' => 1])
                                         ->collapsible()
+                                        ->addable(fn (): bool => self::isAdmin())
+                                        ->deletable(fn (): bool => self::isAdmin())
+                                        ->reorderable(fn (): bool => self::isAdmin())
                                         ->itemLabel(fn (array $state): ?string => ($state['name'] ?? null) ?: ($state['code'] ?? 'Metoda wysyłki'))
                                         ->schema([
                                             TextInput::make('name')
@@ -203,6 +209,7 @@ class StoreSettingForm
                                             TextInput::make('code')
                                                 ->label('Kod techniczny metody')
                                                 ->placeholder('np. flat_rate:courier')
+                                                ->visible(fn (): bool => self::isAdmin())
                                                 ->required(),
                                             TextInput::make('amount')
                                                 ->label('Cena bazowa (PLN)')
@@ -214,14 +221,17 @@ class StoreSettingForm
                                                 ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null),
                                             Toggle::make('supports_cod')
                                                 ->label('Płatność za pobraniem (COD)')
+                                                ->visible(fn (): bool => self::isAdmin())
                                                 ->default(false),
                                             Toggle::make('requires_delivery_point')
                                                 ->label('Wymaga punktu odbioru')
+                                                ->visible(fn (): bool => self::isAdmin())
                                                 ->default(false),
                                         ])
                                         ->columnSpanFull(),
                                     Section::make('Strefy wysyłki')
                                         ->description('Domyślna strefa wysyłki to Polska (PL). Rozwiń tylko przy obsłudze wysyłek zagranicznych.')
+                                        ->visible(fn (): bool => self::isAdmin())
                                         ->collapsible()
                                         ->collapsed()
                                         ->schema([
@@ -248,6 +258,7 @@ class StoreSettingForm
                                 ]),
 
                             Section::make('Stripe')
+                                ->visible(fn (): bool => self::isAdmin())
                                 ->description(fn (Get $get): string => self::integrationSummary(
                                     (bool) $get('metadata.stripe_enabled'),
                                     filled($get('metadata.stripe_key')) && filled($get('metadata.stripe_secret')),
@@ -266,22 +277,13 @@ class StoreSettingForm
                                         ->label('Klucz publiczny Stripe (publishable key)')
                                         ->placeholder('pk_live_...')
                                         ->maxLength(255),
-                                    TextInput::make('metadata.stripe_secret')
-                                        ->label('Klucz prywatny Stripe (secret key)')
-                                        ->placeholder('sk_live_...')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255),
-                                    TextInput::make('metadata.stripe_webhook_secret')
-                                        ->label('Sekret webhooka Stripe (webhook secret)')
-                                        ->placeholder('whsec_...')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255)
+                                    self::secretInput('metadata.stripe_secret', 'Klucz prywatny Stripe (secret key)', 'sk_live_...'),
+                                    self::secretInput('metadata.stripe_webhook_secret', 'Sekret webhooka Stripe (webhook secret)', 'whsec_...')
                                         ->columnSpanFull(),
                                 ]),
 
                             Section::make('Przelewy24 (P24)')
+                                ->visible(fn (): bool => self::isAdmin())
                                 ->description(fn (Get $get): string => self::integrationSummary(
                                     (bool) $get('metadata.przelewy24_enabled'),
                                     filled($get('metadata.przelewy24_merchant_id')) && filled($get('metadata.przelewy24_crc')),
@@ -302,16 +304,8 @@ class StoreSettingForm
                                     TextInput::make('metadata.przelewy24_pos_id')
                                         ->label('ID punktu Przelewy24 (POS ID)')
                                         ->maxLength(50),
-                                    TextInput::make('metadata.przelewy24_crc')
-                                        ->label('Klucz CRC Przelewy24')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255),
-                                    TextInput::make('metadata.przelewy24_api_key')
-                                        ->label('Klucz API Przelewy24')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255),
+                                    self::secretInput('metadata.przelewy24_crc', 'Klucz CRC Przelewy24'),
+                                    self::secretInput('metadata.przelewy24_api_key', 'Klucz API Przelewy24'),
                                     TextInput::make('metadata.przelewy24_api_base_url')
                                         ->label('Bazowy adres URL API Przelewy24')
                                         ->placeholder('https://secure.przelewy24.pl/api/v1')
@@ -320,15 +314,12 @@ class StoreSettingForm
                                         ->label('Bazowy adres URL przekierowania Przelewy24')
                                         ->placeholder('https://secure.przelewy24.pl')
                                         ->maxLength(255),
-                                    TextInput::make('metadata.przelewy24_callback_token')
-                                        ->label('Token wywołania zwrotnego Przelewy24')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255)
+                                    self::secretInput('metadata.przelewy24_callback_token', 'Token wywołania zwrotnego Przelewy24')
                                         ->columnSpanFull(),
                                 ]),
 
                             Section::make('InPost Paczkomaty i kurier')
+                                ->visible(fn (): bool => self::isAdmin())
                                 ->description(fn (Get $get): string => self::credentialsSummary(
                                     filled($get('metadata.inpost_organization_id')) && filled($get('metadata.inpost_token')),
                                     (bool) $get('metadata.inpost_sandbox'),
@@ -346,11 +337,7 @@ class StoreSettingForm
                                     TextInput::make('metadata.inpost_organization_id')
                                         ->label('ID organizacji InPost')
                                         ->maxLength(50),
-                                    TextInput::make('metadata.inpost_token')
-                                        ->label('Token API InPost')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255),
+                                    self::secretInput('metadata.inpost_token', 'Token API InPost'),
                                     Section::make('Dane nadawcy InPost')
                                         ->columns(['lg' => 2, 'default' => 1])
                                         ->columnSpanFull()
@@ -367,6 +354,7 @@ class StoreSettingForm
                                 ]),
 
                             Section::make('ORLEN Paczka')
+                                ->visible(fn (): bool => self::isAdmin())
                                 ->description(fn (Get $get): string => self::credentialsSummary(
                                     filled($get('metadata.orlen_partner_id')) && filled($get('metadata.orlen_partner_key')),
                                     (bool) $get('metadata.orlen_sandbox'),
@@ -384,11 +372,7 @@ class StoreSettingForm
                                     TextInput::make('metadata.orlen_partner_id')
                                         ->label('ID partnera ORLEN Paczka')
                                         ->maxLength(50),
-                                    TextInput::make('metadata.orlen_partner_key')
-                                        ->label('Klucz partnera ORLEN Paczka')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255),
+                                    self::secretInput('metadata.orlen_partner_key', 'Klucz partnera ORLEN Paczka'),
                                     Section::make('Dane nadawcy ORLEN Paczka')
                                         ->columns(['lg' => 2, 'default' => 1])
                                         ->columnSpanFull()
@@ -406,6 +390,7 @@ class StoreSettingForm
                         ]),
 
                     Tabs\Tab::make('SEO')
+                        ->visible(fn (): bool => self::isAdmin())
                         ->schema([
                             Section::make('Analityka i śledzenie ruchu')
                                 ->description('Klucze integracyjne dla Google Tag Manager, Google Analytics oraz Meta Pixel.')
@@ -465,15 +450,17 @@ class StoreSettingForm
                     Tabs\Tab::make('System i poczta')
                         ->schema([
                             Section::make('Poczta e-mail i powiadomienia')
-                                ->description('Dane nadawcy wiadomości wychodzących oraz adresy powiadomień ze sklepu.')
+                                ->description('Adresy e-mail do obsługi powiadomień o zamówieniach i wiadomości od klientów.')
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     TextInput::make('mail_from_name')
                                         ->label('Nazwa nadawcy e-mail')
+                                        ->visible(fn (): bool => self::isAdmin())
                                         ->maxLength(255),
                                     TextInput::make('mail_from_address')
                                         ->label('Adres nadawcy e-mail')
                                         ->email()
+                                        ->visible(fn (): bool => self::isAdmin())
                                         ->maxLength(255),
                                     TextInput::make('support_email')
                                         ->label('E-mail wsparcia')
@@ -486,6 +473,7 @@ class StoreSettingForm
                                     TextInput::make('metadata.mail_safety_redirect')
                                         ->label('Przekierowanie e-maili (tryb testowy)')
                                         ->email()
+                                        ->visible(fn (): bool => self::isAdmin())
                                         ->helperText('Jeśli podasz tutaj adres e-mail, wszystkie wiadomości wychodzące ze strony zostaną przekierowane na ten adres.')
                                         ->maxLength(255)
                                         ->columnSpanFull(),
@@ -514,6 +502,7 @@ class StoreSettingForm
 
                             Section::make('Zaawansowane ustawienia techniczne')
                                 ->description('Uwaga: zmiana ścieżki panelu, nagłówków bezpieczeństwa (CSP) lub robots.txt może zablokować dostęp do CMS lub działanie strony.')
+                                ->visible(fn (): bool => self::isAdmin())
                                 ->collapsible()
                                 ->collapsed()
                                 ->columns(['lg' => 2, 'default' => 1])
@@ -540,12 +529,7 @@ class StoreSettingForm
                                         ->placeholder("User-agent: *\nDisallow: /admin/\nSitemap: " . url('sitemap.xml'))
                                         ->rows(4)
                                         ->columnSpanFull(),
-                                    TextInput::make('metadata.resend_key')
-                                        ->label('Klucz API Resend (opcjonalny)')
-                                        ->placeholder('re_...')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255),
+                                    self::secretInput('metadata.resend_key', 'Klucz API Resend (opcjonalny)', 're_...'),
                                     TextInput::make('metadata.newsletter_webhook_url')
                                         ->label('Adres URL webhooka newslettera')
                                         ->url()
@@ -555,6 +539,32 @@ class StoreSettingForm
                         ]),
                 ]),
         ]);
+    }
+
+    private static function isAdmin(): bool
+    {
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    private static function secretInput(string $name, string $label, ?string $placeholder = null): TextInput
+    {
+        $field = TextInput::make($name)
+            ->label($label)
+            ->password()
+            ->revealable()
+            ->autocomplete('new-password')
+            ->extraInputAttributes([
+                'data-1p-ignore' => 'true',
+                'data-lpignore' => 'true',
+                'data-bwignore' => 'true',
+            ])
+            ->maxLength(255);
+
+        if ($placeholder !== null) {
+            $field->placeholder($placeholder);
+        }
+
+        return $field;
     }
 
     private static function integrationSummary(bool $enabled, bool $configured, string $label): string
