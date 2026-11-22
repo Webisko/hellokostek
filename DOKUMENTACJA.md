@@ -164,6 +164,11 @@ W pliku `backend/routes/console.php` zdefiniowano zadania cron (wszystkie z flag
 
 ## 11. Dziennik zmian (Changelog)
 
+### 22 listopada 2026 r. – Ujednolicenie zapisu `hellokostek` oraz branding panelu CMS (monogram HK)
+* **Spójny zapis nazwy `hellokostek`:** Zastąpiono dawne wystąpienia `Hello Kostek` zapisem `hellokostek` w konfiguracji (`backend/config/shop.php`), transporcie mailowym (`NativePhpMailTransport.php`), nagłówku maila zapytań (`new-inquiry-admin.blade.php`), seederze (`HelloKostekSeeder.php`) oraz w produkcyjnych metadanych SEO (`seo_title`, `seo_description`, `excerpt`), ustawieniach i profilu administratora (bez ingerencji w ceny, stany i treści produktów).
+* **Logo i favicon panelu CMS:** Dodano komponent lockupu [brand-logo.blade.php](file:///d:/Projekty/_KLIENCI/Hello%20Kostek/hello-kostek-dev/backend/resources/views/filament/components/brand-logo.blade.php) wyświetlający monogram HK (`admin-logo.png` identyczny z faviconem strony głównej) obok napisu `hellokostek CMS`, z obsługą trybu ciemnego (`.dark .fi-brand-logo-img { filter: invert(1); }`) i zwiniętego paska bocznego (`html.fi-sidebar-collapsed`). Podpięto także `admin-favicon.png` z fallbackiem na `favicon.ico`.
+* **Weryfikacja:** `php artisan test`: **156 passed (890 assertions)**, budowa Vite `theme-QVHoSuyC.css`, weryfikacja w przeglądarce (`127.0.0.1:8017`).
+
 ### 22 listopada 2026 r. – Kompleksowe poprawki UX, wizualne i funkcjonalne panelu Filament CMS
 * **Ustawienia sklepu (`/admin/ustawienia`) i arkusz stylów `theme.css`:**
   * Naprawiono zepsute style FilePond w `theme.css` (usunięto `inline-flex` sklejający napis „lubwybierzpliki” oraz `height: 100% !important` zgniatający pole „Tło ekranu logowania”), ustawiając równą wysokość `148px` dla 3 kolumn uploadu w zakładce **Wygląd** oraz zaktualizowano pasek ogłoszeń (placeholder `200 zł`).

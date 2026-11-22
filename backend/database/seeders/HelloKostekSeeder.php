@@ -19,7 +19,7 @@ class HelloKostekSeeder extends Seeder
         // 0. ADMIN USER
         $admin = \App\Models\User::query()->where('email', 'admin@hellokostek.pl')->firstOrNew();
         $adminData = [
-            'name' => 'Hello Kostek Admin',
+            'name' => 'hellokostek',
             'email' => 'admin@hellokostek.pl',
             'is_admin' => true,
             'role' => \App\Domain\Commerce\Enums\UserRole::Admin,
@@ -40,7 +40,7 @@ class HelloKostekSeeder extends Seeder
                 'admin_notification_email' => $settings->admin_notification_email ?: 'kontakt@hellokostek.pl',
                 'order_notification_email' => $settings->order_notification_email ?: 'kontakt@hellokostek.pl',
                 'mail_from_address' => $settings->mail_from_address ?: 'kontakt@hellokostek.pl',
-                'mail_from_name' => $settings->mail_from_name ?: 'Hello Kostek',
+                'mail_from_name' => $settings->mail_from_name ?: 'hellokostek',
             ])->save();
         }
 
@@ -79,7 +79,7 @@ class HelloKostekSeeder extends Seeder
                 [
                     'name' => $cat['name'],
                     'description' => $cat['description'],
-                    'seo_title' => $cat['name'] . ' | Hello Kostek',
+                    'seo_title' => $cat['name'] . ' | hellokostek',
                     'seo_description' => $cat['description'],
                     'sort_order' => $cat['sort_order'],
                     'is_active' => true,
@@ -254,7 +254,7 @@ class HelloKostekSeeder extends Seeder
                     'is_active' => true,
                     'is_visible' => true,
                     'is_purchasable' => true,
-                    'seo_title' => $prod['title'] . ' - Hello Kostek',
+                    'seo_title' => $prod['title'] . ' - hellokostek',
                     'seo_description' => Str::limit($prod['description'], 150),
                     'published_at' => now()->subDays(10),
                     'metadata' => [
@@ -386,10 +386,10 @@ class HelloKostekSeeder extends Seeder
             ['slug' => 'regulamin'],
             [
                 'title' => 'Regulamin sklepu',
-                'excerpt' => 'Zasady korzystania ze sklepu Hello Kostek, składania zamówień oraz prawa konsumenta.',
+                'excerpt' => 'Zasady korzystania ze sklepu hellokostek, składania zamówień oraz prawa konsumenta.',
                 'template' => 'legal',
-                'seo_title' => 'Regulamin sklepu | Hello Kostek',
-                'seo_description' => 'Oficjalny regulamin sklepu internetowego Hello Kostek. Zasady sprzedaży obrazów i dzieł sztuki.',
+                'seo_title' => 'Regulamin sklepu | hellokostek',
+                'seo_description' => 'Oficjalny regulamin sklepu internetowego hellokostek. Zasady sprzedaży obrazów i dzieł sztuki.',
                 'is_active' => true,
                 'published_at' => now(),
                 'metadata' => [
@@ -455,8 +455,8 @@ class HelloKostekSeeder extends Seeder
                 'title' => 'Polityka prywatności i cookies',
                 'excerpt' => 'Zasady przetwarzania danych osobowych (RODO) oraz wykorzystywania plików cookies.',
                 'template' => 'legal',
-                'seo_title' => 'Polityka prywatności | Hello Kostek',
-                'seo_description' => 'Informacje o przetwarzaniu danych osobowych (RODO) oraz polityce plików cookies sklepu Hello Kostek.',
+                'seo_title' => 'Polityka prywatności | hellokostek',
+                'seo_description' => 'Informacje o przetwarzaniu danych osobowych (RODO) oraz polityce plików cookies sklepu hellokostek.',
                 'is_active' => true,
                 'published_at' => now(),
                 'metadata' => [
@@ -509,8 +509,8 @@ class HelloKostekSeeder extends Seeder
                 'content' => "Ukończyłem Państwową Wyższą Szkołę Teatralną w Krakowie na Wydziale Teatru Tańca w Bytomiu oraz kulturoznawstwo na Uniwersytecie Śląskim w Katowicach. Byłem stypendystą Roberta Wilsona w Watermill Center w Nowym Jorku (International Summer Program). Pracowałem w Teatrze Tańca i Ruchu Rozbark, brałem udział w projekcie „Ksenofonia Symfonia dla Innego” w ramach Festiwalu Malta oraz współtworzyłem spektakl „A co gdyby” na rezydencji Gdańskiego Festiwalu Tańca. Od lat współpracuję z Teatrem w Ruchu, grając w spektaklach dla dzieci w całym kraju. Mam też za sobą doświadczenie pracy w korporacji.\n\nRównolegle rozwijam się jako malarz, grafik i twórca rękodzieła – od 2023 roku prowadzę własną działalność: hellokostek, tworząc obrazy olejne na zamówienie oraz ucząc aktorstwa i rysunku. Od 2020 roku doskonalę warsztat pod okiem Pauliny Kwietniewskiej (malarstwo) i Macieja Kusa (rzeźba).\n\nWystawy indywidualne: „SIEWIERZ-513W13R2”, 2017, Hotel Natura Residence, Siewierz; „Rogue Planet”, 2022, Klubokawiarnia KIPISZ, Łódź.\n\nWystawy zbiorowe: „Spotkanie na czerwonej kanapie - jak rzeźba wrocławska czuje się w Łodzi”, 2025, OFF Piotrkowska, Łódź.\n\nMoje prace są dostępne w galerii Two Of Art w Amsterdamie oraz na aukcjach organizowanych przez galerię Pragaleria w Warszawie.",
                 'hero_image_path' => 'content-pages/o_mnie_nowe.webp',
                 'template' => 'about',
-                'seo_title' => 'O mnie | Hello Kostek',
-                'seo_description' => 'Poznaj moją pracownię artystyczną Hello Kostek. Tradycyjne malarstwo olejne, akrylowe, akwarele i rysunki tworzone z pasją.',
+                'seo_title' => 'O mnie | hellokostek',
+                'seo_description' => 'Poznaj moją pracownię artystyczną hellokostek. Tradycyjne malarstwo olejne, akrylowe, akwarele i rysunki tworzone z pasją.',
                 'is_active' => true,
                 'published_at' => now(),
                 'metadata' => [

@@ -2,7 +2,7 @@
 
 return [
     'store' => [
-        'name' => env('APP_NAME', 'Hello Kostek'),
+        'name' => env('APP_NAME', 'hellokostek'),
         'currency' => 'PLN',
         'free_shipping_threshold' => 20000, // 200.00 PLN
     ],

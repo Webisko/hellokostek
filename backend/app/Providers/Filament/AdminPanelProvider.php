@@ -62,7 +62,16 @@ class AdminPanelProvider extends PanelProvider
                 provider: \Filament\FontProviders\LocalFontProvider::class,
             )
             ->brandName(fn (): string => app(\App\Support\StoreSettings::class)->adminBrandName())
-            ->brandLogo(fn (): ?string => app(\App\Support\StoreSettings::class)->adminLogoUrl())
+            ->brandLogo(function (): \Illuminate\Contracts\Support\Htmlable {
+                $settings = app(\App\Support\StoreSettings::class);
+
+                return new \Illuminate\Support\HtmlString(
+                    view('filament.components.brand-logo', [
+                        'logoUrl' => $settings->adminLogoUrl(),
+                        'brandName' => $settings->adminBrandName(),
+                    ])->render()
+                );
+            })
             ->favicon(fn (): ?string => app(\App\Support\StoreSettings::class)->adminFaviconUrl() ?: asset('favicon.ico'))
             ->maxContentWidth('full')
             ->breadcrumbs(false)

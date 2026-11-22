@@ -242,4 +242,28 @@ class CmsAuditFixesTest extends TestCase
         $this->assertSame('1', ContactInquiryResource::getNavigationBadge());
         $this->assertSame('danger', ContactInquiryResource::getNavigationBadgeColor());
     }
+
+    public function test_admin_panel_renders_brand_logo_lockup_and_lowercase_brand_defaults(): void
+    {
+        $settings = app(\App\Support\StoreSettings::class)->model();
+        $meta = $settings->metadata ?? [];
+        $meta['admin_brand_name'] = 'hellokostek CMS';
+        $meta['admin_logo_path'] = 'branding/admin-logo.png';
+        $meta['admin_favicon_path'] = 'branding/admin-favicon.png';
+        $settings->forceFill(['metadata' => $meta])->save();
+        app(\App\Support\StoreSettings::class)->purgeCache();
+
+        $admin = $this->createAdmin();
+        $response = $this->actingAs($admin)->get('/admin/moj-profil');
+
+        $response->assertOk();
+        $response->assertSee('fi-brand-lockup');
+        $response->assertSee('branding/admin-logo.png');
+        $response->assertSee('branding/admin-favicon.png');
+        $response->assertSee('hellokostek CMS');
+
+        $shopConfigRaw = file_get_contents(base_path('config/shop.php'));
+        $this->assertStringContainsString("env('APP_NAME', 'hellokostek')", (string) $shopConfigRaw);
+        $this->assertStringNotContainsString('Hello Kostek', (string) $shopConfigRaw);
+    }
 }

@@ -50,7 +50,7 @@ class NativePhpMailTransport extends AbstractTransport
         } else {
             $recipient = $message->getEnvelope()->getRecipients()[0]?->getAddress();
             if ($recipient) {
-                @mail($recipient, 'Hello Kostek Notification', $original->toString());
+                @mail($recipient, 'Powiadomienie hellokostek', $original->toString());
             }
         }
     }

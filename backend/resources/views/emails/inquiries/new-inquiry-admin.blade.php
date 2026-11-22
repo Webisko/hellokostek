@@ -143,7 +143,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>hellokostek — Nowe Zapytanie o Portret</h1>
+            <h1>hellokostek — Nowe zapytanie o portret</h1>
             <p>Formularz wyceny i kontaktu ze strony hellokostek.pl</p>
         </div>
 

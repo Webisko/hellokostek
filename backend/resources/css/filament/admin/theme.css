@@ -219,6 +219,44 @@ body.fi-body.fi-panel-admin > div:has(.fi-layout) {
     letter-spacing: 0.04em;
 }
 
+.fi-panel-admin .fi-brand-lockup,
+.fi-simple-page .fi-brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+}
+
+.fi-panel-admin .fi-brand-logo-img,
+.fi-simple-page .fi-brand-logo-img {
+    width: 1.625rem;
+    height: 1.625rem;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 4px;
+}
+
+.dark .fi-panel-admin .fi-brand-logo-img,
+.dark .fi-simple-page .fi-brand-logo-img {
+    filter: invert(1);
+}
+
+.fi-panel-admin .fi-brand-name,
+.fi-simple-page .fi-brand-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+html.fi-sidebar-collapsed .fi-panel-admin .fi-sidebar-header {
+    justify-content: center !important;
+    padding-inline: 0.5rem !important;
+}
+
+html.fi-sidebar-collapsed .fi-panel-admin .fi-brand-name {
+    display: none !important;
+}
+
 .fi-panel-admin .fi-sidebar-nav-groups {
     gap: 0.75rem !important;
 }
