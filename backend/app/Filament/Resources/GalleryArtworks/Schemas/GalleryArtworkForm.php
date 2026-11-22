@@ -21,9 +21,10 @@ class GalleryArtworkForm
                 ->columnSpanFull()
                 ->columns(['default' => 1, 'lg' => 12])
                 ->schema([
-                    Section::make('Dzieło sztuki')
+                    Section::make('Szczegóły pracy')
                         ->columnSpan(['default' => 1, 'lg' => 7])
                         ->columns(['default' => 1, 'md' => 2])
+                        ->extraAttributes(['class' => 'h-full'])
                         ->schema([
                             TextInput::make('title')
                                 ->label('Tytuł')
@@ -104,25 +105,25 @@ class GalleryArtworkForm
 
                             \Filament\Forms\Components\Hidden::make('sort_order')
                                 ->default(fn () => (\App\Models\GalleryArtwork::max('sort_order') ?? 0) + 10),
-
-                            Toggle::make('is_active')
-                                ->label('Aktywny w portfolio')
-                                ->default(true)
-                                ->columnSpanFull(),
                         ]),
 
-                    Section::make('Zdjęcie')
+                    Section::make('Publikacja i zdjęcie')
                         ->columnSpan(['default' => 1, 'lg' => 5])
+                        ->extraAttributes(['class' => 'h-full'])
                         ->schema([
+                            Toggle::make('is_active')
+                                ->label('Widoczne w galerii')
+                                ->default(true),
+
                             FileUpload::make('image_path')
-                                ->label('Zdjęcie dzieła')
+                                ->label('Zdjęcie pracy')
                                 ->helperText('Kliknij ikonę ołówka na zdjęciu, aby przyciąć lub obrócić kadr.')
                                 ->disk('public')
                                 ->directory('gallery')
                                 ->visibility('public')
                                 ->image()
                                 ->imageEditor()
-                                ->imagePreviewHeight('420')
+                                ->imagePreviewHeight('400')
                                 ->imageResizeMode('contain')
                                 ->imageResizeTargetWidth('1920')
                                 ->imageResizeTargetHeight('1920')
