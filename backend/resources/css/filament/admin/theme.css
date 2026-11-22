@@ -638,7 +638,6 @@ html.fi-sidebar-collapsed .fi-panel-admin .fi-brand-name {
 .dark .fi-panel-admin .fi-btn.fi-color-primary *,
 .dark .fi-panel-admin .fi-btn-color-primary * {
     color: #ffffff !important;
-    fill: currentColor;
 }
 
 .fi-panel-admin .fi-btn.fi-color-primary:hover,
@@ -1854,5 +1853,16 @@ html.fi-sidebar-collapsed .fi-sidebar-item-icon {
     width: 1.25rem;
     height: 1.25rem;
     flex-shrink: 0;
+}
+
+/* Keep toast notifications visible above topbar & slide-over modals */
+.fi-no {
+    z-index: 9999 !important;
+}
+
+/* Ensure crisp white canvas behind dark/transparent logo previews in Settings */
+.fi-panel-admin .fi-settings-upload .filepond--image-preview-wrapper,
+.fi-panel-admin .fi-settings-upload .filepond--image-preview {
+    background: #ffffff;
 }
 

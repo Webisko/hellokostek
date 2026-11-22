@@ -26,12 +26,24 @@ class EditStoreSetting extends EditRecord
         return [
             $this->getSaveFormAction()
                 ->label('Zapisz')
-                ->icon('heroicon-o-check'),
+                ->icon('heroicon-o-check')
+                ->submit(null)
+                ->action(fn () => $this->save()),
             Action::make('backToDashboard')
                 ->label('Wróć do kokpitu')
                 ->color('gray')
                 ->url(StoreDashboard::getUrl()),
         ];
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Ustawienia zostały zapisane';
+    }
+
+    protected function afterSave(): void
+    {
+        app(\App\Support\StoreSettings::class)->purgeCache();
     }
 
     protected function getFormActions(): array

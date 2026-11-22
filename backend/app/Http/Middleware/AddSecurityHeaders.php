@@ -31,13 +31,23 @@ class AddSecurityHeaders
 
         // Content Security Policy (CSP)
         if ($csp = config('app.content_security_policy')) {
+            if (preg_match('/\bimg-src\b([^;]*)/', $csp, $m) && ! str_contains($m[1], 'blob:')) {
+                $csp = preg_replace('/\bimg-src\b/', "img-src blob:", $csp, 1) ?? $csp;
+            }
+            if (preg_match('/\bconnect-src\b([^;]*)/', $csp, $m) && ! str_contains($m[1], 'blob:')) {
+                $csp = preg_replace('/\bconnect-src\b/', "connect-src blob:", $csp, 1) ?? $csp;
+            }
+            if (! str_contains($csp, 'worker-src')) {
+                $csp = rtrim($csp, "; \t\n\r") . "; worker-src 'self' blob:;";
+            }
+
             if (app()->environment('local')) {
                 $viteHosts = 'http://localhost:5173 http://127.0.0.1:5173';
                 $viteWS = 'ws://localhost:5173 ws://127.0.0.1:5173';
                 
                 $csp = str_replace("script-src 'self'", "script-src 'self' {$viteHosts}", $csp);
                 $csp = str_replace("style-src 'self'", "style-src 'self' {$viteHosts}", $csp);
-                $csp = str_replace("connect-src 'self'", "connect-src 'self' {$viteHosts} {$viteWS}", $csp);
+                $csp = str_replace("connect-src ", "connect-src {$viteHosts} {$viteWS} ", $csp);
             }
             $response->headers->set('Content-Security-Policy', $csp);
         }

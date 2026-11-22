@@ -16,7 +16,9 @@ class EditContentPage extends EditRecord
         return [
             $this->getSaveFormAction()
                 ->label('Zapisz')
-                ->icon('heroicon-o-check'),
+                ->icon('heroicon-o-check')
+                ->submit(null)
+                ->action(fn () => $this->save()),
             $this->getCancelFormAction()
                 ->label('Anuluj'),
             ViewAction::make(),

@@ -266,4 +266,24 @@ class CmsAuditFixesTest extends TestCase
         $this->assertStringContainsString("env('APP_NAME', 'hellokostek')", (string) $shopConfigRaw);
         $this->assertStringNotContainsString('Hello Kostek', (string) $shopConfigRaw);
     }
+
+    public function test_csp_allows_blob_previews_and_header_save_action_saves_settings_with_notification(): void
+    {
+        $csp = (string) config('app.content_security_policy');
+        $this->assertStringContainsString("img-src 'self' data: blob:", $csp);
+        $this->assertStringContainsString("worker-src 'self' blob:", $csp);
+
+        $settings = app(\App\Support\StoreSettings::class)->model();
+        $admin = $this->createAdmin();
+
+        \Livewire\Livewire::actingAs($admin)
+            ->test(\App\Filament\Resources\StoreSettings\Pages\EditStoreSetting::class, [
+                'record' => $settings->getRouteKey(),
+            ])
+            ->set('data.store_name', 'hellokostek-test-save')
+            ->callAction('save')
+            ->assertNotified('Ustawienia zostały zapisane');
+
+        $this->assertSame('hellokostek-test-save', $settings->fresh()->store_name);
+    }
 }

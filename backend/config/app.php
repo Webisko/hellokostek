@@ -129,7 +129,7 @@ return [
 
     'content_security_policy' => env(
         'CONTENT_SECURITY_POLICY',
-        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.bunny.net; connect-src 'self' https: https://api.stripe.com; frame-src 'self' https://js.stripe.com https://r.stripe.com https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none';"
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.bunny.net; connect-src 'self' blob: https: https://api.stripe.com; worker-src 'self' blob:; frame-src 'self' https://js.stripe.com https://r.stripe.com https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none';"
     ),
 
     'coop_header' => env('COOP_HEADER', 'same-origin'),
