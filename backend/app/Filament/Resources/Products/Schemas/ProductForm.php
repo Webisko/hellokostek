@@ -32,107 +32,169 @@ class ProductForm
                 Tabs::make('Szczegóły produktu')
                     ->columnSpanFull()
                     ->tabs([
-                        Tabs\Tab::make('Podstawowe dane')
+                        Tabs\Tab::make('Dane produktu')
                             ->schema([
                                 Group::make()
-                                    ->columns(2)
+                                    ->columns(['default' => 1, 'lg' => 12])
                                     ->schema([
-                                        \Filament\Forms\Components\Hidden::make('type')
-                                            ->default(\App\Domain\Commerce\Enums\ProductType::Physical->value),
-                                        TextInput::make('name')
-                                            ->label('Tytuł pracy / nazwa produktu')
-                                            ->placeholder('np. Obiekt 2')
-                                            ->required()
-                                            ->maxLength(255)
-                                            ->live(onBlur: true)
-                                            ->afterStateUpdated(function (string $operation, Get $get, Set $set, ?string $old, ?string $state): void {
-                                                if ($operation !== 'create') {
-                                                    return;
-                                                }
-                                                $oldSlug = Str::slug((string) $old);
-                                                $newSlug = Str::slug((string) $state);
-                                                if (($get('slug') ?? '') === '' || ($get('slug') ?? '') === $oldSlug) {
-                                                    $set('slug', $newSlug);
-                                                }
-                                                $oldSku = Str::upper($oldSlug);
-                                                if (($get('sku') ?? '') === '' || ($get('sku') ?? '') === $oldSku) {
-                                                    $set('sku', Str::upper($newSlug));
-                                                }
-                                            })
-                                            ->columnSpanFull(),
-                                        Select::make('categories')
-                                            ->label('Kategoria (akwarela / rysunek)')
-                                            ->relationship(titleAttribute: 'name')
-                                            ->preload()
-                                            ->native(false)
-                                            ->createOptionForm([
+                                        Section::make('Szczegóły pracy')
+                                            ->columnSpan(['default' => 1, 'lg' => 7])
+                                            ->columns(['default' => 1, 'md' => 2])
+                                            ->schema([
+                                                \Filament\Forms\Components\Hidden::make('type')
+                                                    ->default(\App\Domain\Commerce\Enums\ProductType::Physical->value),
                                                 TextInput::make('name')
-                                                    ->label('Nazwa kategorii')
-                                                    ->placeholder('np. Pastel')
+                                                    ->label('Tytuł pracy / nazwa produktu')
+                                                    ->placeholder('np. Obiekt 2')
                                                     ->required()
-                                                    ->maxLength(255),
-                                            ])
-                                            ->createOptionModalHeading('Dodaj nową kategorię')
-                                            ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową kategorię'))
-                                            ->createOptionUsing(fn (array $data): int => \App\Models\ProductCategory::createQuickByName((string) $data['name'])->getKey()),
-                                        TextInput::make('metadata.year')
-                                            ->label('Rok powstania')
-                                            ->placeholder('np. 2024')
-                                            ->default((string) date('Y'))
-                                            ->maxLength(16),
-                                        Select::make('metadata.technique')
-                                            ->label('Technika wykonania')
-                                            ->placeholder('Wybierz technikę wykonania')
-                                            ->options(fn ($state): array => app(StoreSettings::class)->artworkTechniqueOptions(is_string($state) ? $state : null))
-                                            ->native(false)
-                                            ->createOptionForm([
-                                                TextInput::make('name')
-                                                    ->label('Nazwa techniki')
-                                                    ->placeholder('np. Pastel suchy na papierze')
-                                                    ->required()
-                                                    ->maxLength(255),
-                                            ])
-                                            ->createOptionModalHeading('Dodaj nową technikę')
-                                            ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową technikę do listy'))
-                                            ->createOptionUsing(fn (array $data): string => app(StoreSettings::class)->addArtworkTechnique((string) $data['name'])),
-                                        Select::make('metadata.format')
-                                            ->label('Format / wymiary')
-                                            ->placeholder('Wybierz format')
-                                            ->options(fn ($state): array => app(StoreSettings::class)->artworkFormatOptions(is_string($state) ? $state : null))
-                                            ->native(false)
-                                            ->createOptionForm([
-                                                TextInput::make('name')
+                                                    ->maxLength(255)
+                                                    ->live(onBlur: true)
+                                                    ->afterStateUpdated(function (string $operation, Get $get, Set $set, ?string $old, ?string $state): void {
+                                                        if ($operation !== 'create') {
+                                                            return;
+                                                        }
+                                                        $oldSlug = Str::slug((string) $old);
+                                                        $newSlug = Str::slug((string) $state);
+                                                        if (($get('slug') ?? '') === '' || ($get('slug') ?? '') === $oldSlug) {
+                                                            $set('slug', $newSlug);
+                                                        }
+                                                        $oldSku = Str::upper($oldSlug);
+                                                        if (($get('sku') ?? '') === '' || ($get('sku') ?? '') === $oldSku) {
+                                                            $set('sku', Str::upper($newSlug));
+                                                        }
+                                                    })
+                                                    ->columnSpanFull(),
+                                                Select::make('categories')
+                                                    ->label('Kategoria (akwarela / rysunek)')
+                                                    ->relationship(titleAttribute: 'name')
+                                                    ->preload()
+                                                    ->native(false)
+                                                    ->createOptionForm([
+                                                        TextInput::make('name')
+                                                            ->label('Nazwa kategorii')
+                                                            ->placeholder('np. Pastel')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                    ])
+                                                    ->createOptionModalHeading('Dodaj nową kategorię')
+                                                    ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową kategorię'))
+                                                    ->createOptionUsing(fn (array $data): int => \App\Models\ProductCategory::createQuickByName((string) $data['name'])->getKey()),
+                                                TextInput::make('metadata.year')
+                                                    ->label('Rok powstania')
+                                                    ->placeholder('np. 2024')
+                                                    ->default((string) date('Y'))
+                                                    ->maxLength(16),
+                                                Select::make('metadata.technique')
+                                                    ->label('Technika wykonania')
+                                                    ->placeholder('Wybierz technikę wykonania')
+                                                    ->options(fn ($state): array => app(StoreSettings::class)->artworkTechniqueOptions(is_string($state) ? $state : null))
+                                                    ->native(false)
+                                                    ->createOptionForm([
+                                                        TextInput::make('name')
+                                                            ->label('Nazwa techniki')
+                                                            ->placeholder('np. Pastel suchy na papierze')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                    ])
+                                                    ->createOptionModalHeading('Dodaj nową technikę')
+                                                    ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nową technikę do listy'))
+                                                    ->createOptionUsing(fn (array $data): string => app(StoreSettings::class)->addArtworkTechnique((string) $data['name']))
+                                                    ->columnSpanFull(),
+                                                Select::make('metadata.format')
                                                     ->label('Format / wymiary')
-                                                    ->placeholder('np. 60x80 cm')
-                                                    ->required()
-                                                    ->maxLength(100),
-                                            ])
-                                            ->createOptionModalHeading('Dodaj nowy format')
-                                            ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nowy format do listy'))
-                                            ->createOptionUsing(fn (array $data): string => app(StoreSettings::class)->addArtworkFormat((string) $data['name'])),
-                                        TextInput::make('slug')
-                                            ->label('Adres URL (slug)')
-                                            ->required(fn (): bool => (bool) auth()->user()?->isAdmin())
-                                            ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
-                                            ->dehydrated()
-                                            ->maxLength(255)
-                                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
-                                        TextInput::make('sku')
-                                            ->label('Kod bazowy SKU')
-                                            ->placeholder('Generowany automatycznie z nazwy')
-                                            ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
-                                            ->dehydrated()
-                                            ->maxLength(255)
-                                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
-                                        Textarea::make('description')
-                                            ->label('Opis pracy (wyświetlany na karcie produktu i w sklepie)')
-                                            ->placeholder('np. Rogue planet')
-                                            ->rows(4)
-                                            ->columnSpanFull(),
-                                        Textarea::make('short_description')
-                                            ->label('Krótki opis pomocniczy (opcjonalnie)')
-                                            ->rows(2)
-                                            ->columnSpanFull(),
+                                                    ->placeholder('Wybierz format')
+                                                    ->options(fn ($state): array => app(StoreSettings::class)->artworkFormatOptions(is_string($state) ? $state : null))
+                                                    ->native(false)
+                                                    ->createOptionForm([
+                                                        TextInput::make('name')
+                                                            ->label('Format / wymiary')
+                                                            ->placeholder('np. 60x80 cm')
+                                                            ->required()
+                                                            ->maxLength(100),
+                                                    ])
+                                                    ->createOptionModalHeading('Dodaj nowy format')
+                                                    ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Dodaj nowy format do listy'))
+                                                    ->createOptionUsing(fn (array $data): string => app(StoreSettings::class)->addArtworkFormat((string) $data['name']))
+                                                    ->columnSpanFull(),
+                                                TextInput::make('slug')
+                                                    ->label('Adres URL (slug)')
+                                                    ->required(fn (): bool => (bool) auth()->user()?->isAdmin())
+                                                    ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
+                                                    ->dehydrated()
+                                                    ->maxLength(255)
+                                                    ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
+                                                TextInput::make('sku')
+                                                    ->label('Kod bazowy SKU')
+                                                    ->placeholder('Generowany automatycznie z nazwy')
+                                                    ->hidden(fn (): bool => ! auth()->user()?->isAdmin())
+                                                    ->dehydrated()
+                                                    ->maxLength(255)
+                                                    ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
+                                                Textarea::make('description')
+                                                    ->label('Opis pracy (wyświetlany na karcie produktu i w sklepie)')
+                                                    ->placeholder('np. Rogue planet')
+                                                    ->rows(4)
+                                                    ->columnSpanFull(),
+                                                Textarea::make('short_description')
+                                                    ->label('Krótki opis pomocniczy (opcjonalnie)')
+                                                    ->rows(2)
+                                                    ->columnSpanFull(),
+                                                Group::make()
+                                                    ->columns(['default' => 1, 'sm' => 3])
+                                                    ->columnSpanFull()
+                                                    ->schema([
+                                                        \Filament\Forms\Components\Hidden::make('manages_stock')
+                                                            ->default(true),
+                                                        \Filament\Forms\Components\Hidden::make('stock_quantity')
+                                                            ->default(999),
+                                                        Toggle::make('is_active')
+                                                            ->label('Aktywny')
+                                                            ->default(true),
+                                                        Toggle::make('is_visible')
+                                                            ->label('Widoczny w sklepie')
+                                                            ->default(true),
+                                                        Toggle::make('is_purchasable')
+                                                            ->label('Możliwy do zakupu')
+                                                            ->default(true),
+                                                    ]),
+                                            ]),
+                                        Section::make('Zdjęcia pracy')
+                                            ->columnSpan(['default' => 1, 'lg' => 5])
+                                            ->schema([
+                                                FileUpload::make('featured_image_path')
+                                                    ->label('Główny obraz pracy')
+                                                    ->helperText('Kliknij ikonę ołówka, aby przyciąć lub obrócić kadr.')
+                                                    ->disk('public')
+                                                    ->directory('products')
+                                                    ->visibility('public')
+                                                    ->image()
+                                                    ->imageEditor()
+                                                    ->imagePreviewHeight('260')
+                                                    ->imageResizeMode('contain')
+                                                    ->imageResizeTargetWidth('1920')
+                                                    ->imageResizeTargetHeight('1920')
+                                                    ->imageResizeUpscale(false)
+                                                    ->maxSize(15360)
+                                                    ->extraAttributes(['class' => 'fi-artwork-featured-upload']),
+                                                FileUpload::make('gallery_image_paths')
+                                                    ->label('Dodatkowe zdjęcia pracy (detale, oprawa)')
+                                                    ->helperText('Zdjęcia układają się w siatkę miniatur. Przeciągnij kafelek, aby zmienić kolejność.')
+                                                    ->disk('public')
+                                                    ->directory('products/gallery')
+                                                    ->visibility('public')
+                                                    ->image()
+                                                    ->appendFiles()
+                                                    ->panelLayout('grid')
+                                                    ->imagePreviewHeight('130')
+                                                    ->imageResizeMode('contain')
+                                                    ->imageResizeTargetWidth('1920')
+                                                    ->imageResizeTargetHeight('1920')
+                                                    ->imageResizeUpscale(false)
+                                                    ->maxSize(15360)
+                                                    ->multiple()
+                                                    ->reorderable()
+                                                    ->extraAttributes(['class' => 'fi-artwork-gallery-upload']),
+                                            ]),
                                     ]),
                                 Section::make('Warianty i ceny w sklepie (wydruk oraz oryginał)')
                                     ->description('Każda dodana praca jest dostępna jako wydruk kolekcjonerski. Poniżej zdecyduj, czy fizyczny oryginał tej pracy jest również dostępny w sprzedaży, czy został już sprzedany.')
@@ -222,23 +284,6 @@ class ProductForm
                                                     ]),
                                             ]),
                                     ]),
-                                Group::make()
-                                    ->columns(3)
-                                    ->schema([
-                                        \Filament\Forms\Components\Hidden::make('manages_stock')
-                                            ->default(true),
-                                        \Filament\Forms\Components\Hidden::make('stock_quantity')
-                                            ->default(999),
-                                        Toggle::make('is_active')
-                                            ->label('Aktywny')
-                                            ->default(true),
-                                        Toggle::make('is_visible')
-                                            ->label('Widoczny w sklepie')
-                                            ->default(true),
-                                        Toggle::make('is_purchasable')
-                                            ->label('Możliwy do zakupu')
-                                            ->default(true),
-                                    ]),
                                 Section::make('Zaawansowane ustawienia księgowe')
                                     ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                                     ->collapsible()
@@ -277,58 +322,6 @@ class ProductForm
                                             ->label('Publikacja od'),
                                     ]),
                             ]),
-                        Tabs\Tab::make('Zdjęcia produktu')
-                            ->schema([
-                                Group::make()
-                                    ->columns(['default' => 1, 'lg' => 12])
-                                    ->schema([
-                                        Group::make()
-                                            ->columnSpan(['default' => 1, 'lg' => 5])
-                                            ->schema([
-                                                FileUpload::make('featured_image_path')
-                                                    ->label('Główny obraz pracy')
-                                                    ->helperText('Główne zdjęcie widoczne na karcie pracy w sklepie.')
-                                                    ->disk('public')
-                                                    ->directory('products')
-                                                    ->visibility('public')
-                                                    ->image()
-                                                    ->imageEditor()
-                                                    ->imagePreviewHeight('320')
-                                                    ->imageResizeMode('contain')
-                                                    ->imageResizeTargetWidth('1920')
-                                                    ->imageResizeTargetHeight('1920')
-                                                    ->imageResizeUpscale(false)
-                                                    ->maxSize(15360)
-                                                    ->extraAttributes(['class' => 'fi-artwork-featured-upload']),
-                                                TextInput::make('metadata.featured_image_alt')
-                                                    ->label('Tekst alternatywny głównego obrazu (alt)')
-                                                    ->placeholder('np. Obiekt 2 – oryginalna akwarela z serii Kosmos, Maciej Kosteczka')
-                                                    ->maxLength(255),
-                                            ]),
-                                        Group::make()
-                                            ->columnSpan(['default' => 1, 'lg' => 7])
-                                            ->schema([
-                                                FileUpload::make('gallery_image_paths')
-                                                    ->label('Dodatkowe zdjęcia pracy (detale, oprawa)')
-                                                    ->helperText('Kolejne zdjęcia układają się w siatkę miniatur. Przeciągnij kafelek, aby zmienić kolejność.')
-                                                    ->disk('public')
-                                                    ->directory('products/gallery')
-                                                    ->visibility('public')
-                                                    ->image()
-                                                    ->appendFiles()
-                                                    ->panelLayout('grid')
-                                                    ->imagePreviewHeight('180')
-                                                    ->imageResizeMode('contain')
-                                                    ->imageResizeTargetWidth('1920')
-                                                    ->imageResizeTargetHeight('1920')
-                                                    ->imageResizeUpscale(false)
-                                                    ->maxSize(15360)
-                                                    ->multiple()
-                                                    ->reorderable()
-                                                    ->extraAttributes(['class' => 'fi-artwork-gallery-upload']),
-                                            ]),
-                                    ]),
-                            ]),
                         Tabs\Tab::make('SEO')
                             ->schema([
                                 Group::make()
@@ -340,6 +333,10 @@ class ProductForm
                                         Textarea::make('seo_description')
                                             ->label('Opis SEO')
                                             ->rows(3),
+                                        TextInput::make('metadata.featured_image_alt')
+                                            ->label('Tekst alternatywny głównego obrazu (alt)')
+                                            ->placeholder('np. Obiekt 2 – oryginalna akwarela z serii Kosmos, Maciej Kosteczka')
+                                            ->maxLength(255),
                                         Toggle::make('is_noindex')
                                             ->label('Zablokuj indeksowanie tego produktu (noindex)')
                                             ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())

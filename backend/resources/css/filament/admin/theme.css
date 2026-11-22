@@ -2024,9 +2024,12 @@ html.fi-sidebar-collapsed .fi-sidebar-item-icon {
     max-width: 420px !important;
 }
 
-.fi-panel-admin .fi-artwork-featured-upload .filepond--root:not(:has(.filepond--item)),
-.fi-panel-admin .fi-artwork-gallery-upload .filepond--root:not(:has(.filepond--item)) {
+.fi-panel-admin .fi-artwork-featured-upload .filepond--root:not(:has(.filepond--item)) {
     min-height: 220px;
+}
+
+.fi-panel-admin .fi-artwork-gallery-upload .filepond--root:not(:has(.filepond--item)) {
+    min-height: 140px;
 }
 
 .fi-panel-admin .fi-artwork-featured-upload .filepond--root:has(.filepond--item) {
