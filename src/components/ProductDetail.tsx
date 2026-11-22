@@ -585,8 +585,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <h1 className="font-display text-4.5xl leading-tight text-gray-950 font-normal">
               {currentProduct.title}
             </h1>
-            <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 items-start">
-              <span className="text-3xl font-bold font-mono text-[#E0115F]">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-1 sm:gap-x-4 sm:gap-y-1.5 items-start">
+              <span className="text-3xl font-bold font-mono text-[#E0115F] whitespace-nowrap shrink-0">
                 {currentPrice} zł
               </span>
               {currentProduct.lowestPrice30Days && (

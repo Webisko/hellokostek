@@ -159,7 +159,7 @@ export default function Navbar({ currentPath }: NavbarProps) {
           >
             <div className={`flex items-center justify-start sm:justify-center overflow-hidden transition-all duration-300 ease-in-out ${
               isScrolled
-                ? "w-auto h-[36px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]"
+                ? "w-auto h-[40px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]"
                 : "w-auto h-[54px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
             }`}>
               <img
@@ -171,7 +171,7 @@ export default function Navbar({ currentPath }: NavbarProps) {
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="h-full w-auto max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-300 -ml-[15%] sm:ml-0"
+                className="h-full w-auto max-h-full object-contain object-left sm:object-center mix-blend-multiply transition-all duration-300"
               />
             </div>
           </a>

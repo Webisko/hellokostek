@@ -142,39 +142,39 @@ const currentYear = new Date().getFullYear();
   </div>
 
   <!-- Bottom Rights Bar -->
-  <div class="content-container border-t border-stone-150 mt-12 pt-8 grid grid-cols-1 md:grid-cols-2 xl:flex xl:flex-row items-center xl:justify-between gap-y-4 xl:gap-0 text-xs text-stone-600 font-sans text-center md:text-left">
-    <!-- Left: Realization -->
-    <div class="order-4 md:order-3 xl:order-1 md:col-span-1 text-center md:text-left xl:text-left md:mt-1 xl:mt-0">
-      <span>Realizacja: <a href="https://webisko.pl/" target="_blank" rel="noopener noreferrer" class="font-bold hover:text-magenta-accent transition-colors text-stone-700">Webisko.pl</a></span>
-    </div>
-
-    <!-- Middle: Copyright -->
-    <div class="order-3 md:order-1 xl:order-2 md:col-span-1 text-center md:text-left xl:text-center">
-      <p>© {currentYear} hellokostek.pl. Wszelkie prawa zastrzeżone.</p>
-    </div>
-
-    <!-- Right: Formal Links -->
-    <div class="contents xl:flex xl:flex-row xl:items-center xl:justify-end xl:gap-4 xl:order-3">
-      <a
-        href={`${basePath}/polityka-prywatnosci`}
-        class="order-2 md:order-4 xl:order-1 md:text-right hover:text-magenta-accent transition-colors cursor-pointer block text-center"
-      >
-        Polityka prywatności i plików cookies
-      </a>
-      <span class="hidden xl:inline xl:order-2">•</span>
+  <div class="content-container border-t border-stone-150 mt-12 pt-8 pb-8 sm:pb-0 flex flex-col md:flex-row md:items-start md:justify-between xl:items-center gap-y-5 md:gap-x-6 xl:gap-y-0 text-xs text-stone-600 font-sans text-center md:text-left">
+    <!-- Legal links grouped together on Mobile (top), Tablet (right column), Desktop (right inline) -->
+    <div class="order-1 md:order-2 xl:order-3 flex flex-col md:items-end xl:flex-row xl:items-center xl:justify-end gap-2.5 md:gap-2 xl:gap-4">
       <a
         href={`${basePath}/regulamin`}
-        class="order-1 md:order-2 xl:order-3 md:text-right hover:text-magenta-accent transition-colors cursor-pointer block text-center"
+        class="hover:text-magenta-accent transition-colors cursor-pointer"
       >
         Regulamin sklepu
       </a>
-      <span class="hidden xl:inline xl:order-4">•</span>
+      <span class="hidden xl:inline" aria-hidden="true">•</span>
+      <a
+        href={`${basePath}/polityka-prywatnosci`}
+        class="hover:text-magenta-accent transition-colors cursor-pointer"
+      >
+        Polityka prywatności i plików cookies
+      </a>
+      <span class="hidden xl:inline" aria-hidden="true">•</span>
       <a
         href={`${basePath}/regulamin#zwroty-i-odstapienie`}
-        class="order-5 md:order-5 xl:order-5 md:text-right hover:text-magenta-accent transition-colors cursor-pointer block text-center"
+        class="hover:text-magenta-accent transition-colors cursor-pointer"
       >
         Zwroty i odstąpienie
       </a>
+    </div>
+
+    <!-- Copyright & Realization -->
+    <div class="order-2 md:order-1 xl:contents flex flex-col gap-2">
+      <div class="order-2 xl:order-1">
+        <span>Realizacja: <a href="https://webisko.pl/" target="_blank" rel="noopener noreferrer" class="font-bold hover:text-magenta-accent transition-colors text-stone-700">Webisko.pl</a></span>
+      </div>
+      <div class="order-1 xl:order-2 xl:text-center">
+        <p>© {currentYear} hellokostek.pl. Wszelkie prawa zastrzeżone.</p>
+      </div>
     </div>
   </div>
 </footer>
