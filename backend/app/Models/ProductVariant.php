@@ -102,6 +102,44 @@ class ProductVariant extends Model
         return $this->currentPriceAmount();
     }
 
+    /**
+     * Lowest price recorded in the last 30 days prior to the current active discount (Omnibus Directive).
+     */
+    public function lowestPriceBeforeDiscountInLast30Days(): ?int
+    {
+        if ($this->sale_price_amount === null || $this->sale_price_amount >= $this->regular_price_amount) {
+            return $this->lowestPriceInLast30Days();
+        }
+
+        $thirtyDaysAgo = now()->subDays(30);
+        $histories = $this->relationLoaded('priceHistories')
+            ? $this->priceHistories->filter(fn ($h) => $h->recorded_at >= $thirtyDaysAgo)
+            : $this->priceHistories()->where('recorded_at', '>=', $thirtyDaysAgo)->get();
+
+        $sorted = $histories
+            ->sortByDesc(fn ($h) => sprintf('%s-%010d', optional($h->recorded_at)->format('U') ?? '0', (int) $h->id))
+            ->values();
+
+        $currentSale = (int) $this->sale_price_amount;
+        $priorPrices = [];
+        $skippingActiveSale = true;
+
+        foreach ($sorted as $entry) {
+            $effectivePrice = (int) ($entry->sale_price_amount ?? $entry->regular_price_amount);
+            if ($skippingActiveSale && $effectivePrice === $currentSale) {
+                continue;
+            }
+            $skippingActiveSale = false;
+            $priorPrices[] = $effectivePrice;
+        }
+
+        if ($priorPrices !== []) {
+            return min($priorPrices);
+        }
+
+        return (int) $this->regular_price_amount;
+    }
+
     protected static function booted(): void
     {
         static::saved(function (ProductVariant $variant): void {

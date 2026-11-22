@@ -16,7 +16,9 @@ class StoreSettingsTable
             ->columns([
                 TextColumn::make('store_name')->label('Sklep')->sortable(),
                 TextColumn::make('currency')->label('Waluta'),
-                TextColumn::make('free_shipping_threshold')->label('Próg darmowej dostawy'),
+                TextColumn::make('free_shipping_threshold')
+                    ->label('Próg darmowej dostawy')
+                    ->formatStateUsing(fn ($state) => ($state !== null && (int) $state > 0) ? number_format(((int) $state) / 100, 0, ',', ' ') . ' zł' : 'Wyłączony'),
                 TextColumn::make('updated_at')->label('Aktualizacja')->dateTime('Y-m-d H:i')->sortable(),
             ])
             ->recordActions([

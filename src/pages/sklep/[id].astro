@@ -33,13 +33,36 @@ export async function getStaticPaths() {
 
           const rawDesc = parseLocalizedString(apiProd.description) || parseLocalizedString(apiProd.short_description);
 
+          const originalActiveGrosze = originalVariant
+            ? (originalVariant.current_price_amount ?? originalVariant.sale_price_amount ?? originalVariant.regular_price_amount)
+            : (apiProd.current_price_amount ?? apiProd.sale_price_amount ?? apiProd.regular_price_amount);
+          const originalRegularGrosze = originalVariant
+            ? originalVariant.regular_price_amount
+            : apiProd.regular_price_amount;
+          const originalLowestBeforeGrosze = originalVariant
+            ? (originalVariant.lowest_price_before_discount_last_30_days ?? originalVariant.lowest_price_last_30_days)
+            : undefined;
+
+          const defaultPrintGrosze = category === 'akwarela' ? 3000 : 2000;
+          const printActiveGrosze = printVariant
+            ? (printVariant.current_price_amount ?? printVariant.sale_price_amount ?? printVariant.regular_price_amount)
+            : defaultPrintGrosze;
+          const printRegularGrosze = printVariant ? printVariant.regular_price_amount : defaultPrintGrosze;
+          const printLowestBeforeGrosze = printVariant
+            ? (printVariant.lowest_price_before_discount_last_30_days ?? printVariant.lowest_price_last_30_days)
+            : undefined;
+
           return {
             id: apiProd.slug,
             title: parseLocalizedString(apiProd.name),
             year: apiProd.metadata?.year || "2022",
             category,
-            originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProd.regular_price_amount / 100),
-            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : (category === 'akwarela' ? 30 : 20),
+            originalPrice: originalActiveGrosze / 100,
+            originalRegularPrice: originalRegularGrosze ? originalRegularGrosze / 100 : undefined,
+            originalLowestPrice30Days: originalLowestBeforeGrosze ? originalLowestBeforeGrosze / 100 : undefined,
+            printPrice: printActiveGrosze / 100,
+            printRegularPrice: printRegularGrosze ? printRegularGrosze / 100 : undefined,
+            printLowestPrice30Days: printLowestBeforeGrosze ? printLowestBeforeGrosze / 100 : undefined,
             isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
             imageUrl: apiProd.featured_image_url || '/images/placeholder.png',
             description: rawDesc.replace(/<[^>]*>/g, "").trim(),

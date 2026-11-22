@@ -60,7 +60,13 @@ class CatalogController extends Controller
                 'categories:id,name,slug',
                 'attributeValues.attribute',
                 'variants' => fn ($vq) => $vq
-                    ->with('optionValues.option')
+                    ->with([
+                        'optionValues.option',
+                        'priceHistories' => fn ($hq) => $hq
+                            ->where('recorded_at', '>=', $thirtyDaysAgo)
+                            ->orderByDesc('recorded_at')
+                            ->orderByDesc('id'),
+                    ])
                     ->withMin(
                         ['priceHistories as lowest_price_last_30_days' => fn ($hq) => $hq->where('recorded_at', '>=', $thirtyDaysAgo)],
                         DB::raw('COALESCE(sale_price_amount, regular_price_amount)')
@@ -220,7 +226,13 @@ class CatalogController extends Controller
                     'crossSells',
                     'similarProducts',
                     'variants' => fn ($vq) => $vq
-                        ->with('optionValues.option')
+                        ->with([
+                            'optionValues.option',
+                            'priceHistories' => fn ($hq) => $hq
+                                ->where('recorded_at', '>=', $thirtyDaysAgo)
+                                ->orderByDesc('recorded_at')
+                                ->orderByDesc('id'),
+                        ])
                         ->withMin(
                             ['priceHistories as lowest_price_last_30_days' => fn ($hq) => $hq->where('recorded_at', '>=', $thirtyDaysAgo)],
                             DB::raw('COALESCE(sale_price_amount, regular_price_amount)')
@@ -385,6 +397,7 @@ class CatalogController extends Controller
                 'sale_price_amount' => $variant->sale_price_amount,
                 'current_price_amount' => $variant->currentPriceAmount(),
                 'lowest_price_last_30_days' => $variant->lowestPriceInLast30Days(),
+                'lowest_price_before_discount_last_30_days' => $variant->lowestPriceBeforeDiscountInLast30Days(),
                 'stock_quantity' => $variant->stock_quantity,
                 'manages_stock' => $variant->manages_stock,
                 'is_active' => $variant->is_active,

@@ -324,8 +324,18 @@ class StoreSettingForm
                                 ]),
 
                             Section::make('Strefy i metody wysyłki')
-                                ->description('Definicje krajów dostawy oraz opcji dostarczenia paczki.')
+                                ->description('Definicje krajów dostawy, progu darmowej dostawy oraz opcji dostarczenia paczki.')
                                 ->schema([
+                                    TextInput::make('free_shipping_threshold')
+                                        ->label('Próg darmowej dostawy (PLN)')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->step(1)
+                                        ->suffix('zł')
+                                        ->placeholder('np. 200')
+                                        ->helperText('Minimalna wartość zamówienia wydruków (po rabatach), od której dostawa jest bezpłatna. Wpisz 0 lub pozostaw puste, aby wyłączyć darmową dostawę od progu.')
+                                        ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
+                                        ->dehydrateStateUsing(fn ($state) => filled($state) ? (int) round((float) $state * 100) : 0),
                                     Repeater::make('shipping_zones')
                                         ->label('Strefy wysyłki')
                                         ->helperText('Domyślna strefa wysyłki to Polska (PL).')

@@ -19,7 +19,11 @@ export interface Product {
   year: string;
   category: "akwarela" | "rysunek" | "custom_portrait";
   originalPrice: number;
+  originalRegularPrice?: number;
+  originalLowestPrice30Days?: number;
   printPrice?: number; // 30 PLN dla akwareli, 20 PLN dla rysunków
+  printRegularPrice?: number;
+  printLowestPrice30Days?: number;
   isOriginalAvailable: boolean;
   imageUrl: string;
   originalPageUrl?: string;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { Product } from "../types";
 import { parseLocalizedString } from "../utils/localization";
-import { ChevronLeft, Shield, ArrowRight, X, Lock, MapPin, ExternalLink } from "lucide-react";
+import { ChevronLeft, Shield, ArrowRight, X, Lock, MapPin, ExternalLink, Truck } from "lucide-react";
 import ParcelMapModal, { type SelectedParcelPoint, parseOrlenPointInput } from "./ParcelMapModal";
 
 function isValidPolishNip(nip: string): boolean {
@@ -185,13 +185,36 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             ? rawDesc.replace(/<[^>]*>/g, "").trim()
             : "";
 
+          const originalActiveGrosze = originalVariant
+            ? (originalVariant.current_price_amount ?? originalVariant.sale_price_amount ?? originalVariant.regular_price_amount)
+            : (apiProd.current_price_amount ?? apiProd.sale_price_amount ?? apiProd.regular_price_amount);
+          const originalRegularGrosze = originalVariant
+            ? originalVariant.regular_price_amount
+            : apiProd.regular_price_amount;
+          const originalLowestBeforeGrosze = originalVariant
+            ? (originalVariant.lowest_price_before_discount_last_30_days ?? originalVariant.lowest_price_last_30_days)
+            : undefined;
+
+          const defaultPrintGrosze = category === 'akwarela' ? 3000 : 2000;
+          const printActiveGrosze = printVariant
+            ? (printVariant.current_price_amount ?? printVariant.sale_price_amount ?? printVariant.regular_price_amount)
+            : defaultPrintGrosze;
+          const printRegularGrosze = printVariant ? printVariant.regular_price_amount : defaultPrintGrosze;
+          const printLowestBeforeGrosze = printVariant
+            ? (printVariant.lowest_price_before_discount_last_30_days ?? printVariant.lowest_price_last_30_days)
+            : undefined;
+
           setCurrentProduct({
             id: apiProd.slug,
             title,
             year: apiProd.metadata?.year || product.year || "2022",
             category,
-            originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProd.regular_price_amount / 100),
-            printPrice: printVariant ? (printVariant.regular_price_amount / 100) : (category === 'akwarela' ? 30 : 20),
+            originalPrice: originalActiveGrosze / 100,
+            originalRegularPrice: originalRegularGrosze ? originalRegularGrosze / 100 : undefined,
+            originalLowestPrice30Days: originalLowestBeforeGrosze ? originalLowestBeforeGrosze / 100 : undefined,
+            printPrice: printActiveGrosze / 100,
+            printRegularPrice: printRegularGrosze ? printRegularGrosze / 100 : undefined,
+            printLowestPrice30Days: printLowestBeforeGrosze ? printLowestBeforeGrosze / 100 : undefined,
             isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
             imageUrl,
             description: cleanDesc,
@@ -199,7 +222,6 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             printVariantId: printVariant?.id,
             technique: parseLocalizedString(apiProd.metadata?.technique) || product.technique || undefined,
             format: parseLocalizedString(apiProd.metadata?.format) || product.format || undefined,
-            lowestPrice30Days: apiProd.lowest_price_last_30_days ? apiProd.lowest_price_last_30_days / 100 : undefined,
           });
 
           if (title) {
@@ -224,8 +246,19 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   }, [currentProduct.isOriginalAvailable]);
 
   const currentPrice = selectedType === "original" ? currentProduct.originalPrice : (currentProduct.printPrice || 20);
+  const currentRegularPrice = selectedType === "original" ? currentProduct.originalRegularPrice : currentProduct.printRegularPrice;
+  const isCurrentVariantOnSale = Boolean(currentRegularPrice && currentRegularPrice > currentPrice);
+  const currentDiscountPercent = isCurrentVariantOnSale && currentRegularPrice
+    ? Math.round(((currentRegularPrice - currentPrice) / currentRegularPrice) * 100)
+    : 0;
+  const currentLowestPrice30Days = selectedType === "original"
+    ? currentProduct.originalLowestPrice30Days
+    : currentProduct.printLowestPrice30Days;
+  const isOriginalOnSale = Boolean(currentProduct.originalRegularPrice && currentProduct.originalRegularPrice > currentProduct.originalPrice);
+  const isPrintOnSale = Boolean(currentProduct.printPrice && currentProduct.printRegularPrice && currentProduct.printRegularPrice > currentProduct.printPrice);
   const itemsSubtotal = currentPrice * quantity;
-  const isFreePrintShipping = selectedType === "print" && itemsSubtotal >= freeShippingThresholdPln;
+  const discountedItemsSubtotal = Math.max(0, itemsSubtotal - (appliedCoupon?.discount_amount || 0));
+  const isFreePrintShipping = selectedType === "print" && freeShippingThresholdPln > 0 && discountedItemsSubtotal >= freeShippingThresholdPln;
 
   const deliveryOptions = selectedType === "original"
     ? [
@@ -263,7 +296,6 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const isPointDelivery = selectedDelivery === "inpost" || selectedDelivery === "orlen";
   const selectedDeliveryOption = deliveryOptions.find((opt) => opt.id === selectedDelivery);
   const shippingPrice = selectedDeliveryOption?.price || 0;
-  const discountedItemsSubtotal = Math.max(0, itemsSubtotal - (appliedCoupon?.discount_amount || 0));
   const finalTotalPrice = discountedItemsSubtotal + shippingPrice;
 
   const focusErrorField = (errors: Record<string, string>) => {
@@ -585,20 +617,43 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             <h1 className="font-display text-4.5xl leading-tight text-gray-950 font-normal">
               {currentProduct.title}
             </h1>
-            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-1 sm:gap-x-4 sm:gap-y-1.5 items-start">
-              <span className="text-3xl font-bold font-mono text-[#E0115F] whitespace-nowrap shrink-0">
-                {currentPrice} zł
-              </span>
-              {currentProduct.lowestPrice30Days && (
-                <span className="text-xs font-mono text-gray-500 block">
-                  Najniższa cena z 30 dni: {currentProduct.lowestPrice30Days} zł
+            <div className="space-y-2.5">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-3xl font-bold font-mono text-[#E0115F] whitespace-nowrap shrink-0">
+                  {currentPrice} zł
                 </span>
+                {isCurrentVariantOnSale && currentRegularPrice && (
+                  <>
+                    <span className="text-lg font-mono text-gray-400 line-through whitespace-nowrap">
+                      {currentRegularPrice} zł
+                    </span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200/80 text-xs font-mono font-bold text-[#E0115F] whitespace-nowrap">
+                      -{currentDiscountPercent}%
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {isCurrentVariantOnSale && currentLowestPrice30Days !== undefined && (
+                <p className="text-xs font-sans text-gray-500 leading-relaxed">
+                  Najniższa cena z 30 dni przed obniżką:{" "}
+                  <span className="font-mono font-medium text-gray-700">{currentLowestPrice30Days} zł</span>
+                </p>
               )}
-              {selectedType === "original" && (
-                <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">
-                  Zawiera bezpłatną dostawę
-                </span>
-              )}
+
+              <div>
+                {selectedType === "original" ? (
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100 border border-stone-200/90 text-xs font-sans font-medium text-gray-900">
+                    <Truck className="w-3.5 h-3.5 text-[#E0115F] shrink-0" />
+                    <span>Bezpłatna ubezpieczona dostawa kurierem</span>
+                  </span>
+                ) : freeShippingThresholdPln > 0 ? (
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-50 border border-stone-200/70 text-xs font-sans text-gray-600">
+                    <Truck className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                    <span>Bezpłatna dostawa przy zamówieniu od {freeShippingThresholdPln} zł</span>
+                  </span>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -635,7 +690,14 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   }`}
                 >
                   <div>
-                    <span className="font-semibold block text-gray-900 text-base">Oryginał ręcznie malowany • {currentProduct.originalPrice} zł</span>
+                    <span className="font-semibold block text-gray-900 text-base">
+                      Oryginał ręcznie malowany • {currentProduct.originalPrice} zł
+                      {isOriginalOnSale && currentProduct.originalRegularPrice && (
+                        <span className="ml-2 text-xs font-mono text-gray-400 line-through font-normal">
+                          {currentProduct.originalRegularPrice} zł
+                        </span>
+                      )}
+                    </span>
                     <span className="text-sm text-gray-500 block mt-0.5">Autentyczne dzieło, tylko 1 sztuka</span>
                   </div>
                   <span className="bg-[#E0115F] text-white text-xs font-mono px-2.5 py-1 rounded font-bold uppercase tracking-wider shrink-0 self-start sm:self-auto">Dostępny</span>
@@ -660,7 +722,14 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   }`}
                 >
                   <div>
-                    <span className="font-semibold block text-gray-900 text-base">Wydruk kolekcjonerski • {currentProduct.printPrice} zł</span>
+                    <span className="font-semibold block text-gray-900 text-base">
+                      Wydruk kolekcjonerski • {currentProduct.printPrice} zł
+                      {isPrintOnSale && currentProduct.printRegularPrice && (
+                        <span className="ml-2 text-xs font-mono text-gray-400 line-through font-normal">
+                          {currentProduct.printRegularPrice} zł
+                        </span>
+                      )}
+                    </span>
                     <span className="text-sm text-gray-500 block mt-0.5">Sygnowana reprodukcja fakturowa na papierze archiwalnym</span>
                   </div>
                   <span className="bg-[#E0115F] text-white text-xs font-mono px-2.5 py-1 rounded font-bold uppercase tracking-wider shrink-0 self-start sm:self-auto">Dostępny</span>

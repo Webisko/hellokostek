@@ -314,9 +314,9 @@ class PricingEngine
             return 0;
         }
 
-        // Check global free shipping threshold (in base currency)
+        // Check global free shipping threshold (in base currency); 0 disables threshold-based free shipping
         $freeShippingThreshold = (int) round($this->storeSettings->freeShippingThreshold() * $exchangeRate);
-        if ($subtotalAfterCouponAmount >= $freeShippingThreshold) {
+        if ($freeShippingThreshold > 0 && $subtotalAfterCouponAmount >= $freeShippingThreshold) {
             return 0;
         }
 

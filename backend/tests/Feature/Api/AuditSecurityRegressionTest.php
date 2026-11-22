@@ -360,4 +360,98 @@ class AuditSecurityRegressionTest extends TestCase
         $this->assertTrue((bool) data_get($product->metadata, 'original_available'));
         $this->assertTrue((bool) data_get($order->metadata, 'stock_restored'));
     }
+
+    public function test_omnibus_per_variant_lowest_price_before_discount_separates_original_and_print(): void
+    {
+        $product = Product::factory()->public()->create([
+            'slug' => 'omnibus-variant-split',
+            'regular_price_amount' => 30000,
+        ]);
+
+        $originalVariant = ProductVariant::query()->create([
+            'product_id' => $product->id,
+            'sku' => 'SPLIT-01-OR',
+            'regular_price_amount' => 30000,
+            'sale_price_amount' => null,
+            'stock_quantity' => 1,
+            'manages_stock' => true,
+            'is_active' => true,
+        ]);
+
+        $printVariant = ProductVariant::query()->create([
+            'product_id' => $product->id,
+            'sku' => 'SPLIT-01-PR',
+            'regular_price_amount' => 3000,
+            'sale_price_amount' => null,
+            'stock_quantity' => 100,
+            'manages_stock' => false,
+            'is_active' => true,
+        ]);
+
+        // Discount ONLY the original variant (300 zł -> 240 zł); print stays at 30 zł
+        $originalVariant->update(['sale_price_amount' => 24000]);
+
+        $response = $this->getJson(route('api.catalog.show', ['slug' => $product->slug]))
+            ->assertOk();
+
+        $variants = collect($response->json('data.variants'))->keyBy('sku');
+
+        $this->assertEquals(24000, $variants['SPLIT-01-OR']['current_price_amount']);
+        $this->assertEquals(30000, $variants['SPLIT-01-OR']['regular_price_amount']);
+        $this->assertEquals(24000, $variants['SPLIT-01-OR']['sale_price_amount']);
+        $this->assertEquals(30000, $variants['SPLIT-01-OR']['lowest_price_before_discount_last_30_days']);
+
+        $this->assertEquals(3000, $variants['SPLIT-01-PR']['current_price_amount']);
+        $this->assertEquals(3000, $variants['SPLIT-01-PR']['regular_price_amount']);
+        $this->assertNull($variants['SPLIT-01-PR']['sale_price_amount']);
+        $this->assertEquals(3000, $variants['SPLIT-01-PR']['lowest_price_before_discount_last_30_days']);
+    }
+
+    public function test_free_shipping_threshold_updates_dynamically_from_store_settings_and_zero_disables_it(): void
+    {
+        $product = Product::factory()->public()->create([
+            'slug' => 'dynamic-threshold-print',
+            'regular_price_amount' => 5000,
+            'type' => ProductType::Physical,
+        ]);
+
+        $printVariant = ProductVariant::query()->create([
+            'product_id' => $product->id,
+            'sku' => 'THR-01-PR',
+            'regular_price_amount' => 5000, // 50 zł per print
+            'stock_quantity' => 100,
+            'manages_stock' => false,
+            'is_active' => true,
+        ]);
+
+        $settings = app(StoreSettings::class)->model();
+        $settings->update(['free_shipping_threshold' => 30000]); // 300 zł
+
+        $this->getJson('/api/store/settings')
+            ->assertOk()
+            ->assertJsonPath('free_shipping_threshold', 30000);
+
+        // 5 prints = 250 zł (< 300 zł) -> courier shipping charged (> 0)
+        $belowResponse = $this->postJson(route('api.quote'), [
+            'items' => [['slug' => $product->slug, 'quantity' => 5, 'variant_id' => $printVariant->id]],
+            'shipping_method_code' => 'flat_rate:courier',
+        ])->assertOk();
+        $this->assertGreaterThan(0, $belowResponse->json('data.shipping_amount'));
+
+        // 6 prints = 300 zł (>= 300 zł) -> free shipping applied (0)
+        $atThresholdResponse = $this->postJson(route('api.quote'), [
+            'items' => [['slug' => $product->slug, 'quantity' => 6, 'variant_id' => $printVariant->id]],
+            'shipping_method_code' => 'flat_rate:courier',
+        ])->assertOk();
+        $this->assertEquals(0, $atThresholdResponse->json('data.shipping_amount'));
+
+        // Setting threshold to 0 disables threshold-based free shipping
+        $settings->update(['free_shipping_threshold' => 0]);
+
+        $disabledResponse = $this->postJson(route('api.quote'), [
+            'items' => [['slug' => $product->slug, 'quantity' => 6, 'variant_id' => $printVariant->id]],
+            'shipping_method_code' => 'flat_rate:courier',
+        ])->assertOk();
+        $this->assertGreaterThan(0, $disabledResponse->json('data.shipping_amount'));
+    }
 }

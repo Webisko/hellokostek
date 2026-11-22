@@ -1,7 +1,7 @@
 # Dokumentacja projektu Hello Kostek (Pracownia artystyczna i sklep)
 
 Data ostatniej aktualizacji: **22 listopada 2026 r.**  
-Status audytu i testów: **Pełny audyt produkcyjny i wdrożenie poprawek (`project-audit-master`, lokalnie): `php artisan test` 147/147 passed (823 assertions), `composer audit` 0 podatności, `npm audit --omit=dev` 0 podatności, `npm run build` PASS (23 strony, kod wyjścia 0), `legacy-scan` 0 uwag**
+Status audytu i testów: **Pełny audyt produkcyjny i wdrożenie poprawek (`project-audit-master`): `php artisan test` 149/149 passed (840 assertions), `composer audit` 0 podatności, `npm audit --omit=dev` 0 podatności, `npm run build` PASS (23 strony, kod wyjścia 0), `legacy-scan` 0 uwag**
 
 ---
 
@@ -57,7 +57,7 @@ Struktura bazy danych została zoptymalizowana pod kątem sprzedaży dzieł unik
 Główne trasy zdefiniowane w `backend/routes/api.php` z ochroną Rate Limiting:
 
 * `GET /api/catalog` – katalog publicznych, aktywnych produktów (zoptymalizowany bez zapytań N+1 oraz z poprawnymi adresami `/sklep/{slug}`).
-* `GET /api/catalog/products/{slug}` – szczegóły dzieła, historia cen Omnibus, powiązane warianty.
+* `GET /api/catalog/products/{slug}` – szczegóły dzieła, historia cen Omnibus liczona odrębnie per wariant (`lowest_price_before_discount_last_30_days` dla `-OR` i `-PR` niezależnie), powiązane warianty.
 * `POST /api/coupons/validate` (`throttle:20,1`) – zero-trust walidacja kodów rabatowych wyłącznie po stronie serwera.
 * `POST /api/inquiries` (`throttle:20,1`) – przyjmowanie zapytań z walidacją `email:rfc,dns`, filtrowaniem załączników (maks. 5 plików, MIME `jpg/jpeg/png/webp/pdf`, limit 10 MB), sanitizacją nagłówków `\r\n` w mailach oraz cichą pułapką antyspamową (`hp_field`, `website_url`, `_form_started_at < 1000 ms`).
 * `POST /api/checkout/place` (`throttle:30,1`) – atomowe składanie zamówienia wewnątrz `DB::transaction()` (włącznie z `Coupon::lockForUpdate()`), rezerwacją stanów, wyliczaniem `customer_segment` wyłącznie z zalogowanego użytkownika (ignorując wartość od klienta) oraz walidacją NIP / VIES.
@@ -83,7 +83,7 @@ Główne trasy zdefiniowane w `backend/routes/api.php` z ochroną Rate Limiting:
 
 ## 6. Ścieżka Zakupowa i Płatności
 
-* **Zero-Trust Frontend i obsługa faktury VAT:** Ceny, rabaty i próg darmowej wysyłki (`free_shipping_threshold`) są pobierane z API i weryfikowane przez backend. Błąd pobrania aktualnych danych produktu w `ProductDetail.tsx` blokuje przycisk zakupu z komunikatem i przyciskiem ponowienia próby. Formularz zamówienia obsługuje opcjonalne dane do faktury VAT (firma, walidacja sumy kontrolnej NIP modulo-11, adres rozliczeniowy dla dostaw do punktu) oraz walidację inline bez wyłączonych przycisków „martwego kliknięcia”.
+* **Zero-Trust Frontend i obsługa faktury VAT:** Ceny, rabaty i próg darmowej wysyłki (`free_shipping_threshold` — edytowalny w CMS w `/admin/ustawienia` → zakładka `E-commerce` → `Strefy i metody wysyłki` w zł; wartość `0` wyłącza próg) są pobierane z API i weryfikowane przez backend (`PricingEngine`). Błąd pobrania aktualnych danych produktu w `ProductDetail.tsx` blokuje przycisk zakupu z komunikatem i przyciskiem ponowienia próby. Formularz zamówienia obsługuje opcjonalne dane do faktury VAT (firma, walidacja sumy kontrolnej NIP modulo-11, adres rozliczeniowy dla dostaw do punktu) oraz walidację inline bez wyłączonych przycisków „martwego kliknięcia”.
 * **Weryfikacja statusu płatności (`Success.tsx`):** Strona podsumowania autoryzuje się przez `token` (`X-Order-Token`), rozróżnia statusy `awaiting_payment` i `pending`, wykonuje do 5 prób pollingu i nigdy nie wyświetla fałszywego potwierdzenia przed statusem `paid`.
 * **Zapobieganie oversellingowi oryginałów 1/1:**
   * W momencie składania zamówienia stan magazynowy oryginału (`-OR`) jest blokowany atomowo przez `lockForUpdate()`.
@@ -135,7 +135,7 @@ W pliku `backend/routes/console.php` zdefiniowano zadania cron (wszystkie z flag
 8. `queue:work --stop-when-empty --max-time=50` (co minutę) – bezpieczna obsługa kolejki maili i integracji na hostingu współdzielonym.
 
 ### Twarda bramka testowa
-* `php artisan test`: **147 testów zakończonych sukcesem (823 asercje)**, 0 błędów (w tym nowy zestaw regresyjny `AuditSecurityRegressionTest`).
+* `php artisan test`: **149 testów zakończonych sukcesem (840 asercji)**, 0 błędów (w tym nowy zestaw regresyjny `AuditSecurityRegressionTest`).
 * `composer audit --no-interaction`: **0 podatności**.
 * `npm audit --omit=dev`: **0 podatności**.
 * `npm run build`: kod wyjścia **0**, 23 strony wygenerowane w 4.56 s.

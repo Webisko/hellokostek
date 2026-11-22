@@ -33,6 +33,9 @@ export interface ApiProductVariant {
   sku: string;
   regular_price_amount: number;
   sale_price_amount?: number | null;
+  current_price_amount?: number;
+  lowest_price_last_30_days?: number | null;
+  lowest_price_before_discount_last_30_days?: number | null;
   stock_quantity: number;
   is_active: boolean;
 }
