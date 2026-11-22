@@ -589,5 +589,32 @@ class CmsAuditFixesTest extends TestCase
 
         $admin = $this->createAdmin();
         $this->actingAs($admin)->get('/admin/multimedia')->assertOk();
+
+        $this->assertSame(
+            ['Sprzedaż', 'Sklep', 'Strona i galeria', 'Ustawienia'],
+            app(\App\Support\StoreSettings::class)->navigationGroups()
+        );
+
+        $dashboard->assertSeeInOrder([
+            'Kokpit',
+            'Analityka',
+            'Sprzedaż',
+            'Zamówienia',
+            'Zapytania',
+            'Faktury',
+            'Zwroty',
+            'Sklep',
+            'Produkty',
+            'Kategorie',
+            'Kupony rabatowe',
+            'Strona i galeria',
+            'Galeria',
+            'Opinie',
+            'Strony',
+            'FAQ',
+            'Ustawienia',
+            'Użytkownicy',
+            'Mój profil i hasło',
+        ]);
     }
 }

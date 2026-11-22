@@ -31,9 +31,9 @@ class MediaResource extends Resource
 
     protected static ?string $slug = 'multimedia';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Strona & wygląd';
+    protected static \UnitEnum|string|null $navigationGroup = 'Strona i galeria';
 
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 50;
 
     public static function canViewAny(): bool
     {

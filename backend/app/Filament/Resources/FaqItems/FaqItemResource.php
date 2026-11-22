@@ -35,9 +35,9 @@ class FaqItemResource extends Resource
 
     protected static bool $shouldRegisterNavigation = true;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Strony & wygląd';
+    protected static \UnitEnum|string|null $navigationGroup = 'Strona i galeria';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
     {

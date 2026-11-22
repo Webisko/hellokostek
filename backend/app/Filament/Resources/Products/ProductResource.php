@@ -36,7 +36,7 @@ class ProductResource extends Resource
 
     protected static ?string $slug = 'produkty';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Produkty & sklep';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sklep';
 
     protected static ?int $navigationSort = 10;
 

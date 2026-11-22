@@ -35,9 +35,9 @@ class CouponResource extends Resource
 
     protected static ?string $slug = 'kupony';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sklep';
 
-    protected static ?int $navigationSort = 70;
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

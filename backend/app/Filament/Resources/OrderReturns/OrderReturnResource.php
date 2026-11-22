@@ -33,9 +33,9 @@ class OrderReturnResource extends Resource
 
     protected static ?string $navigationLabel = 'Zwroty';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż';
 
-    protected static ?int $navigationSort = 60;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
     {

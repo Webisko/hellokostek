@@ -28,7 +28,7 @@ class ContactInquiryResource extends Resource
 
     protected static ?string $navigationLabel = 'Zapytania';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż';
 
     protected static ?int $navigationSort = 20;
 

@@ -32,9 +32,9 @@ class ProductReviewResource extends Resource
 
     protected static ?string $navigationLabel = 'Opinie o produktach';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Produkty & sklep';
+    protected static \UnitEnum|string|null $navigationGroup = 'Strona i galeria';
 
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 20;
 
     public static function getNavigationBadge(): ?string
     {

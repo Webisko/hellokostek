@@ -25,7 +25,7 @@ class OperationsHealth extends Page
 
     protected static ?string $slug = 'status-systemu';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Analityka & system';
+    protected static \UnitEnum|string|null $navigationGroup = 'Ustawienia';
 
     protected static ?int $navigationSort = 40;
 

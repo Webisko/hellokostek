@@ -109,7 +109,7 @@ class AdminPanelProvider extends PanelProvider
                         shouldRegisterNavigation: true,
                         hasAvatars: false,
                         slug: 'moj-profil',
-                        navigationGroup: 'Analityka & system',
+                        navigationGroup: 'Ustawienia',
                         userMenuLabel: 'Mój profil i hasło',
                     )
                     ->myProfileComponents([

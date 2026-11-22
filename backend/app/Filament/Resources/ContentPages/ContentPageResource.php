@@ -33,7 +33,7 @@ class ContentPageResource extends Resource
 
     protected static ?string $slug = 'strony-statyczne';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Strona & wygląd';
+    protected static \UnitEnum|string|null $navigationGroup = 'Strona i galeria';
 
     protected static ?int $navigationSort = 30;
 

@@ -15,13 +15,13 @@ class AnalyticsOverview extends Page
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartLine;
 
-    protected static ?string $navigationLabel = 'Analityka sklepu';
+    protected static ?string $navigationLabel = 'Analityka';
 
     protected static ?string $title = 'Analityka sklepu';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Analityka & system';
+    protected static \UnitEnum|string|null $navigationGroup = null;
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = -1;
 
     protected string $view = 'filament.pages.analytics-overview';
 

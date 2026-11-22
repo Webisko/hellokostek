@@ -7,7 +7,7 @@ use Jeffgreco13\FilamentBreezy\Pages\MyProfilePage as BaseMyProfilePage;
 
 class MyProfilePage extends BaseMyProfilePage
 {
-    protected static ?int $navigationSort = 35;
+    protected static ?int $navigationSort = 30;
 
     public function getTitle(): string|Htmlable
     {

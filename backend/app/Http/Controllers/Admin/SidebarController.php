@@ -44,7 +44,7 @@ class SidebarController extends Controller
                 return [
                     'resource' => $matched ? $matched['resource'] : $item['label'] . 'Resource',
                     'label' => $item['label'],
-                    'group' => $item['group'] ?? ($matched['group'] ?? 'Analityka & system'),
+                    'group' => $item['group'] ?? ($matched['group'] ?? 'Ustawienia'),
                     'sort_order' => ($index + 1) * 10,
                     'visible' => $matched ? $matched['visible'] : true,
                 ];
@@ -53,6 +53,8 @@ class SidebarController extends Controller
 
         $setting->metadata = $metadata;
         $setting->save();
+
+        app(\App\Support\StoreSettings::class)->purgeCache();
 
         return response()->json(['success' => true]);
     }

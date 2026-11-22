@@ -26,9 +26,9 @@ class InvoiceResource extends Resource
 
     protected static ?string $navigationLabel = 'Faktury';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż & zapytania';
+    protected static \UnitEnum|string|null $navigationGroup = 'Sprzedaż';
 
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 30;
 
     public static function table(Table $table): Table
     {
