@@ -1729,10 +1729,18 @@ html.fi-sidebar-collapsed .fi-sidebar-nav::-webkit-scrollbar {
     width: 0 !important;
 }
 
-html.fi-sidebar-collapsed .fi-sidebar-nav-groups,
+html.fi-sidebar-collapsed .fi-sidebar-nav-groups {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
 html.fi-sidebar-collapsed .fi-sidebar-group,
 html.fi-sidebar-collapsed .fi-sidebar-group-items,
 html.fi-sidebar-collapsed .fi-sidebar-item {
+    width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     list-style: none !important;
@@ -1759,6 +1767,10 @@ html.fi-sidebar-collapsed .fi-sidebar-item-btn {
     align-items: center !important;
     display: flex !important;
     border-radius: var(--shop-radius-sm) !important;
+}
+
+html.fi-sidebar-collapsed .fi-panel-admin .fi-sidebar-item:hover .fi-sidebar-item-btn {
+    transform: none !important;
 }
 
 html.fi-sidebar-collapsed .fi-sidebar-item-icon {

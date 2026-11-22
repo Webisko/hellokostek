@@ -48,27 +48,28 @@
 @endif
 
 <script>
-    (function () {
+    function syncSidebarCollapsedClass() {
         try {
-            const isOpen = localStorage.getItem('_x_isOpenDesktop');
-            if (isOpen === 'false') {
+            const storeOpen = window.Alpine?.store?.('sidebar')?.isOpenDesktop;
+            const isOpen = typeof storeOpen === 'boolean'
+                ? storeOpen
+                : localStorage.getItem('_x_isOpenDesktop') !== 'false';
+
+            if (isOpen === false) {
                 document.documentElement.classList.add('fi-sidebar-collapsed');
+            } else {
+                document.documentElement.classList.remove('fi-sidebar-collapsed');
             }
         } catch (e) {}
-    })();
+    }
+
+    syncSidebarCollapsedClass();
 
     document.addEventListener('alpine:init', () => {
-        window.Alpine.effect(() => {
-            try {
-                const isOpen = window.Alpine.store('sidebar').isOpenDesktop;
-                if (isOpen === false) {
-                    document.documentElement.classList.add('fi-sidebar-collapsed');
-                } else {
-                    document.documentElement.classList.remove('fi-sidebar-collapsed');
-                }
-            } catch (e) {}
-        });
+        window.Alpine.effect(syncSidebarCollapsedClass);
     });
+
+    document.addEventListener('livewire:navigated', syncSidebarCollapsedClass);
 
     function initLiquidAuthButtons() {
         const simplePage = document.querySelector('body.fi-simple-page, .fi-simple-layout');
