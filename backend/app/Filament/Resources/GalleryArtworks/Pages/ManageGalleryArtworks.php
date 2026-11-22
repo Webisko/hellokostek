@@ -28,7 +28,7 @@ class ManageGalleryArtworks extends ManageRecords
         return [
             CreateAction::make()
                 ->slideOver()
-                ->modalWidth('3xl'),
+                ->modalWidth('7xl'),
         ];
     }
 }

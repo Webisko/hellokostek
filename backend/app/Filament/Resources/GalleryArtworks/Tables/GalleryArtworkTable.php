@@ -70,7 +70,7 @@ class GalleryArtworkTable
                     ->tooltip('Edytuj')
                     ->color('violet')
                     ->slideOver()
-                    ->modalWidth('3xl'),
+                    ->modalWidth('7xl'),
 
                 DeleteAction::make()
                     ->iconButton()

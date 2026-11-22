@@ -2020,7 +2020,8 @@ html.fi-sidebar-collapsed .fi-sidebar-item-icon {
 
 /* Proportional artwork upload previews & square thumbnail grid */
 .fi-panel-admin .fi-artwork-featured-upload .filepond--root {
-    max-width: 420px;
+    width: 100%;
+    max-width: 420px !important;
 }
 
 .fi-panel-admin .fi-artwork-featured-upload .filepond--root:not(:has(.filepond--item)),
