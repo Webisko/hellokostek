@@ -5,9 +5,18 @@ namespace App\Filament\Pages\Auth;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 
 class CustomLogin extends BaseLogin
 {
+    public function getHeading(): string | Htmlable | null
+    {
+        if (filled($this->userUndertakingMultiFactorAuthentication)) {
+            return parent::getHeading();
+        }
+
+        return null;
+    }
     public function mount(): void
     {
         parent::mount();
