@@ -18,10 +18,22 @@ class ProductReviewForm
                 ->schema([
                     \Filament\Forms\Components\Hidden::make('sort_order')
                         ->default(fn () => (\App\Models\ProductReview::max('sort_order') ?? 0) + 10),
-                    TextInput::make('emoji')
-                        ->label('Wybór ikony emoji')
-                        ->placeholder('np. 🐶, ✨, ❤️, 🎨')
-                        ->maxLength(16),
+                    Select::make('emoji')
+                        ->label('Ikona emoji')
+                        ->placeholder('Wybierz ikonę emoji')
+                        ->options(fn ($state): array => self::emojiOptions(is_string($state) ? $state : null))
+                        ->native(false)
+                        ->createOptionForm([
+                            TextInput::make('emoji')
+                                ->label('Własna ikona emoji')
+                                ->placeholder('np. 🐴 lub 💍')
+                                ->hintIcon('heroicon-o-question-mark-circle', tooltip: 'Na Windowsie naciśnij Win + kropka (.), na Macu Ctrl + Cmd + Spacja.')
+                                ->required()
+                                ->maxLength(16),
+                        ])
+                        ->createOptionModalHeading('Dodaj własne emoji')
+                        ->createOptionAction(fn (\Filament\Actions\Action $action) => $action->tooltip('Wpisz własne emoji'))
+                        ->createOptionUsing(fn (array $data): string => trim((string) $data['emoji'])),
                     Select::make('rating')
                         ->label('Ocena (gwiazdki)')
                         ->options([
@@ -60,5 +72,41 @@ class ProductReviewForm
                         ->maxLength(2000),
                 ]),
         ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function emojiOptions(?string $currentValue = null): array
+    {
+        $options = [
+            '✨' => '✨ Zachwyt / ogólna',
+            '🎨' => '🎨 Malarstwo / rysunek',
+            '🖼️' => '🖼️ Obraz / portret',
+            '🖌️' => '🖌️ Pędzel / warsztat',
+            '❤️' => '❤️ Serce / polecenie',
+            '🥰' => '🥰 Wzruszenie',
+            '😍' => '😍 Miłość / zachwyt',
+            '🙂' => '🙂 Uśmiech',
+            '🐶' => '🐶 Pies / pupil',
+            '🐱' => '🐱 Kot / pupil',
+            '🐾' => '🐾 Zwierzęta',
+            '👨‍👩‍👧' => '👨‍👩‍👧 Rodzina',
+            '🎁' => '🎁 Prezent',
+            '💐' => '💐 Kwiaty / natura',
+            '🏡' => '🏡 Dom / wnętrze',
+            '🌟' => '🌟 Gwiazda',
+            '👏' => '👏 Brawo',
+            '🙏' => '🙏 Podziękowanie',
+            '💯' => '💯 Polecam',
+            '🔥' => '🔥 Super',
+        ];
+
+        $current = trim((string) $currentValue);
+        if ($current !== '' && ! array_key_exists($current, $options)) {
+            $options[$current] = $current . ' (własna ikona)';
+        }
+
+        return $options;
     }
 }
