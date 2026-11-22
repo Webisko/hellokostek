@@ -52,8 +52,8 @@ class MediaResource extends Resource
     {
         return [
             'index' => Pages\ListMedia::route('/'),
-            'create' => Pages\CreateMedia::route('/create'),
-            'edit' => Pages\EditMedia::route('/{record}/edit'),
+            'create' => Pages\CreateMedia::route('/utworz'),
+            'edit' => Pages\EditMedia::route('/{record}/edycja'),
         ];
     }
 }

@@ -164,13 +164,16 @@ class CmsAuditFixesTest extends TestCase
         $setting = app(\App\Support\StoreSettings::class)->model();
         $admin = $this->createAdmin();
 
-        $response = $this->actingAs($admin)->get("/admin/ustawienia/{$setting->id}/edit");
+        $response = $this->actingAs($admin)->get('/admin/ustawienia');
 
         $response->assertOk();
         $response->assertSee('Identyfikacja panelu administratora');
         $response->assertSee('Próg darmowej dostawy i metody wysyłki');
         $response->assertSee('Zaawansowane ustawienia techniczne');
-        $response->assertSee('Wróć do kokpitu');
+        $response->assertDontSee('Wróć do kokpitu');
+
+        $this->assertStringEndsWith('/admin/ustawienia', \App\Filament\Resources\StoreSettings\StoreSettingResource::getUrl('index'));
+        $this->assertStringEndsWith('/utworz', \App\Filament\Resources\Users\UserResource::getUrl('create'));
 
         // Zweryfikuj, że 8 sekretnych pól jest inicjalizowanych jako '' zamiast null (ochrona przed fałszywym alertem niezapisanych zmian)
         $page = new \App\Filament\Resources\StoreSettings\Pages\EditStoreSetting();

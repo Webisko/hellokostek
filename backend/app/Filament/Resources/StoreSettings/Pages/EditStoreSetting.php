@@ -2,14 +2,19 @@
 
 namespace App\Filament\Resources\StoreSettings\Pages;
 
-use App\Filament\Pages\StoreDashboard;
 use App\Filament\Resources\StoreSettings\StoreSettingResource;
-use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
 class EditStoreSetting extends EditRecord
 {
     protected static string $resource = StoreSettingResource::class;
+
+    public function mount(int|string|null $record = null): void
+    {
+        $record ??= app(\App\Support\StoreSettings::class)->model()->getKey();
+
+        parent::mount($record);
+    }
 
     public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
     {
@@ -29,10 +34,6 @@ class EditStoreSetting extends EditRecord
                 ->icon('heroicon-o-check')
                 ->submit(null)
                 ->action(fn () => $this->save()),
-            Action::make('backToDashboard')
-                ->label('Wróć do kokpitu')
-                ->color('gray')
-                ->url(StoreDashboard::getUrl()),
         ];
     }
 

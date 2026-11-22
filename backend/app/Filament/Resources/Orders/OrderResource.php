@@ -115,7 +115,7 @@ class OrderResource extends Resource
     {
         return [
             'index' => ListOrders::route('/'),
-            'create' => CreateOrder::route('/create'),
+            'create' => CreateOrder::route('/utworz'),
         ];
     }
 

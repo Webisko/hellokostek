@@ -2,10 +2,7 @@
 
 namespace App\Filament\Resources\StoreSettings;
 
-use App\Filament\Resources\StoreSettings\Pages\CreateStoreSetting;
 use App\Filament\Resources\StoreSettings\Pages\EditStoreSetting;
-use App\Filament\Resources\StoreSettings\Pages\ListStoreSettings;
-use App\Filament\Resources\StoreSettings\Pages\ViewStoreSetting;
 use App\Filament\Resources\StoreSettings\Schemas\StoreSettingForm;
 use App\Filament\Resources\StoreSettings\Schemas\StoreSettingInfolist;
 use App\Filament\Resources\StoreSettings\Tables\StoreSettingsTable;
@@ -73,8 +70,8 @@ class StoreSettingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListStoreSettings::route('/'),
-            'edit' => EditStoreSetting::route('/{record}/edit'),
+            'index' => EditStoreSetting::route('/'),
+            'edit' => EditStoreSetting::route('/{record}/edycja'),
         ];
     }
 }
