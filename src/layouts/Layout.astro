@@ -141,6 +141,7 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
         }
       ]
     })} />
+    <slot name="head" />
   </head>
   <body class="min-h-screen bg-white text-off-black flex flex-col justify-between">
     <!-- CMS Announcement Bar -->
@@ -191,6 +192,9 @@ const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
               if (!parent) return NodeFilter.FILTER_REJECT;
               const tag = parent.tagName.toLowerCase();
               if (['script', 'style', 'code', 'pre', 'textarea', 'input', 'svg', 'noscript', 'template'].includes(tag)) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              if (parent.closest('astro-island')) {
                 return NodeFilter.FILTER_REJECT;
               }
               return NodeFilter.FILTER_ACCEPT;

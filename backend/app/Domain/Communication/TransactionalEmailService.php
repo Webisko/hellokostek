@@ -169,40 +169,59 @@ class TransactionalEmailService
             return null;
         }
 
-        $itemsText = '';
+        $itemsHtml = '';
+        $itemsPlain = '';
         foreach ($order->items as $item) {
-            $itemsText .= "<li>{$item->name} x {$item->quantity}</li>";
+            $escapedName = e($item->name);
+            $itemsHtml .= "<li>{$escapedName} x {$item->quantity}</li>";
+            $itemsPlain .= "{$item->name} x {$item->quantity}; ";
         }
-        if ($itemsText !== '') {
-            $itemsText = "<ul>{$itemsText}</ul>";
+        if ($itemsHtml !== '') {
+            $itemsHtml = "<ul>{$itemsHtml}</ul>";
         }
 
-        $placeholders = [
+        $subjectPlaceholders = [
             '{order_number}' => $order->number,
             '{customer_first_name}' => $order->customer_first_name,
             '{customer_last_name}' => $order->customer_last_name,
             '{customer_email}' => $order->customer_email,
             '{total_amount}' => number_format($order->total_amount / 100, 2, ',', ' ') . ' ' . $order->currency,
-            '{items_list}' => $itemsText,
+            '{items_list}' => trim($itemsPlain),
+        ];
+
+        $htmlPlaceholders = [
+            '{order_number}' => e($order->number),
+            '{customer_first_name}' => e($order->customer_first_name),
+            '{customer_last_name}' => e($order->customer_last_name),
+            '{customer_email}' => e($order->customer_email),
+            '{total_amount}' => e(number_format($order->total_amount / 100, 2, ',', ' ') . ' ' . $order->currency),
+            '{items_list}' => $itemsHtml,
         ];
 
         if ($orderReturn) {
-            $returnedItemsText = '';
+            $returnedItemsHtml = '';
+            $returnedItemsPlain = '';
             foreach ($orderReturn->items as $item) {
                 $productName = $item->orderItem?->name ?? 'Produkt';
-                $returnedItemsText .= "<li>{$productName} x {$item->quantity}</li>";
+                $returnedItemsHtml .= '<li>' . e($productName) . " x {$item->quantity}</li>";
+                $returnedItemsPlain .= "{$productName} x {$item->quantity}; ";
             }
-            if ($returnedItemsText !== '') {
-                $returnedItemsText = "<ul>{$returnedItemsText}</ul>";
+            if ($returnedItemsHtml !== '') {
+                $returnedItemsHtml = "<ul>{$returnedItemsHtml}</ul>";
             }
 
-            $placeholders['{return_number}'] = $orderReturn->return_number;
-            $placeholders['{returned_items_list}'] = $returnedItemsText;
-            $placeholders['{return_date}'] = $orderReturn->created_at ? $orderReturn->created_at->toIso8601String() : now()->toIso8601String();
+            $returnDate = $orderReturn->created_at ? $orderReturn->created_at->toIso8601String() : now()->toIso8601String();
+            $subjectPlaceholders['{return_number}'] = $orderReturn->return_number;
+            $subjectPlaceholders['{returned_items_list}'] = trim($returnedItemsPlain);
+            $subjectPlaceholders['{return_date}'] = $returnDate;
+
+            $htmlPlaceholders['{return_number}'] = e($orderReturn->return_number);
+            $htmlPlaceholders['{returned_items_list}'] = $returnedItemsHtml;
+            $htmlPlaceholders['{return_date}'] = e($returnDate);
         }
 
-        $subject = strtr($template->subject, $placeholders);
-        $body = strtr($template->body_html, $placeholders);
+        $subject = strtr($template->subject, $subjectPlaceholders);
+        $body = strtr($template->body_html, $htmlPlaceholders);
 
         return new \App\Mail\CustomHtmlMail($subject, $body);
     }

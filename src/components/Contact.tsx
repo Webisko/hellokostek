@@ -39,13 +39,20 @@ export default function Contact() {
   });
 
   const [files, setFiles] = useState<File[]>([]);
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [hpField, setHpField] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const formStartedAtRef = useRef<number>(0);
 
-  // Check URL query parameters for initial subject on mount
+  // Check URL query parameters for initial subject and capture mount time on client
   useEffect(() => {
+    formStartedAtRef.current = Date.now();
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const subjectParam = params.get("subject");
@@ -61,15 +68,42 @@ export default function Contact() {
     { value: "other_question", label: "Zapytanie o dostępność prac / własny format / inne" }
   ];
 
+  const clearFieldError = (field: string) => {
+    if (!fieldErrors[field]) return;
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(name);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+    if (!e.target.files) return;
+    const selected = Array.from(e.target.files);
+    const allowedMime = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+    const maxBytes = 10 * 1024 * 1024;
+    if (selected.length > 5) {
+      setFieldErrors((prev) => ({ ...prev, files: "Możesz załączyć maksymalnie 5 plików." }));
+      return;
     }
+    const invalidFile = selected.find(
+      (f) => (!allowedMime.includes(f.type) && !/\.(jpe?g|png|webp|pdf)$/i.test(f.name)) || f.size > maxBytes
+    );
+    if (invalidFile) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        files: "Dozwolone są wyłącznie pliki JPG, PNG, WEBP lub PDF o rozmiarze do 10 MB każdy.",
+      }));
+      return;
+    }
+    clearFieldError("files");
+    setFiles(selected);
   };
 
   const removeFile = (index: number) => {
@@ -81,7 +115,7 @@ export default function Contact() {
       case "portrait_commission":
         return {
           label: "Opisz swoją wizję lub przeznaczenie obrazu *",
-          placeholder: "Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
+          placeholder: "Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota w wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
         };
       case "shop_delivery":
         return {
@@ -96,32 +130,67 @@ export default function Contact() {
     }
   };
 
+  const focusFirstError = (errors: Record<string, string>) => {
+    const firstKey = Object.keys(errors)[0];
+    if (!firstKey) return;
+    requestAnimationFrame(() => {
+      const target = formRef.current?.querySelector<HTMLElement>(`[data-error-field="${firstKey}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        const focusable = target.matches("input, select, textarea, button")
+          ? target
+          : target.querySelector<HTMLElement>("input, select, textarea, button");
+        focusable?.focus({ preventScroll: true });
+      }
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.subject) {
-      setIsDropdownOpen(true);
-      return;
+    const errors: Record<string, string> = {};
+    if (formData.name.trim().length < 2) {
+      errors.name = "Podaj swoje imię (minimum 2 znaki).";
     }
-    if (formData.subject === "portrait_commission") {
-      if (!formData.shape) {
-        alert("Proszę wybrać podobrazie.");
-        return;
-      }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.email = "Podaj prawidłowy adres e-mail.";
+    }
+    if (!formData.subject) {
+      errors.subject = "Wybierz temat zapytania.";
+    } else if (formData.subject === "portrait_commission" && !formData.shape) {
+      errors.shape = "Wybierz kształt podobrazia.";
+    }
+    if (formData.message.trim().length < 5) {
+      errors.message = "Wpisz treść wiadomości (minimum 5 znaków).";
+    }
+    if (files.length > 5) {
+      errors.files = "Możesz załączyć maksymalnie 5 plików.";
     }
 
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setFormErrors(Object.values(errors));
+      focusFirstError(errors);
+      return;
+    }
+
+    setFieldErrors({});
+    setFormErrors([]);
     setIsSubmitting(true);
     setErrorMessage("");
 
     const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     const body = new FormData();
-    body.append("name", formData.name);
-    body.append("email", formData.email);
+    body.append("name", formData.name.trim());
+    body.append("email", formData.email.trim());
     body.append("phone", "");
-    
+    body.append("website_url", websiteUrl);
+    body.append("hp_field", hpField);
+    body.append("_form_started_at", String(formStartedAtRef.current || Date.now()));
+
     const subjectLabel = subjects.find(s => s.value === formData.subject)?.label || formData.subject;
     body.append("subject", subjectLabel);
-    body.append("message", formData.message);
-    
+    body.append("message", formData.message.trim());
+
     if (formData.shape) body.append("shape", formData.shape);
     if (formData.size) body.append("size", formData.size);
 
@@ -252,61 +321,94 @@ export default function Contact() {
         <div className="lg:col-span-7 bg-white rounded-3xl border border-off-black p-6 sm:p-10 space-y-6">
           <h3 className="font-display text-2xl text-gray-900 border-b border-gray-100 pb-4">Wypełnij formularz kontaktowy</h3>
 
-          <form onSubmit={handleSubmit} className="space-y-6 font-sans">
-            <input type="text" name="website_url" style={{ display: "none" }} tabIndex={-1} autoComplete="off" aria-hidden="true" />
+          <form ref={formRef} noValidate onSubmit={handleSubmit} className="space-y-6 font-sans">
+            <input
+              type="text"
+              name="website_url"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+              style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }}
+              tabIndex={-1}
+              autoComplete="new-password"
+              aria-hidden="true"
+            />
+            <input
+              type="text"
+              name="hp_field"
+              value={hpField}
+              onChange={(e) => setHpField(e.target.value)}
+              style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }}
+              tabIndex={-1}
+              autoComplete="new-password"
+              aria-hidden="true"
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label htmlFor="contact-name" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Imię *</label>
+              <div className="space-y-1" data-error-field="name">
+                <label htmlFor="contact-name" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Imię *</label>
                 <input
                   type="text"
                   id="contact-name"
                   name="name"
+                  autoComplete="name"
                   required
+                  aria-invalid={Boolean(fieldErrors.name)}
+                  aria-describedby={fieldErrors.name ? "contact-name-error" : undefined}
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="np. Anna"
-                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
+                  className={`w-full p-3 bg-gray-55 border ${fieldErrors.name ? "border-red-500" : "border-gray-200"} focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all`}
                 />
+                {fieldErrors.name && (
+                  <p id="contact-name-error" className="text-xs text-red-600">{fieldErrors.name}</p>
+                )}
               </div>
 
-              <div className="space-y-1">
-                <label htmlFor="contact-email" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Twój Adres E-mail *</label>
+              <div className="space-y-1" data-error-field="email">
+                <label htmlFor="contact-email" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Twój adres e-mail *</label>
                 <input
                   type="email"
                   id="contact-email"
                   name="email"
+                  autoComplete="email"
                   required
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={fieldErrors.email ? "contact-email-error" : undefined}
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="np. anna@gmail.com"
-                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
+                  className={`w-full p-3 bg-gray-55 border ${fieldErrors.email ? "border-red-500" : "border-gray-200"} focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all`}
                 />
+                {fieldErrors.email && (
+                  <p id="contact-email-error" className="text-xs text-red-600">{fieldErrors.email}</p>
+                )}
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Czego dotyczy Twoja wizja?</label>
+            <div className="space-y-1" data-error-field="subject">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Czego dotyczy Twoja wizja? *</label>
               <div className="relative">
                 <button
                   type="button"
+                  aria-expanded={isDropdownOpen}
+                  aria-invalid={Boolean(fieldErrors.subject)}
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className={`w-full p-3 pr-10 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all cursor-pointer text-left flex justify-between items-center ${
-                    formData.subject ? "text-gray-950" : "text-gray-400"
+                  className={`w-full p-3 pr-10 bg-gray-55 border ${fieldErrors.subject ? "border-red-500" : "border-gray-200"} focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-sm transition-all cursor-pointer text-left flex justify-between items-center ${
+                    formData.subject ? "text-gray-950" : "text-gray-600"
                   }`}
                 >
                   <span>
-                    {formData.subject 
-                      ? subjects.find(s => s.value === formData.subject)?.label 
+                    {formData.subject
+                      ? subjects.find(s => s.value === formData.subject)?.label
                       : "Wybierz temat..."
                     }
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isDropdownOpen && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-10" 
+                    <div
+                      className="fixed inset-0 z-10"
                       onClick={() => setIsDropdownOpen(false)}
                     />
                     <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg z-20 py-1 overflow-hidden animate-scaleIn origin-top">
@@ -316,11 +418,12 @@ export default function Contact() {
                           type="button"
                           onClick={() => {
                             setFormData(prev => ({ ...prev, subject: subj.value }));
+                            clearFieldError("subject");
                             setIsDropdownOpen(false);
                           }}
                           className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-gray-50 cursor-pointer ${
-                            formData.subject === subj.value 
-                              ? "bg-gray-50/80 text-[#E0115F] font-semibold" 
+                            formData.subject === subj.value
+                              ? "bg-gray-50/80 text-[#E0115F] font-semibold"
                               : "text-gray-700"
                           }`}
                         >
@@ -331,107 +434,141 @@ export default function Contact() {
                   </>
                 )}
               </div>
+              {fieldErrors.subject && (
+                <p className="text-xs text-red-600">{fieldErrors.subject}</p>
+              )}
             </div>
 
             {/* Custom parameters fields appearing with high-padding for custom portraits option */}
             {formData.subject === "portrait_commission" && (
-              <div className="animate-scaleIn space-y-6">
+              <div className="animate-scaleIn space-y-6" data-error-field="shape">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Podobrazie *</label>
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Podobrazie *</label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.shape === "rectangle" && formData.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-55 text-gray-500 hover:bg-white"
+                      formData.shape === "rectangle" && formData.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-55 text-gray-600 hover:bg-white"
                     }`}>
                       <input
                         type="radio"
                         name="podobrazie"
                         value="prostokat_30x40"
                         checked={formData.shape === "rectangle" && formData.size === "30x40"}
-                        onChange={() => setFormData({...formData, shape: "rectangle", size: "30x40"})}
+                        onChange={() => {
+                          setFormData({ ...formData, shape: "rectangle", size: "30x40" });
+                          clearFieldError("shape");
+                        }}
                         className="sr-only"
                       />
                       Prostokątne 30x40
                     </label>
                     <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.shape === "oval" && formData.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-55 text-gray-500 hover:bg-white"
+                      formData.shape === "oval" && formData.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-55 text-gray-600 hover:bg-white"
                     }`}>
                       <input
                         type="radio"
                         name="podobrazie"
                         value="owalne_30x40"
                         checked={formData.shape === "oval" && formData.size === "30x40"}
-                        onChange={() => setFormData({...formData, shape: "oval", size: "30x40"})}
+                        onChange={() => {
+                          setFormData({ ...formData, shape: "oval", size: "30x40" });
+                          clearFieldError("shape");
+                        }}
                         className="sr-only"
                       />
                       Owalne 30x40
                     </label>
                     <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                      formData.shape === "other" && formData.size === "other" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-55 text-gray-500 hover:bg-white"
+                      formData.shape === "other" && formData.size === "other" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-55 text-gray-600 hover:bg-white"
                     }`}>
                       <input
                         type="radio"
                         name="podobrazie"
                         value="inne"
                         checked={formData.shape === "other" && formData.size === "other"}
-                        onChange={() => setFormData({...formData, shape: "other", size: "other"})}
+                        onChange={() => {
+                          setFormData({ ...formData, shape: "other", size: "other" });
+                          clearFieldError("shape");
+                        }}
                         className="sr-only"
                       />
                       Inne
                     </label>
                   </div>
+                  {fieldErrors.shape && (
+                    <p className="text-xs text-red-600 mt-1">{fieldErrors.shape}</p>
+                  )}
                 </div>
               </div>
             )}
 
-            <div className="space-y-1">
-              <label htmlFor="contact-message" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">
+            <div className="space-y-1" data-error-field="message">
+              <label htmlFor="contact-message" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">
                 {getMessageFieldDetails().label}
               </label>
               <textarea
                 id="contact-message"
                 name="message"
                 required
+                aria-invalid={Boolean(fieldErrors.message)}
+                aria-describedby={fieldErrors.message ? "contact-message-error" : undefined}
                 rows={6}
                 value={formData.message}
                 onChange={handleInputChange}
                 placeholder={getMessageFieldDetails().placeholder}
-                className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all resize-none leading-relaxed"
+                className={`w-full p-3 bg-gray-55 border ${fieldErrors.message ? "border-red-500" : "border-gray-200"} focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all resize-none leading-relaxed`}
               />
+              {fieldErrors.message && (
+                <p id="contact-message-error" className="text-xs text-red-600">{fieldErrors.message}</p>
+              )}
             </div>
 
             {formData.subject !== "shop_delivery" && (
-              <div className="space-y-2 animate-fadeIn">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Dołącz poglądowe zdjęcia (JPG, PNG)</span>
+              <div className="space-y-2 animate-fadeIn" data-error-field="files">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)</span>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border border-dashed border-gray-200 rounded-xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-all cursor-pointer relative"
+                  className={`border border-dashed ${fieldErrors.files ? "border-red-500" : "border-gray-200"} rounded-xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-all cursor-pointer relative`}
                 >
                   <input
                     type="file"
                     ref={fileInputRef}
+                    accept="image/jpeg,image/png,image/webp,application/pdf"
                     multiple
                     onChange={handleFileChange}
                     className="hidden"
                   />
                   <div className="space-y-2 pointer-events-none">
-                    <div className="text-xs font-medium text-gray-500">
+                    <div className="text-xs font-medium text-gray-600">
                       {files.length > 0 ? (
                         <span className="text-[#E0115F] font-bold">
                           ✓ Wybrano {files.length} {files.length === 1 ? 'plik' : files.length < 5 ? 'pliki' : 'plików'}: {files.map(f => f.name).join(", ")}
                         </span>
                       ) : (
-                        <span>Kliknij, by załączyć klatki zdjęciowe (możesz też wysłać je bezpośrednio w mailu)</span>
+                        <span>Kliknij, by załączyć zdjęcia lub szkice (maks. 5 plików po 10 MB)</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400">Twoje dane są w pełni bezpieczne.</p>
+                    <p className="text-xs text-gray-600">Twoje dane są w pełni bezpieczne.</p>
                   </div>
                 </div>
+                {fieldErrors.files && (
+                  <p className="text-xs text-red-600">{fieldErrors.files}</p>
+                )}
               </div>
             )}
 
             <div className="pt-4 space-y-4">
+              {formErrors.length > 0 && (
+                <div role="alert" className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
+                  <p className="font-semibold mb-1">Sprawdź formularz przed wysłaniem:</p>
+                  <ul className="list-disc pl-4 space-y-0.5">
+                    {formErrors.map((err, idx) => (
+                      <li key={idx}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {errorMessage && (
-                <div className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
+                <div role="alert" className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
                   {errorMessage}
                 </div>
               )}
@@ -462,7 +599,7 @@ export default function Contact() {
               <p className="text-xs text-gray-550 font-sans text-center mt-4 leading-relaxed">
                 Wiadomość zostanie przesłana bezpośrednio do mojej asystentki – rudej kotki o imieniu Aurea, która miauknięciem informuje o nowych wiadomościach z formularza. Odpowiedź ode mnie wraz z propozycją kompozycji otrzymasz z odbiciem łapki na podany adres e-mail.
               </p>
-              <p className="text-[11px] text-gray-400 font-sans text-center leading-relaxed">
+              <p className="text-xs text-gray-600 font-sans text-center leading-relaxed">
                 Wysyłając wiadomość, akceptujesz przetwarzanie danych osobowych w celu obsługi zapytania zgodnie z <a href="/polityka-prywatnosci" className="underline hover:text-[#E0115F] transition-colors">Polityką prywatności</a>.
               </p>
             </div>

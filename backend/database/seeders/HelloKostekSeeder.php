@@ -16,10 +16,6 @@ class HelloKostekSeeder extends Seeder
 {
     public function run(): void
     {
-        // Czyszczenie starych angielskich kategorii i produktów
-        ProductCategory::query()->whereIn('slug', ['watercolor', 'drawing'])->delete();
-        Product::query()->where('slug', 'like', 'drawing-%')->orWhere('slug', 'like', 'watercolor-%')->delete();
-
         // 0. ADMIN USER
         $admin = \App\Models\User::query()->where('email', 'admin@hellokostek.pl')->firstOrNew();
         $adminData = [
@@ -29,18 +25,22 @@ class HelloKostekSeeder extends Seeder
             'role' => \App\Domain\Commerce\Enums\UserRole::Admin,
         ];
         if (! $admin->exists) {
-            $adminData['password'] = \Illuminate\Support\Facades\Hash::make(env('ADMIN_PASSWORD', 'Admin1234!'));
+            $password = env('ADMIN_PASSWORD') ?: Str::password(20);
+            $adminData['password'] = \Illuminate\Support\Facades\Hash::make($password);
+            if (! env('ADMIN_PASSWORD')) {
+                $this->command?->warn("Wygenerowano tymczasowe losowe hasło dla admin@hellokostek.pl (zmień przez app:make-admin-user lub panel).");
+            }
         }
         $admin->forceFill($adminData)->save();
 
-        // 0.1 STORE SETTINGS EMAILS
+        // 0.1 STORE SETTINGS EMAILS (Zero CMS Overwrite: uzupełniaj wyłącznie puste pola)
         $settings = \App\Models\StoreSetting::query()->first();
         if ($settings) {
             $settings->forceFill([
-                'admin_notification_email' => 'kontakt@hellokostek.pl',
-                'order_notification_email' => 'kontakt@hellokostek.pl',
-                'mail_from_address' => 'kontakt@hellokostek.pl',
-                'mail_from_name' => 'Hello Kostek',
+                'admin_notification_email' => $settings->admin_notification_email ?: 'kontakt@hellokostek.pl',
+                'order_notification_email' => $settings->order_notification_email ?: 'kontakt@hellokostek.pl',
+                'mail_from_address' => $settings->mail_from_address ?: 'kontakt@hellokostek.pl',
+                'mail_from_name' => $settings->mail_from_name ?: 'Hello Kostek',
             ])->save();
         }
 
@@ -385,10 +385,10 @@ class HelloKostekSeeder extends Seeder
         \App\Models\ContentPage::query()->firstOrCreate(
             ['slug' => 'regulamin'],
             [
-                'title' => 'Regulamin Sklepu',
+                'title' => 'Regulamin sklepu',
                 'excerpt' => 'Zasady korzystania ze sklepu Hello Kostek, składania zamówień oraz prawa konsumenta.',
                 'template' => 'legal',
-                'seo_title' => 'Regulamin Sklepu | Hello Kostek',
+                'seo_title' => 'Regulamin sklepu | Hello Kostek',
                 'seo_description' => 'Oficjalny regulamin sklepu internetowego Hello Kostek. Zasady sprzedaży obrazów i dzieł sztuki.',
                 'is_active' => true,
                 'published_at' => now(),
@@ -452,10 +452,10 @@ class HelloKostekSeeder extends Seeder
         \App\Models\ContentPage::query()->firstOrCreate(
             ['slug' => 'polityka-prywatnosci'],
             [
-                'title' => 'Polityka Prywatności i Cookies',
+                'title' => 'Polityka prywatności i cookies',
                 'excerpt' => 'Zasady przetwarzania danych osobowych (RODO) oraz wykorzystywania plików cookies.',
                 'template' => 'legal',
-                'seo_title' => 'Polityka Prywatności | Hello Kostek',
+                'seo_title' => 'Polityka prywatności | Hello Kostek',
                 'seo_description' => 'Informacje o przetwarzaniu danych osobowych (RODO) oraz polityce plików cookies sklepu Hello Kostek.',
                 'is_active' => true,
                 'published_at' => now(),
@@ -546,7 +546,7 @@ class HelloKostekSeeder extends Seeder
             ],
             [
                 'question' => 'Jaki jest czas dostawy gotowych prac oraz zamówień dedykowanych?',
-                'answer' => '<p>Prace z gotowej kolekcji wysyłam zazwyczaj w ciągu <strong>24–48 godzin</strong>. Czas wykonania portretu na zamówienie wynosi zazwyczaj od 7 do 14 dni roboczych, w zależności od wybranej techniki i czasochłonności.</p>',
+                'answer' => '<p>Prace z gotowej kolekcji wysyłam zazwyczaj w ciągu <strong>24–48 godzin</strong>. Czas namalowania portretu olejnego na indywidualne zamówienie wynosi zazwyczaj <strong>około 3–4 tygodni</strong>, w zależności od formatu i stopnia szczegółowości.</p>',
                 'group_name' => 'Czas realizacji',
                 'sort_order' => 40,
             ],

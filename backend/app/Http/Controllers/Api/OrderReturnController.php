@@ -61,27 +61,38 @@ class OrderReturnController extends Controller
 
         // Find the order
         if ($user && isset($validated['order_id'])) {
-            $order = Order::find($validated['order_id']);
+            $order = Order::query()
+                ->where('id', $validated['order_id'])
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (! $order) {
+                $exists = Order::query()->where('id', $validated['order_id'])->exists();
+
+                return response()->json([
+                    'message' => $exists ? 'Brak dostępu do tego zamówienia.' : 'Zamówienie nie zostało znalezione.',
+                ], $exists ? 403 : 404);
+            }
         } else {
             $orderNumber = $validated['order_number'] ?? null;
             $customerEmail = $validated['customer_email'] ?? ($user ? $user->email : null);
 
-            if (!$orderNumber || !$customerEmail) {
+            if (! $orderNumber || ! $customerEmail) {
                 return response()->json(['message' => 'Numer zamówienia i e-mail klienta są wymagane.'], 422);
             }
 
             $order = Order::query()
                 ->where('number', $orderNumber)
-                ->where('customer_email', $customerEmail)
+                ->whereRaw('LOWER(customer_email) = ?', [mb_strtolower(trim((string) $customerEmail))])
                 ->first();
+
+            if ($order && $user && $order->user_id !== null && $order->user_id !== $user->id) {
+                return response()->json(['message' => 'Brak dostępu do tego zamówienia.'], 403);
+            }
         }
 
-        if (!$order) {
+        if (! $order) {
             return response()->json(['message' => 'Zamówienie nie zostało znalezione.'], 404);
-        }
-
-        if ($user && $order->user_id && $order->user_id !== $user->id) {
-            return response()->json(['message' => 'Brak dostępu do tego zamówienia.'], 403);
         }
 
         // Validate order status is eligible for return (e.g., must be placed, shipped, or completed)

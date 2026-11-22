@@ -11,6 +11,14 @@ class StoreSetting extends Model
 
     protected static function booted(): void
     {
+        static::saving(function (StoreSetting $setting): void {
+            if ($setting->exists && $setting->isDirty('metadata')) {
+                $original = is_array($setting->getOriginal('metadata')) ? $setting->getOriginal('metadata') : [];
+                $new = is_array($setting->metadata) ? $setting->metadata : [];
+                $setting->metadata = array_replace($original, $new);
+            }
+        });
+
         static::saved(function () {
             app(\App\Support\StoreSettings::class)->purgeCache();
         });

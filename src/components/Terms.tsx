@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { BookOpen, Sparkles, FileEdit, CreditCard, Truck, RotateCcw, AlertTriangle, Copyright, Scale, Info, Mail, ArrowRight, X } from "lucide-react";
+import { sanitizeHtml } from "../utils/sanitizeHtml";
 
 const TERMS_SECTIONS = [
   { id: "postanowienia-ogolne", label: "§ 1. Postanowienia ogólne" },
@@ -105,7 +106,7 @@ export default function Terms() {
           Regulamin i zasady zakupów
         </span>
         <h1 className="font-display text-4xl sm:text-6xl text-gray-900 tracking-tight leading-none font-normal">
-          Regulamin Sklepu Internetowego
+          Regulamin sklepu internetowego
         </h1>
         <p className="font-sans text-gray-500 text-sm mt-4">
           Stan na: {lastUpdated}
@@ -140,7 +141,7 @@ export default function Terms() {
                 </div>
                 <div 
                   className="space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed [&>p]:mb-3 [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:space-y-1 [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:space-y-1"
-                  dangerouslySetInnerHTML={{ __html: sec.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(sec.content) }}
                 />
               </section>
             ))
@@ -377,7 +378,11 @@ export default function Terms() {
 
       {/* Table of Contents Drawer (Off-Canvas Menu) */}
       {isMounted && createPortal(
-        <div className={`fixed inset-0 z-50 overflow-hidden transition-all duration-300 ${isTocDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+        <div
+          className={`fixed inset-0 z-50 overflow-hidden transition-all duration-300 ${isTocDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+          aria-hidden={!isTocDrawerOpen}
+          inert={!isTocDrawerOpen || undefined}
+        >
           {/* Backdrop */}
           <div 
             className={`absolute inset-0 bg-black transition-opacity duration-300 ${

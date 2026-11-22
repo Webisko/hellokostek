@@ -55,6 +55,14 @@ class ContentPage extends Model
 
     protected static function booted(): void
     {
+        static::saving(function (ContentPage $page): void {
+            if ($page->exists && $page->isDirty('metadata')) {
+                $original = is_array($page->getOriginal('metadata')) ? $page->getOriginal('metadata') : [];
+                $new = is_array($page->metadata) ? $page->metadata : [];
+                $page->metadata = array_replace($original, $new);
+            }
+        });
+
         static::updating(function (ContentPage $page): void {
             if ($page->isDirty('slug')) {
                 $oldSlug = $page->getOriginal('slug');

@@ -18,8 +18,11 @@ class ContactInquiryController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        // Honeypot bot protection: if filled, return silent success
-        if (filled($request->input('website_url')) || filled($request->input('hp_field'))) {
+        // Honeypot & time-threshold bot protection: silent 200 OK without DB write or SMTP
+        $formStartedAt = $request->input('_form_started_at');
+        $tooFast = is_numeric($formStartedAt) && ((int) now()->getTimestampMs() - (int) $formStartedAt) < 1000;
+
+        if (filled($request->input('website_url')) || filled($request->input('hp_field')) || $tooFast) {
             return response()->json([
                 'data' => [
                     'message' => 'Dziękujemy za wiadomość.',
@@ -28,18 +31,37 @@ class ContactInquiryController extends Controller
             ], 200);
         }
 
+        $emailRule = app()->runningUnitTests() ? 'email:rfc' : 'email:rfc,dns';
+
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc', 'max:255'],
+            'email' => ['required', $emailRule, 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
             'website_url' => ['nullable', 'string'],
+            'hp_field' => ['nullable', 'string'],
+            'files' => ['nullable', 'array', 'max:5'],
+            'files.*' => [
+                'file',
+                'mimes:jpg,jpeg,png,webp,pdf',
+                'mimetypes:image/jpeg,image/png,image/webp,application/pdf',
+                'max:10240',
+            ],
+        ], [
+            'name.required' => 'Podaj swoje imię.',
+            'email.required' => 'Podaj adres e-mail.',
+            'email.email' => 'Podaj prawidłowy i istniejący adres e-mail.',
+            'message.required' => 'Wpisz treść wiadomości.',
+            'files.max' => 'Możesz załączyć maksymalnie 5 plików.',
+            'files.*.mimes' => 'Dozwolone formaty załączników to JPG, PNG, WEBP oraz PDF.',
+            'files.*.mimetypes' => 'Dozwolone formaty załączników to JPG, PNG, WEBP oraz PDF.',
+            'files.*.max' => 'Maksymalny rozmiar pojedynczego załącznika to 10 MB.',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -57,9 +79,12 @@ class ContactInquiryController extends Controller
         }
 
         // Wyciągamy dynamiczne dodatkowe pola (np. z briefu/wielokrokowego formularza)
-        $payload = array_diff_key($allFields, array_flip(['name', 'email', 'phone', 'subject', 'message', 'files']));
+        $payload = array_diff_key(
+            $allFields,
+            array_flip(['name', 'email', 'phone', 'subject', 'message', 'files', 'website_url', 'hp_field', '_form_started_at', '_human_interacted'])
+        );
 
-        if (!empty($attachments)) {
+        if (! empty($attachments)) {
             $payload['attachments'] = $attachments;
         }
 
@@ -67,6 +92,7 @@ class ContactInquiryController extends Controller
             if (is_array($value)) {
                 return array_map($sanitize, $value);
             }
+
             return is_string($value) ? strip_tags($value) : $value;
         };
 
@@ -76,7 +102,7 @@ class ContactInquiryController extends Controller
             'phone' => $data['phone'] ?? null,
             'subject' => isset($data['subject']) ? strip_tags($data['subject']) : null,
             'message' => strip_tags($data['message']),
-            'payload' => !empty($payload) ? array_map($sanitize, $payload) : null,
+            'payload' => ! empty($payload) ? array_map($sanitize, $payload) : null,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'status' => 'new',
@@ -127,8 +153,7 @@ class ContactInquiryController extends Controller
             'data' => [
                 'id' => $inquiry->id,
                 'status' => $inquiry->status,
-            ]
+            ],
         ], 201);
     }
 }
-

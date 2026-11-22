@@ -44,7 +44,7 @@ class SitemapController extends Controller
             $products = Product::query()->publicCatalog()->where('is_noindex', false)->get();
             foreach ($products as $product) {
                 $xml[] = '    <url>';
-                $xml[] = '        <loc>' . htmlspecialchars($baseUrl . '/products/' . $product->slug) . '</loc>';
+                $xml[] = '        <loc>' . htmlspecialchars($baseUrl . '/sklep/' . $product->slug) . '</loc>';
                 if ($product->updated_at) {
                     $xml[] = '        <lastmod>' . $product->updated_at->toAtomString() . '</lastmod>';
                 }

@@ -44,6 +44,11 @@ class GalleryArtwork extends Model
     protected static function booted(): void
     {
         static::saving(function (GalleryArtwork $artwork): void {
+            if ($artwork->exists && $artwork->isDirty('metadata')) {
+                $original = is_array($artwork->getOriginal('metadata')) ? $artwork->getOriginal('metadata') : [];
+                $new = is_array($artwork->metadata) ? $artwork->metadata : [];
+                $artwork->metadata = array_replace($original, $new);
+            }
             if ($artwork->year === null) {
                 $artwork->year = (string) date('Y');
             }

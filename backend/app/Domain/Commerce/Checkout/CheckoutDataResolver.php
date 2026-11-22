@@ -35,12 +35,7 @@ class CheckoutDataResolver
         $hasPhysicalProducts = $products->contains(fn ($p) => $p->type->value === 'physical');
 
         $user = auth('sanctum')->user() ?? auth()->user();
-        $customerSegment = CustomerSegment::Regular;
-        if (isset($validated['customer_segment'])) {
-            $customerSegment = CustomerSegment::from($validated['customer_segment']);
-        } elseif ($user) {
-            $customerSegment = $user->segment();
-        }
+        $customerSegment = $user ? $user->segment() : CustomerSegment::Regular;
 
         $quoteItems = array_map(
             fn (array $item, int $index): QuoteItemData => $this->resolveQuoteItem(

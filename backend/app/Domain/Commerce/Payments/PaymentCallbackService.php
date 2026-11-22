@@ -174,6 +174,17 @@ class PaymentCallbackService
         }
 
         return DB::transaction(function () use ($transaction, $order, $payload, $sessionId, $providerStatus, $verifyResponse): array {
+            $transaction = PaymentTransaction::query()->lockForUpdate()->findOrFail($transaction->id);
+            $order = Order::query()->lockForUpdate()->findOrFail($order->id);
+
+            if ($transaction->status === 'confirmed' || $order->payment_status === 'paid') {
+                return [
+                    'transaction' => $transaction,
+                    'order' => $order,
+                    'replayed' => true,
+                ];
+            }
+
             $responsePayload = $transaction->response_payload ?? [];
             $responsePayload['callback'] = [
                 'order_id' => (int) $payload['orderId'],
@@ -347,6 +358,23 @@ class PaymentCallbackService
         }
 
         return DB::transaction(function () use ($transaction, $order, $payload, $sessionId, $targetTransactionStatus, $targetOrderPaymentStatus, $providerStatus, $errorMessage): array {
+            $transaction = PaymentTransaction::query()->lockForUpdate()->findOrFail($transaction->id);
+            $order = Order::query()->lockForUpdate()->findOrFail($order->id);
+
+            if (in_array($transaction->status, ['confirmed', 'failed'], true)) {
+                if ($transaction->status === $targetTransactionStatus) {
+                    return [
+                        'transaction' => $transaction,
+                        'order' => $order,
+                        'replayed' => true,
+                    ];
+                }
+
+                throw ValidationException::withMessages([
+                    'status' => 'Otrzymano sprzeczny callback dla transakcji juz zakonczonej.',
+                ]);
+            }
+
             $responsePayload = $transaction->response_payload ?? [];
             $responsePayload['callback'] = [
                 'status' => $targetOrderPaymentStatus,

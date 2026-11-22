@@ -293,8 +293,8 @@ class Product extends Model
                 $newSlug = $product->slug;
 
                 if (filled($oldSlug) && filled($newSlug) && $oldSlug !== $newSlug) {
-                    $oldPath = '/products/' . $oldSlug;
-                    $newPath = '/products/' . $newSlug;
+                    $oldPath = '/sklep/' . $oldSlug;
+                    $newPath = '/sklep/' . $newSlug;
 
                     \App\Models\RedirectRule::updateOrCreate(
                         ['source_path' => $oldPath],

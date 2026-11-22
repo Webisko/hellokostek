@@ -67,6 +67,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(fn (): ?string => app(\App\Support\StoreSettings::class)->adminFaviconUrl())
             ->maxContentWidth('full')
             ->breadcrumbs(false)
+            ->unsavedChangesAlerts()
             ->sidebarCollapsibleOnDesktop()
             ->spa()
             ->navigationGroups(app(\App\Support\StoreSettings::class)->navigationGroups())

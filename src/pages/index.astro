@@ -3,9 +3,57 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import PortfolioGrid from '../components/PortfolioGrid.astro';
 import Home from '../components/Home';
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Jak zamawiać obraz na indywidualne zamówienie lub portret ze zdjęcia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wystarczy wypełnić formularz kontaktowy na stronie lub wysłać wiadomość ze zdjęciem referencyjnym. Po ustaleniu wymiaru, techniki (olej, akryl, akwarela, rysunek) oraz kompozycji, przygotuję dla Ciebie wycenę i prześlę wstępne propozycje."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Jak zabezpieczane są obrazy i rysunki podczas transportu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Każde dzieło traktuję wyjątkowo! Obrazy na płótnie pakuję w narożniki ochronne, folię bąbelkową i grube kartony malarskie. Akwarele i rysunki zabezpieczam na płasko przekładkami bezkwasowymi i sztywną tekturą, dzięki czemu przesyłka dociera w nienaruszonym stanie."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy obrazy sprzedawane są z ramą?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Większość obrazów olejnych i akrylowych na płótnie posiada estetycznie zamalowane krawędzie i jest gotowa do powieszenia bez dodatkowej ramy. W opisach poszczególnych prac zawsze znajdziesz dokładną informację o oprawie."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Jaki jest czas dostawy gotowych prac oraz zamówień dedykowanych?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Prace z gotowej kolekcji wysyłam zazwyczaj w ciągu 24–48 godzin. Czas namalowania portretu olejnego na indywidualne zamówienie wynosi zazwyczaj około 3–4 tygodni, w zależności od formatu i stopnia szczegółowości."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Jak odpowiednio dbać o akwarele i obrazy olejne?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Prace wykonane w technice akwarelowej warto oprawić za szkłem (najlepiej z passe-partout) i unikać eksponowania ich na bezpośrednie promienie słoneczne. Obrazy olejne i akrylowe są zabezpieczone profesjonalnym werniksem – do ich pielęgnacji wystarczy sucha, miękka szmatka z mikrofibry."
+      }
+    }
+  ]
+};
 ---
 
 <Layout title="hellokostek | Portrety ze zdjęcia Łódź | Malarstwo i Rysunek">
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(faqJsonLd)} />
   <Hero />
   <PortfolioGrid />
   <Home client:visible />

@@ -123,6 +123,20 @@ class Order extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (Order $order): void {
+            if (blank($order->public_token)) {
+                $order->public_token = \Illuminate\Support\Str::random(48);
+            }
+        });
+
+        static::saving(function (Order $order): void {
+            if ($order->exists && $order->isDirty('metadata')) {
+                $original = is_array($order->getOriginal('metadata')) ? $order->getOriginal('metadata') : [];
+                $new = is_array($order->metadata) ? $order->metadata : [];
+                $order->metadata = array_replace($original, $new);
+            }
+        });
+
         static::updating(function (Order $order): void {
             if ($order->isDirty('status') && $order->status === 'shipped' && $order->getOriginal('status') !== 'shipped') {
                 $order->shipped_at = now();
@@ -179,7 +193,11 @@ class Order extends Model
                 // Refund payment
                 try {
                     app(\App\Domain\Commerce\Payments\PaymentSessionService::class)->refundOrder($order);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Błąd zwrotu płatności przy anulowaniu zamówienia: ' . $e->getMessage(), [
+                        'order_id' => $order->id,
+                        'order_number' => $order->number,
+                    ]);
                 }
             }
 
@@ -221,6 +239,10 @@ class Order extends Model
                                                         ->sessions
                                                         ->expire($tx->external_session_id);
                                                 } catch (\Throwable $e) {
+                                                    \Illuminate\Support\Facades\Log::warning('Nie udało się wygasić konkurencyjnej sesji Stripe: ' . $e->getMessage(), [
+                                                        'order_id' => $competingOrder->id,
+                                                        'session_id' => $tx->external_session_id,
+                                                    ]);
                                                 }
                                             }
                                         }
@@ -268,13 +290,21 @@ class Order extends Model
                 // Dispatch OrderPaid Event for billing integrations (generates DomPDF invoice if invoicing_enabled is true)
                 try {
                     event(new \App\Events\OrderPaid($order));
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Błąd zdarzenia OrderPaid: ' . $e->getMessage(), [
+                        'order_id' => $order->id,
+                        'order_number' => $order->number,
+                    ]);
                 }
 
                 // Send Confirmation Email
                 try {
                     app(\App\Domain\Communication\TransactionalEmailService::class)->sendOrderPaidEmail($order);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Błąd wysyłki maila potwierdzającego opłacenie: ' . $e->getMessage(), [
+                        'order_id' => $order->id,
+                        'order_number' => $order->number,
+                    ]);
                 }
             }
 
@@ -290,20 +320,32 @@ class Order extends Model
                             }
                             file_put_contents($pdfPath, $pdfContent);
                         }
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Błąd generowania faktury PDF dla COD: ' . $e->getMessage(), [
+                            'order_id' => $order->id,
+                            'order_number' => $order->number,
+                        ]);
                     }
 
                     // Dispatch to accounting integrations for COD order invoice creation
                     try {
                         \App\Jobs\SendOrderToAccountingJob::dispatch($order);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Błąd wysyłki zamówienia COD do księgowości: ' . $e->getMessage(), [
+                            'order_id' => $order->id,
+                            'order_number' => $order->number,
+                        ]);
                     }
                 }
 
                 // Send Shipping Email
                 try {
                     app(\App\Domain\Communication\TransactionalEmailService::class)->sendShippingConfirmationEmail($order);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Błąd wysyłki maila o wysyłce: ' . $e->getMessage(), [
+                        'order_id' => $order->id,
+                        'order_number' => $order->number,
+                    ]);
                 }
             }
         });

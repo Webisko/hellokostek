@@ -101,7 +101,7 @@ export default function Shop() {
           SELEKCJA DZIEŁ SZTUKI • ORYGINAŁY I LIMITOWANE WYDRUKI
         </span>
         <h1 className="font-display text-4xl sm:text-6xl text-gray-900 tracking-tight font-normal">
-          Galeria Dzieł Oryginalnych
+          Galeria dzieł oryginalnych
         </h1>
         <p className="text-gray-600 text-base sm:text-lg max-w-4xl leading-relaxed">
           Zbiór autentycznych obrazów olejnych, akwareli oraz rysunków ołówkiem powstałych w mojej pracowni. Każda kompozycja to fizyczne, gotowe dzieło stworzone z zachowaniem klasycznego warsztatu. Wybierz unikatowy oryginał, który zdefiniuje Twoje wnętrze, lub certyfikowany wydruk kolekcjonerski z limitowanej edycji.
@@ -143,10 +143,10 @@ export default function Shop() {
       <div className="hidden xl:flex xl:flex-row items-center justify-between gap-6 border-b border-gray-150 pb-6">
         <div className="flex flex-wrap items-center justify-start gap-3 w-auto">
           {[
-            { id: "all", label: "Wszystkie Archiwa" },
-            { id: "akwarela", label: "Oryginalne Akwarele (300 zł)" },
-            { id: "rysunek", label: "Rysunki Ołówkiem (200 zł)" },
-            { id: "prints", label: "Wydruki Kolekcjonerskie (20-30 zł)" }
+            { id: "all", label: "Wszystkie prace" },
+            { id: "akwarela", label: "Oryginały (akwarele)" },
+            { id: "rysunek", label: "Oryginały (rysunki)" },
+            { id: "prints", label: "Wydruki kolekcjonerskie" }
           ].map((cat) => (
             <button
               key={cat.id}
@@ -251,7 +251,11 @@ export default function Shop() {
       )}
       {/* Filter Drawer (Off-Canvas Menu) */}
       {isMounted && createPortal(
-        <div className={`fixed inset-0 z-50 overflow-hidden transition-all duration-300 ${isFilterDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+        <div
+          inert={!isFilterDrawerOpen || undefined}
+          aria-hidden={!isFilterDrawerOpen}
+          className={`fixed inset-0 z-50 overflow-hidden transition-all duration-300 ${isFilterDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+        >
           {/* Backdrop */}
           <div 
             className={`absolute inset-0 bg-black transition-opacity duration-300 ${
@@ -284,10 +288,10 @@ export default function Shop() {
                   <h3 className="text-xs font-mono uppercase tracking-widest text-[#E0115F] font-bold">Kategoria prac</h3>
                   <div className="flex flex-col gap-2">
                     {[
-                      { id: "all", label: "Wszystkie Archiwa" },
-                      { id: "akwarela", label: "Oryginalne Akwarele (300 zł)" },
-                      { id: "rysunek", label: "Rysunki Ołówkiem (200 zł)" },
-                      { id: "prints", label: "Wydruki Kolekcjonerskie (20-30 zł)" }
+                      { id: "all", label: "Wszystkie prace" },
+                      { id: "akwarela", label: "Oryginały (akwarele)" },
+                      { id: "rysunek", label: "Oryginały (rysunki)" },
+                      { id: "prints", label: "Wydruki kolekcjonerskie" }
                     ].map((cat) => (
                       <button
                         key={cat.id}

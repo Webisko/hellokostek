@@ -1,8 +1,13 @@
 User-agent: *
 Allow: /
+Disallow: /sukces-zakup
+Disallow: /sukces-kontakt
 
 # Allow AI Search & Crawling Agents
 User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: ChatGPT-User
@@ -12,6 +17,9 @@ User-agent: Google-Extended
 Allow: /
 
 User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
 Allow: /
 
 User-agent: PerplexityBot

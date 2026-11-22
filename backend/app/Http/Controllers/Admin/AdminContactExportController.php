@@ -49,6 +49,6 @@ class AdminContactExportController extends Controller
 
     private function ensureAdmin(): void
     {
-        abort_unless(auth()->user()?->is_admin === true, 403);
+        abort_unless(auth()->user()?->isStaff(), 403);
     }
 }

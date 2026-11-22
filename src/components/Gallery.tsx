@@ -222,7 +222,7 @@ export default function Gallery() {
           portfolio
         </span>
         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-gray-900 tracking-tight font-normal">
-          Malarstwo Portretowe
+          Malarstwo portretowe
         </h1>
         <p className="text-gray-600 text-base sm:text-lg max-w-3xl leading-relaxed">
           Prawdziwe malarstwo przetrwa setki lat, a zdjęcie w rolce aparatu Twojego iPhona zniknie za chwilę przy kolejnej zmianie telefonu. Zamień cyfrowe wspomnienia w trwałe, ręcznie malowane dzieło sztuki.
@@ -470,7 +470,11 @@ export default function Gallery() {
 
       {/* Filter Drawer (Off-Canvas Menu) */}
       {isMounted && createPortal(
-        <div className={`fixed inset-0 z-50 overflow-hidden transition-all duration-300 ${isFilterDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+        <div
+          inert={!isFilterDrawerOpen || undefined}
+          aria-hidden={!isFilterDrawerOpen}
+          className={`fixed inset-0 z-50 overflow-hidden transition-all duration-300 ${isFilterDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+        >
           {/* Backdrop */}
           <div 
             className={`absolute inset-0 bg-black transition-opacity duration-300 ${

@@ -41,7 +41,7 @@ class SeoTest extends TestCase
         $this->assertStringContainsString('<?xml version="1.0" encoding="UTF-8"?>', $content);
         $this->assertStringContainsString('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', $content);
         $this->assertStringContainsString('https://test-storefront.com/', $content);
-        $this->assertStringContainsString('https://test-storefront.com/products/test-product', $content);
+        $this->assertStringContainsString('https://test-storefront.com/sklep/test-product', $content);
         $this->assertStringContainsString('https://test-storefront.com/categories/test-category', $content);
         $this->assertStringContainsString('https://test-storefront.com/test-page', $content);
     }
@@ -53,8 +53,8 @@ class SeoTest extends TestCase
         $product->update(['slug' => 'new-product']);
 
         $this->assertDatabaseHas('redirect_rules', [
-            'source_path' => '/products/old-product',
-            'target_path' => '/products/new-product',
+            'source_path' => '/sklep/old-product',
+            'target_path' => '/sklep/new-product',
             'status_code' => 301,
             'is_active' => true,
         ]);
@@ -67,8 +67,8 @@ class SeoTest extends TestCase
         // Step 1: Change to slug-b
         $product->update(['slug' => 'slug-b']);
         $this->assertDatabaseHas('redirect_rules', [
-            'source_path' => '/products/slug-a',
-            'target_path' => '/products/slug-b',
+            'source_path' => '/sklep/slug-a',
+            'target_path' => '/sklep/slug-b',
         ]);
 
         // Step 2: Change to slug-c
@@ -76,14 +76,14 @@ class SeoTest extends TestCase
 
         // Redirect A should now point directly to C
         $this->assertDatabaseHas('redirect_rules', [
-            'source_path' => '/products/slug-a',
-            'target_path' => '/products/slug-c',
+            'source_path' => '/sklep/slug-a',
+            'target_path' => '/sklep/slug-c',
         ]);
 
         // Redirect B should point directly to C
         $this->assertDatabaseHas('redirect_rules', [
-            'source_path' => '/products/slug-b',
-            'target_path' => '/products/slug-c',
+            'source_path' => '/sklep/slug-b',
+            'target_path' => '/sklep/slug-c',
         ]);
     }
 
@@ -133,7 +133,7 @@ class SeoTest extends TestCase
         $response->assertStatus(200);
 
         $data = $response->json('data');
-        $this->assertEquals('https://test-storefront.com/products/fallback-product', $data['canonical_url']);
+        $this->assertEquals('https://test-storefront.com/sklep/fallback-product', $data['canonical_url']);
         $this->assertEquals('Fallback Product Name', $data['social_meta']['og:title']);
         $this->assertEquals('Fallback Short Description', $data['social_meta']['og:description']);
         $this->assertStringContainsString('products/featured.jpg', $data['social_meta']['og:image']);
@@ -154,7 +154,7 @@ class SeoTest extends TestCase
         $response->assertStatus(200);
 
         $data = $response->json('data');
-        $this->assertEquals('https://test-storefront.com/products/custom-product', $data['canonical_url']);
+        $this->assertEquals('https://test-storefront.com/sklep/custom-product', $data['canonical_url']);
         $this->assertEquals('Custom OG Title', $data['social_meta']['og:title']);
         $this->assertEquals('Custom OG Description', $data['social_meta']['og:description']);
         $this->assertStringContainsString('seo/og/custom.jpg', $data['social_meta']['og:image']);

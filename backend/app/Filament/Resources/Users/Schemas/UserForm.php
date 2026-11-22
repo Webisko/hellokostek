@@ -27,7 +27,7 @@ class UserForm
                             ->email()
                             ->required()
                             ->maxLength(255)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                     ]),
                 Section::make('Uprawnienia i zabezpieczenia')
                     ->columnSpanFull()

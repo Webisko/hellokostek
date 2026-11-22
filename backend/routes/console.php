@@ -70,14 +70,16 @@ Artisan::command('app:make-admin-user {email : Email administratora} {--name= : 
         ? (string) $name
         : Str::title(str_replace(['.', '_', '-'], ' ', Str::before($email, '@')));
 
-    $user = User::query()->create([
+    $user = new User([
         'name' => $displayName,
         'email' => $email,
         'password' => Hash::make((string) $password),
+    ]);
+    $user->forceFill([
         'is_admin' => true,
         'role' => \App\Domain\Commerce\Enums\UserRole::Admin->value,
         'email_verified_at' => now(),
-    ]);
+    ])->save();
 
     $this->info("Utworzono administratora {$user->email}.");
 
@@ -239,8 +241,9 @@ Artisan::command('app:cleanup-price-history', function () {
 
 Artisan::command('app:expire-unpaid-orders', function () {
     $expiredOrders = Order::query()
+        ->with('paymentTransactions')
         ->where('status', 'placed')
-        ->where('payment_status', 'awaiting_payment')
+        ->whereIn('payment_status', ['awaiting_payment', 'pending'])
         ->whereNotNull('metadata->reservation_expires_at')
         ->get();
 
@@ -248,8 +251,30 @@ Artisan::command('app:expire-unpaid-orders', function () {
     foreach ($expiredOrders as $order) {
         $expiresAt = data_get($order->metadata, 'reservation_expires_at');
         if ($expiresAt && now()->greaterThan($expiresAt)) {
+            $provider = data_get($order->metadata, 'payment.provider');
+            if ($provider === 'stripe') {
+                foreach ($order->paymentTransactions as $tx) {
+                    if ($tx->provider === 'stripe' && str_starts_with((string) $tx->external_session_id, 'cs_')) {
+                        try {
+                            app(\App\Domain\Commerce\Payments\StripeApiClient::class)
+                                ->getClient()
+                                ->checkout
+                                ->sessions
+                                ->expire($tx->external_session_id);
+                        } catch (\Throwable $e) {
+                            \Illuminate\Support\Facades\Log::warning('Nie udało się wygasić sesji Stripe dla przeterminowanego zamówienia: ' . $e->getMessage(), [
+                                'order_number' => $order->number,
+                                'session_id' => $tx->external_session_id,
+                            ]);
+                        }
+                    }
+                }
+            }
+
             $metadata = $order->metadata ?? [];
-            $metadata['cancelled_reason'] = 'Wygasł czas na dokonanie przelewu bankowego (' . data_get($metadata, 'reservation_days', 3) . ' dni)';
+            $metadata['cancelled_reason'] = $provider === 'bank_transfer'
+                ? 'Wygasł czas na dokonanie przelewu bankowego (' . data_get($metadata, 'reservation_days', 3) . ' dni)'
+                : 'Wygasł czas na opłacenie zamówienia online';
             $order->forceFill([
                 'status' => 'cancelled',
                 'payment_status' => 'failed',
@@ -259,10 +284,10 @@ Artisan::command('app:expire-unpaid-orders', function () {
         }
     }
 
-    $this->info("Anulowano {$count} przeterminowanych rezerwacji bankowych.");
+    $this->info("Anulowano {$count} przeterminowanych rezerwacji nieopłaconych zamówień.");
 
     return self::SUCCESS;
-})->purpose('Anuluje nieopłacone zamówienia przelewowe, dla których upłynął termin rezerwacji');
+})->purpose('Anuluje nieopłacone zamówienia (przelew i płatności online), dla których upłynął termin rezerwacji');
 
 Artisan::command('app:generate-sitemap', function () {
     $this->info('Rozpoczynanie generowania mapy witryny sitemap.xml...');
@@ -299,6 +324,10 @@ Schedule::command('app:generate-sitemap')
     ->dailyAt('03:30')
     ->withoutOverlapping();
 
-Schedule::command('queue:work --stop-when-empty')
+Schedule::command('queue:work --stop-when-empty --max-time=50')
     ->everyMinute()
+    ->withoutOverlapping();
+
+Schedule::command('media:convert-webp')
+    ->hourly()
     ->withoutOverlapping();

@@ -49,6 +49,9 @@ class InPostService
         // Resolve Receiver Details
         $shippingAddress = $order->shipping_address ?? $order->billing_address ?? [];
         $receiverPhone = $this->formatPhone($order->customer_phone);
+        if ($receiverPhone === '') {
+            throw new \InvalidArgumentException('Brak prawidłowego numeru telefonu odbiorcy dla przesyłki InPost.');
+        }
         
         $receiverPayload = [
             'first_name' => $order->customer_first_name,
@@ -212,9 +215,13 @@ class InPostService
             }
         }
 
+        if ($street === '' || $building === '') {
+            throw new \InvalidArgumentException('Niepełny adres doręczenia InPost (wymagana ulica i numer budynku).');
+        }
+
         return [
-            'street' => $street ?: 'Przykładowa',
-            'building_number' => $building ?: '1',
+            'street' => $street,
+            'building_number' => $building,
             'flat_number' => $flat,
         ];
     }
@@ -233,11 +240,11 @@ class InPostService
 
         $metadata = $this->storeSettings->model()->metadata ?? [];
         
-        $streetLine = $config['sender_street'] ?: ($metadata['address_street'] ?? 'Przykładowa 1');
+        $streetLine = $config['sender_street'] ?: ($metadata['address_street'] ?? '');
         $streetParsed = $this->parseAddressFields(['line_1' => $streetLine]);
 
-        $city = $config['sender_city'] ?: ($metadata['address_city'] ?? 'Warszawa');
-        $postcode = $config['sender_postcode'] ?: ($metadata['address_postal_code'] ?? '00-001');
+        $city = $config['sender_city'] ?: ($metadata['address_city'] ?? '');
+        $postcode = $config['sender_postcode'] ?: ($metadata['address_postal_code'] ?? '');
 
         return [
             'company_name' => $company,
@@ -268,6 +275,6 @@ class InPostService
             return substr($digits, 2);
         }
 
-        return substr($digits, -9) ?: '999999999';
+        return strlen($digits) > 9 ? substr($digits, -9) : '';
     }
 }

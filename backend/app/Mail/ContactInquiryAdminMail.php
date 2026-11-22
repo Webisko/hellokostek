@@ -21,15 +21,17 @@ class ContactInquiryAdminMail extends Mailable
 
     public function envelope(): Envelope
     {
-        $subject = 'Nowe zapytanie o wycenę portretu: ' . $this->inquiry->name;
+        $cleanName = trim((string) preg_replace('/[\r\n]+/', ' ', (string) $this->inquiry->name));
+        $subject = 'Nowe zapytanie o wycenę portretu: ' . $cleanName;
         if (filled($this->inquiry->subject)) {
-            $subject .= ' (' . $this->inquiry->subject . ')';
+            $cleanSubject = trim((string) preg_replace('/[\r\n]+/', ' ', (string) $this->inquiry->subject));
+            $subject .= ' (' . $cleanSubject . ')';
         }
 
         return new Envelope(
             subject: $subject,
             replyTo: [
-                new Address($this->inquiry->email, $this->inquiry->name),
+                new Address($this->inquiry->email, $cleanName),
             ],
         );
     }

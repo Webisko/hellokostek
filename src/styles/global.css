@@ -50,6 +50,7 @@
 :root {
   color-scheme: only light;
   supported-color-schemes: light;
+  accent-color: #E0115F;
 }
 
 html, body {
@@ -57,6 +58,7 @@ html, body {
   background-color: #FFFFFF;
   color: #181716;
   font-family: var(--font-sans);
+  font-size-adjust: from-font;
   overflow-x: clip;
   overflow-anchor: none;
 }

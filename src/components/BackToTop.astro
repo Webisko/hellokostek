@@ -1,6 +1,6 @@
 <button
   id="back-to-top"
-  class="fixed bottom-6 right-6 bg-white/90 backdrop-blur-md text-stone-600 border border-stone-200 p-3.5 rounded-full shadow-lg hover:border-magenta-accent hover:text-magenta-accent hover:scale-105 active:scale-95 transition-all duration-300 z-40 hidden items-center justify-center cursor-pointer"
+  class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-white/90 backdrop-blur-md text-stone-600 border border-stone-200 p-2.5 sm:p-3.5 rounded-full shadow-lg hover:border-magenta-accent hover:text-magenta-accent hover:scale-105 active:scale-95 transition-all duration-300 z-40 hidden items-center justify-center cursor-pointer"
   aria-label="Cofnij do góry"
 >
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m18 15-6-6-6 6"></path></svg>
@@ -9,14 +9,19 @@
 <script>
   const button = document.getElementById('back-to-top');
   if (button) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 400) {
+    const updateVisibility = () => {
+      if (window.scrollY > 400 && document.body.style.overflow !== 'hidden') {
         button.classList.remove('hidden');
         button.classList.add('flex');
       } else {
         button.classList.remove('flex');
         button.classList.add('hidden');
       }
+    };
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    new MutationObserver(updateVisibility).observe(document.body, {
+      attributes: true,
+      attributeFilter: ['style'],
     });
     button.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });

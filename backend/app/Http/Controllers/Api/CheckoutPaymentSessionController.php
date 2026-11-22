@@ -22,22 +22,22 @@ class CheckoutPaymentSessionController extends Controller
             ->whereIn('status', ['placed'])
             ->firstOrFail();
 
-        // Verify ownership: authenticated user must own the order.
-        // For guests: the caller must supply the order's email via the
-        //   X-Order-Email header or `email` query parameter.
+        // Verify ownership: authenticated staff/owner, cryptographic public_token, or matching guest email
         $user = $request->user();
+        $providedToken = trim((string) ($request->header('X-Order-Token') ?? $request->query('token') ?? $request->input('token', '')));
+        $hasValidToken = filled($order->public_token) && filled($providedToken) && hash_equals($order->public_token, $providedToken);
 
         if ($user !== null) {
-            if ($user->is_admin !== true && $order->user_id !== $user->id) {
+            if (! $user->isStaff() && $order->user_id !== $user->id && ! $hasValidToken) {
                 abort(403, 'Brak dostępu do tego zamówienia.');
             }
-        } else {
+        } elseif (! $hasValidToken) {
             $providedEmail = mb_strtolower(trim(
                 (string) ($request->header('X-Order-Email') ?? $request->query('email') ?? $request->input('email', ''))
             ));
 
             if (blank($providedEmail) || $providedEmail !== mb_strtolower($order->customer_email)) {
-                abort(403, 'Wymagana weryfikacja tożsamości. Podaj e-mail przypisany do zamówienia.');
+                abort(403, 'Wymagana weryfikacja tożsamości. Podaj prawidłowy token lub e-mail przypisany do zamówienia.');
             }
         }
 

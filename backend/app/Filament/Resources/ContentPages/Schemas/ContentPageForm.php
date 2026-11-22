@@ -41,7 +41,7 @@ class ContentPageForm
                         ->label('Adres URL (slug)')
                         ->required()
                         ->maxLength(255)
-                        ->unique(ignoreRecord: true),
+                        ->unique(ignoreRecord: true, modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->withoutTrashed()),
                     Select::make('template')
                         ->label('Szablon strony')
                         ->options(ContentPage::templateOptions())

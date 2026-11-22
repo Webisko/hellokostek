@@ -1,24 +1,24 @@
-# Pracownia Artystyczna & Sklep – hellokostek (Maciej Kosteczka)
+# Pracownia artystyczna i sklep – hellokostek (Maciej Kosteczka)
 
 > Autorska pracownia sztuki tradycyjnej specjalizująca się w ręcznie malowanych portretach ze zdjęcia na zamówienie (malarstwo olejne, akryl, akwarela, rysunek ołówkiem) oraz sprzedaży oryginalnych dzieł sztuki i kolekcjonerskich reprodukcji.
 
-## Kluczowe Informacje o Pracowni
-- **Artysta & Właściciel:** Maciej Kosteczka
-- **Motto i Manifest:** „Człowiek dla człowieka – sztuka prawdziwa bez AI” (100% rzemiosło sztalugowe, naturalne pigmenty, bez grafiki generatywnej).
+## Kluczowe informacje o pracowni
+- **Artysta i właściciel:** Maciej Kosteczka
+- **Motto i manifest:** „Człowiek dla człowieka – sztuka prawdziwa bez AI” (100% rzemiosło sztalugowe, naturalne pigmenty, bez grafiki generatywnej).
 - **Siedziba formalno-rejestrowa (CEIDG / faktury):** Rynek 33, 42-470 Siewierz, NIP: 6252363656, REGON: 527158196.
-- **Lokalizacja twórcza (Pracownia / odbiory):** Łódź, Śródmieście, woj. łódzkie.
+- **Lokalizacja twórcza (pracownia / odbiory):** Łódź, Śródmieście, woj. łódzkie.
 - **Kontakt bezpośredni:** e-mail: kontakt@hellokostek.pl | tel.: +48 662 707 153.
-- **Social Media:** Instagram (@hellokostek), Facebook (/hellokostek/), TikTok (@hellokostek), YouTube (@hellokostek).
+- **Media społecznościowe:** Instagram (@hellokostek), Facebook (/hellokostek/), TikTok (@hellokostek), YouTube (@hellokostek).
 
 ## Główne sekcje platformy
-- [Strona Główna Pracowni](https://hellokostek.pl/): Prezentacja pracowni, interaktywny konfigurator portretów ze zdjęcia (krosna prostokątne i unikalne owalne) oraz opinie klientów.
-- [Sklep z Obrazami i Reprodukcjami](https://hellokostek.pl/sklep): Oryginały (unikaty 1/1) oraz kolekcjonerskie wydruki artystyczne na papierze archiwalnym.
-- [Karta Dzieła Sztuki](https://hellokostek.pl/sklep/obiekt-ii-2022): Podgląd faktury malarskiej, zgodność z dyrektywą Omnibus, 1-Click checkout z interaktywną mapą Paczkomatów.
-- [Galeria i Portfolio](https://hellokostek.pl/galeria): Archiwum zrealizowanych prac malarskich i rysunkowych z filtrowaniem po technikach i rocznikach.
-- [O Artyście](https://hellokostek.pl/o-mnie): Biografia, warsztat rzemieślniczy i droga twórcza malarza Macieja Kosteczki.
-- [Wycena i Kontakt](https://hellokostek.pl/kontakt): Formularz wyceny portretu z możliwością załączenia zdjęć referencyjnych.
-- [Pełna Dokumentacja dla Modeli AI](https://hellokostek.pl/llms-full.txt): Pełna specyfikacja oferty, cennik i procedury zamówień.
+- [Strona główna pracowni](https://hellokostek.pl/): Prezentacja pracowni, interaktywny konfigurator portretów ze zdjęcia (krosna prostokątne i unikalne owalne) oraz opinie klientów.
+- [Sklep z obrazami i reprodukcjami](https://hellokostek.pl/sklep): Oryginały (unikaty 1/1) oraz kolekcjonerskie wydruki artystyczne na papierze archiwalnym.
+- [Karta dzieła sztuki](https://hellokostek.pl/sklep/akwarela-2-2022): Podgląd faktury malarskiej, zgodność z dyrektywą Omnibus, szybkie zamówienie z interaktywną mapą Paczkomatów.
+- [Galeria i portfolio](https://hellokostek.pl/galeria): Archiwum zrealizowanych prac malarskich i rysunkowych z filtrowaniem po technikach i rocznikach.
+- [O artyście](https://hellokostek.pl/o-mnie): Biografia, warsztat rzemieślniczy i droga twórcza malarza Macieja Kosteczki.
+- [Wycena i kontakt](https://hellokostek.pl/kontakt): Formularz wyceny portretu z możliwością załączenia zdjęć referencyjnych.
+- [Pełna dokumentacja dla modeli AI](https://hellokostek.pl/llms-full.txt): Pełna specyfikacja oferty, cennik i procedury zamówień.
 
-## Zgodność Prawna i Obsługa Klienta
-- [Regulamin Sklepu](https://hellokostek.pl/regulamin): Procedury zamówień, zasady zaliczek (50%), prawo do zwrotu 14 dni dla reprodukcji i wyłączenia dla dzieł spersonalizowanych.
-- [Polityka Prywatności i Cookies](https://hellokostek.pl/polityka-prywatnosci): Zasady przetwarzania danych osobowych RODO oraz rejestr zgód Google Consent Mode v2.
+## Zgodność prawna i obsługa klienta
+- [Regulamin sklepu](https://hellokostek.pl/regulamin): Procedury zamówień, zasady zaliczek (50%), prawo do zwrotu 14 dni dla reprodukcji i wyłączenia dla dzieł spersonalizowanych.
+- [Polityka prywatności i cookies](https://hellokostek.pl/polityka-prywatnosci): Zasady przetwarzania danych osobowych RODO oraz informacje o prywatności i ciasteczkach (model Cookieless).

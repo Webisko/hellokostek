@@ -629,6 +629,7 @@ This file is a cache of the database schema for the Hello Kostek E-commerce & CM
 | --- | --- | --- | --- | --- |
 | `id` | `INTEGER` | No | `NULL` | PK |
 | `number` | `varchar` | No | `NULL` |  |
+| `public_token` | `varchar` | Yes | `NULL` |  |
 | `user_id` | `INTEGER` | Yes | `NULL` |  |
 | `coupon_id` | `INTEGER` | Yes | `NULL` |  |
 | `status` | `varchar` | No | `'draft'` |  |
@@ -668,6 +669,7 @@ This file is a cache of the database schema for the Hello Kostek E-commerce & CM
 | Index Name | Unique | Columns |
 | --- | --- | --- |
 | `orders_number_unique` | Yes | `number` |
+| `orders_public_token_unique` | Yes | `public_token` |
 | `orders_customer_email_index` | No | `customer_email` |
 | `orders_payment_status_fulfillment_status_index` | No | `payment_status`, `fulfillment_status` |
 | `orders_status_placed_at_index` | No | `status`, `placed_at` |

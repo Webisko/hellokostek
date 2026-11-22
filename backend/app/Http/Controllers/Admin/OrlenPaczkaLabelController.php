@@ -14,6 +14,8 @@ class OrlenPaczkaLabelController extends Controller
      */
     public function download(string $number): StreamedResponse
     {
+        abort_unless(auth()->user()?->isStaff(), 403);
+
         $order = Order::query()
             ->where('number', $number)
             ->whereNotNull('tracking_number')

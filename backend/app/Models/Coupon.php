@@ -37,6 +37,17 @@ class Coupon extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (Coupon $coupon): void {
+            if ($coupon->exists && $coupon->isDirty('metadata')) {
+                $original = is_array($coupon->getOriginal('metadata')) ? $coupon->getOriginal('metadata') : [];
+                $new = is_array($coupon->metadata) ? $coupon->metadata : [];
+                $coupon->metadata = array_replace($original, $new);
+            }
+        });
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

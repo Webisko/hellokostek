@@ -75,71 +75,71 @@ export default function Navbar({ currentPath }: NavbarProps) {
           <div className="hidden xl:flex items-center space-x-4 xl:space-x-6">
             <a
               href={`${basePath}/`}
-              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-lime-accent relative py-1 group ${
+              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-magenta-accent relative py-1 group ${
                 isHome ? "text-magenta-accent font-semibold" : "text-off-black/60"
               }`}
             >
               hellokostek
               <span className={`absolute bottom-0 left-0 w-full h-[1px] transition-transform duration-300 origin-left ${
-                isHome ? "bg-magenta-accent scale-x-100" : "bg-lime-accent scale-x-0 group-hover:scale-x-100"
+                isHome ? "bg-magenta-accent scale-x-100" : "bg-magenta-accent scale-x-0 group-hover:scale-x-100"
               }`} />
             </a>
-            
+
             <a
               href={`${basePath}/galeria`}
-              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-lime-accent relative py-1 group ${
+              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-magenta-accent relative py-1 group ${
                 isGallery ? "text-magenta-accent font-semibold" : "text-off-black/60"
               }`}
             >
               Galeria
               <span className={`absolute bottom-0 left-0 w-full h-[1px] transition-transform duration-300 origin-left ${
-                isGallery ? "bg-magenta-accent scale-x-100" : "bg-lime-accent scale-x-0 group-hover:scale-x-100"
+                isGallery ? "bg-magenta-accent scale-x-100" : "bg-magenta-accent scale-x-0 group-hover:scale-x-100"
               }`} />
             </a>
-            
+
             <a
               href={`${basePath}/sklep`}
-              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-lime-accent relative py-1 group ${
+              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-magenta-accent relative py-1 group ${
                 isShop ? "text-magenta-accent font-semibold" : "text-off-black/60"
               }`}
             >
               Sklep
               <span className={`absolute bottom-0 left-0 w-full h-[1px] transition-transform duration-300 origin-left ${
-                isShop ? "bg-magenta-accent scale-x-100" : "bg-lime-accent scale-x-0 group-hover:scale-x-100"
+                isShop ? "bg-magenta-accent scale-x-100" : "bg-magenta-accent scale-x-0 group-hover:scale-x-100"
               }`} />
             </a>
 
             <a
               href={`${basePath}/o-mnie`}
-              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-lime-accent relative py-1 group ${
+              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-magenta-accent relative py-1 group ${
                 isAbout ? "text-magenta-accent font-semibold" : "text-off-black/60"
               }`}
             >
               O mnie
               <span className={`absolute bottom-0 left-0 w-full h-[1px] transition-transform duration-300 origin-left ${
-                isAbout ? "bg-magenta-accent scale-x-100" : "bg-lime-accent scale-x-0 group-hover:scale-x-100"
+                isAbout ? "bg-magenta-accent scale-x-100" : "bg-magenta-accent scale-x-0 group-hover:scale-x-100"
               }`} />
             </a>
-            
+
             <a
               href={`${basePath}/kontakt`}
-              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-lime-accent relative py-1 group ${
+              className={`font-mono text-[13px] uppercase tracking-widest transition-all duration-300 hover:text-magenta-accent relative py-1 group ${
                 isContact ? "text-magenta-accent font-semibold" : "text-off-black/60"
               }`}
             >
               Kontakt
               <span className={`absolute bottom-0 left-0 w-full h-[1px] transition-transform duration-300 origin-left ${
-                isContact ? "bg-magenta-accent scale-x-100" : "bg-lime-accent scale-x-0 group-hover:scale-x-100"
+                isContact ? "bg-magenta-accent scale-x-100" : "bg-magenta-accent scale-x-0 group-hover:scale-x-100"
               }`} />
             </a>
           </div>
-          
+
           {/* Tablet Hamburger */}
           <div className="hidden sm:flex xl:hidden items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 sm:p-2 md:p-2.5 text-off-black bg-stone-100 hover:bg-stone-200 transition-colors rounded-full"
-              aria-label="Główne Menu"
+              aria-label="Główne menu"
             >
               {isMobileMenuOpen ? (
                 <X className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
@@ -158,9 +158,9 @@ export default function Navbar({ currentPath }: NavbarProps) {
             aria-label="Strona główna hellokostek"
           >
             <div className={`flex items-center justify-start sm:justify-center overflow-hidden transition-all duration-300 ease-in-out ${
-              isScrolled 
-                ? "w-[125px] h-[36px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]" 
-                : "w-[185px] h-[54px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
+              isScrolled
+                ? "w-auto h-[36px] sm:w-[140px] sm:h-[42px] md:w-[160px] md:h-[48px] lg:w-[200px] lg:h-[60px] xl:w-[230px] xl:h-[69px] 2xl:w-[260px] 2xl:h-[78px]"
+                : "w-auto h-[54px] sm:w-[200px] sm:h-[60px] md:w-[240px] md:h-[72px] lg:w-[320px] lg:h-[96px] xl:w-[450px] xl:h-[135px] 2xl:w-[600px] 2xl:h-[180px]"
             }`}>
               <img
                 src={logoSrc}
@@ -171,7 +171,7 @@ export default function Navbar({ currentPath }: NavbarProps) {
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-300 -ml-[15%] sm:ml-0"
+                className="h-full w-auto max-w-full max-h-full object-contain mix-blend-multiply transition-all duration-300 -ml-[15%] sm:ml-0"
               />
             </div>
           </a>
@@ -202,7 +202,7 @@ export default function Navbar({ currentPath }: NavbarProps) {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-off-black bg-stone-100 hover:bg-stone-200 transition-colors rounded-full"
-              aria-label="Główne Menu"
+              aria-label="Główne menu"
             >
               {isMobileMenuOpen ? (
                 <X className="w-5 h-5" />
@@ -215,10 +215,12 @@ export default function Navbar({ currentPath }: NavbarProps) {
       </div>
 
       {/* Mobile Menu panel */}
-      <div 
+      <div
+        inert={!isMobileMenuOpen || undefined}
+        aria-hidden={!isMobileMenuOpen}
         className={`xl:hidden flex flex-col px-6 transition-all duration-300 ease-in-out overflow-hidden border-neutral-100 ${
-          isMobileMenuOpen 
-            ? "max-h-[400px] opacity-100 mt-4 pt-4 pb-4 space-y-4 border-t" 
+          isMobileMenuOpen
+            ? "max-h-[400px] opacity-100 mt-4 pt-4 pb-4 space-y-4 border-t"
             : "max-h-0 opacity-0 mt-0 pt-0 pb-0 space-y-0 border-t-0 pointer-events-none"
         }`}
       >

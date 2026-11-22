@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
+import { sanitizeHtml } from "../utils/sanitizeHtml";
 
 const DEFAULT_SUBTITLE = "Aktor • Tancerz • Malarz • Rocznik ‘88";
 const DEFAULT_TITLE = "Kostek Maciej Kosteczka";
@@ -55,32 +56,32 @@ export default function AboutMe() {
       .then((payload) => {
         const page = payload.data?.page;
         if (page) {
-          if (page.metadata?.subtitle) {
-            setSubtitle(page.metadata.subtitle);
+          if (page.metadata && "subtitle" in page.metadata) {
+            setSubtitle(typeof page.metadata.subtitle === "string" ? page.metadata.subtitle : "");
           }
-          if (page.title) {
+          if (typeof page.title === "string" && page.title.trim() !== "") {
             setTitle(page.title);
           }
-          if (typeof page.excerpt === "string" && page.excerpt.trim() !== "" && !page.excerpt.includes("Wierzę, że w dobie")) {
+          if (typeof page.excerpt === "string" && !page.excerpt.includes("Wierzę, że w dobie")) {
             setQuote(page.excerpt.trim());
-          } else if (page.metadata?.quote) {
-            setQuote(page.metadata.quote);
+          } else if (page.metadata && "quote" in page.metadata) {
+            setQuote(typeof page.metadata.quote === "string" ? page.metadata.quote : "");
           }
-          if (page.metadata?.box_title) {
-            setBoxTitle(page.metadata.box_title);
+          if (page.metadata && "box_title" in page.metadata) {
+            setBoxTitle(typeof page.metadata.box_title === "string" ? page.metadata.box_title : "");
           }
-          if (page.metadata?.box_text) {
-            setBoxText(page.metadata.box_text);
+          if (page.metadata && "box_text" in page.metadata) {
+            setBoxText(typeof page.metadata.box_text === "string" ? page.metadata.box_text : "");
           } else if (typeof page.excerpt === "string" && page.excerpt.includes("Wierzę, że w dobie")) {
             setBoxText(page.excerpt.trim());
           }
-          if (page.metadata?.cta_title) {
-            setCtaTitle(page.metadata.cta_title);
+          if (page.metadata && "cta_title" in page.metadata) {
+            setCtaTitle(typeof page.metadata.cta_title === "string" ? page.metadata.cta_title : "");
           }
-          if (page.metadata?.cta_text) {
-            setCtaText(page.metadata.cta_text);
+          if (page.metadata && "cta_text" in page.metadata) {
+            setCtaText(typeof page.metadata.cta_text === "string" ? page.metadata.cta_text : "");
           }
-          if (typeof page.content === "string" && page.content.trim() !== "") {
+          if (typeof page.content === "string") {
             setContent(page.content.trim());
           }
           if (page.hero_image_url) {
@@ -145,7 +146,7 @@ export default function AboutMe() {
           {isHtmlContent ? (
             <div
               className="space-y-6 font-sans text-base text-gray-750 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
             />
           ) : (
             <div className="space-y-6 font-sans text-base text-gray-750 leading-relaxed">

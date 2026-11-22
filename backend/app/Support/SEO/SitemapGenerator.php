@@ -42,7 +42,7 @@ class SitemapGenerator
             $products = Product::publicCatalog()->where('is_noindex', false)->get();
             foreach ($products as $product) {
                 $xml[] = $this->formatUrl(
-                    $baseUrl . '/products/' . $product->slug,
+                    $baseUrl . '/sklep/' . $product->slug,
                     $product->updated_at->toAtomString(),
                     'daily',
                     '0.8'

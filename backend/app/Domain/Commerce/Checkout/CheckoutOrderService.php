@@ -47,18 +47,28 @@ class CheckoutOrderService
      */
     private function create(array $validated, bool $placeOrder): array
     {
-        $resolvedCheckout = $this->checkoutDataResolver->resolve($validated, requireFreshInventory: $placeOrder);
-        $quoteResult = $this->pricingEngine->calculate($resolvedCheckout->quote);
         $customerUser = $this->customerAccountService->findByEmail($validated['customer']['email']);
-        $selectedPaymentMethod = $placeOrder
-            ? $this->resolvePaymentMethod($validated['payment_method'] ?? null, $quoteResult)
-            : null;
-        $paymentSummary = $placeOrder
-            ? $this->buildPaymentSummary($selectedPaymentMethod)
-            : null;
+        $selectedPaymentMethod = null;
+        $paymentSummary = null;
 
-        /** @var Order $order */
-        $order = DB::transaction(function () use ($validated, $resolvedCheckout, &$quoteResult, $placeOrder, $selectedPaymentMethod, $paymentSummary, $customerUser): Order {
+        /** @var array{order: Order, quote: QuoteResult, payment: array<string, mixed>|null} $txResult */
+        $txResult = DB::transaction(function () use ($validated, $placeOrder, $customerUser): array {
+            if ($placeOrder && filled($validated['coupon_code'] ?? null)) {
+                \App\Models\Coupon::query()
+                    ->whereRaw('LOWER(code) = ?', [Str::lower((string) $validated['coupon_code'])])
+                    ->lockForUpdate()
+                    ->first();
+            }
+
+            $resolvedCheckout = $this->checkoutDataResolver->resolve($validated, requireFreshInventory: $placeOrder);
+            $quoteResult = $this->pricingEngine->calculate($resolvedCheckout->quote);
+            $selectedPaymentMethod = $placeOrder
+                ? $this->resolvePaymentMethod($validated['payment_method'] ?? null, $quoteResult)
+                : null;
+            $paymentSummary = $placeOrder
+                ? $this->buildPaymentSummary($selectedPaymentMethod)
+                : null;
+
             // Determine if B2C and destination country is EU other than Poland
             $shippingAddress = $validated['shipping_address'] ?? ($validated['billing_address'] ?? null);
             $destinationCountry = \App\Support\VatOssHelper::resolveCountryCode($shippingAddress);
@@ -409,6 +419,8 @@ class CheckoutOrderService
                     $reservationDays = app(\App\Support\StoreSettings::class)->bankTransferReservationDays();
                     $orderMeta['reservation_days'] = $reservationDays;
                     $orderMeta['reservation_expires_at'] = now()->addWeekdays($reservationDays)->toIso8601String();
+                } elseif (in_array($selectedPaymentMethod, ['stripe', 'przelewy24'], true)) {
+                    $orderMeta['reservation_expires_at'] = now()->addMinutes(45)->toIso8601String();
                 }
 
                 $order->forceFill(['metadata' => $orderMeta])->saveQuietly();
@@ -422,8 +434,21 @@ class CheckoutOrderService
                 $this->orderFulfillmentPlanner->ensurePlanned($order->loadMissing(['items.product', 'fulfillmentActions']));
             }
 
-            return $order->load('items');
+            return [
+                'order' => $order->load('items'),
+                'quote' => $quoteResult,
+                'payment' => $paymentSummary,
+                'selectedPaymentMethod' => $selectedPaymentMethod,
+            ];
         });
+
+        /** @var Order $order */
+        $order = $txResult['order'];
+        /** @var QuoteResult $quoteResult */
+        $quoteResult = $txResult['quote'];
+        $paymentSummary = $txResult['payment'];
+        $selectedPaymentMethod = $txResult['selectedPaymentMethod'];
+
         if ($placeOrder) {
             if (in_array($selectedPaymentMethod, ['stripe', 'przelewy24'], true)) {
                 try {

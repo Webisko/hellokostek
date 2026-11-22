@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Domain\Commerce\Checkout\CheckoutOrderService;
-use App\Domain\Commerce\Enums\CustomerSegment;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class CheckoutDraftController extends Controller
 {
@@ -24,10 +22,6 @@ class CheckoutDraftController extends Controller
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.variant_id' => ['nullable', 'integer'],
             'items.*.product_variant_id' => ['nullable', 'integer'],
-            'customer_segment' => ['nullable', 'string', Rule::in(array_map(
-                static fn (CustomerSegment $segment) => $segment->value,
-                CustomerSegment::cases(),
-            ))],
             'shipping_method_code' => ['nullable', 'string'],
             'coupon_code' => ['nullable', 'string'],
             'customer' => ['required', 'array'],

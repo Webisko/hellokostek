@@ -82,29 +82,6 @@ class AppServiceProvider extends ServiceProvider
             return new \App\Support\NativePhpMailTransport();
         });
 
-        try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('media')) {
-                \Illuminate\Support\Facades\Schema::create('media', function (\Illuminate\Database\Schema\Blueprint $table) {
-                    $table->id();
-                    $table->string('title')->nullable();
-                    $table->string('alt_text')->nullable();
-                    $table->string('file_name');
-                    $table->string('file_path');
-                    $table->string('disk')->default('public');
-                    $table->string('mime_type')->nullable();
-                    $table->unsignedBigInteger('file_size')->nullable();
-                    $table->unsignedInteger('width')->nullable();
-                    $table->unsignedInteger('height')->nullable();
-                    $table->string('category')->default('general');
-                    $table->timestamps();
-                });
-            }
-
-            if (\Illuminate\Support\Facades\Cache::add('auto_convert_webp_lock', true, 300)) {
-                \Illuminate\Support\Facades\Artisan::call('media:convert-webp');
-            }
-        } catch (\Throwable $e) {}
-
         \Illuminate\Support\Facades\Event::listen(
             \App\Events\OrderPaid::class,
             \App\Listeners\SendOrderToAccounting::class

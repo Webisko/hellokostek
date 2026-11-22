@@ -218,10 +218,17 @@ export default function ParcelMapModal({
       // Handle window / orientation resize on mobile and tablet
       window.addEventListener("resize", handleResize);
 
-      // On pan/zoom end, update points around center
+      let moveEndTimer: number | null = null;
+      // On pan/zoom end, update points around center (debounced)
       map.on("moveend", () => {
-        const center = map.getCenter();
-        fetchInPostPoints(center.lat, center.lng);
+        if (moveEndTimer !== null) {
+          window.clearTimeout(moveEndTimer);
+        }
+        moveEndTimer = window.setTimeout(() => {
+          if (!isMounted || !mapInstanceRef.current) return;
+          const center = mapInstanceRef.current.getCenter();
+          fetchInPostPoints(center.lat, center.lng);
+        }, 350);
       });
 
       // Initial points load
@@ -230,6 +237,12 @@ export default function ParcelMapModal({
       } else {
         fetchInPostPoints(defaultLat, defaultLng);
       }
+
+      return () => {
+        if (moveEndTimer !== null) {
+          window.clearTimeout(moveEndTimer);
+        }
+      };
     };
 
     const handleResize = () => {
@@ -238,10 +251,14 @@ export default function ParcelMapModal({
       }
     };
 
-    initMap();
+    let cleanupMoveEnd: (() => void) | undefined;
+    initMap().then((fn) => {
+      cleanupMoveEnd = fn;
+    });
 
     return () => {
       isMounted = false;
+      cleanupMoveEnd?.();
       window.removeEventListener("resize", handleResize);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
@@ -254,12 +271,21 @@ export default function ParcelMapModal({
   useEffect(() => {
     if (!mapInstanceRef.current || !markersLayerRef.current || !isInPost) return;
 
+    const escapeHtml = (value: string) =>
+      value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
     import("leaflet").then(({ default: L }) => {
       const layer = markersLayerRef.current;
       layer.clearLayers();
 
       points.forEach((point) => {
         const isSelected = selectedPoint?.name === point.name;
+        const safePointName = escapeHtml(String(point.name ?? ""));
         const icon = L.divIcon({
           className: "inpost-marker-icon",
           html: `<div style="
@@ -281,7 +307,7 @@ export default function ParcelMapModal({
             transform: ${isSelected ? "scale(1.15)" : "scale(1)"};
           ">
             <span style="display:inline-block;width:6px;height:6px;background:${isSelected ? "#FFFFFF" : "#111111"};border-radius:50%;"></span>
-            ${point.name}
+            ${safePointName}
           </div>`,
           iconSize: [85, 28],
           iconAnchor: [42, 14],
@@ -415,7 +441,7 @@ export default function ParcelMapModal({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Wpisz miasto, ulicę lub kod (np. Piotrkowska Łódź, WAW01A)..."
-                    className="w-full bg-white border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-xs sm:text-sm font-sans text-gray-900 focus:outline-none focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] transition-all"
+                    className="w-full bg-white border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-base font-sans text-gray-900 focus:outline-none focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] transition-all"
                   />
                   <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -550,7 +576,7 @@ export default function ParcelMapModal({
                         if (orlenError) setOrlenError("");
                       }}
                       placeholder="np. Punkt Partnerski 913861 lub 913861"
-                      className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-sm sm:text-base bg-white text-gray-900 transition-all placeholder:text-gray-400"
+                      className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-[#E0115F] focus:ring-1 focus:ring-[#E0115F] outline-none text-base bg-white text-gray-900 transition-all placeholder:text-gray-400"
                     />
                     <button
                       type="submit"

@@ -166,8 +166,10 @@ class CatalogController extends Controller
             ->orderBy('name')
             ->get();
 
+        $storeName = $resolvedStoreName ?? (app(\App\Support\StoreSettings::class)->model()->store_name ?? config('app.name'));
+
         return [
-            'products' => collect($paginated->items())->map(fn (Product $product) => $this->productPayload($product))->all(),
+            'products' => collect($paginated->items())->map(fn (Product $product) => $this->productPayload($product, false, $storeName))->all(),
             'categories' => $categories->map(fn (ProductCategory $category) => [
                 'id' => $category->id,
                 'name' => $category->name,
@@ -231,7 +233,7 @@ class CatalogController extends Controller
                 ->where('slug', $slug)
                 ->first();
 
-            return $product ? $this->productPayload($product) : null;
+            return $product ? $this->productPayload($product, true) : null;
         });
 
         abort_if($payload === null, 404);
@@ -241,10 +243,10 @@ class CatalogController extends Controller
         ]);
     }
  
-    private function productPayload(Product $product): array
+    private function productPayload(Product $product, bool $includeSuggestedBundles = false, ?string $resolvedStoreName = null): array
     {
         $baseUrl = rtrim((string) config('services.storefront.url', config('app.url')), '/');
-        $productUrl = $baseUrl . '/products/' . $product->slug;
+        $productUrl = $baseUrl . '/sklep/' . $product->slug;
  
         $hreflangs = [
             [
@@ -265,7 +267,7 @@ class CatalogController extends Controller
             ? (int) $product->lowest_price_last_30_days
             : $product->lowestPriceInLast30Days();
           
-        $storeName = app(\App\Support\StoreSettings::class)->model()->store_name ?? config('app.name');
+        $storeName = $resolvedStoreName ?? (app(\App\Support\StoreSettings::class)->model()->store_name ?? config('app.name'));
 
         $schema = [
             '@context' => 'https://schema.org',
@@ -471,7 +473,7 @@ class CatalogController extends Controller
                 }
             }
             $payload['components_price_sum'] = $componentsPriceSum;
-        } else {
+        } elseif ($includeSuggestedBundles) {
             $suggestedBundles = Product::query()
                 ->publicCatalog()
                 ->where('type', \App\Domain\Commerce\Enums\ProductType::Bundle->value)

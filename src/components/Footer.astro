@@ -131,8 +131,9 @@ const currentYear = new Date().getFullYear();
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17z"></path><polygon points="9.7 15 14.5 12.3 9.7 9.7 9.7 15"></polygon></svg>
         </a>
       </div>
-      <div class="text-xs font-mono text-stone-400 mt-8 pt-4 border-t border-stone-200/40 space-y-1 w-full">
-        <div class="font-bold text-xs uppercase tracking-wider text-stone-400">hellokostek Maciej Kosteczka</div>
+      <div class="text-xs font-mono text-stone-600 mt-8 pt-4 border-t border-stone-200/40 space-y-1 w-full">
+        <div class="font-bold text-xs uppercase tracking-wider text-stone-600">hellokostek Maciej Kosteczka</div>
+        <div>Rynek 33, 42-470 Siewierz</div>
         <div class="flex justify-center md:justify-start gap-2 font-bold">
           <span>NIP: 625-236-36-56</span>
         </div>
@@ -141,10 +142,10 @@ const currentYear = new Date().getFullYear();
   </div>
 
   <!-- Bottom Rights Bar -->
-  <div class="content-container border-t border-stone-150 mt-12 pt-8 grid grid-cols-1 md:grid-cols-2 xl:flex xl:flex-row items-center xl:justify-between gap-y-4 xl:gap-0 text-xs text-stone-400 font-sans text-center md:text-left">
+  <div class="content-container border-t border-stone-150 mt-12 pt-8 grid grid-cols-1 md:grid-cols-2 xl:flex xl:flex-row items-center xl:justify-between gap-y-4 xl:gap-0 text-xs text-stone-600 font-sans text-center md:text-left">
     <!-- Left: Realization -->
     <div class="order-4 md:order-3 xl:order-1 md:col-span-1 text-center md:text-left xl:text-left md:mt-1 xl:mt-0">
-      <span>Realizacja: <a href="https://webisko.pl/" target="_blank" rel="noopener noreferrer" class="font-bold hover:text-magenta-accent transition-colors text-stone-500">Webisko.pl</a></span>
+      <span>Realizacja: <a href="https://webisko.pl/" target="_blank" rel="noopener noreferrer" class="font-bold hover:text-magenta-accent transition-colors text-stone-700">Webisko.pl</a></span>
     </div>
 
     <!-- Middle: Copyright -->
@@ -154,18 +155,25 @@ const currentYear = new Date().getFullYear();
 
     <!-- Right: Formal Links -->
     <div class="contents xl:flex xl:flex-row xl:items-center xl:justify-end xl:gap-4 xl:order-3">
-      <a 
-        href={`${basePath}/polityka-prywatnosci`} 
+      <a
+        href={`${basePath}/polityka-prywatnosci`}
         class="order-2 md:order-4 xl:order-1 md:text-right hover:text-magenta-accent transition-colors cursor-pointer block text-center"
       >
         Polityka prywatności i plików cookies
       </a>
       <span class="hidden xl:inline xl:order-2">•</span>
-      <a 
-        href={`${basePath}/regulamin`} 
+      <a
+        href={`${basePath}/regulamin`}
         class="order-1 md:order-2 xl:order-3 md:text-right hover:text-magenta-accent transition-colors cursor-pointer block text-center"
       >
         Regulamin sklepu
+      </a>
+      <span class="hidden xl:inline xl:order-4">•</span>
+      <a
+        href={`${basePath}/regulamin#zwroty-i-odstapienie`}
+        class="order-5 md:order-5 xl:order-5 md:text-right hover:text-magenta-accent transition-colors cursor-pointer block text-center"
+      >
+        Zwroty i odstąpienie
       </a>
     </div>
   </div>

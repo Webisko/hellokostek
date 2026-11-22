@@ -1,7 +1,7 @@
-# Dokumentacja Projektu Hello Kostek (Pracownia Artystyczna & Sklep)
+# Dokumentacja projektu Hello Kostek (Pracownia artystyczna i sklep)
 
-Data ostatniej aktualizacji: **4 listopada 2026 r.**  
-Status audytu i testów: **7-Stopniowy Audyt Produkcyjny (project-audit-master): 140/140 passed (782 assertions), npm run build: PASS (23 podstrony, kod wyjścia 0)**
+Data ostatniej aktualizacji: **22 listopada 2026 r.**  
+Status audytu i testów: **Pełny audyt produkcyjny i wdrożenie poprawek (`project-audit-master`, lokalnie): `php artisan test` 147/147 passed (823 assertions), `composer audit` 0 podatności, `npm audit --omit=dev` 0 podatności, `npm run build` PASS (23 strony, kod wyjścia 0), `legacy-scan` 0 uwag**
 
 ---
 
@@ -16,7 +16,7 @@ Projekt **Hello Kostek** to hybrydowa platforma e-commerce i wizytówka autorska
   * **Leaflet / OpenStreetMap** (interaktywna mapa wyboru Paczkomatów InPost i punktów Orlen Paczka z publicznym API ShipX).
 * **Backend:**
   * **Laravel 13** (PHP 8.3+, REST API, transakcje bazodanowe, blokady pesymistyczne `lockForUpdate()`).
-  * **FilamentPHP v5.6** (dedykowany panel CMS pod adresem `/admin`, polskie slugi i etykiety).
+  * **FilamentPHP v5.12** (dedykowany panel CMS pod adresem `/admin`, polskie slugi i etykiety, alerty niezapisanych zmian `unsavedChangesAlerts()`).
   * **Baza danych:** MySQL (produkcja SEOHost) / SQLite (lokalnie i w testach jednostkowych).
   * **Strefa czasowa:** `Europe/Warsaw` (`APP_TIMEZONE`).
   * **Kolejki i Harmonogram:** Baza danych (`queue_connection: database`), cron co minutę.
@@ -32,7 +32,8 @@ Struktura bazy danych została zoptymalizowana pod kątem sprzedaży dzieł unik
   * Oryginał (`-OR`): unikat 1/1, stan magazynowy `stock_quantity = 1`, `manages_stock = true`.
   * Wydruk archiwalny (`-PR`): reprodukcja kolekcjonerska, nielimitowany nakład.
 * `ProductBundleItem` – obsługa zestawów dzieł z atomową dekrementacją stanów magazynowych składników.
-* `Order` & `OrderItem` – historia zamówień. Klucz obcy `product_id` w tabeli `order_items` posiada regułę `nullOnDelete()`, co zapobiega kaskadowemu usuwaniu pozycji z faktur i historii klienta po usunięciu pracy w CMS.
+* `Order` & `OrderItem` – historia zamówień. Tabela `orders` posiada kryptograficzny `public_token` (`varchar(64)`, indeks unikalny) generowany automatycznie przy tworzeniu rekordu. Klucz obcy `product_id` w tabeli `order_items` posiada regułę `nullOnDelete()`, co zapobiega kaskadowemu usuwaniu pozycji z faktur i historii klienta po usunięciu pracy w CMS. Modele z polem JSON `metadata` (`Order`, `StoreSetting`, `ContentPage`, `Coupon`, `GalleryArtwork`) zabezpieczono hookiem `saving` wykonującym płytkie scalanie (`array_replace`).
+* `User` – role (`role`, `is_admin`) są wykluczone z `$fillable` i nadawane wyłącznie przez `forceFill()`. Weryfikacja personelu opiera się o `User::isStaff()`.
 * `PaymentTransaction` – rejestr transakcji płatniczych (Stripe, Przelewy24, BLIK).
 * `Invoice` – faktury VAT generowane lokalnie (PDF) lub synchronizowane z systemami księgowymi.
 * `ProductReview` – moderowane opinie klientów zintegrowane ze snapshotem Google Places.
@@ -46,7 +47,8 @@ Struktura bazy danych została zoptymalizowana pod kątem sprzedaży dzieł unik
 * **Adres panelu:** `https://panel.hellokostek.pl/admin` (lokalnie `http://localhost:8000/admin`).
 * **Język i nazewnictwo:** 100% polskie slugi (`/admin/produkty`, `/admin/zamowienia`, `/admin/faktury`, `/admin/ustawienia`) oraz polskie etykiety formularzy i tabel.
 * **Upload plików:** Skonfigurowano limit `temporary_file_upload.rules` na **50 MB** (`backend/config/livewire.php`), umożliwiając bezpieczne wgrywanie wysokorozdzielczych skanów obrazów i plików PDF.
-* **Ochrona danych produkcyjnych (`Zero CMS Overwrite`):** Główny seeder (`HelloKostekSeeder.php`) wykorzystuje metody `firstOrCreate`, gwarantując, że ponowne uruchomienie seederów na serwerze nie nadpisze cen, opisów ani stanów magazynowych zmodyfikowanych przez artystę.
+* **Kontrola dostępu i formularze CMS:** Kontrolery panelowe (`InPostLabelController`, `OrlenPaczkaLabelController`, `SidebarController`, `AdminOrderExportController`, `AdminContactExportController`) wymuszają `auth()->user()?->isStaff()`. Reguły `unique` w zasobach z soft delete ignorują usunięte rekordy (`withoutTrashed()`), a panel ostrzega przed opuszczeniem formularza z niezapisanymi zmianami.
+* **Ochrona danych produkcyjnych (`Zero CMS Overwrite`):** Główny seeder (`HelloKostekSeeder.php`) wykorzystuje metody `firstOrCreate` bez operacji `delete()` ani nadpisywania ustawień email, a brakujące hasło konta startowego generuje losowo przez `Str::password(20)`.
 
 ---
 
@@ -54,32 +56,38 @@ Struktura bazy danych została zoptymalizowana pod kątem sprzedaży dzieł unik
 
 Główne trasy zdefiniowane w `backend/routes/api.php` z ochroną Rate Limiting:
 
-* `GET /api/catalog` – katalog publicznych, aktywnych produktów.
+* `GET /api/catalog` – katalog publicznych, aktywnych produktów (zoptymalizowany bez zapytań N+1 oraz z poprawnymi adresami `/sklep/{slug}`).
 * `GET /api/catalog/products/{slug}` – szczegóły dzieła, historia cen Omnibus, powiązane warianty.
 * `POST /api/coupons/validate` (`throttle:20,1`) – zero-trust walidacja kodów rabatowych wyłącznie po stronie serwera.
-* `POST /api/checkout/place` (`throttle:30,1`) – atomowe składanie zamówienia, rezerwacja stanów, walidacja NIP i VIES.
-* `GET /api/checkout/orders/{number}` – status zamówienia chroniony anti-IDOR (wymaga e-maila w nagłówku `X-Order-Email` lub sesji zalogowanego użytkownika).
+* `POST /api/inquiries` (`throttle:20,1`) – przyjmowanie zapytań z walidacją `email:rfc,dns`, filtrowaniem załączników (maks. 5 plików, MIME `jpg/jpeg/png/webp/pdf`, limit 10 MB), sanitizacją nagłówków `\r\n` w mailach oraz cichą pułapką antyspamową (`hp_field`, `website_url`, `_form_started_at < 1000 ms`).
+* `POST /api/checkout/place` (`throttle:30,1`) – atomowe składanie zamówienia wewnątrz `DB::transaction()` (włącznie z `Coupon::lockForUpdate()`), rezerwacją stanów, wyliczaniem `customer_segment` wyłącznie z zalogowanego użytkownika (ignorując wartość od klienta) oraz walidacją NIP / VIES.
+* `GET /api/checkout/orders/{number}` – status zamówienia chroniony anti-IDOR (wymaga kryptograficznego `public_token` w nagłówku `X-Order-Token` / parametrze `token`, ewentualnie e-maila `X-Order-Email` dla zachowania wstecznej kompatybilności, lub sesji właściciela/personelu).
+* `POST /api/returns` – zwroty RMA z blokadą IDOR (`order_id` dostępny wyłącznie dla własnych zamówień użytkownika z `user_id === $user->id`).
 * `GET /api/b2b/gus/{nip}` – automatyczne pobieranie danych kontrahenta z bazy GUS BIR i Białej Listy VAT.
 * `POST /api/integrations/stripe/payment-callback` – webhook Stripe z weryfikacją podpisu HMAC, fail-closed na pusty klucz oraz blokadą pesymistyczną `lockForUpdate()`.
-* `POST /api/integrations/przelewy24/payment-callback` – webhook Przelewy24 z weryfikacją `hash_equals()`.
+* `POST /api/integrations/przelewy24/payment-callback` – webhook Przelewy24 z weryfikacją `hash_equals()` oraz idempotentnością pod `lockForUpdate()`.
 
 ---
 
 ## 5. Frontend Astro i Wyspy React (React Islands)
 
-* **Optymalizacja Core Web Vitals:** Preload kluczowych grafik LCP (`fetchpriority="high"` dla logo oraz miniatur w Hero), format `.webp`, zerowe przesunięcia układu (CLS = 0).
+* **Optymalizacja Core Web Vitals i brak błędów hydratacji:** Preload kluczowych grafik LCP (`fetchpriority="high"` dla logo oraz miniatur w Hero), format `.webp`, zerowe przesunięcia układu (CLS = 0). Skrypt korekty sierot typograficznych w `Layout.astro` pomija węzły wewnątrz `<astro-island>`, eliminując błędy hydratacji React `#418`.
+* **Bezpieczeństwo treści CMS (XSS):** Dynamiczny HTML pobierany z API CMS (`AboutMe.tsx`, `FaqSection.tsx`, `PrivacyPolicy.tsx`, `Terms.tsx`) jest sanityzowany przez `DOMPurify` (`src/utils/sanitizeHtml.ts`).
+* **SEO i dane strukturalne:** Wstrzyknięto JSON-LD `FAQPage` na stronie głównej oraz `Product` + `Offer` + `BreadcrumbList` (`@graph`) na kartach `/sklep/{id}`. Sitemapa (`astro.config.mjs`) i `public/robots.txt` wykluczają strony sukcesu `/sukces-*` oraz zezwalają na indeksację przez `OAI-SearchBot` i `Claude-SearchBot`.
 * **Baner cookies (`CookieConsent.astro`):**
   * Zgodny z wytycznymi EROD i UODO (symetryczne przyciski „Zgadzam się” oraz „Tylko niezbędne”).
   * Pełne wsparcie dla wyboru „Tylko niezbędne” (wartość `essential_only` trwale zapobiega ponownemu otwieraniu banera po odświeżeniu strony).
-* **Defensywna integracja CMS:** Komponenty (`Shop.tsx`, `Gallery.tsx`, `FaqSection.tsx`, `Testimonials.tsx`) są odporne na pustą tablicę danych z API (`[]`), nie zawieszają renderowania i nie rzucają wyjątków `TypeError`.
+* **Defensywna integracja CMS i dostępność:** Komponenty (`Shop.tsx`, `Gallery.tsx`, `FaqSection.tsx`, `Testimonials.tsx`) są odporne na pustą tablicę danych z API (`[]`), a zamknięte szuflady i akordeony korzystają z atrybutu `inert`.
 
 ---
 
 ## 6. Ścieżka Zakupowa i Płatności
 
-* **Zero-Trust Frontend:** Ceny, rabaty i dostępność są zawsze weryfikowane przez backend. Błąd połączenia sieciowego w koszyku blokuje przycisk zakupu z czytelnym komunikatem (brak ukrytych fallbacków cenowych).
+* **Zero-Trust Frontend i obsługa faktury VAT:** Ceny, rabaty i próg darmowej wysyłki (`free_shipping_threshold`) są pobierane z API i weryfikowane przez backend. Błąd pobrania aktualnych danych produktu w `ProductDetail.tsx` blokuje przycisk zakupu z komunikatem i przyciskiem ponowienia próby. Formularz zamówienia obsługuje opcjonalne dane do faktury VAT (firma, walidacja sumy kontrolnej NIP modulo-11, adres rozliczeniowy dla dostaw do punktu) oraz walidację inline bez wyłączonych przycisków „martwego kliknięcia”.
+* **Weryfikacja statusu płatności (`Success.tsx`):** Strona podsumowania autoryzuje się przez `token` (`X-Order-Token`), rozróżnia statusy `awaiting_payment` i `pending`, wykonuje do 5 prób pollingu i nigdy nie wyświetla fałszywego potwierdzenia przed statusem `paid`.
 * **Zapobieganie oversellingowi oryginałów 1/1:**
   * W momencie składania zamówienia stan magazynowy oryginału (`-OR`) jest blokowany atomowo przez `lockForUpdate()`.
+  * Nieopłacone zamówienia `stripe` oraz `przelewy24` otrzymują 45-minutową rezerwację (`reservation_expires_at`); po wygaśnięciu zadanie cron wygasza sesje Stripe `cs_*` i przywraca dostępność dzieła.
   * Po potwierdzeniu wpłaty (webhook Stripe/P24) konkurujące nieopłacone sesje na ten sam unikat zostają automatycznie wygaszone i anulowane.
 * **Płatności tradycyjne (przelew bankowy):** Zamówienie otrzymuje termin rezerwacji (domyślnie 3 dni robocze). Po upływie tego czasu zadanie cron zwalnia rezerwację i przywraca pracę do sprzedaży.
 
@@ -88,11 +96,11 @@ Główne trasy zdefiniowane w `backend/routes/api.php` z ochroną Rate Limiting:
 ## 7. Logistyka i Dostawa
 
 * **Paczkomaty InPost (Leaflet / OSM):**
-  * Bezpłatna integracja z publicznym API ShipX (`https://api-shipx-pl.easypack24.net/v1/points`).
+  * Bezpłatna integracja z publicznym API ShipX (`https://api-shipx-pl.easypack24.net/v1/points`) z 350 ms debounce przy przesuwaniu mapy i escapowaniem nazw punktów w markerach `L.divIcon`.
   * Funkcja `formatCityName()` koryguje wielkość liter w nazwach miast.
   * Dane wybranego punktu (`id`, `name`, `address`, `postal_code`, `city`) są trwale przekazywane do backendu.
 * **Przesyłki kurierskie (InPost / Orlen / Kurier ubezpieczony):**
-  * Parser adresowy `parseAddressFields` w `InPostService.php` automatycznie rozdziela ulicę, numer budynku i numer lokalu (np. `ul. Marszałkowska 102/4` -> `street: ul. Marszałkowska`, `building: 102`, `flat: 4`).
+  * Parser adresowy `parseAddressFields` w `InPostService.php` automatycznie rozdziela ulicę, numer budynku i numer lokalu bez podstawiania fikcyjnych wartości awaryjnych (brak wymaganych danych kończy się wyjątkiem `\InvalidArgumentException`).
   * Generowanie etykiet przewozowych z panelu administracyjnego (`/admin/orders/{number}/inpost-label`).
 
 ---
@@ -102,14 +110,14 @@ Główne trasy zdefiniowane w `backend/routes/api.php` z ochroną Rate Limiting:
 * **Wymogi e-commerce:**
   * Przycisk finalizacji: „Zamawiam i płacę” (płatności elektroniczne) oraz „Zamawiam z obowiązkiem zapłaty” (przelew tradycyjny).
   * Dyrektywa Omnibus: automatyczna prezentacja najniższej ceny z 30 dni przed obniżką na karcie produktu.
-  * Checkboxy zgód (Regulamin, Polityka Prywatności, zgoda na treści cyfrowe) są domyślnie odznaczone.
-  * Stopka zawiera pełne dane rejestrowe: `hellokostek Maciej Kosteczka`, NIP: `625-236-36-56`, Siewierz / Łódź.
+  * Checkboxy zgód (Regulamin, Polityka prywatności, zgoda na treści cyfrowe) są domyślnie odznaczone.
+  * Stopka zawiera pełne dane rejestrowe: `hellokostek Maciej Kosteczka`, `Rynek 33, 42-470 Siewierz`, NIP: `625-236-36-56` oraz odnośnik `Zwroty i odstąpienie` (`/regulamin#zwroty-i-odstapienie`).
 * **Czystość polszczyzny i mikrotypografia:**
   * Bezwzględny brak angielskiego Title Case (wyłącznie polskie Sentence case we wszystkich nagłówkach i przyciskach).
   * Całkowity zakaz klasy CSS `capitalize` na tekstach w języku polskim.
 * **Bezpieczeństwo serwera (`.htaccess`):**
   * Zablokowany dostęp do plików `.env`, `.sqlite`, `.git`, `composer.json`.
-  * Nagłówki HTTP: `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`.
+  * Nagłówki HTTP: `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: geolocation=(), microphone=(), camera=()` oraz `Strict-Transport-Security` dla połączeń HTTPS.
 
 ---
 
@@ -117,17 +125,21 @@ Główne trasy zdefiniowane w `backend/routes/api.php` z ochroną Rate Limiting:
 
 W pliku `backend/routes/console.php` zdefiniowano zadania cron (wszystkie z flagą `->withoutOverlapping()`):
 
-1. `app:expire-unpaid-orders` (co godzinę) – anuluje przeterminowane rezerwacje przelewowe i przywraca stan magazynowy dzieł.
+1. `app:expire-unpaid-orders` (co godzinę) – anuluje przeterminowane rezerwacje przelewowe oraz nieopłacone zamówienia `stripe`/`przelewy24`, wygasza sesje Stripe i przywraca stan magazynowy dzieł.
 2. `app:recover-abandoned-carts` (co godzinę) – wysyłka powiadomień o niedokończonych koszykach.
 3. `app:cleanup-abandoned-carts` (codziennie) – czyszczenie starych szkiców zamówień.
 4. `app:cleanup-price-history` (codziennie) – rotacja historii cen Omnibus starszych niż 90 dni.
 5. `app:generate-sitemap` (codziennie o 03:30) – generowanie pliku `sitemap.xml`.
 6. `app:aggregate-analytics-daily` (codziennie o 02:15) – agregacja danych analitycznych.
-7. `queue:work --stop-when-empty` (co minutę) – bezpieczna obsługa kolejki maili i integracji na hostingu współdzielonym.
+7. `media:convert-webp` (co godzinę) – konwersja wgranych mediów do WebP poza wątkiem HTTP.
+8. `queue:work --stop-when-empty --max-time=50` (co minutę) – bezpieczna obsługa kolejki maili i integracji na hostingu współdzielonym.
 
 ### Twarda bramka testowa
-* `php artisan test`: **140 testów zakończonych sukcesem (782 asercje)**, 0 błędów.
-* `npm run build`: kod wyjścia **0**, 23 strony wygenerowane w 2.5 s.
+* `php artisan test`: **147 testów zakończonych sukcesem (823 asercje)**, 0 błędów (w tym nowy zestaw regresyjny `AuditSecurityRegressionTest`).
+* `composer audit --no-interaction`: **0 podatności**.
+* `npm audit --omit=dev`: **0 podatności**.
+* `npm run build`: kod wyjścia **0**, 23 strony wygenerowane w 4.56 s.
+* `npx modern-web-guidance@latest legacy-scan src`: **0 uwag** (38 przeanalizowanych przewodników).
 
 ---
 
@@ -144,7 +156,16 @@ W pliku `backend/routes/console.php` zdefiniowano zadania cron (wszystkie z flag
 
 ---
 
-## 11. Dziennik Zmian (Changelog)
+## 11. Dziennik zmian (Changelog)
+
+### 22 listopada 2026 r. – Pełny audyt produkcyjny i wdrożenie poprawek lokalnych (`project-audit-master`)
+* **Aktualizacja zależności i audyt CVE:** Zaktualizowano pakiety backendu (`laravel/framework`, `livewire/livewire`, `filament/filament`, `symfony/*`) oraz frontendu (`dompurify`, poprawki `npm audit fix`). Zarówno `composer audit`, jak i `npm audit --omit=dev` wykazują **0 podatności**.
+* **Utwardzenie autoryzacji i anty-IDOR:** Wykluczono `role` i `is_admin` z `$fillable` w `User.php`, dodano `isStaff()` oraz bramki w kontrolerach panelowych (`InPostLabelController`, `OrlenPaczkaLabelController`, `SidebarController`, eksporty). Wyeliminowano IDOR w `OrderReturnController` oraz zaufanie do `customer_segment` po stronie klienta; wprowadzono kryptograficzny `public_token` w tabeli `orders` (`X-Order-Token`) i bezpieczne przekierowanie z `ProductDetail.tsx` do `Success.tsx`.
+* **Antyspam, walidacja uploadu i nagłówków e-mail:** W `ContactInquiryController` dodano `email:rfc,dns`, walidację MIME/rozmiaru plików, filtrację `\r\n` w `ContactInquiryAdminMail` oraz pułapkę `hp_field`/`_form_started_at`; podpięto podwójny honeypot w `Contact.tsx` i `Home.tsx`.
+* **Odporność na wyścigi i wygaszanie sesji:** Przeniesiono walidację i `Coupon::lockForUpdate()` do `DB::transaction()` w `CheckoutOrderService`, dodano `lockForUpdate()` w `PaymentCallbackService` oraz 45-minutową rezerwację i cronowe wygaszanie sesji `stripe`/`przelewy24` w `routes/console.php`.
+* **Jakość UI, React Hydration #418, UX mobilny i VAT:** Zablokowano ingerencję `fixTypographyOrphans()` w `<astro-island>` (`Layout.astro`), dodano sanityzację `DOMPurify`, wdrożono dynamiczny próg darmowej wysyłki z `/api/store/settings`, blokadę checkoutu przy błędzie API z przyciskiem odświeżenia, opcjonalną fakturę VAT z walidacją NIP oraz walidację inline z `role="alert"` zamiast natywnych `alert()` i zablokowanych przycisków.
+* **SEO, dane strukturalne i prawodawstwo PL/UE:** Dodano JSON-LD `FAQPage` (`index.astro`) i `Product` + `Offer` + `BreadcrumbList` (`sklep/[id].astro`), wykluczono `/sukces-*` z sitemapy i `robots.txt`, uzupełniono adres `Rynek 33, 42-470 Siewierz` oraz link do zwrotów w `Footer.astro`, dodano `Permissions-Policy` i `Strict-Transport-Security` w `.htaccess`, poprawiono mikrotypografię na polskie Sentence case oraz kontrast WCAG.
+* **Weryfikacja:** `php artisan migrate --force` + `php artisan test`: **147/147 passed (823 assertions)**, `npm run build`: **23 strony**, `legacy-scan`: **0 uwag**, lokalny audyt w przeglądarce (`1440×900`, `768×1024`, `375×812`): **0 błędów React `#418`**, **0 przepełnień poziomych**.
 
 ### 4 listopada 2026 r. – Pełny 7-Stopniowy Audyt Produkcyjny (project-audit-master)
 * **Weryfikacja statusu zamówienia w `Success.tsx`:** Dodano automatyczne odpytywanie endpointu `GET /api/checkout/orders/{number}?email=...` oraz polling dla płatności elektronicznych. Wyeliminowano prezentowanie fałszywego sukcesu w ciemno w przypadku przerwanych lub oczekujących transakcji Przelewy24 / Stripe.

@@ -34,8 +34,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'name',
         'email',
         'password',
-        'role',
-        // Note: 'is_admin' is intentionally excluded — use forceFill() to set it explicitly.
+        // Note: 'is_admin' and 'role' are intentionally excluded — use forceFill() to set them explicitly.
     ];
 
     /**
@@ -63,13 +62,18 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         ];
     }
 
-    public function canAccessPanel(Panel $panel): bool
+    public function isStaff(): bool
     {
-        return $panel->getId() === 'admin' && in_array($this->role, [
+        return $this->is_admin === true || in_array($this->role, [
             UserRole::Admin,
             UserRole::Manager,
             UserRole::Employee,
-        ]);
+        ], true);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'admin' && $this->isStaff();
     }
 
     public function isAdmin(): bool

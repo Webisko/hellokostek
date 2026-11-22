@@ -387,12 +387,12 @@ class PaymentSessionService
 
         $query = http_build_query([
             'orderNumber' => $order->number,
+            'token' => $order->public_token,
             'productTitle' => $productTitle,
             'purchaseType' => $purchaseType,
             'price' => $price,
             'shippingMethod' => $shippingMethod,
             'shippingPrice' => $shippingPrice,
-            'email' => $order->customer_email,
         ]);
 
         return $storefrontUrl . '/sukces-zakup?' . $query;

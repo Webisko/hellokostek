@@ -26,7 +26,7 @@ const portfolioItems = [
   {
     src: portretLeonaUrl,
     alt: "Portret kobiety",
-    title: "Portret Kobiety",
+    title: "Portret kobiety",
     format: "Płótno prostokątne • 30×40 cm",
     technique: "Klasyczna technika olejna na płótnie",
     isOval: false
@@ -42,15 +42,15 @@ const portfolioItems = [
   {
     src: portretSlubnyParyUrl,
     alt: "Portret trzech dziewczynek",
-    title: "Portret Trzech Dziewczynek",
+    title: "Portret trzech dziewczynek",
     format: "Płótno prostokątne • 40×50 cm",
     technique: "Klasyczna technika olejna na płótnie",
     isOval: false
   },
   {
     src: portretMarysiUrl,
-    alt: "Portret ś spiącego niemowlęcia",
-    title: "Portret Śpiącego Niemowlęcia",
+    alt: "Portret śpiącego niemowlęcia",
+    title: "Portret śpiącego niemowlęcia",
     format: "Płótno prostokątne • 30×40 cm",
     technique: "Klasyczna technika olejna na płótnie",
     isOval: false
@@ -67,14 +67,45 @@ export default function Home() {
     size: ""
   });
   const [emailFiles, setEmailFiles] = useState<File[]>([]);
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [hpField, setHpField] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<string[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const formStartedAtRef = useRef<number>(0);
 
   useEffect(() => {
     setIsMounted(true);
+    formStartedAtRef.current = Date.now();
   }, []);
+
+  const clearFieldError = (field: string) => {
+    if (!fieldErrors[field]) return;
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const focusFirstError = (errors: Record<string, string>) => {
+    const firstKey = Object.keys(errors)[0];
+    if (!firstKey) return;
+    requestAnimationFrame(() => {
+      const target = formRef.current?.querySelector<HTMLElement>(`[data-error-field="${firstKey}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        const focusable = target.matches("input, select, textarea, button")
+          ? target
+          : target.querySelector<HTMLElement>("input, select, textarea, button");
+        focusable?.focus({ preventScroll: true });
+      }
+    });
+  };
 
   // Lightbox state (will be preserved for compatibility, but disabled from the main grid clicks)
   const [lightbox, setLightbox] = useState({
@@ -128,22 +159,46 @@ export default function Home() {
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: Record<string, string> = {};
+    if (emailForm.name.trim().length < 2) {
+      errors.name = "Podaj swoje imię (minimum 2 znaki).";
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailForm.email.trim())) {
+      errors.email = "Podaj prawidłowy adres e-mail.";
+    }
     if (!emailForm.shape) {
-      alert("Proszę wybrać podobrazie.");
+      errors.shape = "Wybierz kształt podobrazia.";
+    }
+    if (emailForm.message.trim().length < 5) {
+      errors.message = "Wpisz opis swojej wizji lub przeznaczenia obrazu (minimum 5 znaków).";
+    }
+    if (emailFiles.length > 5) {
+      errors.files = "Możesz załączyć maksymalnie 5 plików.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setFormErrors(Object.values(errors));
+      focusFirstError(errors);
       return;
     }
-    
+
+    setFieldErrors({});
+    setFormErrors([]);
     setIsSubmitting(true);
     setErrorMessage("");
 
     const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/api";
     const body = new FormData();
-    body.append("name", emailForm.name);
-    body.append("email", emailForm.email);
+    body.append("name", emailForm.name.trim());
+    body.append("email", emailForm.email.trim());
     body.append("phone", "");
-    body.append("subject", "Chcę zlecić ręcznie malowany portret ze zdjęcia (Strona Główna)");
-    body.append("message", emailForm.message || "Brak wiadomości");
-    
+    body.append("website_url", websiteUrl);
+    body.append("hp_field", hpField);
+    body.append("_form_started_at", String(formStartedAtRef.current || Date.now()));
+    body.append("subject", "Chcę zlecić ręcznie malowany portret ze zdjęcia (Strona główna)");
+    body.append("message", emailForm.message.trim());
+
     if (emailForm.shape) body.append("shape", emailForm.shape);
     if (emailForm.size) body.append("size", emailForm.size);
 
@@ -327,128 +382,217 @@ export default function Home() {
           </div>
           <div className="xl:col-span-7 bg-white rounded-3xl border border-off-black p-6 sm:p-10 space-y-6">
             <h3 className="font-display text-2xl text-gray-900 border-b border-gray-100 pb-4">Zamów wycenę Twojego portretu</h3>
-            <form onSubmit={handleContactSubmit} className="space-y-6 font-sans">
+            <form ref={formRef} noValidate onSubmit={handleContactSubmit} className="space-y-6 font-sans">
+              <input
+                type="text"
+                name="website_url"
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
+                style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }}
+                tabIndex={-1}
+                autoComplete="new-password"
+                aria-hidden="true"
+              />
+              <input
+                type="text"
+                name="hp_field"
+                value={hpField}
+                onChange={(e) => setHpField(e.target.value)}
+                style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }}
+                tabIndex={-1}
+                autoComplete="new-password"
+                aria-hidden="true"
+              />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label htmlFor="home-contact-name" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Imię *</label>
+                <div className="space-y-1" data-error-field="name">
+                  <label htmlFor="home-contact-name" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Imię *</label>
                   <input
                     type="text"
                     id="home-contact-name"
                     name="name"
+                    autoComplete="name"
                     required
+                    aria-invalid={Boolean(fieldErrors.name)}
+                    aria-describedby={fieldErrors.name ? "home-contact-name-error" : undefined}
                     placeholder="np. Anna"
                     value={emailForm.name}
-                    onChange={(e) => setEmailForm({...emailForm, name: e.target.value})}
-                    className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
+                    onChange={(e) => {
+                      setEmailForm({ ...emailForm, name: e.target.value });
+                      clearFieldError("name");
+                    }}
+                    className={`w-full p-3 bg-gray-55 border ${fieldErrors.name ? "border-red-500" : "border-gray-200"} focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all`}
                   />
+                  {fieldErrors.name && (
+                    <p id="home-contact-name-error" className="text-xs text-red-600">{fieldErrors.name}</p>
+                  )}
                 </div>
-                <div className="space-y-1">
-                  <label htmlFor="home-contact-email" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">adres e-mail *</label>
+                <div className="space-y-1" data-error-field="email">
+                  <label htmlFor="home-contact-email" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Adres e-mail *</label>
                   <input
                     type="email"
                     id="home-contact-email"
                     name="email"
+                    autoComplete="email"
                     required
+                    aria-invalid={Boolean(fieldErrors.email)}
+                    aria-describedby={fieldErrors.email ? "home-contact-email-error" : undefined}
                     placeholder="np. anna@gmail.com"
                     value={emailForm.email}
-                    onChange={(e) => setEmailForm({...emailForm, email: e.target.value})}
-                    className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all"
+                    onChange={(e) => {
+                      setEmailForm({ ...emailForm, email: e.target.value });
+                      clearFieldError("email");
+                    }}
+                    className={`w-full p-3 bg-gray-55 border ${fieldErrors.email ? "border-red-500" : "border-gray-200"} focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all`}
                   />
+                  {fieldErrors.email && (
+                    <p id="home-contact-email-error" className="text-xs text-red-600">{fieldErrors.email}</p>
+                  )}
                 </div>
               </div>
-              
-              <div className="space-y-1">
-                <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Podobrazie *</label>
+
+              <div className="space-y-1" data-error-field="shape">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Podobrazie *</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.shape === "rectangle" && emailForm.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                    emailForm.shape === "rectangle" && emailForm.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-white"
                   }`}>
                     <input
                       type="radio"
                       name="podobrazie"
                       value="prostokat_30x40"
                       checked={emailForm.shape === "rectangle" && emailForm.size === "30x40"}
-                      onChange={() => setEmailForm({...emailForm, shape: "rectangle", size: "30x40"})}
+                      onChange={() => {
+                        setEmailForm({ ...emailForm, shape: "rectangle", size: "30x40" });
+                        clearFieldError("shape");
+                      }}
                       className="sr-only"
                     />
                     Prostokątne 30x40
                   </label>
                   <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.shape === "oval" && emailForm.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                    emailForm.shape === "oval" && emailForm.size === "30x40" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-white"
                   }`}>
                     <input
                       type="radio"
                       name="podobrazie"
                       value="owalne_30x40"
                       checked={emailForm.shape === "oval" && emailForm.size === "30x40"}
-                      onChange={() => setEmailForm({...emailForm, shape: "oval", size: "30x40"})}
+                      onChange={() => {
+                        setEmailForm({ ...emailForm, shape: "oval", size: "30x40" });
+                        clearFieldError("shape");
+                      }}
                       className="sr-only"
                     />
                     Owalne 30x40
                   </label>
                   <label className={`flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:border-[#C4F013] text-sm font-sans transition-all text-center ${
-                    emailForm.shape === "other" && emailForm.size === "other" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-white"
+                    emailForm.shape === "other" && emailForm.size === "other" ? "border-[#C4F013] ring-1 ring-[#C4F013] bg-white shadow-xs font-semibold text-gray-950" : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-white"
                   }`}>
                     <input
                       type="radio"
                       name="podobrazie"
                       value="inne"
                       checked={emailForm.shape === "other" && emailForm.size === "other"}
-                      onChange={() => setEmailForm({...emailForm, shape: "other", size: "other"})}
+                      onChange={() => {
+                        setEmailForm({ ...emailForm, shape: "other", size: "other" });
+                        clearFieldError("shape");
+                      }}
                       className="sr-only"
                     />
                     Inne
                   </label>
                 </div>
+                {fieldErrors.shape && (
+                  <p className="text-xs text-red-600 mt-1">{fieldErrors.shape}</p>
+                )}
               </div>
 
-              <div className="space-y-1">
-                <label htmlFor="home-contact-message" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Opisz swoją wizję lub przeznaczenie obrazu *</label>
+              <div className="space-y-1" data-error-field="message">
+                <label htmlFor="home-contact-message" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Opisz swoją wizję lub przeznaczenie obrazu *</label>
                 <textarea
                   id="home-contact-message"
                   name="message"
                   required
+                  aria-invalid={Boolean(fieldErrors.message)}
+                  aria-describedby={fieldErrors.message ? "home-contact-message-error" : undefined}
                   rows={6}
-                  placeholder="Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
+                  placeholder="Dla kogo powstaje obraz? Czy to pamiątka rodzinna czy prezent na rocznicę? A może chcesz swojego kota w wielu miejscach jednocześnie (na drapaku i w ramce)? Daj znać!"
                   value={emailForm.message}
-                  onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
-                  className="w-full p-3 bg-gray-55 border border-gray-200 focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all resize-none leading-relaxed"
+                  onChange={(e) => {
+                    setEmailForm({ ...emailForm, message: e.target.value });
+                    clearFieldError("message");
+                  }}
+                  className={`w-full p-3 bg-gray-55 border ${fieldErrors.message ? "border-red-500" : "border-gray-200"} focus:border-[#C4F013] focus:ring-1 focus:ring-[#C4F013] focus:bg-white outline-none rounded-xl text-base transition-all resize-none leading-relaxed`}
                 />
+                {fieldErrors.message && (
+                  <p id="home-contact-message-error" className="text-xs text-red-600">{fieldErrors.message}</p>
+                )}
               </div>
-              <div className="space-y-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-gray-400 block">Dołącz poglądowe zdjęcia (JPG, PNG)</span>
+              <div className="space-y-2" data-error-field="files">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)</span>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border border-dashed border-gray-200 rounded-xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-all cursor-pointer relative"
+                  className={`border border-dashed ${fieldErrors.files ? "border-red-500" : "border-gray-200"} rounded-xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-all cursor-pointer relative`}
                 >
                   <input
                     type="file"
                     ref={fileInputRef}
+                    accept="image/jpeg,image/png,image/webp,application/pdf"
                     multiple
                     onChange={(e) => {
-                      if (e.target.files) {
-                        setEmailFiles(Array.from(e.target.files));
+                      if (!e.target.files) return;
+                      const selected = Array.from(e.target.files);
+                      const allowedMime = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+                      const maxBytes = 10 * 1024 * 1024;
+                      if (selected.length > 5) {
+                        setFieldErrors((prev) => ({ ...prev, files: "Możesz załączyć maksymalnie 5 plików." }));
+                        return;
                       }
+                      const invalidFile = selected.find(
+                        (f) => (!allowedMime.includes(f.type) && !/\.(jpe?g|png|webp|pdf)$/i.test(f.name)) || f.size > maxBytes
+                      );
+                      if (invalidFile) {
+                        setFieldErrors((prev) => ({
+                          ...prev,
+                          files: "Dozwolone są wyłącznie pliki JPG, PNG, WEBP lub PDF o rozmiarze do 10 MB każdy.",
+                        }));
+                        return;
+                      }
+                      clearFieldError("files");
+                      setEmailFiles(selected);
                     }}
                     className="hidden"
                   />
                   <div className="space-y-2 pointer-events-none">
-                    <div className="text-xs font-medium text-gray-500">
+                    <div className="text-xs font-medium text-gray-600">
                       {emailFiles.length > 0 ? (
                         <span className="text-[#E0115F] font-bold">
                           ✓ Wybrano {emailFiles.length} {emailFiles.length === 1 ? 'plik' : emailFiles.length < 5 ? 'pliki' : 'plików'}: {emailFiles.map(f => f.name).join(", ")}
                         </span>
                       ) : (
-                        <span>Kliknij, by załączyć klatki zdjęciowe (możesz też wysłać je bezpośrednio w mailu)</span>
+                        <span>Kliknij, by załączyć zdjęcia lub szkice (maks. 5 plików po 10 MB)</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400">Twoje dane są w pełni bezpieczne.</p>
+                    <p className="text-xs text-gray-600">Twoje dane są w pełni bezpieczne.</p>
                   </div>
                 </div>
+                {fieldErrors.files && (
+                  <p className="text-xs text-red-600">{fieldErrors.files}</p>
+                )}
               </div>
               <div className="pt-4 space-y-4">
+                {formErrors.length > 0 && (
+                  <div role="alert" className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
+                    <p className="font-semibold mb-1">Sprawdź formularz przed wysłaniem:</p>
+                    <ul className="list-disc pl-4 space-y-0.5">
+                      {formErrors.map((err, idx) => (
+                        <li key={idx}>{err}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {errorMessage && (
-                  <div className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
+                  <div role="alert" className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-sans leading-relaxed border border-red-200">
                     {errorMessage}
                   </div>
                 )}
@@ -477,7 +621,7 @@ export default function Home() {
                 <p className="text-xs text-gray-550 font-sans text-center mt-4 leading-relaxed font-normal">
                   Wiadomość zostanie przesłana bezpośrednio do mojej asystentki – rudej kotki o imieniu Aurea, która miauknięciem informuje o nowych wiadomościach z formularza. Odpowiedź ode mnie wraz z propozycją kompozycji otrzymasz z odbiciem łapki na podany adres e-mail.
                 </p>
-                <p className="text-[11px] text-gray-400 font-sans text-center leading-relaxed font-normal">
+                <p className="text-xs text-gray-600 font-sans text-center leading-relaxed font-normal">
                   Wysyłając wiadomość, akceptujesz przetwarzanie danych osobowych w celu obsługi zapytania zgodnie z <a href="/polityka-prywatnosci" className="underline hover:text-[#E0115F] transition-colors">Polityką prywatności</a>.
                 </p>
               </div>
@@ -492,7 +636,7 @@ export default function Home() {
 
       {isMounted && lightbox.isOpen && createPortal(
         <div
-          className="fixed inset-0 w-screen h-screen z-50 flex flex-col md:flex-row bg-neutral-950 text-white transition-opacity duration-300 overflow-hidden"
+          className="fixed inset-0 w-full h-[100dvh] z-50 flex flex-col md:flex-row bg-neutral-950 text-white transition-opacity duration-300 overflow-hidden"
           onClick={closeLightbox}
         >
           {/* Global Close Button (Float top right, highly accessible) */}
@@ -506,7 +650,7 @@ export default function Home() {
 
           {/* Main Image Area (Left/Center) */}
           <div
-            className="flex-grow flex items-center justify-center p-6 md:p-12 relative h-[60vh] md:h-screen bg-black"
+            className="flex-grow flex items-center justify-center p-6 md:p-12 relative h-[60dvh] md:h-[100dvh] bg-black"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
@@ -536,7 +680,7 @@ export default function Home() {
           </div>
           {/* Sidebar Area (Right) */}
           <div
-            className="w-full md:w-[380px] lg:w-[420px] shrink-0 bg-neutral-900 border-t md:border-t-0 md:border-l border-white/10 p-6 md:p-10 flex flex-col justify-between h-[40vh] md:h-screen relative z-55 overflow-y-auto"
+            className="w-full md:w-[380px] lg:w-[420px] shrink-0 bg-neutral-900 border-t md:border-t-0 md:border-l border-white/10 p-6 md:p-10 flex flex-col justify-between h-[40dvh] md:h-[100dvh] relative z-55 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Details Section */}

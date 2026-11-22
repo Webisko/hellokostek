@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { HelpCircle, ChevronDown, ArrowRight } from "lucide-react";
+import { sanitizeHtml } from "../utils/sanitizeHtml";
 
 interface FaqItem {
   id: number;
@@ -31,7 +32,7 @@ const DEFAULT_FAQ_ITEMS: FaqItem[] = [
   {
     id: 4,
     question: "Jaki jest czas dostawy gotowych prac oraz zamówień dedykowanych?",
-    answer: "<p>Prace z gotowej kolekcji wysyłam zazwyczaj w ciągu <strong>24–48 godzin</strong>. Czas wykonania portretu na zamówienie wynosi zazwyczaj od 7 do 14 dni roboczych, w zależności od wybranej techniki i czasochłonności.</p>",
+    answer: "<p>Prace z gotowej kolekcji wysyłam zazwyczaj w ciągu <strong>24–48 godzin</strong>. Czas namalowania portretu olejnego na indywidualne zamówienie wynosi zazwyczaj <strong>około 3–4 tygodni</strong>, w zależności od formatu i stopnia szczegółowości.</p>",
     group_name: "Czas realizacji"
   },
   {
@@ -125,12 +126,13 @@ export default function FaqSection() {
                     isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                   }`}
                   aria-hidden={!isOpen}
+                  inert={!isOpen || undefined}
                 >
                   <div className="overflow-hidden">
                     <div className="px-6 pb-6 pt-0">
                       <div
                         className="font-sans text-sm sm:text-base text-gray-700 leading-relaxed border-t border-stone-200/60 pt-4 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5 [&>a]:text-[#E0115F] [&>a]:underline"
-                        dangerouslySetInnerHTML={{ __html: item.answer }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.answer) }}
                       />
                     </div>
                   </div>
