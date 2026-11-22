@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\StoreSettings\Pages;
 
+use App\Filament\Pages\StoreDashboard;
 use App\Filament\Resources\StoreSettings\StoreSettingResource;
-use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
 class EditStoreSetting extends EditRecord
@@ -26,8 +27,10 @@ class EditStoreSetting extends EditRecord
             $this->getSaveFormAction()
                 ->label('Zapisz')
                 ->icon('heroicon-o-check'),
-            $this->getCancelFormAction()
-                ->label('Anuluj'),
+            Action::make('backToDashboard')
+                ->label('Wróć do kokpitu')
+                ->color('gray')
+                ->url(StoreDashboard::getUrl()),
         ];
     }
 
@@ -35,6 +38,17 @@ class EditStoreSetting extends EditRecord
     {
         return [];
     }
+
+    private const SECRET_METADATA_KEYS = [
+        'inpost_token',
+        'orlen_partner_key',
+        'przelewy24_api_key',
+        'przelewy24_callback_token',
+        'przelewy24_crc',
+        'resend_key',
+        'stripe_secret',
+        'stripe_webhook_secret',
+    ];
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
@@ -63,8 +77,36 @@ class EditStoreSetting extends EditRecord
             }
         }
 
+        // Password-revealable inputs hydrate null as '' in Alpine/Livewire, which would otherwise trigger false unsaved alerts.
+        foreach (self::SECRET_METADATA_KEYS as $key) {
+            if (! array_key_exists($key, $metadata) || $metadata[$key] === null) {
+                $metadata[$key] = '';
+            }
+        }
+
         $data['metadata'] = $metadata;
+        $data['seo'] = is_array($data['seo'] ?? null) ? $data['seo'] : [];
+        $data['shipping_zones'] = is_array($data['shipping_zones'] ?? null) ? $data['shipping_zones'] : [];
+        $data['shipping_methods'] = is_array($data['shipping_methods'] ?? null) ? $data['shipping_methods'] : [];
 
         return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (is_array($data['metadata'] ?? null)) {
+            foreach (self::SECRET_METADATA_KEYS as $key) {
+                if (($data['metadata'][$key] ?? null) === '') {
+                    $data['metadata'][$key] = null;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    protected function afterFill(): void
+    {
+        $this->rememberData();
     }
 }

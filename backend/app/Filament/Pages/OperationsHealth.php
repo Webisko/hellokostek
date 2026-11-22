@@ -2,6 +2,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Resources\FailedJobs\FailedJobResource;
+use App\Filament\Resources\IntegrationLogs\IntegrationLogResource;
+use App\Filament\Resources\StoreSettings\StoreSettingResource;
+use App\Filament\Resources\TransactionalEmailLogs\TransactionalEmailLogResource;
 use App\Models\FailedJob;
 use App\Models\IntegrationLog;
 use App\Models\TransactionalEmailLog;
@@ -96,7 +100,7 @@ class OperationsHealth extends Page
                 'value' => $failedJobsCount,
                 'description' => 'Zadania w kolejce wymagające ponowienia lub analizy.',
                 'context' => $this->dateContext('Ostatni błąd', $lastFailedJobAt, 'Brak zarejestrowanych nieudanych zadań.'),
-                'url' => '/admin/failed-jobs',
+                'url' => FailedJobResource::getUrl('index'),
                 'tone' => $failedJobsCount > 0 ? 'danger' : 'success',
             ],
             [
@@ -124,7 +128,7 @@ class OperationsHealth extends Page
                 'value' => $integrationReadinessIssuesCount,
                 'description' => 'Integracje wymagające uzupełnienia kluczy lub adresów środowiskowych.',
                 'context' => $integrationReadiness->summaryContext(),
-                'url' => '/admin/store-settings',
+                'url' => StoreSettingResource::getUrl('index'),
                 'tone' => $integrationReadinessIssuesCount > 0 ? 'warning' : 'success',
             ],
             [
@@ -170,11 +174,13 @@ class OperationsHealth extends Page
 
     private function transactionalEmailLogsUrl(?string $status = null): string
     {
+        $baseUrl = TransactionalEmailLogResource::getUrl('index');
+
         if (blank($status)) {
-            return '/admin/transactional-email-logs';
+            return $baseUrl;
         }
 
-        return '/admin/transactional-email-logs?' . http_build_query([
+        return $baseUrl . '?' . http_build_query([
             'tableFilters' => [
                 'status' => [
                     'value' => $status,
@@ -255,15 +261,16 @@ class OperationsHealth extends Page
      */
     private function integrationLogsUrl(?string $tableSearch = null, array $tableFilters = []): string
     {
+        $baseUrl = IntegrationLogResource::getUrl('index');
         $query = array_filter([
             'tableSearch' => $tableSearch,
             'tableFilters' => $tableFilters,
         ]);
 
         if ($query === []) {
-            return '/admin/integration-logs';
+            return $baseUrl;
         }
 
-        return '/admin/integration-logs?' . http_build_query($query);
+        return $baseUrl . '?' . http_build_query($query);
     }
 }

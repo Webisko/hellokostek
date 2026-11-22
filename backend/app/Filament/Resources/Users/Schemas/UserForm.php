@@ -45,8 +45,12 @@ class UserForm
                         TextInput::make('password')
                             ->label('Hasło')
                             ->password()
+                            ->revealable()
+                            ->helperText(fn (string $operation): ?string => $operation === 'edit'
+                                ? 'Pozostaw puste, aby nie zmieniać obecnego hasła.'
+                                : 'Minimum 8 znaków.')
                             ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn (string $context): bool => $context === 'create')
+                            ->required(fn (string $operation): bool => $operation === 'create')
                             ->maxLength(255),
                     ]),
             ]);

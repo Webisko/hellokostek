@@ -37,6 +37,22 @@ class OrderResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'number';
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = Order::query()
+            ->where('status', 'placed')
+            ->where('payment_status', 'paid')
+            ->where('fulfillment_status', 'pending')
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['number', 'customer_email', 'customer.name'];

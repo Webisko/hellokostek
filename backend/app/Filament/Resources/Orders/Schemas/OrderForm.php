@@ -93,7 +93,7 @@ class OrderForm
                         Repeater::make('items')
                             ->relationship()
                             ->label('Pozycje')
-                            ->columns(['md' => 7])
+                            ->columns(['md' => 9])
                             ->schema([
                                 Placeholder::make('product_image')
                                     ->label('Zdjęcie')
@@ -120,19 +120,61 @@ class OrderForm
                                     ->searchable()
                                     ->preload()
                                     ->live()
-                                    ->afterStateUpdated(function ($state, $set) {
-                                        $product = \App\Models\Product::find($state);
+                                    ->afterStateUpdated(function ($state, $set, $get) {
+                                        $product = \App\Models\Product::with('variants.optionValues')->find($state);
                                         if ($product) {
-                                            $pricePln = $product->currentPriceAmount() / 100;
+                                            $defaultVariant = $product->variants->firstWhere(fn ($v) => str_ends_with((string) $v->sku, '-PR'))
+                                                ?? $product->variants->first();
+                                            $pricePln = ($defaultVariant ? $defaultVariant->currentPriceAmount() : $product->currentPriceAmount()) / 100;
+                                            $qty = max(1, (int) ($get('quantity') ?? 1));
+                                            $set('product_variant_id', $defaultVariant?->id);
                                             $set('name', $product->name);
-                                            $set('sku', $product->sku ?: $product->slug);
+                                            $set('sku', $defaultVariant?->sku ?: ($product->sku ?: $product->slug));
                                             $set('product_type', $product->type->value ?? $product->type);
                                             $set('unit_price_amount', $pricePln);
                                             $set('regular_unit_price_amount', $pricePln);
-                                            $set('total_amount', $pricePln * 1);
+                                            $set('total_amount', $pricePln * $qty);
                                         }
                                     })
                                     ->columnSpan(['md' => 3]),
+                                Select::make('product_variant_id')
+                                    ->label('Wariant')
+                                    ->options(function ($get): array {
+                                        $productId = $get('product_id');
+                                        if (! $productId) {
+                                            return [];
+                                        }
+                                        $product = \App\Models\Product::with('variants.optionValues')->find($productId);
+                                        if (! $product) {
+                                            return [];
+                                        }
+
+                                        return $product->variants->mapWithKeys(function ($variant) {
+                                            $label = $variant->optionValues->pluck('value')->implode(' / ');
+                                            if ($label === '') {
+                                                $label = str_ends_with((string) $variant->sku, '-OR') ? 'Oryginał' : 'Wydruk';
+                                            }
+                                            $price = number_format($variant->currentPriceAmount() / 100, 2, ',', ' ');
+
+                                            return [$variant->id => "{$label} ({$price} zł)"];
+                                        })->all();
+                                    })
+                                    ->visible(fn ($get): bool => filled($get('product_id')))
+                                    ->live()
+                                    ->native(false)
+                                    ->afterStateUpdated(function ($state, $set, $get) {
+                                        $variant = \App\Models\ProductVariant::find($state);
+                                        if ($variant) {
+                                            $pricePln = $variant->currentPriceAmount() / 100;
+                                            $regularPln = $variant->regular_price_amount / 100;
+                                            $qty = max(1, (int) ($get('quantity') ?? 1));
+                                            $set('sku', $variant->sku);
+                                            $set('unit_price_amount', $pricePln);
+                                            $set('regular_unit_price_amount', $regularPln);
+                                            $set('total_amount', $pricePln * $qty);
+                                        }
+                                    })
+                                    ->columnSpan(['md' => 2]),
                                 TextInput::make('quantity')
                                     ->label('Ilość')
                                     ->numeric()

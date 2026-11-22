@@ -123,7 +123,7 @@ class ProductForm
                                                 Section::make('Wariant 1: wydruk kolekcjonerski (zawsze dostępny)')
                                                     ->schema([
                                                         TextInput::make('print_regular_price')
-                                                            ->label('Cena wydruku (PLN)')
+                                                            ->label('Cena regularna wydruku (PLN)')
                                                             ->placeholder('np. 30 (akwarela) lub 20 (rysunek)')
                                                             ->helperText('Domyślnie: 30 zł dla akwareli, 20 zł dla rysunku.')
                                                             ->numeric()
@@ -134,7 +134,21 @@ class ProductForm
                                                                 if ($record) {
                                                                     $printVariant = $record->variants()->where('sku', 'like', '%-PR')->first();
                                                                     $price = $printVariant ? $printVariant->regular_price_amount : $record->regular_price_amount;
-                                                                    $component->state($price ? $price / 100 : null);
+                                                                    $component->state($price !== null ? $price / 100 : null);
+                                                                }
+                                                            }),
+                                                        TextInput::make('print_sale_price')
+                                                            ->label('Cena promocyjna wydruku (PLN)')
+                                                            ->placeholder('Pozostaw puste, jeśli brak promocji')
+                                                            ->helperText('Opcjonalnie. Cena niższa niż regularna włączy oznaczenie promocji i historię Omnibus.')
+                                                            ->numeric()
+                                                            ->minValue(0)
+                                                            ->lt('print_regular_price')
+                                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                                if ($record) {
+                                                                    $printVariant = $record->variants()->where('sku', 'like', '%-PR')->first();
+                                                                    $salePrice = $printVariant ? $printVariant->sale_price_amount : $record->sale_price_amount;
+                                                                    $component->state($salePrice !== null ? $salePrice / 100 : null);
                                                                 }
                                                             }),
                                                         \Filament\Forms\Components\Hidden::make('print_stock_quantity')
@@ -157,7 +171,7 @@ class ProductForm
                                                                 }
                                                             }),
                                                         TextInput::make('original_regular_price')
-                                                            ->label('Cena pracy oryginalnej (PLN)')
+                                                            ->label('Cena regularna oryginału (PLN)')
                                                             ->placeholder('np. 300 (akwarela) lub 200 (rysunek)')
                                                             ->helperText('Domyślnie: 300 zł dla akwareli, 200 zł dla rysunku.')
                                                             ->numeric()
@@ -169,6 +183,20 @@ class ProductForm
                                                                 if ($record) {
                                                                     $origVariant = $record->variants()->where('sku', 'like', '%-OR')->first();
                                                                     $component->state($origVariant && $origVariant->regular_price_amount > 0 ? $origVariant->regular_price_amount / 100 : 300);
+                                                                }
+                                                            }),
+                                                        TextInput::make('original_sale_price')
+                                                            ->label('Cena promocyjna oryginału (PLN)')
+                                                            ->placeholder('Pozostaw puste, jeśli brak promocji')
+                                                            ->helperText('Opcjonalnie. Cena niższa niż regularna włączy promocję tylko dla oryginału oraz osobną historię Omnibus.')
+                                                            ->numeric()
+                                                            ->minValue(0)
+                                                            ->lt('original_regular_price')
+                                                            ->visible(fn (Get $get) => (bool) $get('has_original'))
+                                                            ->afterStateHydrated(function (TextInput $component, $record) {
+                                                                if ($record) {
+                                                                    $origVariant = $record->variants()->where('sku', 'like', '%-OR')->first();
+                                                                    $component->state($origVariant && $origVariant->sale_price_amount !== null ? $origVariant->sale_price_amount / 100 : null);
                                                                 }
                                                             }),
                                                     ]),
@@ -203,12 +231,6 @@ class ProductForm
                                             ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
                                             ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null)
                                             ->hidden(),
-                                        TextInput::make('sale_price_amount')
-                                            ->label('Cena promocyjna wydruku (PLN)')
-                                            ->numeric()
-                                            ->minValue(0)
-                                            ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
-                                            ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null),
                                         Select::make('vat_rate')
                                             ->label('Stawka VAT')
                                             ->options([
@@ -224,6 +246,9 @@ class ProductForm
                                         TextInput::make('currency')
                                             ->label('Waluta')
                                             ->required()
+                                            ->disabled()
+                                            ->dehydrated()
+                                            ->helperText('Produkty rozliczane są w PLN.')
                                             ->default(app(StoreSettings::class)->currency())
                                             ->minLength(3)
                                             ->maxLength(3),

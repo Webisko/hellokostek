@@ -175,5 +175,10 @@ class AppServiceProvider extends ServiceProvider
         // Globalne śledzenie zasobów przez Livewire SPA dla tagów Vite
         \Illuminate\Support\Facades\Vite::useStyleTagAttributes(['data-navigate-track' => 'reload']);
         \Illuminate\Support\Facades\Vite::useScriptTagAttributes(['data-navigate-track' => 'reload']);
+
+        \Livewire\Livewire::component(
+            \App\Filament\Profile\CustomUpdatePassword::class,
+            \App\Filament\Profile\CustomUpdatePassword::class,
+        );
     }
 }

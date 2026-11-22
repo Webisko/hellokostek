@@ -31,6 +31,16 @@ class EditProduct extends EditRecord
             $data['regular_price_amount'] = (int) round(((float) $data['original_regular_price']) * 100);
         }
 
+        if (array_key_exists('print_sale_price', $data)) {
+            if (filled($data['print_sale_price'])) {
+                $sale = (int) round(((float) $data['print_sale_price']) * 100);
+                $regular = $data['regular_price_amount'] ?? $this->getRecord()->regular_price_amount;
+                $data['sale_price_amount'] = ($sale > 0 && $sale < $regular) ? $sale : null;
+            } else {
+                $data['sale_price_amount'] = null;
+            }
+        }
+
         return $data;
     }
 

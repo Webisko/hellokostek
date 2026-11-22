@@ -42,6 +42,7 @@ class StoreDashboard extends Page
         $revenueToday = (int) Order::query()
             ->whereDate('placed_at', today())
             ->where('status', '!=', 'cancelled')
+            ->where('payment_status', 'paid')
             ->sum('total_amount');
             
         $ordersToday = Order::query()
@@ -95,6 +96,7 @@ class StoreDashboard extends Page
     {
         $pendingFulfillment = Order::query()
             ->where('status', 'placed')
+            ->where('payment_status', 'paid')
             ->where('fulfillment_status', 'pending')
             ->count();
 

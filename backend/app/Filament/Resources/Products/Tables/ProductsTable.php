@@ -80,12 +80,26 @@ class ProductsTable
                         $printVariant = $record->variants->firstWhere(fn ($v) => str_ends_with($v->sku ?? '', '-PR'));
                         $origVariant = $record->variants->firstWhere(fn ($v) => str_ends_with($v->sku ?? '', '-OR'));
 
-                        $printPrice = $printVariant ? ($printVariant->regular_price_amount / 100) : ($record->regular_price_amount / 100);
-                        $html = '<div><span class="font-bold text-gray-800 dark:text-gray-200">Wydruk: ' . number_format($printPrice, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
+                        $printRegular = $printVariant ? $printVariant->regular_price_amount : $record->regular_price_amount;
+                        $printSale = $printVariant ? $printVariant->sale_price_amount : $record->sale_price_amount;
+                        $printHasPromo = $printSale !== null && $printSale > 0 && $printSale < $printRegular;
+
+                        if ($printHasPromo) {
+                            $html = '<div><span class="font-bold text-rose-600 dark:text-rose-400">Wydruk: ' . number_format($printSale / 100, 2, ',', ' ') . ' ' . $record->currency . '</span> <span class="text-xs text-gray-400 line-through">' . number_format($printRegular / 100, 2, ',', ' ') . '</span></div>';
+                        } else {
+                            $html = '<div><span class="font-bold text-gray-800 dark:text-gray-200">Wydruk: ' . number_format($printRegular / 100, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
+                        }
 
                         if ($origVariant && $origVariant->is_active && $origVariant->stock_quantity > 0) {
-                            $origPrice = $origVariant->regular_price_amount / 100;
-                            $html .= '<div><span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Oryginał: ' . number_format($origPrice, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
+                            $origRegular = $origVariant->regular_price_amount;
+                            $origSale = $origVariant->sale_price_amount;
+                            $origHasPromo = $origSale !== null && $origSale > 0 && $origSale < $origRegular;
+
+                            if ($origHasPromo) {
+                                $html .= '<div><span class="text-xs font-semibold text-rose-600 dark:text-rose-400">Oryginał: ' . number_format($origSale / 100, 2, ',', ' ') . ' ' . $record->currency . '</span> <span class="text-xs text-gray-400 line-through">' . number_format($origRegular / 100, 2, ',', ' ') . '</span></div>';
+                            } else {
+                                $html .= '<div><span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Oryginał: ' . number_format($origRegular / 100, 2, ',', ' ') . ' ' . $record->currency . '</span></div>';
+                            }
                         } else {
                             $html .= '<div><span class="text-xs text-gray-400 line-through">Oryginał: sprzedany</span></div>';
                         }

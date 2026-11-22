@@ -19,6 +19,13 @@ class CreateProduct extends CreateRecord
             $data['regular_price_amount'] = 0;
         }
 
+        if (isset($data['print_sale_price']) && filled($data['print_sale_price'])) {
+            $sale = (int) round(((float) $data['print_sale_price']) * 100);
+            $data['sale_price_amount'] = ($sale > 0 && $sale < $data['regular_price_amount']) ? $sale : null;
+        } else {
+            $data['sale_price_amount'] = null;
+        }
+
         return $data;
     }
 

@@ -71,6 +71,9 @@ class CouponForm
                         TextInput::make('currency')
                             ->label('Waluta')
                             ->required()
+                            ->disabled()
+                            ->dehydrated()
+                            ->helperText('Kupony obsługują wyłącznie walutę PLN.')
                             ->default(app(StoreSettings::class)->currency())
                             ->minLength(3)
                             ->maxLength(3)
@@ -98,7 +101,9 @@ class CouponForm
                             ->label('Aktywny')
                             ->default(true),
                     ]),
-                Section::make('Metadane')->columnSpanFull()
+                Section::make('Metadane (zaawansowane)')->columnSpanFull()
+                    ->collapsible()
+                    ->collapsed()
                     ->schema([
                         KeyValue::make('metadata')
                             ->label('Metadane')

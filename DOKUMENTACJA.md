@@ -45,9 +45,15 @@ Struktura bazy danych została zoptymalizowana pod kątem sprzedaży dzieł unik
 ## 3. Panel CMS FilamentPHP (`/admin`)
 
 * **Adres panelu:** `https://panel.hellokostek.pl/admin` (lokalnie `http://localhost:8000/admin`).
-* **Język i nazewnictwo:** 100% polskie slugi (`/admin/produkty`, `/admin/zamowienia`, `/admin/faktury`, `/admin/ustawienia`) oraz polskie etykiety formularzy i tabel.
+* **Język i nazewnictwo:** 100% polskie slugi (`/admin/produkty`, `/admin/zamowienia`, `/admin/faktury`, `/admin/ustawienia`, `/admin/moj-profil`, `/admin/status-systemu`) oraz polskie etykiety formularzy i tabel.
+* **Profil użytkownika i zmiana hasła (`/admin/moj-profil`):** Strona profilu (`App\Filament\Profile\MyProfilePage`) z wyraźną etykietą **„Mój profil i hasło”** w menu użytkownika oraz w menu bocznym (grupa *Analityka & system*). Komponent `CustomUpdatePassword` udostępnia podgląd haseł (`revealable()`), obok ustawień danych osobowych i weryfikacji dwuetapowej (2FA).
+* **Ustawienia sklepu (`/admin/ustawienia`):** Uporządkowane w zakładkach `Wygląd` (równy 3-kolumnowy układ wgrywania logo, faviconu i tła logowania, wyrównany pasek ogłoszeń), `E-commerce` (dane sklepu, waluta PLN zablokowana przed przypadkową zmianą, dane sprzedawcy/faktur VAT, zwijane odzyskiwanie koszyków), `Płatności i dostawa` (próg darmowej dostawy i metody wysyłki na górze, zwijane sekcje Stripe/Przelewy24/InPost/ORLEN Paczka ze statusem w opisie), `SEO` i `System i poczta` (zwijana sekcja zaawansowanych ustawień technicznych). Normalizacja pustych pól sekretnych w `EditStoreSetting` eliminuje fałszywe komunikaty „Masz niezapisane zmiany” przy wyjściu bez edycji, a przycisk „Wróć do kokpitu” zastąpił zapętlający przycisk „Anuluj”.
+* **Operacje i ergonomia pracy:**
+  * **Promocje wariantów i Omnibus (`ProductForm`, `ProductsTable`):** Pola `print_sale_price` i `original_sale_price` bezpośrednio w sekcjach obu wariantów (`-PR` oraz `-OR`), zsynchronizowane z `Product::syncVariantsFromData()`, historią cen `ProductPriceHistory` oraz prezentacją przekreślonych cen w tabeli produktów.
+  * **Kokpit, badge i Status systemu:** `StoreDashboard` filtruje „Dzisiejszy przychód” oraz „Zamówienia do wysyłki” wyłącznie do zamówień opłaconych (`payment_status = 'paid'`). Menu boczne wyświetla liczniki spraw wymagających uwagi przy zasobach `Zamówienia` (opłacone do wysyłki) oraz `Zapytania` (`status = 'new'`). `OperationsHealth` używa dynamicznych adresów `Resource::getUrl()`, eliminując błędy 404.
+  * **Zamówienia i modale:** `OrderForm` zawiera wybór wariantu (`product_variant_id`) przy ręcznym dodawaniu pozycji. Style przenoszące przyciski do nagłówka (`theme.css`) zostały zawężone do slide-overów, dzięki czemu okna potwierdzeń zachowują przycisk „Anuluj”.
 * **Upload plików:** Skonfigurowano limit `temporary_file_upload.rules` na **50 MB** (`backend/config/livewire.php`), umożliwiając bezpieczne wgrywanie wysokorozdzielczych skanów obrazów i plików PDF.
-* **Kontrola dostępu i formularze CMS:** Kontrolery panelowe (`InPostLabelController`, `OrlenPaczkaLabelController`, `SidebarController`, `AdminOrderExportController`, `AdminContactExportController`) wymuszają `auth()->user()?->isStaff()`. Reguły `unique` w zasobach z soft delete ignorują usunięte rekordy (`withoutTrashed()`), a panel ostrzega przed opuszczeniem formularza z niezapisanymi zmianami.
+* **Kontrola dostępu i formularze CMS:** Kontrolery panelowe (`InPostLabelController`, `OrlenPaczkaLabelController`, `SidebarController`, `AdminOrderExportController`, `AdminContactExportController`) wymuszają `auth()->user()?->isStaff()`. Reguły `unique` w zasobach z soft delete ignorują usunięte rekordy (`withoutTrashed()`), a panel ostrzega przed opuszczeniem formularza z rzeczywistymi niezapisanymi zmianami.
 * **Ochrona danych produkcyjnych (`Zero CMS Overwrite`):** Główny seeder (`HelloKostekSeeder.php`) wykorzystuje metody `firstOrCreate` bez operacji `delete()` ani nadpisywania ustawień email, a brakujące hasło konta startowego generuje losowo przez `Str::password(20)`.
 
 ---
@@ -83,7 +89,7 @@ Główne trasy zdefiniowane w `backend/routes/api.php` z ochroną Rate Limiting:
 
 ## 6. Ścieżka Zakupowa i Płatności
 
-* **Zero-Trust Frontend i obsługa faktury VAT:** Ceny, rabaty i próg darmowej wysyłki (`free_shipping_threshold` — edytowalny w CMS w `/admin/ustawienia` → zakładka `E-commerce` → `Strefy i metody wysyłki` w zł; wartość `0` wyłącza próg) są pobierane z API i weryfikowane przez backend (`PricingEngine`). Błąd pobrania aktualnych danych produktu w `ProductDetail.tsx` blokuje przycisk zakupu z komunikatem i przyciskiem ponowienia próby. Formularz zamówienia obsługuje opcjonalne dane do faktury VAT (firma, walidacja sumy kontrolnej NIP modulo-11, adres rozliczeniowy dla dostaw do punktu) oraz walidację inline bez wyłączonych przycisków „martwego kliknięcia”.
+* **Zero-Trust Frontend i obsługa faktury VAT:** Ceny, rabaty i próg darmowej wysyłki (`free_shipping_threshold` — edytowalny w CMS w `/admin/ustawienia` → zakładka `Płatności i dostawa` → `Próg darmowej dostawy i metody wysyłki` w zł; wartość `0` wyłącza próg) są pobierane z API i weryfikowane przez backend (`PricingEngine`). Błąd pobrania aktualnych danych produktu w `ProductDetail.tsx` blokuje przycisk zakupu z komunikatem i przyciskiem ponowienia próby. Formularz zamówienia obsługuje opcjonalne dane do faktury VAT (firma, walidacja sumy kontrolnej NIP modulo-11, adres rozliczeniowy dla dostaw do punktu) oraz walidację inline bez wyłączonych przycisków „martwego kliknięcia”.
 * **Weryfikacja statusu płatności (`Success.tsx`):** Strona podsumowania autoryzuje się przez `token` (`X-Order-Token`), rozróżnia statusy `awaiting_payment` i `pending`, wykonuje do 5 prób pollingu i nigdy nie wyświetla fałszywego potwierdzenia przed statusem `paid`.
 * **Zapobieganie oversellingowi oryginałów 1/1:**
   * W momencie składania zamówienia stan magazynowy oryginału (`-OR`) jest blokowany atomowo przez `lockForUpdate()`.
@@ -135,7 +141,7 @@ W pliku `backend/routes/console.php` zdefiniowano zadania cron (wszystkie z flag
 8. `queue:work --stop-when-empty --max-time=50` (co minutę) – bezpieczna obsługa kolejki maili i integracji na hostingu współdzielonym.
 
 ### Twarda bramka testowa
-* `php artisan test`: **149 testów zakończonych sukcesem (840 asercji)**, 0 błędów (w tym nowy zestaw regresyjny `AuditSecurityRegressionTest`).
+* `php artisan test`: **155 testów zakończonych sukcesem (883 asercje)**, 0 błędów (w tym zestawy regresyjne `AuditSecurityRegressionTest` oraz `CmsAuditFixesTest`).
 * `composer audit --no-interaction`: **0 podatności**.
 * `npm audit --omit=dev`: **0 podatności**.
 * `npm run build`: kod wyjścia **0**, 23 strony wygenerowane w 4.56 s.
@@ -157,6 +163,15 @@ W pliku `backend/routes/console.php` zdefiniowano zadania cron (wszystkie z flag
 ---
 
 ## 11. Dziennik zmian (Changelog)
+
+### 22 listopada 2026 r. – Kompleksowe poprawki UX, wizualne i funkcjonalne panelu Filament CMS
+* **Ustawienia sklepu (`/admin/ustawienia`) i arkusz stylów `theme.css`:**
+  * Naprawiono zepsute style FilePond w `theme.css` (usunięto `inline-flex` sklejający napis „lubwybierzpliki” oraz `height: 100% !important` zgniatający pole „Tło ekranu logowania”), ustawiając równą wysokość `148px` dla 3 kolumn uploadu w zakładce **Wygląd** oraz zaktualizowano pasek ogłoszeń (placeholder `200 zł`).
+  * Wyeliminowano fałszywy komunikat „Masz niezapisane zmiany” przy opuszczaniu ustawień bez edycji poprzez inicjalizację 8 sekretnych pól hasłowych jako `''` zamiast `null` w `EditStoreSetting::mutateFormDataBeforeFill()` (z zachowaniem alertu przy realnej edycji), a przycisk „Anuluj” zastąpiono linkiem „Wróć do kokpitu”.
+  * Przeniesiono próg darmowej dostawy i metody/strefy wysyłki na górę zakładki **Płatności i dostawa**, zwinięto sekcje Stripe/Przelewy24/InPost/ORLEN Paczka ze statusem konfiguracji w opisie, zablokowano przypadkową edycję waluty `PLN` w `E-commerce` i `CouponForm`, usunięto nieużywane `exchange_rates` oraz przeniesiono techniczne/ryzykowne pola w `System i poczta` i `SEO` do zwiniętych sekcji zaawansowanych.
+* **Profil użytkownika i zmiana hasła (`/admin/moj-profil`):** Utworzono `MyProfilePage` i `CustomUpdatePassword` (`revealable()`), dodano widoczną pozycję „Mój profil i hasło” w menu użytkownika i w nawigacji bocznej (`Analityka & system`), dodano podgląd hasła w `UserForm` oraz naprawiono rozmiar ikon 2FA w `theme.css`.
+* **Promocje wariantów, Kokpit, Status systemu i modale:** Dodano pola `print_sale_price` i `original_sale_price` w `ProductForm` z synchronizacją wariantów `-PR`/`-OR`, historią cen Omnibus i widokiem w `ProductsTable`; dodano warunek `payment_status = 'paid'` w statystykach `StoreDashboard`; dodano liczniki badge w `OrderResource` i `ContactInquiryResource`; dodano wybór wariantu (`product_variant_id`) w `OrderForm`; naprawiono 4 martwe linki (404) w `OperationsHealth` poprzez `Resource::getUrl()`; zawężono style nagłówkowych akcji modali w `theme.css` wyłącznie do slide-overów (przywrócenie przycisku „Anuluj” w oknach potwierdzenia).
+* **Weryfikacja:** Przebudowa Vite backendu (`npm run build`), `php artisan test`: **155/155 passed (883 assertions)** oraz pełna weryfikacja w przeglądarce (`127.0.0.1:8017`).
 
 ### 22 listopada 2026 r. – Pełny audyt produkcyjny i wdrożenie poprawek lokalnych (`project-audit-master`)
 * **Aktualizacja zależności i audyt CVE:** Zaktualizowano pakiety backendu (`laravel/framework`, `livewire/livewire`, `filament/filament`, `symfony/*`) oraz frontendu (`dompurify`, poprawki `npm audit fix`). Zarówno `composer audit`, jak i `npm audit --omit=dev` wykazują **0 podatności**.

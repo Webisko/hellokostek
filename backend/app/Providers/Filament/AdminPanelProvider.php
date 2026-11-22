@@ -95,12 +95,18 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 \Jeffgreco13\FilamentBreezy\BreezyCore::make()
+                    ->customMyProfilePage(\App\Filament\Profile\MyProfilePage::class)
                     ->myProfile(
                         shouldRegisterUserMenu: true,
-                        shouldRegisterNavigation: false,
+                        shouldRegisterNavigation: true,
                         hasAvatars: false,
-                        slug: 'moj-profil'
+                        slug: 'moj-profil',
+                        navigationGroup: 'Analityka & system',
+                        userMenuLabel: 'Mój profil i hasło',
                     )
+                    ->myProfileComponents([
+                        'update_password' => \App\Filament\Profile\CustomUpdatePassword::class,
+                    ])
                     ->enableTwoFactorAuthentication(force: false),
             ]);
     }

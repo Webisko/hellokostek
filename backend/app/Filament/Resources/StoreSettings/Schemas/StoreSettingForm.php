@@ -2,26 +2,24 @@
 
 namespace App\Filament\Resources\StoreSettings\Schemas;
 
+use App\Filament\Resources\StoreSettings\StoreSettingResource;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Arr;
 
 class StoreSettingForm
 {
     public static function configure(Schema $schema): Schema
     {
         $isEcommerce = app(\App\Support\StoreSettings::class)->isEcommerce();
-        $isLms = app(\App\Support\StoreSettings::class)->isLms();
 
         return $schema->components([
             Tabs::make('Ustawienia')
@@ -29,51 +27,41 @@ class StoreSettingForm
                 ->tabs([
                     Tabs\Tab::make('Wygląd')
                         ->schema([
-                            Group::make()
-                                ->columns(['lg' => 2, 'default' => 1])
-                                ->extraAttributes(['class' => 'items-stretch'])
+                            Section::make('Identyfikacja panelu administratora')
+                                ->description('Nazwa, logotyp i oprawa graficzna ekranu logowania CMS.')
                                 ->schema([
-                                    // Lewa kolumna: Nazwa panelu oraz Logo i Favicon obok siebie (1:1)
+                                    TextInput::make('metadata.admin_brand_name')
+                                        ->label('Nazwa w panelu administratora')
+                                        ->placeholder('np. hellokostek CMS')
+                                        ->maxLength(255)
+                                        ->columnSpanFull(),
                                     Group::make()
+                                        ->columns(['lg' => 3, 'default' => 1])
                                         ->schema([
-                                            TextInput::make('metadata.admin_brand_name')
-                                                ->label('Nazwa w panelu administratora')
-                                                ->placeholder('np. Panel CMS')
-                                                ->maxLength(255),
-                                            Group::make()
-                                                ->columns(2)
-                                                ->schema([
-                                                    FileUpload::make('metadata.admin_logo_path')
-                                                        ->label('Logo w panelu administratora')
-                                                        ->disk('public')
-                                                        ->image()
-                                                        ->directory('branding')
-                                                        ->visibility('public')
-                                                        ->imageCropAspectRatio('1:1')
-                                                        ->panelAspectRatio('1:1'),
-                                                    FileUpload::make('metadata.admin_favicon_path')
-                                                        ->label('Favicon panelu')
-                                                        ->disk('public')
-                                                        ->image()
-                                                        ->directory('branding')
-                                                        ->visibility('public')
-                                                        ->imageCropAspectRatio('1:1')
-                                                        ->panelAspectRatio('1:1'),
-                                                ]),
-                                        ]),
-
-                                    // Prawa kolumna: Tło ekranu logowania (wysokość dopasowana do lewej kolumny)
-                                    Group::make()
-                                        ->extraAttributes(['class' => 'flex flex-col h-full'])
-                                        ->schema([
+                                            FileUpload::make('metadata.admin_logo_path')
+                                                ->label('Logo w panelu')
+                                                ->disk('public')
+                                                ->image()
+                                                ->directory('branding')
+                                                ->visibility('public')
+                                                ->imagePreviewHeight('140')
+                                                ->extraAttributes(['class' => 'fi-settings-upload']),
+                                            FileUpload::make('metadata.admin_favicon_path')
+                                                ->label('Favicon panelu')
+                                                ->disk('public')
+                                                ->image()
+                                                ->directory('branding')
+                                                ->visibility('public')
+                                                ->imagePreviewHeight('140')
+                                                ->extraAttributes(['class' => 'fi-settings-upload']),
                                             FileUpload::make('metadata.admin_login_background_path')
                                                 ->label('Tło ekranu logowania')
                                                 ->disk('public')
                                                 ->image()
                                                 ->directory('branding')
                                                 ->visibility('public')
-                                                ->imageCropAspectRatio('16:9')
-                                                ->extraAttributes(['class' => 'fi-login-bg-upload flex-1 flex flex-col h-full']),
+                                                ->imagePreviewHeight('140')
+                                                ->extraAttributes(['class' => 'fi-settings-upload']),
                                         ]),
                                 ]),
                             Section::make('Pasek ogłoszeń sklepu')
@@ -81,155 +69,12 @@ class StoreSettingForm
                                 ->schema([
                                     Toggle::make('announcement_enabled')
                                         ->label('Włącz pasek ogłoszeń na górze strony')
-                                        ->default(false),
+                                        ->default(false)
+                                        ->live(),
                                     TextInput::make('announcement_text')
                                         ->label('Treść paska ogłoszeń')
-                                        ->placeholder('np. Darmowa dostawa dla zamówień od 250 zł | Wysyłka w 24h')
+                                        ->placeholder('np. Darmowa dostawa dla zamówień od 200 zł | Wysyłka w 24–48h')
                                         ->maxLength(255),
-                                ])
-                                ->collapsible()
-                                ->columns(2),
-                        ]),
-
-                    Tabs\Tab::make('System i poczta')
-                        ->schema([
-                            Section::make('Bezpieczeństwo i dostęp')
-                                ->description('Konfiguracja adresu URL panelu, nagłówków HTTP i indeksowania.')
-                                ->columns(['lg' => 2, 'default' => 1])
-                                ->schema([
-                                    TextInput::make('metadata.admin_path')
-                                        ->label('Ścieżka panelu administratora (URL)')
-                                        ->placeholder('admin')
-                                        ->helperText('Zmień domyślny adres panelu /admin na niestandardowy np. sekretny-cms dla zwiększenia bezpieczeństwa.')
-                                        ->maxLength(255)
-                                        ->columnSpanFull(),
-                                    Toggle::make('metadata.security_headers_enabled')
-                                        ->label('Włącz nagłówki bezpieczeństwa HTTP')
-                                        ->default(true),
-                                    Toggle::make('global_noindex')
-                                        ->label('Zablokuj indeksowanie całej strony (noindex)')
-                                        ->default(false),
-                                    Textarea::make('metadata.content_security_policy')
-                                        ->label('Polityka bezpieczeństwa treści (CSP)')
-                                        ->placeholder("np. default-src 'self'; script-src 'self' 'unsafe-inline';")
-                                        ->rows(3)
-                                        ->columnSpanFull(),
-                                    Textarea::make('metadata.robots_txt')
-                                        ->label('Zawartość pliku robots.txt')
-                                        ->placeholder("User-agent: *\nDisallow: /admin/\nSitemap: " . url('sitemap.xml'))
-                                        ->rows(4)
-                                        ->columnSpanFull(),
-                                ]),
-
-                            Section::make('Tryb konserwacji i integracje')
-                                ->description('Zarządzanie niedostępnością serwisu i zewnętrznymi powiadomieniami.')
-                                ->columns(['lg' => 2, 'default' => 1])
-                                ->schema([
-                                    Toggle::make('maintenance_mode_enabled')
-                                        ->label('Włącz tryb konserwacji (strona w budowie)')
-                                        ->default(false)
-                                        ->reactive(),
-                                    TextInput::make('maintenance_mode_allowed_ips')
-                                        ->label('Dozwolone adresy IP (oddzielone przecinkami)')
-                                        ->visible(fn ($get) => (bool) $get('maintenance_mode_enabled'))
-                                        ->placeholder('np. 127.0.0.1, 192.168.1.100'),
-                                    Textarea::make('maintenance_mode_message')
-                                        ->label('Komunikat trybu konserwacji')
-                                        ->visible(fn ($get) => (bool) $get('maintenance_mode_enabled'))
-                                        ->rows(2)
-                                        ->columnSpanFull(),
-                                    TextInput::make('metadata.newsletter_webhook_url')
-                                        ->label('Adres URL webhooka subskrypcji newslettera (np. Make, Zapier, Mailerlite)')
-                                        ->url()
-                                        ->placeholder('https://...')
-                                        ->columnSpanFull(),
-                                ]),
-
-                            Section::make('Poczta e-mail i serwer')
-                                ->description('Dane nadawcy wiadomości wychodzących oraz klucze API poczty.')
-                                ->columns(['lg' => 2, 'default' => 1])
-                                ->schema([
-                                    TextInput::make('mail_from_name')
-                                        ->label('Nazwa nadawcy e-mail')
-                                        ->maxLength(255),
-                                    TextInput::make('mail_from_address')
-                                        ->label('Adres nadawcy e-mail')
-                                        ->email()
-                                        ->maxLength(255),
-                                    TextInput::make('support_email')
-                                        ->label('E-mail wsparcia')
-                                        ->email()
-                                        ->maxLength(255),
-                                    TextInput::make('admin_notification_email')
-                                        ->label('E-mail powiadomień admina')
-                                        ->email()
-                                        ->maxLength(255),
-                                    TextInput::make('metadata.resend_key')
-                                        ->label('Klucz API Resend')
-                                        ->placeholder('re_...')
-                                        ->password()
-                                        ->revealable()
-                                        ->maxLength(255),
-                                    TextInput::make('metadata.mail_safety_redirect')
-                                        ->label('Przekierowanie e-maili (tryb testowy)')
-                                        ->email()
-                                        ->helperText('Jeśli podasz tutaj adres e-mail, wszystkie wiadomości wychodzące ze strony zostaną przekierowane na ten adres.')
-                                        ->maxLength(255),
-                                ]),
-                        ]),
-
-                    Tabs\Tab::make('SEO')
-                        ->schema([
-                            Section::make('Analityka i śledzenie ruchu')
-                                ->description('Klucze integracyjne dla Google Tag Manager, Google Analytics oraz Meta Pixel.')
-                                ->columns(['lg' => 3, 'default' => 1])
-                                ->schema([
-                                    TextInput::make('google_tag_manager_id')
-                                        ->label('Google Tag Manager ID')
-                                        ->placeholder('np. GTM-XXXXXX')
-                                        ->maxLength(50),
-                                    TextInput::make('google_analytics_id')
-                                        ->label('Google Analytics ID')
-                                        ->placeholder('np. G-XXXXXX')
-                                        ->maxLength(50),
-                                    TextInput::make('facebook_pixel_id')
-                                        ->label('Facebook Pixel ID')
-                                        ->placeholder('np. 1234567890')
-                                        ->maxLength(50),
-                                ]),
-
-                            Section::make('Zgoda na pliki cookie (RODO)')
-                                ->description('Ustawienia wyświetlania i treści baneru informacyjnego o plikach cookie.')
-                                ->columns(['lg' => 2, 'default' => 1])
-                                ->schema([
-                                    Toggle::make('cookie_banner_enabled')
-                                        ->label('Włącz baner cookies na froncie')
-                                        ->default(false)
-                                        ->columnSpanFull(),
-                                    TextInput::make('cookie_banner_title')
-                                        ->label('Nagłówek baneru cookies')
-                                        ->placeholder('np. Szanujemy Twoją prywatność')
-                                        ->maxLength(255)
-                                        ->columnSpanFull(),
-                                    Textarea::make('cookie_banner_description')
-                                        ->label('Treść baneru cookies')
-                                        ->placeholder('np. Używamy plików cookie w celu...')
-                                        ->rows(3)
-                                        ->columnSpanFull(),
-                                ]),
-
-                            Section::make('Domyślne tagi meta i skrypty nagłówka')
-                                ->description('Dodatkowa konfiguracja SEO oraz osadzanie skryptów w sekcji <head>.')
-                                ->columns(['lg' => 2, 'default' => 1])
-                                ->schema([
-                                    KeyValue::make('seo')
-                                        ->label('Domyślne tagi SEO (meta)')
-                                        ->keyLabel('Tag (np. og:title)')
-                                        ->valueLabel('Wartość'),
-                                    Textarea::make('custom_head_scripts')
-                                        ->label('Niestandardowe skrypty w sekcji <head>')
-                                        ->placeholder("np. <script>...</script>")
-                                        ->rows(5),
                                 ]),
                         ]),
 
@@ -237,8 +82,8 @@ class StoreSettingForm
                         ->visible($isEcommerce)
                         ->schema([
                             Section::make('Podstawowe ustawienia sklepu')
-                                ->description('Nazwa, waluta, zakupy bez rejestracji i przewalutowania.')
-                                ->columns(['lg' => 3, 'default' => 1])
+                                ->description('Nazwa sklepu, waluta rozliczeń oraz tryb zakupów bez rejestracji.')
+                                ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     TextInput::make('store_name')
                                         ->label('Nazwa sklepu')
@@ -247,16 +92,15 @@ class StoreSettingForm
                                     TextInput::make('currency')
                                         ->label('Główna waluta')
                                         ->required()
+                                        ->disabled()
+                                        ->dehydrated()
+                                        ->helperText('Sklep działa wyłącznie w walucie PLN.')
                                         ->minLength(3)
                                         ->maxLength(3)
                                         ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper(trim($state)) : null),
                                     Toggle::make('allow_guest_checkout')
                                         ->label('Zezwalaj na zakupy jako gość')
-                                        ->default(true),
-                                    KeyValue::make('exchange_rates')
-                                        ->label('Przeliczniki walut obcych (np. EUR -> 0.23)')
-                                        ->keyLabel('Waluta (EUR, USD)')
-                                        ->valueLabel('Mnożnik (1 PLN = X waluty)')
+                                        ->default(true)
                                         ->columnSpanFull(),
                                 ]),
 
@@ -311,6 +155,8 @@ class StoreSettingForm
 
                             Section::make('Odzyskiwanie porzuconych koszyków')
                                 ->description('Automatyczne przypomnienia e-mail po porzuceniu procesu zakupowego.')
+                                ->collapsible()
+                                ->collapsed()
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.abandoned_cart_enabled')
@@ -322,81 +168,96 @@ class StoreSettingForm
                                         ->default(2)
                                         ->dehydrateStateUsing(fn ($state) => filled($state) ? (int) $state : 2),
                                 ]),
+                        ]),
 
-                            Section::make('Strefy i metody wysyłki')
-                                ->description('Definicje krajów dostawy, progu darmowej dostawy oraz opcji dostarczenia paczki.')
+                    Tabs\Tab::make('Płatności i dostawa')
+                        ->visible($isEcommerce)
+                        ->schema([
+                            Section::make('Próg darmowej dostawy i metody wysyłki')
+                                ->description('Kwota darmowej wysyłki dla wydruków (oryginały zawsze mają bezpłatną dostawę) oraz cennik metod dostawy.')
                                 ->schema([
                                     TextInput::make('free_shipping_threshold')
-                                        ->label('Próg darmowej dostawy (PLN)')
+                                        ->label('Próg darmowej dostawy dla wydruków (PLN)')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step(1)
                                         ->suffix('zł')
                                         ->placeholder('np. 200')
-                                        ->helperText('Minimalna wartość zamówienia wydruków (po rabatach), od której dostawa jest bezpłatna. Wpisz 0 lub pozostaw puste, aby wyłączyć darmową dostawę od progu.')
+                                        ->helperText('Minimalna wartość wydruków w koszyku (po rabatach), od której wysyłka jest bezpłatna. Wpisz 0, aby wyłączyć.')
                                         ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
                                         ->dehydrateStateUsing(fn ($state) => filled($state) ? (int) round((float) $state * 100) : 0),
-                                    Repeater::make('shipping_zones')
-                                        ->label('Strefy wysyłki')
-                                        ->helperText('Domyślna strefa wysyłki to Polska (PL).')
-                                        ->columns(3)
-                                        ->schema([
-                                            TextInput::make('code')
-                                                ->label('Kod strefy')
-                                                ->placeholder('PL')
-                                                ->required(),
-                                            TextInput::make('name')
-                                                ->label('Nazwa strefy')
-                                                ->placeholder('Polska')
-                                                ->required(),
-                                            TextInput::make('countries')
-                                                ->label('Kraje (kody ISO)')
-                                                ->placeholder('PL')
-                                                ->required(),
-                                        ])
-                                        ->columnSpanFull(),
-
                                     Repeater::make('shipping_methods')
                                         ->label('Metody wysyłki')
-                                        ->helperText('Zarządzaj dostępnymi metodami wysyłki.')
+                                        ->helperText('Zarządzaj dostępnymi metodami wysyłki oraz ich cenami bazowymi.')
+                                        ->columns(['md' => 3, 'default' => 1])
+                                        ->collapsible()
+                                        ->itemLabel(fn (array $state): ?string => ($state['name'] ?? null) ?: ($state['code'] ?? 'Metoda wysyłki'))
                                         ->schema([
-                                            TextInput::make('code')
-                                                ->label('Kod metody wysyłki')
-                                                ->placeholder('np. flat_rate:courier')
-                                                ->required(),
                                             TextInput::make('name')
                                                 ->label('Nazwa wyświetlana')
                                                 ->placeholder('np. Kurier DPD')
                                                 ->required(),
+                                            TextInput::make('code')
+                                                ->label('Kod techniczny metody')
+                                                ->placeholder('np. flat_rate:courier')
+                                                ->required(),
+                                            TextInput::make('amount')
+                                                ->label('Cena bazowa (PLN)')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->suffix('zł')
+                                                ->required()
+                                                ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
+                                                ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null),
                                             Toggle::make('supports_cod')
                                                 ->label('Płatność za pobraniem (COD)')
                                                 ->default(false),
                                             Toggle::make('requires_delivery_point')
                                                 ->label('Wymaga punktu odbioru')
                                                 ->default(false),
-                                            TextInput::make('amount')
-                                                ->label('Domyślna cena bazowa (PLN)')
-                                                ->numeric()
-                                                ->default(0)
-                                                ->required()
-                                                ->formatStateUsing(fn ($state) => $state !== null ? $state / 100 : null)
-                                                ->dehydrateStateUsing(fn ($state) => $state !== null ? (int) round($state * 100) : null),
                                         ])
-                                        ->columns(5)
                                         ->columnSpanFull(),
+                                    Section::make('Strefy wysyłki')
+                                        ->description('Domyślna strefa wysyłki to Polska (PL). Rozwiń tylko przy obsłudze wysyłek zagranicznych.')
+                                        ->collapsible()
+                                        ->collapsed()
+                                        ->schema([
+                                            Repeater::make('shipping_zones')
+                                                ->label('Lista stref')
+                                                ->columns(['md' => 3, 'default' => 1])
+                                                ->schema([
+                                                    TextInput::make('code')
+                                                        ->label('Kod strefy')
+                                                        ->placeholder('PL')
+                                                        ->required(),
+                                                    TextInput::make('name')
+                                                        ->label('Nazwa strefy')
+                                                        ->placeholder('Polska')
+                                                        ->required(),
+                                                    TextInput::make('countries')
+                                                        ->label('Kraje (kody ISO)')
+                                                        ->placeholder('PL')
+                                                        ->formatStateUsing(fn ($state): ?string => is_array($state) ? implode(', ', $state) : $state)
+                                                        ->required(),
+                                                ])
+                                                ->columnSpanFull(),
+                                        ]),
                                 ]),
-                        ]),
 
-                    Tabs\Tab::make('Płatności i dostawa')
-                        ->visible($isEcommerce)
-                        ->schema([
                             Section::make('Stripe')
-                                ->description('Płatności kartą płatniczą, BLIK i portfelami cyfrowymi (Apple Pay / Google Pay).')
+                                ->description(fn (Get $get): string => self::integrationSummary(
+                                    (bool) $get('metadata.stripe_enabled'),
+                                    filled($get('metadata.stripe_key')) && filled($get('metadata.stripe_secret')),
+                                    'Płatności kartą, BLIK, Apple Pay / Google Pay'
+                                ))
+                                ->collapsible()
+                                ->collapsed()
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.stripe_enabled')
                                         ->label('Stripe włączony')
                                         ->default(true)
+                                        ->live()
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.stripe_key')
                                         ->label('Klucz publiczny Stripe (publishable key)')
@@ -418,12 +279,19 @@ class StoreSettingForm
                                 ]),
 
                             Section::make('Przelewy24 (P24)')
-                                ->description('Polskie szybkie przelewy i BLIK.')
+                                ->description(fn (Get $get): string => self::integrationSummary(
+                                    (bool) $get('metadata.przelewy24_enabled'),
+                                    filled($get('metadata.przelewy24_merchant_id')) && filled($get('metadata.przelewy24_crc')),
+                                    'Polskie szybkie przelewy i BLIK'
+                                ))
+                                ->collapsible()
+                                ->collapsed()
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.przelewy24_enabled')
                                         ->label('Przelewy24 włączone')
                                         ->default(true)
+                                        ->live()
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.przelewy24_merchant_id')
                                         ->label('ID sprzedawcy Przelewy24 (Merchant ID)')
@@ -458,12 +326,19 @@ class StoreSettingForm
                                 ]),
 
                             Section::make('InPost Paczkomaty i kurier')
-                                ->description('Klucze API i dane nadawcy dla przesyłek InPost.')
+                                ->description(fn (Get $get): string => self::credentialsSummary(
+                                    filled($get('metadata.inpost_organization_id')) && filled($get('metadata.inpost_token')),
+                                    (bool) $get('metadata.inpost_sandbox'),
+                                    'Generowanie etykiet InPost z poziomu zamówień'
+                                ))
+                                ->collapsible()
+                                ->collapsed()
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.inpost_sandbox')
                                         ->label('Tryb testowy (sandbox)')
                                         ->default(true)
+                                        ->live()
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.inpost_organization_id')
                                         ->label('ID organizacji InPost')
@@ -489,12 +364,19 @@ class StoreSettingForm
                                 ]),
 
                             Section::make('ORLEN Paczka')
-                                ->description('Klucze API i dane nadawcy dla przesyłek ORLEN Paczka.')
+                                ->description(fn (Get $get): string => self::credentialsSummary(
+                                    filled($get('metadata.orlen_partner_id')) && filled($get('metadata.orlen_partner_key')),
+                                    (bool) $get('metadata.orlen_sandbox'),
+                                    'Generowanie etykiet ORLEN Paczka z poziomu zamówień'
+                                ))
+                                ->collapsible()
+                                ->collapsed()
                                 ->columns(['lg' => 2, 'default' => 1])
                                 ->schema([
                                     Toggle::make('metadata.orlen_sandbox')
                                         ->label('Tryb testowy (sandbox)')
                                         ->default(true)
+                                        ->live()
                                         ->columnSpanFull(),
                                     TextInput::make('metadata.orlen_partner_id')
                                         ->label('ID partnera ORLEN Paczka')
@@ -519,7 +401,176 @@ class StoreSettingForm
                                         ]),
                                 ]),
                         ]),
-                ])
+
+                    Tabs\Tab::make('SEO')
+                        ->schema([
+                            Section::make('Analityka i śledzenie ruchu')
+                                ->description('Klucze integracyjne dla Google Tag Manager, Google Analytics oraz Meta Pixel.')
+                                ->columns(['lg' => 3, 'default' => 1])
+                                ->schema([
+                                    TextInput::make('google_tag_manager_id')
+                                        ->label('Google Tag Manager ID')
+                                        ->placeholder('np. GTM-XXXXXX')
+                                        ->maxLength(50),
+                                    TextInput::make('google_analytics_id')
+                                        ->label('Google Analytics ID')
+                                        ->placeholder('np. G-XXXXXX')
+                                        ->maxLength(50),
+                                    TextInput::make('facebook_pixel_id')
+                                        ->label('Facebook Pixel ID')
+                                        ->placeholder('np. 1234567890')
+                                        ->maxLength(50),
+                                ]),
+
+                            Section::make('Zgoda na pliki cookie (RODO)')
+                                ->description('Ustawienia wyświetlania i treści baneru informacyjnego o plikach cookie.')
+                                ->columns(['lg' => 2, 'default' => 1])
+                                ->schema([
+                                    Toggle::make('cookie_banner_enabled')
+                                        ->label('Włącz baner cookies na froncie')
+                                        ->default(false)
+                                        ->columnSpanFull(),
+                                    TextInput::make('cookie_banner_title')
+                                        ->label('Nagłówek baneru cookies')
+                                        ->placeholder('np. Szanujemy Twoją prywatność')
+                                        ->maxLength(255)
+                                        ->columnSpanFull(),
+                                    Textarea::make('cookie_banner_description')
+                                        ->label('Treść baneru cookies')
+                                        ->placeholder('np. Używamy plików cookie w celu...')
+                                        ->rows(3)
+                                        ->columnSpanFull(),
+                                ]),
+
+                            Section::make('Domyślne tagi meta i skrypty nagłówka (zaawansowane)')
+                                ->description('Dodatkowa konfiguracja SEO oraz osadzanie skryptów w sekcji <head>.')
+                                ->collapsible()
+                                ->collapsed()
+                                ->columns(['lg' => 2, 'default' => 1])
+                                ->schema([
+                                    KeyValue::make('seo')
+                                        ->label('Domyślne tagi SEO (meta)')
+                                        ->keyLabel('Tag (np. og:title)')
+                                        ->valueLabel('Wartość'),
+                                    Textarea::make('custom_head_scripts')
+                                        ->label('Niestandardowe skrypty w sekcji <head>')
+                                        ->placeholder('np. <script>...</script>')
+                                        ->rows(5),
+                                ]),
+                        ]),
+
+                    Tabs\Tab::make('System i poczta')
+                        ->schema([
+                            Section::make('Poczta e-mail i powiadomienia')
+                                ->description('Dane nadawcy wiadomości wychodzących oraz adresy powiadomień ze sklepu.')
+                                ->columns(['lg' => 2, 'default' => 1])
+                                ->schema([
+                                    TextInput::make('mail_from_name')
+                                        ->label('Nazwa nadawcy e-mail')
+                                        ->maxLength(255),
+                                    TextInput::make('mail_from_address')
+                                        ->label('Adres nadawcy e-mail')
+                                        ->email()
+                                        ->maxLength(255),
+                                    TextInput::make('support_email')
+                                        ->label('E-mail wsparcia')
+                                        ->email()
+                                        ->maxLength(255),
+                                    TextInput::make('admin_notification_email')
+                                        ->label('E-mail powiadomień admina')
+                                        ->email()
+                                        ->maxLength(255),
+                                    TextInput::make('metadata.mail_safety_redirect')
+                                        ->label('Przekierowanie e-maili (tryb testowy)')
+                                        ->email()
+                                        ->helperText('Jeśli podasz tutaj adres e-mail, wszystkie wiadomości wychodzące ze strony zostaną przekierowane na ten adres.')
+                                        ->maxLength(255)
+                                        ->columnSpanFull(),
+                                ]),
+
+                            Section::make('Tryb konserwacji')
+                                ->description('Tymczasowa blokada frontu sklepu na czas prac serwisowych.')
+                                ->columns(['lg' => 2, 'default' => 1])
+                                ->schema([
+                                    Toggle::make('maintenance_mode_enabled')
+                                        ->label('Włącz tryb konserwacji (strona w budowie)')
+                                        ->default(false)
+                                        ->live()
+                                        ->columnSpanFull(),
+                                    TextInput::make('maintenance_mode_allowed_ips')
+                                        ->label('Dozwolone adresy IP (oddzielone przecinkami)')
+                                        ->visible(fn (Get $get) => (bool) $get('maintenance_mode_enabled'))
+                                        ->placeholder('np. 127.0.0.1, 192.168.1.100')
+                                        ->columnSpanFull(),
+                                    Textarea::make('maintenance_mode_message')
+                                        ->label('Komunikat trybu konserwacji')
+                                        ->visible(fn (Get $get) => (bool) $get('maintenance_mode_enabled'))
+                                        ->rows(2)
+                                        ->columnSpanFull(),
+                                ]),
+
+                            Section::make('Zaawansowane ustawienia techniczne')
+                                ->description('Uwaga: zmiana ścieżki panelu, nagłówków bezpieczeństwa (CSP) lub robots.txt może zablokować dostęp do CMS lub działanie strony.')
+                                ->collapsible()
+                                ->collapsed()
+                                ->columns(['lg' => 2, 'default' => 1])
+                                ->schema([
+                                    TextInput::make('metadata.admin_path')
+                                        ->label('Ścieżka panelu administratora (URL)')
+                                        ->placeholder('admin')
+                                        ->helperText('Ostrzeżenie: zmiana tego pola natychmiast zmienia adres logowania do panelu (/admin). Pozostaw bez zmian, jeśli nie przenosisz panelu.')
+                                        ->maxLength(255)
+                                        ->columnSpanFull(),
+                                    Toggle::make('metadata.security_headers_enabled')
+                                        ->label('Włącz nagłówki bezpieczeństwa HTTP')
+                                        ->default(true),
+                                    Toggle::make('global_noindex')
+                                        ->label('Zablokuj indeksowanie całej strony (noindex)')
+                                        ->default(false),
+                                    Textarea::make('metadata.content_security_policy')
+                                        ->label('Polityka bezpieczeństwa treści (CSP)')
+                                        ->placeholder("np. default-src 'self'; script-src 'self' 'unsafe-inline';")
+                                        ->rows(3)
+                                        ->columnSpanFull(),
+                                    Textarea::make('metadata.robots_txt')
+                                        ->label('Zawartość pliku robots.txt')
+                                        ->placeholder("User-agent: *\nDisallow: /admin/\nSitemap: " . url('sitemap.xml'))
+                                        ->rows(4)
+                                        ->columnSpanFull(),
+                                    TextInput::make('metadata.resend_key')
+                                        ->label('Klucz API Resend (opcjonalny)')
+                                        ->placeholder('re_...')
+                                        ->password()
+                                        ->revealable()
+                                        ->maxLength(255),
+                                    TextInput::make('metadata.newsletter_webhook_url')
+                                        ->label('Adres URL webhooka newslettera')
+                                        ->url()
+                                        ->placeholder('https://...')
+                                        ->maxLength(255),
+                                ]),
+                        ]),
+                ]),
         ]);
+    }
+
+    private static function integrationSummary(bool $enabled, bool $configured, string $label): string
+    {
+        $status = $enabled
+            ? ($configured ? 'Włączona • skonfigurowana' : 'Włączona • brak kluczy API')
+            : 'Wyłączona';
+
+        return "{$status} — {$label}";
+    }
+
+    private static function credentialsSummary(bool $configured, bool $sandbox, string $label): string
+    {
+        if (! $configured) {
+            return "Nie skonfigurowano — {$label}";
+        }
+
+        $mode = $sandbox ? 'Tryb testowy (sandbox)' : 'Tryb produkcyjny';
+
+        return "{$mode} • klucze uzupełnione — {$label}";
     }
 }

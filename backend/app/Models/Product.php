@@ -502,6 +502,20 @@ class Product extends Model
             $printPrice = $product->regular_price_amount;
         }
 
+        $printSku = Str::endsWith($sku, '-PR') ? $sku : "{$sku}-PR";
+        $existingPrint = $product->variants()->where('sku', $printSku)->first();
+
+        $printSalePrice = $existingPrint?->sale_price_amount ?? $product->sale_price_amount;
+        if (array_key_exists('print_sale_price', $data)) {
+            $rawPrintSale = $data['print_sale_price'];
+            if ($rawPrintSale === null || $rawPrintSale === '') {
+                $printSalePrice = null;
+            } else {
+                $parsed = (int) round(((float) $rawPrintSale) * 100);
+                $printSalePrice = ($parsed > 0 && $printPrice !== null && $parsed < $printPrice) ? $parsed : null;
+            }
+        }
+
         $printStock = isset($data['print_stock_quantity']) && $data['print_stock_quantity'] !== null && $data['print_stock_quantity'] !== ''
             ? (int) $data['print_stock_quantity']
             : 999;
@@ -513,13 +527,14 @@ class Product extends Model
         if ($printPrice !== null && $printPrice > 0) {
             $product->updateQuietly([
                 'regular_price_amount' => $printPrice,
+                'sale_price_amount' => $printSalePrice,
             ]);
 
-            $printSku = Str::endsWith($sku, '-PR') ? $sku : "{$sku}-PR";
             $printVariant = $product->variants()->updateOrCreate(
                 ['sku' => $printSku],
                 [
                     'regular_price_amount' => $printPrice,
+                    'sale_price_amount' => $printSalePrice,
                     'vat_rate' => $product->vat_rate ?? 23,
                     'stock_quantity' => $printStock,
                     'manages_stock' => true,
@@ -538,6 +553,17 @@ class Product extends Model
             ? (int) round(((float) $data['original_regular_price']) * 100)
             : ($existingOrig ? (int) $existingOrig->regular_price_amount : 30000);
 
+        $originalSalePrice = $existingOrig?->sale_price_amount;
+        if (array_key_exists('original_sale_price', $data)) {
+            $rawOrigSale = $data['original_sale_price'];
+            if ($rawOrigSale === null || $rawOrigSale === '') {
+                $originalSalePrice = null;
+            } else {
+                $parsedOrig = (int) round(((float) $rawOrigSale) * 100);
+                $originalSalePrice = ($parsedOrig > 0 && $parsedOrig < $originalPrice) ? $parsedOrig : null;
+            }
+        }
+
         if ($hasOriginal) {
             $originalStock = isset($data['original_stock_quantity']) && $data['original_stock_quantity'] !== null && $data['original_stock_quantity'] !== '' && (int) $data['original_stock_quantity'] > 0
                 ? (int) $data['original_stock_quantity']
@@ -548,6 +574,7 @@ class Product extends Model
                     ['sku' => $originalSku],
                     [
                         'regular_price_amount' => $originalPrice,
+                        'sale_price_amount' => $originalSalePrice,
                         'vat_rate' => $product->vat_rate ?? 23,
                         'stock_quantity' => $originalStock,
                         'manages_stock' => true,
@@ -561,6 +588,7 @@ class Product extends Model
                 ['sku' => $originalSku],
                 [
                     'regular_price_amount' => $originalPrice > 0 ? $originalPrice : 30000,
+                    'sale_price_amount' => null,
                     'vat_rate' => $product->vat_rate ?? 23,
                     'stock_quantity' => 0,
                     'manages_stock' => true,
