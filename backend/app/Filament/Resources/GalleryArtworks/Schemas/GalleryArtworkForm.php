@@ -97,13 +97,14 @@ class GalleryArtworkForm
                         ->visibility('public')
                         ->image()
                         ->imageEditor()
+                        ->imagePreviewHeight('320')
                         ->imageResizeMode('contain')
                         ->imageResizeTargetWidth('1920')
                         ->imageResizeTargetHeight('1920')
                         ->imageResizeUpscale(false)
                         ->maxSize(15360)
                         ->required()
-                        ->columnSpanFull(),
+                        ->extraAttributes(['class' => 'fi-artwork-featured-upload']),
                 ]),
         ]);
     }

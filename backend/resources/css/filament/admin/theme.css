@@ -2013,3 +2013,46 @@ html.fi-sidebar-collapsed .fi-sidebar-item-icon {
     background: #ffffff;
 }
 
+/* Proportional artwork upload previews & square thumbnail grid */
+.fi-panel-admin .fi-artwork-featured-upload .filepond--root {
+    max-width: 420px;
+}
+
+.fi-panel-admin .fi-artwork-featured-upload .filepond--root:not(:has(.filepond--item)),
+.fi-panel-admin .fi-artwork-gallery-upload .filepond--root:not(:has(.filepond--item)) {
+    min-height: 220px;
+}
+
+.fi-panel-admin .fi-artwork-featured-upload .filepond--root:has(.filepond--item) {
+    min-height: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.fi-panel-admin .fi-artwork-featured-upload .filepond--root:has(.filepond--item) .filepond--panel-root {
+    background: transparent;
+    border-color: transparent;
+}
+
+.fi-panel-admin .fi-artwork-featured-upload .filepond--root:has(.filepond--item) .filepond--list {
+    left: 0;
+    right: 0;
+}
+
+.fi-panel-admin .fi-artwork-featured-upload .filepond--root:has(.filepond--item) .filepond--item {
+    margin: 0 !important;
+}
+
+.fi-panel-admin .fi-artwork-featured-upload .filepond--image-preview-wrapper,
+.fi-panel-admin .fi-artwork-featured-upload .filepond--image-preview,
+.fi-panel-admin .fi-artwork-gallery-upload .filepond--image-preview-wrapper,
+.fi-panel-admin .fi-artwork-gallery-upload .filepond--image-preview {
+    background: var(--shop-surface-soft);
+}
+
+.dark .fi-panel-admin .fi-artwork-featured-upload .filepond--image-preview-wrapper,
+.dark .fi-panel-admin .fi-artwork-featured-upload .filepond--image-preview,
+.dark .fi-panel-admin .fi-artwork-gallery-upload .filepond--image-preview-wrapper,
+.dark .fi-panel-admin .fi-artwork-gallery-upload .filepond--image-preview {
+    background: #18181b;
+}
+
