@@ -15,7 +15,9 @@ use Filament\Tables\Table;
 
 class MediaResource extends Resource
 {
-    use HasDynamicNavigation;
+    use HasDynamicNavigation {
+        shouldRegisterNavigation as protected traitShouldRegisterNavigation;
+    }
 
     protected static ?string $model = Media::class;
 
@@ -35,7 +37,16 @@ class MediaResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return true;
+        return (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        if (! auth()->user()?->isAdmin()) {
+            return false;
+        }
+
+        return static::traitShouldRegisterNavigation();
     }
 
     public static function form(Schema $schema): Schema

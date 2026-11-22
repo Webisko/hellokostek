@@ -583,5 +583,11 @@ class CmsAuditFixesTest extends TestCase
         $dashboard->assertSee('Dodaj obraz do sklepu');
         $dashboard->assertSee('Dodaj do galerii');
         $dashboard->assertSee('Otwórz sklep');
+        $dashboard->assertDontSee('/admin/multimedia');
+
+        $this->actingAs($manager)->get('/admin/multimedia')->assertForbidden();
+
+        $admin = $this->createAdmin();
+        $this->actingAs($admin)->get('/admin/multimedia')->assertOk();
     }
 }

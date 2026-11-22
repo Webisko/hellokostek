@@ -22,6 +22,8 @@ class MediaTable
         return $table
             ->defaultSort('created_at', 'desc')
             ->recordAction('edit')
+            ->emptyStateHeading('Brak wgranych plików pomocniczych')
+            ->emptyStateDescription('Techniczny schowek na dodatkowe pliki do linkowania (np. PDF-y lub grafiki pomocnicze). Zdjęcia produktów i galerii są zarządzane bezpośrednio w odpowiednich zakładkach.')
             ->columns([
                 ImageColumn::make('file_path')
                     ->label('Podgląd')

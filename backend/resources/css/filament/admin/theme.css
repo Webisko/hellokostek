@@ -255,18 +255,18 @@ body.fi-body.fi-panel-admin > div:has(.fi-layout) {
 
 .fi-panel-admin .fi-simple-page .fi-brand-lockup,
 .fi-simple-page .fi-brand-lockup {
-    gap: 0.75rem;
+    gap: 0.875rem;
 }
 
 .fi-panel-admin .fi-simple-page .fi-brand-logo-img,
 .fi-simple-page .fi-brand-logo-img {
-    width: 2.375rem;
-    height: 2.375rem;
+    width: 3.5rem;
+    height: 3.5rem;
 }
 
 .fi-panel-admin .fi-simple-page .fi-brand-name,
 .fi-simple-page .fi-brand-name {
-    font-size: 1.5rem;
+    font-size: 1.625rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1.2;

@@ -8,26 +8,26 @@ class MediaPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->isAdmin();
     }
 
     public function view(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->isAdmin();
     }
 
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->isAdmin();
     }
 
     public function update(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->isAdmin();
     }
 
     public function delete(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->isAdmin();
     }
 }
