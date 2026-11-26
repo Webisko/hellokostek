@@ -27,11 +27,10 @@ class CustomerLoginController extends Controller
         /** @var User|null $user */
         $user = User::query()
             ->with('customerProfile')
-            ->where('is_admin', false) // Admins authenticate via Filament panel only
             ->whereRaw('lower(email) = ?', [mb_strtolower($validated['email'])])
             ->first();
 
-        if (! $user || ! Hash::check($validated['password'], $user->password)) {
+        if (! $user || $user->isStaff() || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => 'Dane logowania są nieprawidłowe.',
             ]);

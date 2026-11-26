@@ -208,7 +208,7 @@ class CheckoutDataResolver
         if ($coupon->usage_limit !== null) {
             $usedCount = \App\Models\Order::query()
                 ->where('coupon_id', $coupon->id)
-                ->whereIn('status', ['placed', 'completed'])
+                ->whereIn('status', ['placed', 'shipped', 'completed'])
                 ->count();
             if ($usedCount >= $coupon->usage_limit) {
                 $this->logFailedCouponAttempt($couponCode, 'Przekroczony globalny limit użycia', $validated);
@@ -223,8 +223,8 @@ class CheckoutDataResolver
             if ($customerEmail) {
                 $usedByCustomerCount = \App\Models\Order::query()
                     ->where('coupon_id', $coupon->id)
-                    ->where('customer_email', $customerEmail)
-                    ->whereIn('status', ['placed', 'completed'])
+                    ->whereRaw('LOWER(customer_email) = ?', [mb_strtolower(trim((string) $customerEmail))])
+                    ->whereIn('status', ['placed', 'shipped', 'completed'])
                     ->count();
                 if ($usedByCustomerCount >= $coupon->usage_limit_per_customer) {
                     $this->logFailedCouponAttempt($couponCode, 'Przekroczony limit użycia na klienta', $validated);

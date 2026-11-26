@@ -123,7 +123,15 @@ class CartController extends Controller
             ->first();
 
         if ($item) {
-            $item->update(['quantity' => $item->quantity + $quantity]);
+            $newQuantity = $item->quantity + $quantity;
+            if ($newQuantity > 99) {
+                return response()->json([
+                    'message' => 'Maksymalna ilość jednego produktu w koszyku to 99 sztuk.',
+                    'errors' => ['quantity' => ['Maksymalna ilość jednego produktu w koszyku to 99 sztuk.']],
+                ], 422);
+            }
+
+            $item->update(['quantity' => $newQuantity]);
         } else {
             $item = $cart->items()->create([
                 'product_id' => $productId,
@@ -141,7 +149,7 @@ class CartController extends Controller
     public function update(Request $request, int $itemId): JsonResponse
     {
         $request->validate([
-            'quantity' => ['required', 'integer', 'min:1'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
         $cart = $this->getOrCreateCart($request);

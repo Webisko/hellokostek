@@ -13,7 +13,7 @@ class AccountOrdersController extends Controller
         $orders = $request->user()
             ->orders()
             ->with(['items', 'fulfillmentActions'])
-            ->where('status', 'placed')
+            ->whereIn('status', ['placed', 'shipped', 'completed'])
             ->latest('placed_at')
             ->get();
 

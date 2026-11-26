@@ -742,4 +742,194 @@ class AuditSecurityRegressionTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonPath('data.is_verified_purchase', false);
     }
+
+    public function test_contact_inquiry_ignores_injected_attachments_and_scopes_attachment_controller(): void
+    {
+        Mail::fake();
+        Storage::fake('local');
+        Storage::disk('local')->put('invoices/secret.pdf', 'SECRET-PDF');
+
+        $this->postJson('/api/inquiries', [
+            'name' => 'Testowy Nadawca',
+            'email' => 'nadawca@example.com',
+            'message' => 'Wiadomość bez załączników ze wstrzykniętym polem attachments.',
+            '_form_started_at' => (string) ((time() - 5) * 1000),
+            'attachments' => [
+                'abc' => 'invoices/secret.pdf',
+                '0' => 'invoices/secret.pdf',
+            ],
+        ])->assertStatus(201);
+
+        $inquiry = \App\Models\ContactInquiry::query()->where('email', 'nadawca@example.com')->firstOrFail();
+        $this->assertNull(data_get($inquiry->payload, 'attachments'));
+
+        $tampered = \App\Models\ContactInquiry::query()->create([
+            'name' => 'Tampered',
+            'email' => 'tampered@example.com',
+            'message' => 'Próba wskazania innego katalogu',
+            'payload' => ['attachments' => ['invoices/secret.pdf']],
+            'status' => 'new',
+        ]);
+
+        $admin = User::factory()->create(['role' => UserRole::Admin]);
+        $admin->forceFill(['is_admin' => true])->save();
+
+        $this->actingAs($admin)
+            ->get(route('admin.inquiries.attachment', ['inquiry' => $tampered->id, 'index' => 0]))
+            ->assertStatus(404);
+    }
+
+    public function test_checkout_supports_sanctum_bearer_auth_and_blocks_payment_session_for_paid_order(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'sanctum-buyer@example.com',
+            'email_verified_at' => now(),
+        ]);
+        $token = $user->createToken('storefront')->plainTextToken;
+
+        $order = Order::query()->create([
+            'number' => 'ORD-SANCTUM-01',
+            'user_id' => $user->id,
+            'customer_email' => 'sanctum-buyer@example.com',
+            'customer_first_name' => 'Anna',
+            'customer_last_name' => 'Kupująca',
+            'status' => 'placed',
+            'payment_status' => 'paid',
+            'currency' => 'PLN',
+            'subtotal_amount' => 10000,
+            'discount_amount' => 0,
+            'shipping_amount' => 0,
+            'tax_amount' => 0,
+            'total_amount' => 10000,
+            'metadata' => ['payment' => ['provider' => 'stripe']],
+        ]);
+
+        $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->getJson("/api/checkout/orders/{$order->number}")
+            ->assertOk()
+            ->assertJsonPath('data.order.number', 'ORD-SANCTUM-01');
+
+        $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson("/api/checkout/orders/{$order->number}/payment-session")
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['order']);
+    }
+
+    public function test_coupon_limits_count_shipped_orders_case_insensitively_and_account_orders_include_shipped(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'anna@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $product = Product::factory()->public()->create([
+            'slug' => 'coupon-shipped-test',
+            'regular_price_amount' => 10000,
+            'stock_quantity' => 5,
+            'manages_stock' => true,
+        ]);
+
+        $coupon = \App\Models\Coupon::create([
+            'code' => 'SHIP10',
+            'name' => 'Rabat 10%',
+            'discount_type' => 'percentage',
+            'value' => 10,
+            'usage_limit' => 1,
+            'usage_limit_per_customer' => 1,
+            'is_active' => true,
+        ]);
+
+        Order::query()->create([
+            'number' => 'ORD-SHIPPED-01',
+            'user_id' => $user->id,
+            'coupon_id' => $coupon->id,
+            'customer_email' => 'Anna@Example.com',
+            'customer_first_name' => 'Anna',
+            'customer_last_name' => 'Nowak',
+            'status' => 'shipped',
+            'payment_status' => 'paid',
+            'currency' => 'PLN',
+            'subtotal_amount' => 10000,
+            'discount_amount' => 1000,
+            'shipping_amount' => 0,
+            'tax_amount' => 0,
+            'total_amount' => 9000,
+            'placed_at' => now(),
+        ]);
+
+        $this->postJson('/api/coupons/validate', [
+            'code' => 'SHIP10',
+            'subtotal' => 100,
+        ])->assertStatus(422);
+
+        $this->postJson('/api/checkout/place', [
+            'items' => [['slug' => $product->slug, 'quantity' => 1]],
+            'payment_method' => 'bank_transfer',
+            'coupon_code' => 'SHIP10',
+            'shipping_method_code' => 'free_courier',
+            'terms_accepted' => true,
+            'customer' => [
+                'first_name' => 'Anna',
+                'last_name' => 'Nowak',
+                'email' => 'anna@example.com',
+                'phone' => '+48600100200',
+            ],
+            'shipping_address' => [
+                'street' => 'Piotrkowska 1',
+                'postal_code' => '90-001',
+                'city' => 'Łódź',
+                'country' => 'PL',
+            ],
+        ])->assertStatus(422)->assertJsonValidationErrors(['coupon_code']);
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/api/account/orders')
+            ->assertOk()
+            ->assertJsonFragment(['number' => 'ORD-SHIPPED-01']);
+    }
+
+    public function test_catalog_per_page_bounds_cart_update_max_99_and_staff_login_blocked(): void
+    {
+        $this->getJson('/api/catalog?per_page=0')->assertOk();
+
+        $product = Product::factory()->public()->create([
+            'slug' => 'cart-limit-99',
+            'regular_price_amount' => 5000,
+        ]);
+
+        $sessionToken = $this->getJson(route('api.cart.show'))->json('data.session_token');
+
+        $this->postJson(route('api.cart.items.store'), [
+            'session_token' => $sessionToken,
+            'product_id' => $product->id,
+            'quantity' => 50,
+        ])->assertStatus(201);
+
+        $this->postJson(route('api.cart.items.store'), [
+            'session_token' => $sessionToken,
+            'product_id' => $product->id,
+            'quantity' => 50,
+        ])->assertStatus(422);
+
+        $itemId = $this->getJson(route('api.cart.show') . "?session_token={$sessionToken}")
+            ->json('data.items.0.id');
+
+        $this->putJson(route('api.cart.items.update', ['itemId' => $itemId]), [
+            'session_token' => $sessionToken,
+            'quantity' => 100,
+        ])->assertStatus(422);
+
+        $manager = User::factory()->create([
+            'email' => 'manager-api@example.com',
+            'role' => UserRole::Manager,
+            'password' => bcrypt('SecretPass123!'),
+        ]);
+        $manager->forceFill(['is_admin' => false])->save();
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.99.88.77'])
+            ->postJson('/api/auth/login', [
+                'email' => 'manager-api@example.com',
+                'password' => 'SecretPass123!',
+            ])->assertStatus(422);
+    }
 }

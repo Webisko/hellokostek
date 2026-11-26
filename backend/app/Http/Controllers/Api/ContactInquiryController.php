@@ -82,7 +82,7 @@ class ContactInquiryController extends Controller
         $payload = array_slice(
             array_diff_key(
                 $allFields,
-                array_flip(['name', 'email', 'phone', 'subject', 'message', 'files', 'website_url', 'hp_field', '_form_started_at', '_human_interacted'])
+                array_flip(['name', 'email', 'phone', 'subject', 'message', 'files', 'attachments', 'website_url', 'hp_field', '_form_started_at', '_human_interacted'])
             ),
             0,
             25,

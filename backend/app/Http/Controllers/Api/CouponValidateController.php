@@ -58,7 +58,7 @@ class CouponValidateController extends Controller
         if ($coupon->usage_limit !== null) {
             $usedCount = \App\Models\Order::query()
                 ->where('coupon_id', $coupon->id)
-                ->whereIn('status', ['placed', 'completed'])
+                ->whereIn('status', ['placed', 'shipped', 'completed'])
                 ->count();
 
             if ($usedCount >= $coupon->usage_limit) {

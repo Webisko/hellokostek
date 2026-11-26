@@ -19,6 +19,10 @@ class CustomerRegisterController extends Controller
 
     public function __invoke(Request $request): JsonResponse
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => mb_strtolower(trim((string) $request->input('email')))]);
+        }
+
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:120'],
             'last_name' => ['required', 'string', 'max:120'],

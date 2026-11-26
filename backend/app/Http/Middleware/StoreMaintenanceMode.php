@@ -22,7 +22,7 @@ class StoreMaintenanceMode
         }
 
         // 2. Allow access to the Filament admin panel
-        $adminPath = env('FILAMENT_PATH', 'admin');
+        $adminPath = trim((string) config('shop.admin_path', 'admin'), '/');
         if ($request->is($adminPath) || $request->is($adminPath . '/*')) {
             return $next($request);
         }

@@ -110,7 +110,9 @@ class OrderForm
                                         if (! $url) {
                                             return 'Brak';
                                         }
-                                        return new \Illuminate\Support\HtmlString("<img src='{$url}' class='w-10 h-10 object-cover rounded shadow-sm border border-gray-200 dark:border-gray-800' />");
+                                        $safeUrl = e($url);
+
+                                        return new \Illuminate\Support\HtmlString("<img src='{$safeUrl}' class='w-10 h-10 object-cover rounded shadow-sm border border-gray-200 dark:border-gray-800' />");
                                     })
                                     ->columnSpan(['md' => 1]),
                                 Select::make('product_id')

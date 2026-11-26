@@ -72,7 +72,8 @@ class ContactInquiryForm
                     \Filament\Forms\Components\Placeholder::make('attachments_list')
                         ->label('Przesłane pliki referencyjne')
                         ->content(function ($record): \Illuminate\Support\HtmlString {
-                            $attachments = $record?->payload['attachments'] ?? [];
+                            $rawAttachments = $record?->payload['attachments'] ?? [];
+                            $attachments = array_values(is_array($rawAttachments) ? $rawAttachments : []);
                             if (empty($attachments)) {
                                 return new \Illuminate\Support\HtmlString('<span class="text-gray-500">Brak załączonych plików.</span>');
                             }

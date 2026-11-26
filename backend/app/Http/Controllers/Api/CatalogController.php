@@ -163,7 +163,7 @@ class CatalogController extends Controller
         }
 
         // 7. Pagination
-        $perPage = (int) $request->input('per_page', 24);
+        $perPage = max(1, min(100, (int) $request->input('per_page', 24)));
         $paginated = $query->paginate($perPage);
 
         $categories = ProductCategory::query()

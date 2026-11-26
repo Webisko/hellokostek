@@ -26,7 +26,7 @@ class RobotsController extends Controller
             ];
         } else {
             $baseUrl = rtrim((string) config('services.storefront.url', config('app.url')), '/');
-            $adminPath = env('FILAMENT_PATH', 'admin');
+            $adminPath = trim((string) config('shop.admin_path', 'admin'), '/');
 
             $lines = [
                 'User-agent: *',

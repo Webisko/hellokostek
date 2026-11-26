@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'admin_path' => env('FILAMENT_PATH', 'admin'),
+
     'store' => [
         'name' => env('APP_NAME', 'hellokostek'),
         'currency' => 'PLN',

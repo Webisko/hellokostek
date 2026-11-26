@@ -251,9 +251,14 @@ Artisan::command('app:expire-unpaid-orders', function () {
     foreach ($expiredOrders as $order) {
         $expiresAt = data_get($order->metadata, 'reservation_expires_at');
         if ($expiresAt && now()->greaterThan($expiresAt)) {
-            $provider = data_get($order->metadata, 'payment.provider');
+            $freshOrder = $order->fresh();
+            if (! $freshOrder || $freshOrder->status !== 'placed' || ! in_array($freshOrder->payment_status, ['awaiting_payment', 'pending'], true)) {
+                continue;
+            }
+
+            $provider = data_get($freshOrder->metadata, 'payment.provider');
             if ($provider === 'stripe') {
-                foreach ($order->paymentTransactions as $tx) {
+                foreach ($freshOrder->paymentTransactions as $tx) {
                     if ($tx->provider === 'stripe' && str_starts_with((string) $tx->external_session_id, 'cs_')) {
                         try {
                             app(\App\Domain\Commerce\Payments\StripeApiClient::class)
@@ -263,7 +268,7 @@ Artisan::command('app:expire-unpaid-orders', function () {
                                 ->expire($tx->external_session_id);
                         } catch (\Throwable $e) {
                             \Illuminate\Support\Facades\Log::warning('Nie udało się wygasić sesji Stripe dla przeterminowanego zamówienia: ' . $e->getMessage(), [
-                                'order_number' => $order->number,
+                                'order_number' => $freshOrder->number,
                                 'session_id' => $tx->external_session_id,
                             ]);
                         }
@@ -271,16 +276,23 @@ Artisan::command('app:expire-unpaid-orders', function () {
                 }
             }
 
-            $metadata = $order->metadata ?? [];
-            $metadata['cancelled_reason'] = $provider === 'bank_transfer'
-                ? 'Wygasł czas na dokonanie przelewu bankowego (' . data_get($metadata, 'reservation_days', 3) . ' dni)'
-                : 'Wygasł czas na opłacenie zamówienia online';
-            $order->forceFill([
-                'status' => 'cancelled',
-                'payment_status' => 'failed',
-                'metadata' => $metadata,
-            ])->save();
-            $count++;
+            \Illuminate\Support\Facades\DB::transaction(function () use ($order, $provider, &$count): void {
+                $locked = Order::query()->whereKey($order->id)->lockForUpdate()->first();
+                if (! $locked || $locked->status !== 'placed' || ! in_array($locked->payment_status, ['awaiting_payment', 'pending'], true)) {
+                    return;
+                }
+
+                $metadata = $locked->metadata ?? [];
+                $metadata['cancelled_reason'] = $provider === 'bank_transfer'
+                    ? 'Wygasł czas na dokonanie przelewu bankowego (' . data_get($metadata, 'reservation_days', 3) . ' dni)'
+                    : 'Wygasł czas na opłacenie zamówienia online';
+                $locked->forceFill([
+                    'status' => 'cancelled',
+                    'payment_status' => 'failed',
+                    'metadata' => $metadata,
+                ])->save();
+                $count++;
+            });
         }
     }
 

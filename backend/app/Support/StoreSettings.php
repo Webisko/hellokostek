@@ -609,9 +609,10 @@ class StoreSettings
 
     public function adminPath(): string
     {
-        $path = trim((string) data_get($this->model()->metadata, 'admin_path', env('FILAMENT_PATH', 'admin')));
+        $defaultPath = (string) config('shop.admin_path', 'admin');
+        $path = trim((string) data_get($this->model()->metadata, 'admin_path', $defaultPath));
 
-        return $path !== '' ? $path : (string) env('FILAMENT_PATH', 'admin');
+        return $path !== '' ? $path : $defaultPath;
     }
 
     public function abandonedCartEnabled(): bool

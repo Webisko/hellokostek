@@ -112,7 +112,9 @@ class CheckoutPlaceController extends Controller
 
         $validated = $validator->validate();
 
-        if (!app(\App\Support\StoreSettings::class)->allowGuestCheckout() && !$request->user()) {
+        $user = $request->user('sanctum') ?? $request->user();
+
+        if (!app(\App\Support\StoreSettings::class)->allowGuestCheckout() && !$user) {
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'customer' => ['Zakupy jako gość są wyłączone. Zaloguj się lub utwórz konto.'],
             ]);
@@ -127,7 +129,7 @@ class CheckoutPlaceController extends Controller
             $draft = \App\Models\Order::query()->where('number', $draftNumber)->where('status', 'draft')->first();
             if ($draft) {
                 $ownsDraft = mb_strtolower((string) $draft->customer_email) === mb_strtolower((string) $order->customer_email)
-                    || ($request->user() !== null && $draft->user_id === $request->user()->id);
+                    || ($user !== null && $draft->user_id === $user->id);
 
                 if ($ownsDraft) {
                     $draftMetadata = $draft->metadata ?? [];

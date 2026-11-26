@@ -13,8 +13,13 @@ class ContactInquiryAttachmentController extends Controller
     {
         abort_unless(auth()->user()?->isStaff(), 403);
 
-        $attachments = $inquiry->payload['attachments'] ?? [];
-        if (! is_array($attachments) || ! array_key_exists($index, $attachments)) {
+        $rawAttachments = $inquiry->payload['attachments'] ?? [];
+        if (! is_array($rawAttachments)) {
+            abort(404);
+        }
+
+        $attachments = array_values($rawAttachments);
+        if (! array_key_exists($index, $attachments)) {
             abort(404);
         }
 
@@ -36,11 +41,16 @@ class ContactInquiryAttachmentController extends Controller
         }
 
         $safeRelative = ltrim(str_replace(['..', '\\'], ['', '/'], $rawPath), '/');
-        if ($safeRelative === '' || ! Storage::disk('local')->exists($safeRelative)) {
+        if (! str_starts_with($safeRelative, 'contact-inquiries/')) {
             abort(404);
         }
 
-        return Storage::disk('local')->response($safeRelative, basename($safeRelative), [
+        $scopedPath = 'contact-inquiries/' . basename($safeRelative);
+        if ($scopedPath === 'contact-inquiries/' || ! Storage::disk('local')->exists($scopedPath)) {
+            abort(404);
+        }
+
+        return Storage::disk('local')->response($scopedPath, basename($scopedPath), [
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

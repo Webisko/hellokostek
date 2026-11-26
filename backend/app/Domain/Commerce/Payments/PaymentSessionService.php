@@ -44,6 +44,25 @@ class PaymentSessionService
             ]);
         }
 
+        if ($order->payment_status === 'paid') {
+            $this->recordRejectedAttempt(
+                order: $order,
+                event: 'payment_session_rejected_already_paid',
+                errorMessage: 'To zamowienie zostalo juz oplacone.',
+                requestPayload: [
+                    'order_number' => $order->number,
+                    'payment_status' => $order->payment_status,
+                ],
+                metadata: [
+                    'payment_provider' => data_get($order->metadata, 'payment.provider'),
+                ],
+            );
+
+            throw ValidationException::withMessages([
+                'order' => 'To zamówienie zostało już opłacone.',
+            ]);
+        }
+
         if (!data_get($order->metadata, 'stock_deducted')) {
             foreach ($order->items as $item) {
                 if ($item->product_variant_id && $item->variant && $item->variant->manages_stock) {

@@ -23,7 +23,7 @@ class CheckoutPaymentSessionController extends Controller
             ->firstOrFail();
 
         // Verify ownership: authenticated staff/owner, cryptographic public_token, or matching guest email
-        $user = $request->user();
+        $user = $request->user('sanctum') ?? $request->user();
         $providedToken = trim((string) ($request->header('X-Order-Token') ?? $request->query('token') ?? $request->input('token', '')));
         $hasValidToken = filled($order->public_token) && filled($providedToken) && hash_equals($order->public_token, $providedToken);
 
