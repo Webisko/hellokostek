@@ -1,6 +1,6 @@
 # Database Schema Reference
 
-This file is a cache of the database schema for the Hello Kostek E-commerce & CMS project. Updated on 2026-10-01.
+This file is a cache of the database schema for the Hello Kostek E-commerce & CMS project. Updated on 2026-11-26.
 
 ## Table: `admin_activity_logs`
 
@@ -476,6 +476,10 @@ This file is a cache of the database schema for the Hello Kostek E-commerce & CM
 | --- | --- | --- |
 | `invoices_number_unique` | Yes | `number` |
 
+### Foreign Keys
+
+- `order_id` -> `orders.id` (`ON DELETE RESTRICT`, hardened by migration `2026_11_26_090000_harden_order_returns_and_invoices_foreign_keys`)
+
 ---
 
 ## Table: `job_batches`
@@ -620,6 +624,11 @@ This file is a cache of the database schema for the Hello Kostek E-commerce & CM
 | `order_returns_user_id_index` | No | `user_id` |
 | `order_returns_return_number_unique` | Yes | `return_number` |
 | `order_returns_order_id_status_index` | No | `order_id`, `status` |
+
+### Foreign Keys
+
+- `order_id` -> `orders.id` (`ON DELETE RESTRICT`, hardened by migration `2026_11_26_090000_harden_order_returns_and_invoices_foreign_keys`)
+- `user_id` -> `users.id` (`ON DELETE SET NULL`, hardened by migration `2026_11_26_090000_harden_order_returns_and_invoices_foreign_keys`)
 
 ---
 

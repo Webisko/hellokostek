@@ -45,6 +45,13 @@ class ProductReviewController extends Controller
 
     public function store(Request $request, string $slug): JsonResponse
     {
+        if (filled($request->input('website_url')) || filled($request->input('hp_field'))) {
+            return response()->json([
+                'message' => 'Opinia została dodana i oczekuje na zatwierdzenie przez moderatora.',
+                'data' => ['id' => 0],
+            ], 200);
+        }
+
         if (! app(\App\Support\StoreSettings::class)->productReviewsEnabled()) {
             return response()->json([
                 'message' => 'Dodawanie opinii o produktach jest wyłączone.'
@@ -63,14 +70,19 @@ class ProductReviewController extends Controller
             'customer_email' => ['required', 'email:rfc'],
         ]);
 
-        // Determine if verified purchase
-        $isVerified = \App\Models\Order::query()
-            ->where('customer_email', $validated['customer_email'])
-            ->whereIn('status', ['placed', 'completed'])
-            ->whereHas('items', function ($query) use ($product) {
-                $query->where('product_id', $product->id);
-            })
-            ->exists();
+        // Determine if verified purchase strictly for authenticated owner matching customer_email (no email enumeration for guests)
+        $authUser = auth('sanctum')->user();
+        $isVerified = false;
+        if ($authUser && mb_strtolower((string) $authUser->email) === mb_strtolower(trim((string) $validated['customer_email']))) {
+            $isVerified = \App\Models\Order::query()
+                ->where('user_id', $authUser->id)
+                ->where('payment_status', 'paid')
+                ->whereIn('status', ['placed', 'shipped', 'completed'])
+                ->whereHas('items', function ($query) use ($product): void {
+                    $query->where('product_id', $product->id);
+                })
+                ->exists();
+        }
 
         $review = ProductReview::query()->forceCreate([
             'product_id' => $product->id,
@@ -83,7 +95,7 @@ class ProductReviewController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Opinia zostala dodana i oczekuje na zatwierdzenie przez moderatora.',
+            'message' => 'Opinia została dodana i oczekuje na zatwierdzenie przez moderatora.',
             'data' => [
                 'id' => $review->id,
                 'customer_name' => $review->customer_name,

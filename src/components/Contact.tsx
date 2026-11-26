@@ -248,7 +248,7 @@ export default function Contact() {
                 <Mail className="w-5 h-5" />
               </div>
               <div className="text-base font-sans">
-                <span className="block text-gray-400 font-mono text-xs uppercase tracking-widest font-semibold">Kontakt</span>
+                <span className="block text-gray-600 font-mono text-xs uppercase tracking-widest font-semibold">Kontakt</span>
                 <a href="mailto:kontakt@hellokostek.pl" className="text-gray-900 hover:text-[#E0115F] font-bold block mt-1 transition-colors text-lg">
                   kontakt@hellokostek.pl
                 </a>
@@ -261,7 +261,7 @@ export default function Contact() {
                 <MapPin className="w-5 h-5" />
               </div>
               <div className="text-base font-sans">
-                <span className="block text-gray-400 font-mono text-xs uppercase tracking-widest font-semibold">Lokalizacja</span>
+                <span className="block text-gray-600 font-mono text-xs uppercase tracking-widest font-semibold">Lokalizacja</span>
                 <span className="text-gray-900 font-bold block mt-1 text-lg">Łódź, Śródmieście, Polska</span>
                 <span className="text-gray-500 block text-sm mt-1">Oferuję darmowy dowóz gotowego obrazu na terenie Łodzi oraz bezpieczną wysyłkę w całej Polsce.</span>
               </div>
@@ -272,7 +272,7 @@ export default function Contact() {
                 <MessageSquare className="w-5 h-5" />
               </div>
               <div className="text-base font-sans w-full">
-                <span className="block text-gray-400 font-mono text-xs uppercase tracking-widest font-semibold">Media społecznościowe</span>
+                <span className="block text-gray-600 font-mono text-xs uppercase tracking-widest font-semibold">Media społecznościowe</span>
                 <div className="flex flex-wrap gap-3 mt-2">
                   <a
                     href="https://www.instagram.com/hellokostek/"
@@ -319,7 +319,7 @@ export default function Contact() {
 
         {/* Right Side: Contact Form (7/12 width) */}
         <div className="lg:col-span-7 bg-white rounded-3xl border border-off-black p-6 sm:p-10 space-y-6">
-          <h3 className="font-display text-2xl text-gray-900 border-b border-gray-100 pb-4">Wypełnij formularz kontaktowy</h3>
+          <h2 className="font-display text-2xl text-gray-900 border-b border-gray-100 pb-4">Wypełnij formularz kontaktowy</h2>
 
           <form ref={formRef} noValidate onSubmit={handleSubmit} className="space-y-6 font-sans">
             <input
@@ -524,13 +524,15 @@ export default function Contact() {
 
             {formData.subject !== "shop_delivery" && (
               <div className="space-y-2 animate-fadeIn" data-error-field="files">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)</span>
+                <label htmlFor="contact-files" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)</label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className={`border border-dashed ${fieldErrors.files ? "border-red-500" : "border-gray-200"} rounded-xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-all cursor-pointer relative`}
                 >
                   <input
+                    id="contact-files"
                     type="file"
+                    aria-label="Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)"
                     ref={fileInputRef}
                     accept="image/jpeg,image/png,image/webp,application/pdf"
                     multiple

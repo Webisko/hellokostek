@@ -77,11 +77,21 @@ class ContactInquiryForm
                                 return new \Illuminate\Support\HtmlString('<span class="text-gray-500">Brak załączonych plików.</span>');
                             }
                             $html = '<div class="flex flex-wrap gap-4">';
-                            foreach ($attachments as $index => $url) {
-                                $safeUrl = htmlspecialchars((string) $url, ENT_QUOTES, 'UTF-8');
+                            foreach ($attachments as $index => $rawPath) {
+                                $attachmentUrl = route('admin.inquiries.attachment', [
+                                    'inquiry' => $record->id,
+                                    'index' => $index,
+                                ]);
+                                $safeUrl = htmlspecialchars($attachmentUrl, ENT_QUOTES, 'UTF-8');
+                                $isPdf = str_ends_with(strtolower((string) $rawPath), '.pdf');
+
                                 $html .= '<div class="flex flex-col items-center gap-1 p-2 bg-gray-50 rounded-lg border border-gray-200">';
                                 $html .= '<a href="' . $safeUrl . '" target="_blank" rel="noopener noreferrer" class="block">';
-                                $html .= '<img src="' . $safeUrl . '" alt="Załącznik ' . ($index + 1) . '" class="w-32 h-32 object-cover rounded shadow-sm hover:opacity-80 transition" />';
+                                if ($isPdf) {
+                                    $html .= '<div class="w-32 h-32 flex flex-col items-center justify-center rounded bg-white border border-gray-200 text-gray-700 text-xs font-semibold gap-1"><span>PDF</span><span class="text-[11px] font-normal text-gray-500">Dokument</span></div>';
+                                } else {
+                                    $html .= '<img src="' . $safeUrl . '" alt="Załącznik ' . ($index + 1) . '" class="w-32 h-32 object-cover rounded shadow-sm hover:opacity-80 transition" />';
+                                }
                                 $html .= '</a>';
                                 $html .= '<a href="' . $safeUrl . '" target="_blank" rel="noopener noreferrer" download class="text-xs font-semibold text-primary-600 hover:underline mt-1">Pobierz plik ' . ($index + 1) . '</a>';
                                 $html .= '</div>';

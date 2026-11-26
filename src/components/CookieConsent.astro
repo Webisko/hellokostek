@@ -65,15 +65,43 @@ const apiBase = import.meta.env.PUBLIC_API_URL || "https://panel.hellokostek.pl/
       banner.classList.remove('hidden');
     }
 
+    const logCookieConsent = (acceptedAll: boolean) => {
+      const token =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+      fetch(`${apiBase}/cookie-consents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          consent_token: token,
+          banner_version: '2026-11',
+          consent_choices: {
+            necessary: true,
+            analytics: acceptedAll,
+            functional: acceptedAll,
+            marketing: acceptedAll,
+          },
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    };
+
     acceptBtn.addEventListener('click', () => {
       localStorage.setItem('hellokostek_cookies', 'true');
       banner.classList.add('hidden');
+      logCookieConsent(true);
     });
 
     if (rejectBtn) {
       rejectBtn.addEventListener('click', () => {
         localStorage.setItem('hellokostek_cookies', 'essential_only');
         banner.classList.add('hidden');
+        logCookieConsent(false);
       });
     }
 

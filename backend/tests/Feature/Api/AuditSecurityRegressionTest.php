@@ -162,6 +162,7 @@ class AuditSecurityRegressionTest extends TestCase
     public function test_contact_inquiry_rejects_disallowed_upload_and_traps_bots_silently(): void
     {
         Mail::fake();
+        Storage::fake('local');
 
         // 1. Disallowed MIME upload -> 422
         $badFile = UploadedFile::fake()->create('shell.php', 10, 'application/x-php');
@@ -460,5 +461,285 @@ class AuditSecurityRegressionTest extends TestCase
             'shipping_method_code' => 'flat_rate:courier',
         ])->assertOk();
         $this->assertGreaterThan(0, $disabledResponse->json('data.shipping_amount'));
+    }
+
+    public function test_contact_inquiry_attachments_are_stored_on_local_disk_and_staff_gated(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        Mail::fake();
+
+        $goodFile = UploadedFile::fake()->image('referencja.jpg', 300, 300);
+
+        $response = $this->post('/api/inquiries', [
+            'name' => 'Alicja',
+            'email' => 'alicja@example.com',
+            'message' => 'Proszę o wycenę portretu.',
+            '_form_started_at' => (string) ((time() - 5) * 1000),
+            'files' => [$goodFile],
+        ], ['Accept' => 'application/json']);
+
+        $response->assertStatus(201);
+
+        $inquiry = \App\Models\ContactInquiry::query()->where('email', 'alicja@example.com')->firstOrFail();
+        $storedPath = $inquiry->payload['attachments'][0];
+
+        $this->assertStringStartsWith('contact-inquiries/', $storedPath);
+        Storage::disk('local')->assertExists($storedPath);
+        $this->assertEmpty(Storage::disk('public')->allFiles());
+
+        $customer = User::factory()->create(['role' => UserRole::Customer]);
+        $staff = User::factory()->create(['role' => UserRole::Manager]);
+
+        $this->actingAs($customer)
+            ->get(route('admin.inquiries.attachment', ['inquiry' => $inquiry->id, 'index' => 0]))
+            ->assertStatus(403);
+
+        $this->actingAs($staff)
+            ->get(route('admin.inquiries.attachment', ['inquiry' => $inquiry->id, 'index' => 0]))
+            ->assertOk();
+    }
+
+    public function test_order_return_rejects_duplicate_order_item_ids_exceeding_purchased_quantity(): void
+    {
+        Mail::fake();
+
+        $order = Order::query()->create([
+            'number' => 'ORD-DUP-RMA',
+            'customer_email' => 'dup-rma@example.com',
+            'customer_first_name' => 'Jan',
+            'customer_last_name' => 'Testowy',
+            'status' => 'completed',
+            'payment_status' => 'paid',
+            'currency' => 'PLN',
+            'subtotal_amount' => 10000,
+            'discount_amount' => 0,
+            'shipping_amount' => 0,
+            'tax_amount' => 1870,
+            'total_amount' => 10000,
+        ]);
+
+        $product = Product::factory()->public()->create(['type' => ProductType::Physical]);
+
+        $orderItem = OrderItem::query()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'product_type' => ProductType::Physical,
+            'sku' => 'DUP-RMA-PR',
+            'name' => 'Wydruk testowy',
+            'quantity' => 1,
+            'unit_price_amount' => 10000,
+            'regular_unit_price_amount' => 10000,
+            'discount_amount' => 0,
+            'tax_amount' => 1870,
+            'total_amount' => 10000,
+        ]);
+
+        $this->postJson(route('api.returns.store'), [
+            'order_number' => $order->number,
+            'customer_email' => $order->customer_email,
+            'items' => [
+                ['order_item_id' => $orderItem->id, 'quantity' => 1],
+                ['order_item_id' => $orderItem->id, 'quantity' => 1],
+            ],
+        ])->assertStatus(422);
+
+        $this->assertDatabaseCount('order_returns', 0);
+    }
+
+    public function test_user_force_delete_preserves_order_return_with_null_user_id(): void
+    {
+        $user = User::factory()->create();
+
+        $order = Order::query()->create([
+            'user_id' => $user->id,
+            'number' => 'ORD-RET-KEEP',
+            'customer_email' => $user->email,
+            'customer_first_name' => 'Jan',
+            'customer_last_name' => 'Kowalski',
+            'status' => 'completed',
+            'payment_status' => 'paid',
+            'currency' => 'PLN',
+            'subtotal_amount' => 10000,
+            'discount_amount' => 0,
+            'shipping_amount' => 0,
+            'tax_amount' => 0,
+            'total_amount' => 10000,
+        ]);
+
+        $orderReturn = \App\Models\OrderReturn::query()->create([
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'status' => 'pending',
+            'reason' => 'Zwrot testowy',
+        ]);
+
+        $user->forceDelete();
+
+        $orderReturn->refresh();
+        $this->assertNull($orderReturn->user_id);
+        $this->assertDatabaseHas('order_returns', ['id' => $orderReturn->id]);
+    }
+
+    public function test_stripe_webhook_rejects_amount_mismatch_and_stale_expired_session_does_not_cancel_paid_order(): void
+    {
+        $webhookSecret = 'whsec_audit_test';
+        config(['services.stripe.webhook_secret' => $webhookSecret]);
+
+        $order = Order::query()->create([
+            'number' => 'ORD-STRIPE-AUDIT',
+            'status' => 'placed',
+            'payment_status' => 'awaiting_payment',
+            'currency' => 'PLN',
+            'total_amount' => 15000,
+            'customer_email' => 'stripe-audit@example.com',
+            'customer_first_name' => 'Jan',
+            'customer_last_name' => 'Kowalski',
+        ]);
+
+        \App\Models\PaymentTransaction::query()->create([
+            'order_id' => $order->id,
+            'provider' => 'stripe',
+            'status' => 'initiated',
+            'amount' => 15000,
+            'currency' => 'PLN',
+            'external_session_id' => 'cs_audit_mismatch',
+        ]);
+
+        $signStripe = function (string $payload) use ($webhookSecret): string {
+            $time = time();
+            $sig = hash_hmac('sha256', "{$time}.{$payload}", $webhookSecret);
+            return "t={$time},v1={$sig}";
+        };
+
+        $mismatchPayload = json_encode([
+            'id' => 'evt_mismatch',
+            'type' => 'checkout.session.completed',
+            'data' => [
+                'object' => [
+                    'id' => 'cs_audit_mismatch',
+                    'payment_status' => 'paid',
+                    'amount_total' => 100,
+                    'currency' => 'pln',
+                    'metadata' => ['order_number' => $order->number],
+                ],
+            ],
+        ]);
+
+        $this->call('POST', '/api/integrations/stripe/payment-callback', [], [], [], [
+            'HTTP_STRIPE_SIGNATURE' => $signStripe($mismatchPayload),
+            'CONTENT_TYPE' => 'application/json',
+        ], $mismatchPayload)->assertStatus(422);
+
+        $this->assertEquals('awaiting_payment', $order->fresh()->payment_status);
+
+        // Stale session expired after order was paid on a newer session
+        $order->forceFill(['payment_status' => 'paid', 'status' => 'placed'])->save();
+
+        \App\Models\PaymentTransaction::query()->create([
+            'order_id' => $order->id,
+            'provider' => 'stripe',
+            'status' => 'confirmed',
+            'amount' => 15000,
+            'currency' => 'PLN',
+            'external_session_id' => 'cs_audit_newer_paid',
+        ]);
+
+        $expiredPayload = json_encode([
+            'id' => 'evt_expired_stale',
+            'type' => 'checkout.session.expired',
+            'data' => [
+                'object' => [
+                    'id' => 'cs_audit_mismatch',
+                    'payment_status' => 'unpaid',
+                    'metadata' => ['order_number' => $order->number],
+                ],
+            ],
+        ]);
+
+        $this->call('POST', '/api/integrations/stripe/payment-callback', [], [], [], [
+            'HTTP_STRIPE_SIGNATURE' => $signStripe($expiredPayload),
+            'CONTENT_TYPE' => 'application/json',
+        ], $expiredPayload)->assertOk();
+
+        $this->assertEquals('paid', $order->fresh()->payment_status);
+        $this->assertEquals('placed', $order->fresh()->status);
+    }
+
+    public function test_baselinker_callback_route_is_removed(): void
+    {
+        $this->getJson('/api/integrations/baselinker/shipment-callback')
+            ->assertStatus(404);
+
+        $this->postJson('/api/integrations/baselinker/shipment-callback', [])
+            ->assertStatus(404);
+    }
+
+    public function test_forgot_password_does_not_send_reset_link_for_staff_accounts(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+
+        $admin = User::factory()->create([
+            'email' => 'staff-reset@example.com',
+            'role' => UserRole::Admin,
+        ]);
+        $admin->forceFill(['is_admin' => true])->save();
+
+        $this->postJson('/api/auth/forgot-password', [
+            'email' => $admin->email,
+        ])->assertStatus(202);
+
+        \Illuminate\Support\Facades\Notification::assertNothingSent();
+    }
+
+    public function test_account_addresses_show_route_is_disabled(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->getJson('/api/account/addresses/1');
+
+        $this->assertTrue(in_array($response->getStatusCode(), [404, 405], true));
+    }
+
+    public function test_guest_product_review_does_not_expose_verified_purchase_via_email(): void
+    {
+        $product = Product::factory()->public()->create(['slug' => 'review-privacy-test']);
+
+        Order::query()->create([
+            'number' => 'ORD-REV-PRIV',
+            'customer_email' => 'realbuyer@example.com',
+            'customer_first_name' => 'Real',
+            'customer_last_name' => 'Buyer',
+            'status' => 'completed',
+            'payment_status' => 'paid',
+            'currency' => 'PLN',
+            'subtotal_amount' => 5000,
+            'discount_amount' => 0,
+            'shipping_amount' => 0,
+            'tax_amount' => 0,
+            'total_amount' => 5000,
+        ])->items()->create([
+            'product_id' => $product->id,
+            'product_type' => ProductType::Physical,
+            'sku' => 'REV-01',
+            'name' => $product->name,
+            'quantity' => 1,
+            'unit_price_amount' => 5000,
+            'regular_unit_price_amount' => 5000,
+            'discount_amount' => 0,
+            'tax_amount' => 0,
+            'total_amount' => 5000,
+        ]);
+
+        $response = $this->postJson("/api/catalog/products/{$product->slug}/reviews", [
+            'rating' => 5,
+            'comment' => 'Świetny obraz!',
+            'customer_name' => 'Ktoś Inny',
+            'customer_email' => 'realbuyer@example.com',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.is_verified_purchase', false);
     }
 }

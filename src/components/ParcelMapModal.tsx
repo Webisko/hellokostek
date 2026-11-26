@@ -337,7 +337,7 @@ export default function ParcelMapModal({
 
   const handleUseLocation = () => {
     if (!navigator.geolocation) {
-      alert("Twoja przeglądarka nie obsługuje geolokalizacji.");
+      setSearchError("Twoja przeglądarka nie obsługuje geolokalizacji.");
       return;
     }
     setIsLoading(true);
@@ -352,7 +352,7 @@ export default function ParcelMapModal({
       (err) => {
         console.warn("Geolocation error:", err);
         setIsLoading(false);
-        alert("Nie udało się pobrać Twojej lokalizacji.");
+        setSearchError("Nie udało się pobrać Twojej lokalizacji.");
       }
     );
   };

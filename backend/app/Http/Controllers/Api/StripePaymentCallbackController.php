@@ -97,6 +97,40 @@ class StripePaymentCallbackController extends Controller
                 || ($event->type === 'checkout.session.completed' && $session->payment_status === 'paid');
 
             if ($isPaid) {
+                if (isset($session->amount_total) && (int) $session->amount_total !== (int) $transaction->amount) {
+                    $this->integrationLogService->record(
+                        integration: 'stripe',
+                        event: 'stripe_webhook_amount_mismatch',
+                        status: 'warning',
+                        order: $order,
+                        direction: 'incoming',
+                        externalReference: $session->id,
+                        requestPayload: [
+                            'expected_amount' => (int) $transaction->amount,
+                            'received_amount' => (int) $session->amount_total,
+                        ],
+                        errorMessage: 'Odrzucono webhook Stripe z powodu niezgodnej kwoty płatności.',
+                    );
+                    abort(422, 'Amount mismatch');
+                }
+
+                if (isset($session->currency) && strtoupper((string) $session->currency) !== strtoupper((string) $transaction->currency)) {
+                    $this->integrationLogService->record(
+                        integration: 'stripe',
+                        event: 'stripe_webhook_currency_mismatch',
+                        status: 'warning',
+                        order: $order,
+                        direction: 'incoming',
+                        externalReference: $session->id,
+                        requestPayload: [
+                            'expected_currency' => strtoupper((string) $transaction->currency),
+                            'received_currency' => strtoupper((string) $session->currency),
+                        ],
+                        errorMessage: 'Odrzucono webhook Stripe z powodu niezgodnej waluty płatności.',
+                    );
+                    abort(422, 'Currency mismatch');
+                }
+
                 DB::transaction(function () use ($transaction, $order, $session, $event) {
                     $transaction = PaymentTransaction::query()->lockForUpdate()->find($transaction->id);
                     $order = Order::query()->lockForUpdate()->find($order->id);
@@ -136,6 +170,13 @@ class StripePaymentCallbackController extends Controller
                 );
             } elseif (in_array($event->type, ['checkout.session.async_payment_failed', 'checkout.session.expired'], true)) {
                 DB::transaction(function () use ($transaction, $order, $session, $event) {
+                    $transaction = PaymentTransaction::query()->lockForUpdate()->find($transaction->id);
+                    $order = Order::query()->lockForUpdate()->find($order->id);
+
+                    if ($transaction->status === 'confirmed') {
+                        return;
+                    }
+
                     $responsePayload = $transaction->response_payload ?? [];
                     $responsePayload['callback'] = [
                         'event_type' => $event->type,
@@ -151,7 +192,8 @@ class StripePaymentCallbackController extends Controller
                         'error_message' => 'Stripe session (' . $event->type . ') payment_status was ' . $session->payment_status,
                     ])->save();
 
-                    if ($order->payment_status !== 'paid') {
+                    $latestTx = $order->latestPaymentTransaction()->first();
+                    if ($order->payment_status !== 'paid' && ($latestTx === null || $latestTx->id === $transaction->id)) {
                         $order->forceFill([
                             'payment_status' => 'failed',
                             'status' => 'cancelled',

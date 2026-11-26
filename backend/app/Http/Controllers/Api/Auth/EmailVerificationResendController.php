@@ -16,7 +16,13 @@ class EmailVerificationResendController extends Controller
             ], 422);
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        try {
+            $request->user()->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Błąd ponownej wysyłki linku weryfikacyjnego: ' . $e->getMessage(), [
+                'user_id' => $request->user()?->id,
+            ]);
+        }
 
         return response()->json([
             'message' => 'Link weryfikacyjny został wysłany ponownie.'

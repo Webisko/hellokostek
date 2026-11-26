@@ -183,9 +183,9 @@ export default function AboutMe() {
           {boxText && (
             <div className="bg-stone-50 rounded-[28px] p-7 border border-neutral-100 space-y-3 font-sans shadow-xs">
               {boxTitle && (
-                <h3 className="font-display text-xl sm:text-2xl text-gray-950 font-normal">
+                <h2 className="font-display text-xl sm:text-2xl text-gray-950 font-normal">
                   {boxTitle}
-                </h3>
+                </h2>
               )}
               <p className="text-sm sm:text-base text-gray-650 leading-relaxed">
                 {boxText}

@@ -27,6 +27,7 @@ Route::get('/login', function () {
 Route::middleware('auth')->prefix('admin')->group(function (): void {
     Route::get('/orders/{number}/inpost-label', [\App\Http\Controllers\Admin\InPostLabelController::class, 'download'])->name('admin.orders.inpost-label');
     Route::get('/orders/{number}/orlen-label', [\App\Http\Controllers\Admin\OrlenPaczkaLabelController::class, 'download'])->name('admin.orders.orlen-label');
+    Route::get('/inquiries/{inquiry}/attachments/{index}', [\App\Http\Controllers\Admin\ContactInquiryAttachmentController::class, 'show'])->whereNumber('index')->name('admin.inquiries.attachment');
     Route::post('/sidebar/save-order', [\App\Http\Controllers\Admin\SidebarController::class, 'saveOrder'])->name('admin.sidebar.save-order');
 });
 

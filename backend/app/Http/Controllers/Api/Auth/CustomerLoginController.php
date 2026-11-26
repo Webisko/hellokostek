@@ -33,7 +33,7 @@ class CustomerLoginController extends Controller
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => 'Dane logowania sa nieprawidlowe.',
+                'email' => 'Dane logowania są nieprawidłowe.',
             ]);
         }
 

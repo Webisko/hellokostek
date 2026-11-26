@@ -177,7 +177,7 @@ Artisan::command('app:import-google-reviews-snapshot {path : Sciezka do pliku JS
     }
 
     $snapshot = [
-        'business_name' => (string) ($payload['business_name'] ?? $payload['name'] ?? 'Generic Shop'),
+        'business_name' => (string) ($payload['business_name'] ?? $payload['name'] ?? 'hellokostek'),
         'place_id' => $payload['place_id'] ?? null,
         'rating' => $payload['rating'] ?? null,
         'user_ratings_total' => $payload['user_ratings_total'] ?? null,

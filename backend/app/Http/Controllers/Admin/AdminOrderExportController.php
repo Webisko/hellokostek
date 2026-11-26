@@ -71,7 +71,7 @@ class AdminOrderExportController extends Controller
                             ]));
                         }
 
-                        fputcsv($handle, [
+                        fputcsv($handle, array_map([$this, 'sanitizeCsvCell'], [
                             $order->number,
                             optional($order->placed_at)->format('Y-m-d H:i:s'),
                             $order->status,
@@ -95,7 +95,7 @@ class AdminOrderExportController extends Controller
                             $order->shipping_method_name,
                             $order->carrier,
                             $order->tracking_number,
-                        ], ';');
+                        ]), ';');
                     }
                 });
 
@@ -103,6 +103,15 @@ class AdminOrderExportController extends Controller
         }, 'orders-export.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    private function sanitizeCsvCell(mixed $value): mixed
+    {
+        if (is_string($value) && $value !== '' && str_contains("=+-@\t\r", $value[0])) {
+            return "'" . $value;
+        }
+
+        return $value;
     }
 
     private function ensureAdmin(): void

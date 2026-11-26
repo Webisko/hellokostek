@@ -35,6 +35,7 @@ Thumbs.db
 /storage/framework/views/*.php
 !/storage/framework/views/.gitignore
 /storage/app/invoices/ORD-2*
+/storage/app/private/contact-inquiries/*
 /scratch
 
 # Local sensitive credentials and secrets

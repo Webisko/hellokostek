@@ -17,7 +17,7 @@ Całość działa w **100% w języku polskim** (zarówno panel CMS, jak i komuni
 - **Baza Danych**: SQLite (`database/database.sqlite` lokalnie) / MySQL MariaDB 11.4 (środowisko produkcyjne)
 - **Księgowość & PDF**: Barryvdh Laravel DomPDF v3.1 (wbudowane generowanie faktur PDF) + sterowniki do platform Fakturownia, iFirma, inFakt, wFirma
 - **Płatności**: Stripe PHP SDK v21, Przelewy24 API, obsługa BLIK z kodem 6-cyfrowym
-- **Logistyka**: InPost ShipX (Paczkomaty 24/7 i kurier ubezpieczony), Orlen Paczka, webhook BaseLinker
+- **Logistyka**: InPost ShipX (Paczkomaty 24/7 i kurier ubezpieczony), Orlen Paczka
 - **Weryfikacja B2B**: Wyszukiwarka REGON/NIP w rejestrze BIR Głównego Urzędu Statystycznego (GUS)
 - **Opinie**: Synchronizacja z Google Places API (`GooglePlaceReviewsService.php`)
 - **Generator Grafik Social Media**: Dynamiczne, podpisane obrazy OpenGraph (`GET /og-image`)
@@ -34,7 +34,7 @@ Logika biznesowa została zorganizowana w modularne domeny domenowe:
 4. **Communication**: Szablony maili transakcyjnych HTML, wysyłka powiadomień i logowanie korespondencji.
 5. **Customers**: Profile klientów B2C i firm B2B, integracja z GUS BIR, książki adresowe.
 6. **Imports**: Narzędzia importu i migracji produktów oraz zasobów mediów.
-7. **Integrations**: Sterowniki bramek płatności (Stripe, Przelewy24) oraz operatorów logistycznych (InPost, Orlen Paczka, BaseLinker).
+7. **Integrations**: Sterowniki bramek płatności (Stripe, Przelewy24) oraz operatorów logistycznych (InPost, Orlen Paczka).
 8. **Operations**: Audyt działań administratorów, reguły przekierowań URL 301/302, automatyczne kopie zapasowe.
 9. **Storefront**: Serwisy prezentacji oferty, FAQ z danymi Schema.org, opinie Google Places i generator sitemap.
 

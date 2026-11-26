@@ -316,7 +316,7 @@ export default function Home() {
                   <div className="w-48 aspect-[3/4] mx-auto bg-white border border-gray-150 rounded-none shadow-[0_8px_24px_rgba(0,0,0,0.02)] flex flex-col items-center justify-center transition-all duration-500 hover:scale-[1.03] hover:border-[#E0115F]/40 hover:shadow-[0_12px_32px_rgba(224,17,95,0.05)] mb-8 select-none relative group">
                     <div className="absolute inset-2 border border-dashed border-gray-100 rounded-none group-hover:border-[#E0115F]/20 transition-colors" />
                     <span className="text-sm font-mono text-gray-500 z-10 font-bold uppercase tracking-widest leading-none">3:4</span>
-                    <span className="text-xs font-mono text-gray-400 z-10 mt-2 tracking-wide uppercase leading-none">Prostokąt</span>
+                    <span className="text-xs font-mono text-gray-600 z-10 mt-2 tracking-wide uppercase leading-none">Prostokąt</span>
                   </div>
                   <div className="space-y-1.5">
                     <h3 className="font-mono text-lg sm:text-xl font-normal text-[#E0115F]">Płótno prostokątne</h3>
@@ -326,7 +326,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex justify-center gap-3 md:gap-2 lg:gap-4 items-baseline pt-4 border-t border-gray-100">
-                  <span className="text-sm font-mono text-gray-400">CENA STARTOWA:</span>
+                  <span className="text-sm font-mono text-gray-600">CENA STARTOWA:</span>
                   <span className="font-mono text-3xl font-bold text-gray-900">od 800 zł**</span>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function Home() {
                       style={{ borderRadius: "50%" }}
                     />
                     <span className="text-sm font-mono text-gray-500 z-10 font-bold uppercase tracking-widest leading-none">3:4</span>
-                    <span className="text-xs font-mono text-gray-400 z-10 mt-2 tracking-wide uppercase leading-none">Owal</span>
+                    <span className="text-xs font-mono text-gray-600 z-10 mt-2 tracking-wide uppercase leading-none">Owal</span>
                   </div>
                   <div className="space-y-1.5">
                     <h3 className="font-mono text-lg sm:text-xl font-normal text-[#E0115F]">Płótno owalne</h3>
@@ -352,7 +352,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex justify-center gap-3 md:gap-2 lg:gap-4 items-baseline pt-4 border-t border-gray-100">
-                  <span className="text-sm font-mono text-gray-400">CENA STARTOWA:</span>
+                  <span className="text-sm font-mono text-gray-600">CENA STARTOWA:</span>
                   <span className="font-mono text-3xl font-bold text-gray-900">od 800 zł**</span>
                 </div>
               </div>
@@ -529,13 +529,15 @@ export default function Home() {
                 )}
               </div>
               <div className="space-y-2" data-error-field="files">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)</span>
+                <label htmlFor="home-contact-files" className="text-xs font-mono font-bold uppercase tracking-wider text-gray-600 block">Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)</label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className={`border border-dashed ${fieldErrors.files ? "border-red-500" : "border-gray-200"} rounded-xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-all cursor-pointer relative`}
                 >
                   <input
+                    id="home-contact-files"
                     type="file"
+                    aria-label="Dołącz poglądowe zdjęcia (JPG, PNG, WEBP, PDF)"
                     ref={fileInputRef}
                     accept="image/jpeg,image/png,image/webp,application/pdf"
                     multiple

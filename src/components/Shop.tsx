@@ -37,14 +37,29 @@ function mapProduct(apiProduct: any): Product {
     ? rawDescription.replace(/<[^>]*>/g, "").trim()
     : "";
 
+  const originalActiveGrosze = originalVariant
+    ? (originalVariant.current_price_amount ?? originalVariant.sale_price_amount ?? originalVariant.regular_price_amount)
+    : (apiProduct.current_price_amount ?? apiProduct.sale_price_amount ?? apiProduct.regular_price_amount);
+  const originalRegularGrosze = originalVariant
+    ? originalVariant.regular_price_amount
+    : apiProduct.regular_price_amount;
+
+  const defaultPrintGrosze = category === 'akwarela' ? 3000 : 2000;
+  const printActiveGrosze = printVariant
+    ? (printVariant.current_price_amount ?? printVariant.sale_price_amount ?? printVariant.regular_price_amount)
+    : defaultPrintGrosze;
+  const printRegularGrosze = printVariant ? printVariant.regular_price_amount : defaultPrintGrosze;
+
   return {
     id: apiProduct.slug,
     title: parseLocalizedString(apiProduct.name),
     year: apiProduct.metadata?.year || "2022",
     category,
     categoryLabel,
-    originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProduct.regular_price_amount / 100),
-    printPrice: printVariant ? (printVariant.regular_price_amount / 100) : (category === 'akwarela' ? 30 : 20),
+    originalPrice: originalActiveGrosze / 100,
+    originalRegularPrice: originalRegularGrosze ? originalRegularGrosze / 100 : undefined,
+    printPrice: printActiveGrosze / 100,
+    printRegularPrice: printRegularGrosze ? printRegularGrosze / 100 : undefined,
     isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
     imageUrl,
     description: cleanDescription,
@@ -253,14 +268,42 @@ export default function Shop() {
                   {/* Info block */}
                   <div className="space-y-2 px-1">
                     <div className="flex flex-col gap-1">
-                      <h3 className="font-display text-lg sm:text-xl text-gray-900 group-hover:text-[#E0115F] transition-colors leading-snug">
+                      <h2 className="font-display text-lg sm:text-xl text-gray-900 group-hover:text-[#E0115F] transition-colors leading-snug">
                         {product.title}
-                      </h3>
-                      <span className="font-mono text-xs sm:text-sm text-[#E0115F] font-bold">
-                        {product.isOriginalAvailable
-                          ? `Oryginał: ${product.originalPrice} zł • Wydruk: ${printPriceVal} zł`
-                          : `Wydruk: ${printPriceVal} zł (Oryginał sprzedany)`}
-                      </span>
+                      </h2>
+                      <div className="font-mono text-xs sm:text-sm text-[#E0115F] font-bold flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                        {product.isOriginalAvailable ? (
+                          <>
+                            <span>
+                              Oryginał: {product.originalPrice} zł
+                              {product.originalRegularPrice && product.originalRegularPrice > product.originalPrice && (
+                                <span className="ml-1.5 text-gray-600 line-through font-normal text-xs">
+                                  {product.originalRegularPrice} zł
+                                </span>
+                              )}
+                            </span>
+                            <span aria-hidden="true">•</span>
+                            <span>
+                              Wydruk: {printPriceVal} zł
+                              {product.printRegularPrice && product.printRegularPrice > printPriceVal && (
+                                <span className="ml-1.5 text-gray-600 line-through font-normal text-xs">
+                                  {product.printRegularPrice} zł
+                                </span>
+                              )}
+                            </span>
+                          </>
+                        ) : (
+                          <span>
+                            Wydruk: {printPriceVal} zł
+                            {product.printRegularPrice && product.printRegularPrice > printPriceVal && (
+                              <span className="ml-1.5 text-gray-600 line-through font-normal text-xs">
+                                {product.printRegularPrice} zł
+                              </span>
+                            )}{" "}
+                            <span className="text-gray-500 font-normal">(Oryginał sprzedany)</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                     
                     {product.description && (
@@ -269,7 +312,7 @@ export default function Shop() {
                       </p>
                     )}
 
-                    <div className="inline-flex items-center gap-1.5 pt-2 text-xs font-mono font-bold uppercase tracking-widest text-gray-450 group-hover:text-[#E0115F] transition-colors">
+                    <div className="inline-flex items-center gap-1.5 pt-2 text-xs font-mono font-bold uppercase tracking-widest text-gray-600 group-hover:text-[#E0115F] transition-colors">
                       Szczegóły 
                       <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -279,15 +322,13 @@ export default function Shop() {
             })}
           </div>
 
-          {/* Cennik podsumowujący pod pracami */}
+          {/* Informacja o wariantach prac */}
           <div className="bg-stone-50/80 border border-stone-200/80 rounded-2xl p-6 text-center space-y-2">
             <p className="font-mono text-xs uppercase tracking-widest text-[#E0115F] font-bold">
-              Informacja o cenach wariantów
+              Informacja o wariantach prac
             </p>
             <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-              Każda z prac dostępna jest w karcie produktu w dwóch wariantach:{" "}
-              <strong className="text-gray-950">Akwarela</strong> – oryginał <strong className="text-gray-950">300 zł</strong> / wydruk <strong className="text-gray-950">30 zł</strong>{" "}
-              oraz <strong className="text-gray-950">Rysunek</strong> – oryginał <strong className="text-gray-950">200 zł</strong> / wydruk <strong className="text-gray-950">20 zł</strong>.
+              Każda praca dostępna jest na karcie produktu w wersji <strong className="text-gray-950">oryginalnej (unikat 1/1)</strong> lub jako <strong className="text-gray-950">sygnowany wydruk kolekcjonerski</strong> na papierze archiwalnym.
             </p>
           </div>
         </>

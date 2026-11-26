@@ -21,13 +21,28 @@ function mapProduct(apiProduct: any): Product {
     ? rawDescription.replace(/<[^>]*>/g, "").trim()
     : "";
 
+  const originalActiveGrosze = originalVariant
+    ? (originalVariant.current_price_amount ?? originalVariant.sale_price_amount ?? originalVariant.regular_price_amount)
+    : (apiProduct.current_price_amount ?? apiProduct.sale_price_amount ?? apiProduct.regular_price_amount);
+  const originalRegularGrosze = originalVariant
+    ? originalVariant.regular_price_amount
+    : apiProduct.regular_price_amount;
+
+  const defaultPrintGrosze = category === 'akwarela' ? 3000 : 2000;
+  const printActiveGrosze = printVariant
+    ? (printVariant.current_price_amount ?? printVariant.sale_price_amount ?? printVariant.regular_price_amount)
+    : defaultPrintGrosze;
+  const printRegularGrosze = printVariant ? printVariant.regular_price_amount : defaultPrintGrosze;
+
   return {
     id: apiProduct.slug,
     title: apiProduct.name?.pl || apiProduct.name || "",
     year: apiProduct.metadata?.year || "2022",
     category,
-    originalPrice: originalVariant ? (originalVariant.regular_price_amount / 100) : (apiProduct.regular_price_amount / 100),
-    printPrice: printVariant ? (printVariant.regular_price_amount / 100) : 20,
+    originalPrice: originalActiveGrosze / 100,
+    originalRegularPrice: originalRegularGrosze ? originalRegularGrosze / 100 : undefined,
+    printPrice: printActiveGrosze / 100,
+    printRegularPrice: printRegularGrosze ? printRegularGrosze / 100 : undefined,
     isOriginalAvailable: originalVariant ? (originalVariant.is_active !== false && originalVariant.stock_quantity > 0) : false,
     imageUrl,
     description: cleanDescription,

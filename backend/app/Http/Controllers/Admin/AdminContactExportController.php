@@ -29,7 +29,7 @@ class AdminContactExportController extends Controller
                 ->orderBy('email')
                 ->chunk(200, function ($users) use ($handle): void {
                     foreach ($users as $user) {
-                        fputcsv($handle, [
+                        fputcsv($handle, array_map([$this, 'sanitizeCsvCell'], [
                             $user->name,
                             $user->email,
                             $user->customerProfile?->segment?->value ?? 'regular',
@@ -37,7 +37,7 @@ class AdminContactExportController extends Controller
                             $user->orders_count,
                             optional($user->customerProfile?->marketing_consent_at)->toIso8601String(),
                             optional($user->customerProfile?->last_order_at)->toIso8601String(),
-                        ], ';');
+                        ]), ';');
                     }
                 });
 
@@ -45,6 +45,15 @@ class AdminContactExportController extends Controller
         }, 'customers-export.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    private function sanitizeCsvCell(mixed $value): mixed
+    {
+        if (is_string($value) && $value !== '' && str_contains("=+-@\t\r", $value[0])) {
+            return "'" . $value;
+        }
+
+        return $value;
     }
 
     private function ensureAdmin(): void

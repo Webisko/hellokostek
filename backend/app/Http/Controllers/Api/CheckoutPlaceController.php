@@ -126,14 +126,19 @@ class CheckoutPlaceController extends Controller
         if ($draftNumber) {
             $draft = \App\Models\Order::query()->where('number', $draftNumber)->where('status', 'draft')->first();
             if ($draft) {
-                $draftMetadata = $draft->metadata ?? [];
-                $draftMetadata['converted_to_order_number'] = $order->number;
-                $draftMetadata['converted_at'] = now()->toIso8601String();
+                $ownsDraft = mb_strtolower((string) $draft->customer_email) === mb_strtolower((string) $order->customer_email)
+                    || ($request->user() !== null && $draft->user_id === $request->user()->id);
 
-                $draft->forceFill([
-                    'status' => 'converted',
-                    'metadata' => $draftMetadata,
-                ])->save();
+                if ($ownsDraft) {
+                    $draftMetadata = $draft->metadata ?? [];
+                    $draftMetadata['converted_to_order_number'] = $order->number;
+                    $draftMetadata['converted_at'] = now()->toIso8601String();
+
+                    $draft->forceFill([
+                        'status' => 'converted',
+                        'metadata' => $draftMetadata,
+                    ])->save();
+                }
             }
         }
 

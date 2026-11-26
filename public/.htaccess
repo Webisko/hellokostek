@@ -4,7 +4,7 @@ ErrorDocument 404 /404.html
 # 0.1 SECURITY & SENSITIVE FILE PROTECTION
 Options -Indexes
 
-<FilesMatch "^\.(env|git|svn|sqlite|log)|(composer\.(json|lock)|package(-lock)?\.json)$">
+<FilesMatch "(^\.(env|git|svn|ht))|(\.(sqlite|sqlite3|db|log|sql|bak)$)|(composer\.(json|lock)|package(-lock)?\.json)$">
   Require all denied
 </FilesMatch>
 

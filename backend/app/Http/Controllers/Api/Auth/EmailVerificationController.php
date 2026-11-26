@@ -18,10 +18,12 @@ class EmailVerificationController extends Controller
             abort(403, 'Niepoprawny skrót weryfikacyjny.');
         }
 
+        $storefrontUrl = rtrim((string) config('services.storefront.url', 'http://localhost:4321'), '/');
+
         if ($user->hasVerifiedEmail()) {
             return $request->wantsJson()
                 ? response()->json(['message' => 'Email jest już zweryfikowany.'])
-                : redirect()->away(env('FRONTEND_URL', 'http://localhost:3000') . '/account?verified=already');
+                : redirect()->away($storefrontUrl . '/account?verified=already');
         }
 
         if ($user->markEmailAsVerified()) {
@@ -30,6 +32,6 @@ class EmailVerificationController extends Controller
 
         return $request->wantsJson()
             ? response()->json(['message' => 'Email został zweryfikowany.'])
-            : redirect()->away(env('FRONTEND_URL', 'http://localhost:3000') . '/account?verified=true');
+            : redirect()->away($storefrontUrl . '/account?verified=true');
     }
 }

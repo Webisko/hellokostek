@@ -19,8 +19,18 @@ class CustomerResetPasswordController extends Controller
         $validated = $request->validate([
             'email' => ['required', 'string', 'email:rfc'],
             'token' => ['required', 'string'],
-            'password' => ['required', 'confirmed', PasswordRule::min(8)],
+            'password' => ['required', 'confirmed', PasswordRule::min(8)->mixedCase()->numbers()->uncompromised()],
         ]);
+
+        $user = User::query()
+            ->whereRaw('lower(email) = ?', [mb_strtolower(trim($validated['email']))])
+            ->first();
+
+        if ($user?->isStaff()) {
+            throw ValidationException::withMessages([
+                'email' => 'Token resetu hasła jest nieprawidłowy lub wygasł.',
+            ]);
+        }
 
         $status = Password::reset(
             credentials: $validated,
@@ -36,12 +46,12 @@ class CustomerResetPasswordController extends Controller
 
         if ($status !== Password::PASSWORD_RESET) {
             throw ValidationException::withMessages([
-                'email' => 'Token resetu hasla jest nieprawidlowy lub wygasl.',
+                'email' => 'Token resetu hasła jest nieprawidłowy lub wygasł.',
             ]);
         }
 
         return response()->json([
-            'message' => 'Haslo zostalo zmienione.',
+            'message' => 'Hasło zostało zmienione.',
         ]);
     }
 }

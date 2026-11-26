@@ -94,7 +94,7 @@ Warstwa wizualna i interfejs użytkownika zostały zrealizowane w technologii **
 - **Panel Administracyjny**: [Filament CMS v5.6](https://filamentphp.com/) + Filament Breezy v3.2.
 - **Autentykacja API**: Laravel Sanctum (tokeny Bearer dla klientów i strefy konta, sesje panelu dla administratorów).
 - **Płatności i Finanse**: Stripe PHP SDK v21, Przelewy24, BLIK.
-- **Logistyka**: Integracja z InPost ShipX (generowanie etykiet PDF), Orlen Paczka, webhooki BaseLinker.
+- **Logistyka**: Integracja z InPost ShipX (generowanie etykiet PDF), Orlen Paczka.
 - **Księgowość**: Barryvdh Laravel DomPDF v3.1 (wbudowane faktury PDF) + sterowniki do Fakturownia, iFirma, inFakt, wFirma.
 - **Weryfikacja Kontrahentów**: Bezpośrednia integracja z rejestrem BIR Głównego Urzędu Statystycznego (GUS REGON/NIP).
 - **Zadania w Tle i Backup**: Laravel Queue, Spatie Laravel Backup v10, Laravel Reverb.
@@ -145,7 +145,6 @@ Panel administracyjny pod adresem `/admin` zawiera 25 wyspecjalizowanych moduł�
 2. **Operatorzy Logistyczni**:
    - **InPost Paczkomaty 24/7 & Kurier**: Integracja z InPost ShipX, generowanie etykiet wysyłkowych PDF bezpośrednio z panelu zamówienia (`/admin/orders/{number}/inpost-label`).
    - **Orlen Paczka**: Obsługa punktów odbioru z generowaniem etykiet PDF (`/admin/orders/{number}/orlen-label`).
-   - **BaseLinker**: Odbiór statusów paczek przez dedykowany webhook (`/api/integrations/baselinker/shipment-callback`).
 3. **Weryfikacja Kontrahentów B2B (GUS BIR)**:
    - Bezpośrednie wyszukiwanie danych firmy w rejestrze REGON Głównego Urzędu Statystycznego po numerze NIP: `GET /api/b2b/gus/{nip}`.
 4. **Opinie z Google Places**:

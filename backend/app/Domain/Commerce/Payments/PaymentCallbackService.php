@@ -110,6 +110,33 @@ class PaymentCallbackService
             ]);
         }
 
+        if ((int) $payload['amount'] !== (int) $transaction->amount
+            || strtoupper((string) $payload['currency']) !== strtoupper((string) $transaction->currency)) {
+            $this->integrationLogService->record(
+                integration: self::INTEGRATION,
+                event: 'payment_callback_rejected_amount_mismatch',
+                status: 'warning',
+                order: $order,
+                direction: 'incoming',
+                externalReference: $sessionId,
+                requestPayload: $payload,
+                responsePayload: [
+                    'outcome' => 'rejected',
+                    'expected_amount' => (int) $transaction->amount,
+                    'expected_currency' => strtoupper((string) $transaction->currency),
+                ],
+                errorMessage: 'Odrzucono callback Przelewy24 z powodu niezgodnej kwoty lub waluty transakcji.',
+                metadata: [
+                    'payment_transaction_id' => $transaction->id,
+                    'provider_status' => $providerStatus,
+                ],
+            );
+
+            throw ValidationException::withMessages([
+                'amount' => 'Kwota lub waluta w powiadomieniu Przelewy24 nie zgadza sie z transakcja.',
+            ]);
+        }
+
         $verifyPayload = [
             'merchantId' => (int) $payload['merchantId'],
             'posId' => (int) $payload['posId'],

@@ -83,10 +83,16 @@ Route::middleware('throttle:10,1')->group(function (): void {
 
 use App\Http\Controllers\Api\CouponValidateController;
 
-Route::middleware('throttle:20,1')->group(function (): void {
-    Route::post('/inquiries', ContactInquiryController::class)->name('api.inquiries.store');
-    Route::post('/quote', QuoteController::class)->name('api.quote');
+Route::middleware('throttle:10,1')->group(function (): void {
     Route::post('/coupons/validate', CouponValidateController::class)->name('api.coupons.validate');
+});
+
+Route::middleware('throttle:15,10')->group(function (): void {
+    Route::post('/inquiries', ContactInquiryController::class)->name('api.inquiries.store');
+});
+
+Route::middleware('throttle:20,1')->group(function (): void {
+    Route::post('/quote', QuoteController::class)->name('api.quote');
     Route::post('/catalog/products/{slug}/reviews', [ProductReviewController::class, 'store'])->name('api.catalog.products.reviews.store');
     Route::post('/returns', [OrderReturnController::class, 'store'])->name('api.returns.store');
     Route::post('/cookie-consents', CookieConsentController::class)->name('api.cookie-consents.store');
@@ -121,7 +127,6 @@ Route::middleware('throttle:30,1')->group(function (): void {
 // ---------------------------------------------------------------------------
 Route::post('/integrations/stripe/payment-callback', \App\Http\Controllers\Api\StripePaymentCallbackController::class)->name('api.integrations.stripe.payment-callback');
 Route::post('/integrations/przelewy24/payment-callback', Przelewy24PaymentCallbackController::class)->name('api.integrations.przelewy24.payment-callback');
-Route::match(['get', 'post'], '/integrations/baselinker/shipment-callback', 'App\\Http\\Controllers\\Api\\BaseLinkerShipmentCallbackController')->name('api.integrations.baselinker.shipment-callback');
 
 // ---------------------------------------------------------------------------
 // Authenticated routes
@@ -140,7 +145,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/account/orders', AccountOrdersController::class)->name('api.account.orders');
         
         // Customer Address Book
-        Route::apiResource('/account/addresses', CustomerAddressController::class);
+        Route::apiResource('/account/addresses', CustomerAddressController::class)->only(['index', 'store', 'update', 'destroy']);
 
         // Wishlist
         Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('api.account.wishlist.index');

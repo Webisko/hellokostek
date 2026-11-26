@@ -30,7 +30,13 @@ class CustomerRegisterController extends Controller
 
         $user = $this->customerAccountService->register($validated);
 
-        event(new \Illuminate\Auth\Events\Registered($user));
+        try {
+            event(new \Illuminate\Auth\Events\Registered($user));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Błąd wysyłki powiadomienia po rejestracji: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+            ]);
+        }
 
         $token = $user->createToken('storefront')->plainTextToken;
 

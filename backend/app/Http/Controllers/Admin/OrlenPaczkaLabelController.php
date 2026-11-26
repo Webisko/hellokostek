@@ -21,15 +21,18 @@ class OrlenPaczkaLabelController extends Controller
             ->whereNotNull('tracking_number')
             ->firstOrFail();
 
-        $path = "orlen/labels/{$order->tracking_number}.pdf";
+        $tracking = basename((string) $order->tracking_number);
+        abort_if($tracking === '', 404, 'Nieprawidłowy numer przesyłki.');
+
+        $path = "orlen/labels/{$tracking}.pdf";
 
         if (!Storage::exists($path)) {
             abort(404, 'Etykieta nie została odnaleziona w lokalnej pamięci.');
         }
 
-        return Storage::download($path, "etykieta_orlen_{$order->number}_{$order->tracking_number}.pdf", [
+        return Storage::download($path, "etykieta_orlen_{$order->number}_{$tracking}.pdf", [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="etykieta_' . $order->tracking_number . '.pdf"',
+            'Content-Disposition' => 'inline; filename="etykieta_' . $tracking . '.pdf"',
         ]);
     }
 }

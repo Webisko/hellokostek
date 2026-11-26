@@ -103,8 +103,8 @@ class EmailTemplateSeeder extends Seeder
 <h3>Lista produktów w koszyku:</h3>
 {items_list}
 <p><strong>Suma koszyka:</strong> {total_amount}</p>
-<p>Kliknij w poniższy link, aby dokończyć zamówienie:</p>
-<p><a href="/checkout/resume/{order_number}" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Kontynuuj zakupy</a></p>',
+<p>Kliknij w poniższy link, aby wrócić do sklepu i dokończyć zamówienie:</p>
+<p><a href="' . rtrim((string) config('services.storefront.url', 'https://hellokostek.pl'), '/') . '/sklep" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Wróć do sklepu</a></p>',
                 'placeholders' => [
                     'order_number' => 'Numer zamówienia (np. ORD-20260613-ABCDEF)',
                     'customer_first_name' => 'Imię klienta',
@@ -140,7 +140,7 @@ E-mail: {customer_email}</p>
         ];
 
         foreach ($templates as $templateData) {
-            EmailTemplate::query()->updateOrCreate(
+            EmailTemplate::query()->firstOrCreate(
                 ['key' => $templateData['key']],
                 [
                     'name' => $templateData['name'],

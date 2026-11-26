@@ -37,16 +37,22 @@ class BackInStockSubscribeController extends Controller
             }
         }
 
+        $product = Product::query()->where('id', $productId)->where('is_active', true)->first();
+        if (! $product) {
+            return response()->json([
+                'message' => 'Wybrany produkt nie jest aktywny.',
+            ], 422);
+        }
+
         // Verify if product (or variant) is actually out of stock, otherwise subscription is not needed
         if ($variantId) {
             $variant = ProductVariant::find($variantId);
-            if ($variant->manages_stock && $variant->stock_quantity > 0) {
+            if (! $variant || ! $variant->manages_stock || $variant->stock_quantity > 0) {
                 return response()->json([
                     'message' => 'Ten wariant jest obecnie dostępny na magazynie.',
                 ], 422);
             }
         } else {
-            $product = Product::find($productId);
             // If the product has variants, they must subscribe to a specific variant
             if ($product->variants()->exists()) {
                 return response()->json([
@@ -54,7 +60,7 @@ class BackInStockSubscribeController extends Controller
                 ], 422);
             }
 
-            if ($product->manages_stock && $product->stock_quantity > 0) {
+            if (! $product->manages_stock || $product->stock_quantity > 0) {
                 return response()->json([
                     'message' => 'Ten produkt jest obecnie dostępny na magazynie.',
                 ], 422);

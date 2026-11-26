@@ -63,23 +63,26 @@ class CartController extends Controller
         return response()->json([
             'data' => [
                 'session_token' => $cart->session_token,
-                'items' => $cart->items()->with(['product', 'variant'])->get()->map(fn (CartItem $item) => [
-                    'id' => $item->id,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'name' => $item->product->name,
-                        'slug' => $item->product->slug,
-                        'price' => $item->product->currentPriceAmount(),
-                        'featured_image_url' => $item->product->featuredImageUrl(),
-                    ],
-                    'variant' => $item->variant ? [
-                        'id' => $item->variant->id,
-                        'sku' => $item->variant->sku,
-                        'price' => $item->variant->currentPriceAmount(),
-                    ] : null,
-                    'quantity' => $item->quantity,
-                    'total_price' => ($item->variant ? $item->variant->currentPriceAmount() : $item->product->currentPriceAmount()) * $item->quantity,
-                ])->all(),
+                'items' => $cart->items()->with(['product', 'variant'])->get()
+                    ->filter(fn (CartItem $item): bool => $item->product !== null)
+                    ->values()
+                    ->map(fn (CartItem $item) => [
+                        'id' => $item->id,
+                        'product' => [
+                            'id' => $item->product->id,
+                            'name' => $item->product->name,
+                            'slug' => $item->product->slug,
+                            'price' => $item->product->currentPriceAmount(),
+                            'featured_image_url' => $item->product->featuredImageUrl(),
+                        ],
+                        'variant' => $item->variant ? [
+                            'id' => $item->variant->id,
+                            'sku' => $item->variant->sku,
+                            'price' => $item->variant->currentPriceAmount(),
+                        ] : null,
+                        'quantity' => $item->quantity,
+                        'total_price' => ($item->variant ? $item->variant->currentPriceAmount() : $item->product->currentPriceAmount()) * $item->quantity,
+                    ])->all(),
             ]
         ]);
     }
@@ -89,14 +92,30 @@ class CartController extends Controller
         $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'product_variant_id' => ['nullable', 'exists:product_variants,id'],
-            'quantity' => ['required', 'integer', 'min:1'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
-        $cart = $this->getOrCreateCart($request);
-
-        $productId = $request->input('product_id');
-        $variantId = $request->input('product_variant_id');
+        $productId = (int) $request->input('product_id');
+        $variantId = $request->input('product_variant_id') ? (int) $request->input('product_variant_id') : null;
         $quantity = (int) $request->input('quantity');
+
+        $product = Product::query()->where('id', $productId)->where('is_active', true)->first();
+        if (! $product) {
+            return response()->json(['message' => 'Wybrany produkt jest niedostępny.'], 422);
+        }
+
+        if ($variantId !== null) {
+            $variantValid = ProductVariant::query()
+                ->where('id', $variantId)
+                ->where('product_id', $productId)
+                ->where('is_active', true)
+                ->exists();
+            if (! $variantValid) {
+                return response()->json(['message' => 'Wybrany wariant nie należy do tego produktu lub jest nieaktywny.'], 422);
+            }
+        }
+
+        $cart = $this->getOrCreateCart($request);
 
         $item = $cart->items()
             ->where('product_id', $productId)
@@ -132,7 +151,7 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Ilosc zostala zaktualizowana.'
+            'message' => 'Ilość została zaktualizowana.'
         ]);
     }
 
@@ -145,7 +164,7 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Produkt zostal usuniety z koszyka.'
+            'message' => 'Produkt został usunięty z koszyka.'
         ]);
     }
 }

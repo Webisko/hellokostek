@@ -2,6 +2,20 @@ import React, { useState, useEffect } from "react";
 import { CheckCircle2, ChevronRight, Mail, CalendarCheck, Home, FileText, AlertTriangle, Clock } from "lucide-react";
 import { clearCart } from "../stores/cartStore";
 
+function isSafeRedirectUrl(url: string): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
+    return true;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "https:" || (typeof window !== "undefined" && parsed.origin === window.location.origin);
+  } catch {
+    return false;
+  }
+}
+
 interface SuccessProps {
   mode: "purchase" | "contact";
   orderDetails?: OrderDetails | null;
@@ -178,7 +192,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
   }, [isPurchase, orderDetails?.orderNumber, orderDetails?.token, orderDetails?.email, orderDetails?.isTransfer]);
 
   const handleRetryPayment = async () => {
-    if (retryPaymentUrl) {
+    if (retryPaymentUrl && isSafeRedirectUrl(retryPaymentUrl)) {
       window.location.href = retryPaymentUrl;
       return;
     }
@@ -207,7 +221,7 @@ export default function Success({ mode, orderDetails: initialOrderDetails }: Suc
       );
       const data = await res.json();
       const redirectUrl = data?.data?.payment_session?.redirect_url;
-      if (redirectUrl) {
+      if (redirectUrl && isSafeRedirectUrl(redirectUrl)) {
         window.location.href = redirectUrl;
       }
     } catch (err) {

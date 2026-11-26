@@ -74,6 +74,7 @@ class CommerceVerificationTest extends TestCase
 
     public function test_contact_inquiry_with_photos_creates_record_and_log(): void
     {
+        Storage::fake('local');
         Storage::fake('public');
 
         $file = UploadedFile::fake()->image('portret_pieska.jpg', 600, 600);
@@ -96,6 +97,8 @@ class CommerceVerificationTest extends TestCase
         $this->assertEquals('Zofia Nowak', $inquiry->name);
         $this->assertNotNull($inquiry->payload);
         $this->assertArrayHasKey('attachments', $inquiry->payload);
+        Storage::disk('local')->assertExists($inquiry->payload['attachments'][0]);
+        $this->assertEmpty(Storage::disk('public')->allFiles());
 
         // Assert transactional email log was created
         $this->assertDatabaseHas('transactional_email_logs', [

@@ -72,29 +72,40 @@ class ContactInquiryController extends Controller
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
                 if ($file->isValid()) {
-                    $path = $file->store('attachments', 'public');
-                    $attachments[] = asset('storage/' . $path);
+                    $path = $file->store('contact-inquiries', 'local');
+                    $attachments[] = $path;
                 }
             }
         }
 
-        // Wyciągamy dynamiczne dodatkowe pola (np. z briefu/wielokrokowego formularza)
-        $payload = array_diff_key(
-            $allFields,
-            array_flip(['name', 'email', 'phone', 'subject', 'message', 'files', 'website_url', 'hp_field', '_form_started_at', '_human_interacted'])
+        // Wyciągamy dynamiczne dodatkowe pola (np. z briefu/wielokrokowego formularza), limitując liczbę kluczy
+        $payload = array_slice(
+            array_diff_key(
+                $allFields,
+                array_flip(['name', 'email', 'phone', 'subject', 'message', 'files', 'website_url', 'hp_field', '_form_started_at', '_human_interacted'])
+            ),
+            0,
+            25,
+            true
         );
-
-        if (! empty($attachments)) {
-            $payload['attachments'] = $attachments;
-        }
 
         $sanitize = function ($value) use (&$sanitize) {
             if (is_array($value)) {
-                return array_map($sanitize, $value);
+                return array_map($sanitize, array_slice($value, 0, 25, true));
             }
 
-            return is_string($value) ? strip_tags($value) : $value;
+            if (is_string($value)) {
+                return mb_substr(strip_tags($value), 0, 1000);
+            }
+
+            return $value;
         };
+
+        $sanitizedPayload = ! empty($payload) ? array_map($sanitize, $payload) : [];
+
+        if (! empty($attachments)) {
+            $sanitizedPayload['attachments'] = $attachments;
+        }
 
         $inquiry = ContactInquiry::create([
             'name' => strip_tags($data['name']),
@@ -102,7 +113,7 @@ class ContactInquiryController extends Controller
             'phone' => $data['phone'] ?? null,
             'subject' => isset($data['subject']) ? strip_tags($data['subject']) : null,
             'message' => strip_tags($data['message']),
-            'payload' => ! empty($payload) ? array_map($sanitize, $payload) : null,
+            'payload' => ! empty($sanitizedPayload) ? $sanitizedPayload : null,
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
             'status' => 'new',

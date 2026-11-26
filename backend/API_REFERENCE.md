@@ -465,4 +465,3 @@ Wszystkie poniższe trasy wymagają nagłówka `Authorization: Bearer <token>`:
 
 * `POST /api/integrations/stripe/payment-callback` – webhook potwierdzający transakcje kartowe Stripe.
 * `POST /api/integrations/przelewy24/payment-callback` – webhook potwierdzający transakcje Przelewy24 / BLIK.
-* `POST /api/integrations/baselinker/shipment-callback` – webhook aktualizacji statusów przesyłek z systemu BaseLinker.

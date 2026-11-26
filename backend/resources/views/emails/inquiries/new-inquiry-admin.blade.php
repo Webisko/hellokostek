@@ -206,9 +206,9 @@
             @if (!empty($attachments))
                 <div class="attachments">
                     <h4>Załączone zdjęcia referencyjne ({{ count($attachments) }}):</h4>
-                    @foreach ($attachments as $idx => $url)
+                    @foreach ($attachments as $idx => $attachmentPath)
                         <div class="attachment-item">
-                            📷 <a href="{{ $url }}" target="_blank" rel="noopener">Zdjęcie referencyjne #{{ $idx + 1 }} (otwórz w pełnym rozmiarze)</a>
+                            📷 <a href="{{ route('admin.inquiries.attachment', ['inquiry' => $inquiry->id, 'index' => $idx]) }}" target="_blank" rel="noopener">Zdjęcie referencyjne #{{ $idx + 1 }} (wymaga logowania w panelu CMS)</a>
                         </div>
                     @endforeach
                 </div>

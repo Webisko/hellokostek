@@ -110,7 +110,7 @@ function TestimonialCard({ testimonial, reviewsPerPage }: TestimonialCardProps) 
       <div className="pt-6 border-t border-gray-100 mt-4">
         <div>
           <h3 className="font-mono text-xs uppercase tracking-wider text-gray-900 font-bold">{testimonial.author}</h3>
-          <p className="text-xs font-mono text-gray-400 uppercase tracking-widest mt-1">{testimonial.meta}</p>
+          <p className="text-xs font-mono text-gray-600 uppercase tracking-widest mt-1">{testimonial.meta}</p>
         </div>
       </div>
     </div>

@@ -389,7 +389,7 @@ class SecurityTest extends TestCase
 
         $response = $this->get($verificationUrl);
 
-        $response->assertRedirect(env('FRONTEND_URL', 'http://localhost:3000') . '/account?verified=true');
+        $response->assertRedirect(rtrim((string) config('services.storefront.url', 'http://localhost:4321'), '/') . '/account?verified=true');
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
     }
 

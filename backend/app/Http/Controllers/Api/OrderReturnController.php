@@ -105,46 +105,65 @@ class OrderReturnController extends Controller
             return response()->json(['message' => 'To zamówienie nie zostało jeszcze opłacone.'], 422);
         }
 
-        // Verify items and quantities belong to the order
+        // Aggregate requested quantities per order_item_id to prevent split-line bypass
+        $requestedQuantities = [];
         foreach ($validated['items'] as $itemData) {
-            $orderItem = $order->items()->find($itemData['order_item_id']);
-            if (!$orderItem) {
-                return response()->json(['message' => 'Wybrana pozycja nie należy do tego zamówienia.'], 422);
-            }
-
-            $alreadyReturnedQuantity = \App\Models\OrderReturnItem::query()
-                ->where('order_item_id', $orderItem->id)
-                ->whereHas('orderReturn', function ($query) {
-                    $query->whereIn('status', ['pending', 'approved', 'processed']);
-                })
-                ->sum('quantity');
-
-            $availableForReturn = $orderItem->quantity - $alreadyReturnedQuantity;
-
-            if ($itemData['quantity'] > $availableForReturn) {
-                return response()->json([
-                    'message' => "Ilość do zwrotu ({$itemData['quantity']}) przekracza dostępną ilość do zwrotu ({$availableForReturn}) dla produktu: {$orderItem->name}. Wcześniej zgłoszono już {$alreadyReturnedQuantity} szt."
-                ], 422);
-            }
+            $orderItemId = (int) $itemData['order_item_id'];
+            $requestedQuantities[$orderItemId] = ($requestedQuantities[$orderItemId] ?? 0) + (int) $itemData['quantity'];
         }
 
-        $orderReturn = DB::transaction(function () use ($validated, $order, $user) {
+        $txResult = DB::transaction(function () use ($validated, $order, $user, $requestedQuantities): array {
+            $lockedOrder = Order::query()->lockForUpdate()->findOrFail($order->id);
+            $orderItems = $lockedOrder->items()->lockForUpdate()->get()->keyBy('id');
+
+            foreach ($requestedQuantities as $orderItemId => $quantity) {
+                $orderItem = $orderItems->get($orderItemId);
+                if (! $orderItem) {
+                    return [
+                        'error' => response()->json(['message' => 'Wybrana pozycja nie należy do tego zamówienia.'], 422),
+                    ];
+                }
+
+                $alreadyReturnedQuantity = \App\Models\OrderReturnItem::query()
+                    ->where('order_item_id', $orderItem->id)
+                    ->whereHas('orderReturn', function ($query): void {
+                        $query->whereIn('status', ['pending', 'approved', 'processed']);
+                    })
+                    ->sum('quantity');
+
+                $availableForReturn = $orderItem->quantity - $alreadyReturnedQuantity;
+
+                if ($quantity > $availableForReturn) {
+                    return [
+                        'error' => response()->json([
+                            'message' => "Ilość do zwrotu ({$quantity}) przekracza dostępną ilość do zwrotu ({$availableForReturn}) dla produktu: {$orderItem->name}. Wcześniej zgłoszono już {$alreadyReturnedQuantity} szt.",
+                        ], 422),
+                    ];
+                }
+            }
+
             $return = OrderReturn::create([
-                'order_id' => $order->id,
+                'order_id' => $lockedOrder->id,
                 'user_id' => $user?->id, // will be null for guest returns
                 'status' => 'pending',
                 'reason' => $validated['reason'] ?? '',
             ]);
 
-            foreach ($validated['items'] as $itemData) {
+            foreach ($requestedQuantities as $orderItemId => $quantity) {
                 $return->items()->create([
-                    'order_item_id' => $itemData['order_item_id'],
-                    'quantity' => $itemData['quantity'],
+                    'order_item_id' => $orderItemId,
+                    'quantity' => $quantity,
                 ]);
             }
 
-            return $return;
+            return ['return' => $return];
         });
+
+        if (isset($txResult['error'])) {
+            return $txResult['error'];
+        }
+
+        $orderReturn = $txResult['return'];
 
         // Send confirmation email
         try {

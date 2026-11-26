@@ -72,7 +72,7 @@ return [
     'google_places' => [
         'api_key' => env('GOOGLE_PLACES_API_KEY'),
         'place_id' => env('GOOGLE_PLACES_PLACE_ID'),
-        'business_name' => env('GOOGLE_PLACES_BUSINESS_NAME', 'Generic Shop'),
+        'business_name' => env('GOOGLE_PLACES_BUSINESS_NAME', 'hellokostek'),
         'cache_ttl_minutes' => env('GOOGLE_PLACES_CACHE_TTL_MINUTES', 180),
         'language' => env('GOOGLE_PLACES_LANGUAGE', 'pl'),
     ],

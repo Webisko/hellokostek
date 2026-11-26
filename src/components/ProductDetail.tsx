@@ -4,6 +4,20 @@ import { parseLocalizedString } from "../utils/localization";
 import { ChevronLeft, Shield, ArrowRight, X, Lock, MapPin, ExternalLink, Truck } from "lucide-react";
 import ParcelMapModal, { type SelectedParcelPoint, parseOrlenPointInput } from "./ParcelMapModal";
 
+function isSafeRedirectUrl(url: string): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//") && !trimmed.startsWith("/\\")) {
+    return true;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "https:" || (typeof window !== "undefined" && parsed.origin === window.location.origin);
+  } catch {
+    return false;
+  }
+}
+
 function isValidPolishNip(nip: string): boolean {
   const digits = nip.replace(/\D/g, "");
   if (digits.length !== 10) return false;
@@ -526,7 +540,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
       setIsCheckoutOpen(false);
 
       const redirectUrl = paymentData?.payment_url || paymentData?.redirect_url;
-      if (redirectUrl) {
+      if (redirectUrl && isSafeRedirectUrl(redirectUrl)) {
         window.location.href = redirectUrl;
       } else {
         const deliveryOpt = selectedDeliveryOption || deliveryOptions[0];
@@ -614,7 +628,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           </div>
 
           {/* Informacja dla urządzeń mobilnych i tabletów bez hover */}
-          <div className="xl:hidden text-center text-xs font-mono tracking-wider text-gray-400 uppercase">
+          <div className="xl:hidden text-center text-xs font-mono tracking-wider text-gray-600 uppercase">
             Kliknij w zdjęcie, aby je powiększyć
           </div>
         </div>
@@ -622,7 +636,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         {/* Right Column: Title, Parameters Selector and wide Purchase Controls (42% width) */}
         <div className="xl:col-span-5 space-y-8 font-sans">
           <div className="space-y-4">
-            <span className="font-mono text-xs uppercase tracking-widest text-gray-400 font-bold block">
+            <span className="font-mono text-xs uppercase tracking-widest text-gray-600 font-bold block">
               Dostępne w Pracowni Artystycznej • {currentProduct.year}
             </span>
             <h1 className="font-display text-4.5xl leading-tight text-gray-950 font-normal">
@@ -635,7 +649,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 </span>
                 {isCurrentVariantOnSale && currentRegularPrice && (
                   <>
-                    <span className="text-lg font-mono text-gray-400 line-through whitespace-nowrap">
+                    <span className="text-lg font-mono text-gray-600 line-through whitespace-nowrap">
                       {currentRegularPrice} zł
                     </span>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200/80 text-xs font-mono font-bold text-[#E0115F] whitespace-nowrap">
@@ -676,10 +690,10 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Certificate of Authenticity Card */}
           <div className="bg-stone-50 rounded-2xl p-5 border border-gray-100 space-y-2">
-            <h4 className="font-display text-sm text-gray-950 font-semibold flex items-center gap-2">
+            <h2 className="font-display text-sm text-gray-950 font-semibold flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#E0115F]" />
               Certyfikat autentyczności
-            </h4>
+            </h2>
             <p className="text-xs text-gray-650 leading-relaxed font-sans">
               Każdy obraz – czy to rysunek, akwarela, czy portret olejny – otrzymuje ręcznie wypisany i opieczętowany certyfikat, potwierdzający jego autentyczność oraz unikalność.
             </p>
@@ -717,7 +731,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-150 bg-gray-50 opacity-65">
                   <div>
                     <span className="font-semibold block text-gray-600 text-base">Oryginał ręcznie malowany</span>
-                    <span className="text-sm text-gray-400 block mt-0.5">Sprzedany do kolekcji prywatnej</span>
+                    <span className="text-sm text-gray-600 block mt-0.5">Sprzedany do kolekcji prywatnej</span>
                   </div>
                   <span className="bg-gray-900 text-white text-xs font-mono px-2.5 py-1 rounded font-bold uppercase tracking-wider shrink-0 self-start sm:self-auto">Wyprzedany</span>
                 </div>
@@ -736,7 +750,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     <span className="font-semibold block text-gray-900 text-base">
                       Wydruk kolekcjonerski • {currentProduct.printPrice} zł
                       {isPrintOnSale && currentProduct.printRegularPrice && (
-                        <span className="ml-2 text-xs font-mono text-gray-400 line-through font-normal">
+                        <span className="ml-2 text-xs font-mono text-gray-600 line-through font-normal">
                           {currentProduct.printRegularPrice} zł
                         </span>
                       )}
@@ -755,6 +769,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      aria-label="Zmniejsz ilość"
                       className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-55 hover:text-magenta-accent active:bg-gray-100 transition-colors font-bold cursor-pointer text-base"
                     >
                       -
@@ -765,6 +780,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                     <button
                       type="button"
                       onClick={() => setQuantity(quantity + 1)}
+                      aria-label="Zwiększ ilość"
                       className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-55 hover:text-magenta-accent active:bg-gray-100 transition-colors font-bold cursor-pointer text-base"
                     >
                       +
@@ -876,7 +892,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           {/* Header */}
           <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white">
             <div>
-              <h3 className="font-display text-xl text-gray-950 font-semibold">Zamówienie</h3>
+              <h2 className="font-display text-xl text-gray-950 font-semibold">Zamówienie</h2>
               <p className="text-sm text-gray-600 font-mono mt-0.5 truncate max-w-[320px]">
                 {currentProduct.title} ({selectedType === "original" ? "Oryginał" : `Wydruk x${quantity}`})
               </p>

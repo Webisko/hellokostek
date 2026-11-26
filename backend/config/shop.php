@@ -97,7 +97,7 @@ return [
             'primary_source' => 'google',
             'sources' => ['google'],
             'google' => [
-                'business_name' => env('GOOGLE_PLACES_BUSINESS_NAME', 'Generic Shop'),
+                'business_name' => env('GOOGLE_PLACES_BUSINESS_NAME', 'hellokostek'),
                 'place_id' => env('GOOGLE_PLACES_PLACE_ID', null),
             ],
         ],
