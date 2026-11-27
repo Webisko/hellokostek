@@ -21,9 +21,9 @@ class StoreMaintenanceMode
             return $next($request);
         }
 
-        // 2. Allow access to the Filament admin panel
+        // 2. Allow access to the Filament admin panel and Webisko Ops health telemetry
         $adminPath = trim((string) config('shop.admin_path', 'admin'), '/');
-        if ($request->is($adminPath) || $request->is($adminPath . '/*')) {
+        if ($request->is($adminPath) || $request->is($adminPath . '/*') || $request->is('api/_webisko-health')) {
             return $next($request);
         }
 

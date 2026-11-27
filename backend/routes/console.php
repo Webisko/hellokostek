@@ -343,3 +343,17 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')
 Schedule::command('media:convert-webp')
     ->hourly()
     ->withoutOverlapping();
+
+Artisan::command('ops:heartbeat', function () {
+    $path = storage_path('app/ops-cron-heartbeat.txt');
+    if (! is_dir(dirname($path))) {
+        mkdir(dirname($path), 0755, true);
+    }
+
+    file_put_contents($path, now()->toIso8601String());
+    $this->info('Zapisano bicie serca harmonogramu Ops.');
+
+    return 0;
+})->purpose('Zapisuje znacznik czasu aktywności harmonogramu Cron dla endpointu /api/_webisko-health.');
+
+Schedule::command('ops:heartbeat')->hourly()->withoutOverlapping();

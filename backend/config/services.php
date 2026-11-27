@@ -107,4 +107,8 @@ return [
         'sender_postcode' => env('ORLEN_PACZKA_SENDER_POSTCODE'),
     ],
 
+    'ops' => [
+        'health_token' => (string) env('OPS_HEALTH_TOKEN', ''),
+    ],
+
 ];

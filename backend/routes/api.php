@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\ContentPageShowController;
 use App\Http\Controllers\Api\FaqIndexController;
 use App\Http\Controllers\Api\GalleryArtworkController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\OpsHealthController;
 use App\Http\Controllers\Api\StoreSettingsController;
 use App\Http\Controllers\Api\InventoryShowController;
 use App\Http\Controllers\Api\Przelewy24PaymentCallbackController;
@@ -39,6 +40,9 @@ use App\Http\Controllers\Api\ContactInquiryController;
 
 use App\Http\Controllers\Api\SiteReviewsController;
 
+Route::get('/_webisko-health', [OpsHealthController::class, 'show'])
+    ->middleware(['throttle:30,1', 'ops.auth:health'])
+    ->name('api.ops.health');
 Route::get('/health', HealthController::class)->name('api.health');
 Route::get('/store/settings', StoreSettingsController::class)->name('api.store.settings');
 Route::get('/store-settings', StoreSettingsController::class)->name('api.store.settings.alias');
